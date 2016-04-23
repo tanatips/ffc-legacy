@@ -389,18 +389,6 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                 if (direction == 0) {
                     myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(housePosition.get(hcode), 18.0f));
                     showBalloon(hcode, name);
-                } else {
-				/*	if(beginLocation!=null){
-						DirectionGen direction = new DirectionGen();
-						direction.setDirectionClick(mDirectionCallBack);
-						if(gps.checknetwork()){
-							endLocation = housePosition.get(hcode);
-							direction.execute(beginLocation,endLocation);
-						}
-						else{
-							Toast.makeText(getApplicationContext(), "��س����������Թ����๵", Toast.LENGTH_SHORT).show();
-						}
-					}*/
                 }
             } else {
                 askAddPositionDialog(hcode);
