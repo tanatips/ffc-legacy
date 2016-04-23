@@ -1,7 +1,7 @@
 package th.in.ffc.app;
 
 import android.content.Intent;
-import com.actionbarsherlock.app.SherlockFragment;
+import android.support.v4.app.Fragment;
 
 /* ***********************************************************************
  *                                                                 _ _ _
@@ -36,7 +36,7 @@ import com.actionbarsherlock.app.SherlockFragment;
  * @version 1.0
  * @since Family Folder Collector 2.0
  */
-public class FFCFragment extends SherlockFragment {
+public class FFCFragment extends Fragment {
 
     protected static final String TAG = "FFC-Fragment";
 
@@ -53,7 +53,7 @@ public class FFCFragment extends SherlockFragment {
 
 
     public FFCFragmentActivity getFFCActivity() {
-        return (FFCFragmentActivity) getSherlockActivity();
+        return (FFCFragmentActivity) getActivity();
     }
 
     public void onSearchRequest() {

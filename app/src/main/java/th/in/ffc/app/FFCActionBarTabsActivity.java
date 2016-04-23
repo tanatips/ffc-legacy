@@ -30,8 +30,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
 import th.in.ffc.R;
 
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class FFCActionBarTabsActivity extends FFCFragmentActivity {
 
                 for (int index = 0; index < size; index++) {
                     TabInfo info = mTabList.get(index);
-                    ActionBar.Tab tab = mActionBar.newTab();
+                    Tab tab = mActionBar.newTab();
                     tab.setText(info.text);
                     tab.setTag(info.tag);
                     tab.setTabListener(new TabListener<Fragment>(activity, info.text, info.cls.getName(), info.args));

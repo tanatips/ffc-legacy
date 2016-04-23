@@ -9,12 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.*;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.persist.PersonPersist;
 import th.in.ffc.persist.otherListPersist;
@@ -63,7 +63,7 @@ abstract public class FFCEditActivity extends FFCFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_activity, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

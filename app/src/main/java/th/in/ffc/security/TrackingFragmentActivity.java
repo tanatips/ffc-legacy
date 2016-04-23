@@ -32,7 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import th.in.ffc.util.Log;
 
 /**
@@ -48,7 +48,7 @@ import th.in.ffc.util.Log;
  * @version 1.0
  * @since Family Folder Collector 2.0
  */
-public class TrackingFragmentActivity extends SherlockFragmentActivity {
+public class TrackingFragmentActivity extends AppCompatActivity {
 
     private static String TAG = "UserTrackingActivity";
     private static final String KEY_LEAVE = "Leave";

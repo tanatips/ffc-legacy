@@ -8,9 +8,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.view.View;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCActionBarTabsPagerActivity.ActionBarTabPagersAdapter.onTabChangeCallback;
 
@@ -152,7 +151,7 @@ public class FFCActionBarTabsPagerActivity extends FFCFragmentActivity {
             TabInfo info = new TabInfo(tag, clss, args);
             mTabs.add(info);
 
-            Tab tab = mActionBar.newTab();
+            ActionBar.Tab tab = mActionBar.newTab();
             tab.setText(tag);
             tab.setTabListener(this);
             mActionBar.addTab(tab);
@@ -176,8 +175,7 @@ public class FFCActionBarTabsPagerActivity extends FFCFragmentActivity {
          * ViewPager function
          * <p/>
          * !WARNNING only call this method after already setTabPagerAdapter()
-         *
-         * @param true if show tab and false is no
+
          */
         public void setTabVisible(boolean visible) {
             this.mShowTab = visible;
@@ -189,19 +187,19 @@ public class FFCActionBarTabsPagerActivity extends FFCFragmentActivity {
 
         /* The following are each of the ActionBar.TabListener call backs */
         @Override
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
             if (mPager != null)
                 mPager.setCurrentItem(this.mActionBar
                         .getSelectedNavigationIndex());
         }
 
         @Override
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
 
         }
 
         @Override
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
 
         }
 

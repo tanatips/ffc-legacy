@@ -26,11 +26,10 @@
 
 package th.in.ffc.app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
-import com.actionbarsherlock.app.SherlockListFragment;
+import th.in.ffc.R;
 
 /**
  * add description here! please
@@ -39,39 +38,18 @@ import com.actionbarsherlock.app.SherlockListFragment;
  * @version 1.0
  * @since Family Folder Collector 2.0
  */
-public class FFCListFragment extends SherlockListFragment {
+public class FFCListFragment extends FFCFragmentActivity {
 
     protected static final String TAG = "FFC-listFragment";
-    private boolean mRemoved = false;
-
-    /**
-     * Like onFinish() in FFCFragmentActivity, this method will be called when
-     * fragment removing. should close all connection and set null all object.
-     */
-    protected void onRemove() {
-        mRemoved = true;
-    }
-
-
-    @Override
-    public void startActivity(Intent intent) {
-
-        getFFCActivity().startActivity(intent);
-    }
-
-
-    @Override
-    public void startActivityForResult(Intent intent, int requestCode) {
-
-        getFFCActivity().startActivityForResult(intent, requestCode);
-    }
-
-    public void onSearchRequest() {
-
-    }
 
 
     private LinearLayout mProgessLayout;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.default_list);
+    }
 
     public void showProgess(boolean show) {
         if (mProgessLayout != null) {
@@ -102,23 +80,8 @@ public class FFCListFragment extends SherlockListFragment {
     }
 
     public FFCFragmentActivity getFFCActivity() {
-        return (FFCFragmentActivity) getSherlockActivity();
+        return this;
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (this.isRemoving()) {
-            this.onRemove();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        // TODO Auto-generated method stub
-        if (!mRemoved)
-            this.onRemove();
-        super.onDestroy();
-    }
 
 }

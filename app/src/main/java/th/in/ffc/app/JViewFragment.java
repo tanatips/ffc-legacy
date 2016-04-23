@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 import th.in.ffc.R;
@@ -23,8 +24,7 @@ public class JViewFragment extends FFCFragment {
     public DbOpenHelper db = new DbOpenHelper(this.getActivity());
 
     @Override
-    public boolean onOptionsItemSelected(
-            com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit:
                 //onEditPressed();
