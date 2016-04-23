@@ -12,10 +12,7 @@
     <dimen name="text.padding">8dp</dimen>
     <dimen name="text.padding.sub">3dp</dimen>
     <dimen name="shadow.height">16dp</dimen>
+
     <dimen name="grid.icon.size">144dp</dimen>
     <dimen name="grid.text.size">32sp</dimen>
-
-    <dimen name="grid.icon.size">84dp</dimen>
-    <dimen name="grid.text.size">20sp</dimen>
-
 </resources>
