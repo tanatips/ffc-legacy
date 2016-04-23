@@ -895,6 +895,9 @@
     <string name="editbymap">แก้ไขจากแผนที่</string>
     <string name="deleteposition">ลบตำแหน่งบ้าน</string>
     <string name="wantdeleteposition">คุณต้องการลบตำแหน่งของบ้านใช่หรือไม่ ?</string>
+    <string name="radius">รัศมีการแพ้กระจาย :</string>
+    <string name="radiuslevel">เลือกระดับการแพร่กระจาย :</string>
+
 
     <string name="mapncdtitle">ปิงปอง 7 สี</string>
     <string name="mapballtitle">ประเมินความเสี่ยง DM/HT</string>

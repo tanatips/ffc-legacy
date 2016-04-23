@@ -141,7 +141,7 @@
                 style="@style/FFC.TextView.Subject"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/house.petsdung "/>
+                android:text="@string/house.petsdung"/>
 
         <th.in.ffc.widget.ArrayFormatSpinner
                 android:id="@id/answer12"

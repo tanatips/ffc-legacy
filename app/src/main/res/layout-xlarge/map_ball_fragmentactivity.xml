@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-                    android:text="@string/mapballgroup:"/>
+                    android:text="@string/mapballgroup"/>
 
             <Spinner
                     android:id="@+id/groupchoice"
@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-                    android:text="@string/mapballvillage:"/>
+                    android:text="@string/mapballvillage"/>
 
             <Spinner
                     android:id="@+id/villchoice"
@@ -74,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-                    android:text="@string/age:"/>
+                    android:text="@string/age"/>
 
             <EditText
                     android:id="@+id/age"
