@@ -40,13 +40,13 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.*;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.code.HospitalListDialog;
 import th.in.ffc.intent.Action;
@@ -186,7 +186,7 @@ public class VisitAncActivity extends VisitActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.visit_anc, menu);
+        getMenuInflater().inflate(R.menu.visit_anc, menu);
         mBloodMenu = menu.findItem(R.id.blood);
         // mBloodMenu.setEnabled(false);
         // mBloodMenu.setVisible(false);

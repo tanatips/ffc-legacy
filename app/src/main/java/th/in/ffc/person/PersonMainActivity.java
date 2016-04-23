@@ -36,15 +36,14 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.blayzupe.phototaker.ImageResizer;
 import com.blayzupe.phototaker.PhotoTaker;
 import com.blayzupe.phototaker.PhotoTaker.OnCropFinishListener;
@@ -177,7 +176,7 @@ public class PersonMainActivity extends FFCActionBarTabsPagerActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.person_main, menu);
+        getMenuInflater().inflate(R.menu.person_main, menu);
         return true;
     }
 
