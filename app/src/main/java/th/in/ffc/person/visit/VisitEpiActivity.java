@@ -37,12 +37,8 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCSearchListDialog;
 import th.in.ffc.code.VaccineListDialog;
@@ -86,7 +82,7 @@ public class VisitEpiActivity extends VisitActivity implements LoaderCallbacks<C
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_add_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_add_activity, menu);
 
         MenuItem item = menu.add(0, R.string.appoint, 2, R.string.appoint);
         item.setIcon(R.drawable.ic_action_epi_appoint);

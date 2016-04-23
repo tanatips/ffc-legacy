@@ -35,8 +35,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Window;
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
@@ -70,7 +70,6 @@ public class LoginActivity extends FFCFragmentActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         super.onCreate(savedInstanceState);

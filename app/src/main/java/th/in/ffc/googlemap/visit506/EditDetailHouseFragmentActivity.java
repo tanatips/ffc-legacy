@@ -264,7 +264,7 @@ public class EditDetailHouseFragmentActivity extends FFCFragmentActivity {
     private void addRadius() {
         if (!TextUtils.isEmpty(status) && !status.equals("0")) {
             level = spnLevel.getSelectedItemPosition();
-            String colorCode = getColor(level);
+            String colorCode = getLevelColor(level);
             radius = !TextUtils.isEmpty(txtRadius.getText().toString()) ? txtRadius.getText().toString() : radius;
             ContentValues conValues = new ContentValues();
             conValues.put("radius", radius + "");
@@ -343,7 +343,7 @@ public class EditDetailHouseFragmentActivity extends FFCFragmentActivity {
         alert.show();
     }
 
-    private String getColor(int levelSelect) {
+    private String getLevelColor(int levelSelect) {
         String color = "";
         switch (levelSelect) {
             case 0:

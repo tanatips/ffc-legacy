@@ -11,15 +11,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.code.DiagDisableListDialog;
 import th.in.ffc.intent.Action;
@@ -89,7 +84,7 @@ public class VisitSpecialpersonActivity extends VisitActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_add_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_add_activity, menu);
         return true;
     }
 

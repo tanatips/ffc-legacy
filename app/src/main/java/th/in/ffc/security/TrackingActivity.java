@@ -32,7 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import com.actionbarsherlock.app.SherlockActivity;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Tracking Activity (User Tracking Activity)
@@ -46,7 +46,7 @@ import com.actionbarsherlock.app.SherlockActivity;
  * @version 1.0
  * @since Family Folder Collector 2.0
  */
-public class TrackingActivity extends SherlockActivity {
+public class TrackingActivity extends AppCompatActivity {
 
     protected static String TAG = "UserTrackingActivity";
 

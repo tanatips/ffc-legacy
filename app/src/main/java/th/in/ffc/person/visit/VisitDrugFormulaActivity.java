@@ -39,11 +39,11 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.app.form.ViewFormFragment;
 import th.in.ffc.code.DrugFormulaListDialog;
@@ -84,7 +84,7 @@ public class VisitDrugFormulaActivity extends VisitActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_activity, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

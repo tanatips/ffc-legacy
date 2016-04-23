@@ -40,14 +40,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
+import android.view.*;
 import android.widget.*;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.SubMenu;
 import th.in.ffc.R;
 import th.in.ffc.code.ClinicListDialog;
 import th.in.ffc.code.DiagnosisListDialog;
@@ -144,7 +138,7 @@ public class VisitDiagActivity extends VisitActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_activity, menu);
         String[] diagType = getResources().getStringArray(R.array.diag_DX);
         SubMenu sub = menu.addSubMenu(R.string.add);
         sub.add(0, 2, 0, diagType[2]);

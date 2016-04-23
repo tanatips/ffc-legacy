@@ -39,12 +39,11 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.blayzupe.phototaker.PhotoTaker;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
@@ -218,7 +217,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_activity, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
