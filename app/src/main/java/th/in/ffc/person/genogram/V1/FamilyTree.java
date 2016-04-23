@@ -311,7 +311,6 @@ public class FamilyTree extends FFCFragmentActivity {
                 mProgress = ProgressDialog.show(this,
                         getString(R.string.app_name),
                         getString(R.string.please_wait));
-                mProgress.setIcon(R.drawable.icon);
                 mThread.setPriority(Thread.MAX_PRIORITY);
                 mThread.start();
 
@@ -410,7 +409,6 @@ public class FamilyTree extends FFCFragmentActivity {
             case DIALOG_CRASH: {
                 ProgressDialog Progress = ProgressDialog.show(this,
                         getString(R.string.app_name), "error...");
-                Progress.setIcon(R.drawable.icon);
                 return Progress;
 
             }
