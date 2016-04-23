@@ -1,295 +1,294 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string-array name="houseChar">
-        <item>1:Detached-house</item>
-        <item>2:Townhouse</item>
-        <item>3:Commercial building</item>
-        <item>4:Condominium</item>
-        <item>5:Hut</item>
-        <item>6:Ghetto</item>
-        <item>7:Houseboat</item>
-        <item>8:Lifted-house</item>
-        <item>9:Others</item>
-        <item>x:none</item>
+        <item>1:บ้านเดี่ยว</item>
+        <item>2:ทาวเฮ้าส์</item>
+        <item>3:ห้องแถว</item>
+        <item>4:คอนโด</item>
+        <item>5:เพิงพัก</item>
+        <item>6:ชุมชนแออัด</item>
+        <item>7:เรือนแพ</item>
+        <item>8:บ้านยกพื้นสูง</item>
+        <item>9:อื่นๆ</item>
+        <item>x:มีเลขที่/ไม่มีบ้าน</item>
     </string-array>
     <string-array name="houseCharground">
-        <item>1:Plains</item>
-        <item>2:Highland</item>
-        <item>3:Boathouse</item>
+        <item>1:บ้านพิ้นที่ราบ</item>
+        <item>2:บ้านภูเขา</item>
+        <item>3:บ้านเรือนแพ</item>
     </string-array>
     <string-array name="houseArea">
-        <item>1:Urban</item>
-        <item>2:Outskirts(SAO)</item>
-        <item>3:Outskirts</item>
+        <item>1:เทศบาล</item>
+        <item>2:นอกเทศบาล(อบต)</item>
+        <item>3:นอกเทศบาล</item>
     </string-array>
     <string-array name="houseEnough">
-        <item>0:Not Enough</item>
-        <item>1:Enough</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่พอ</item>
+        <item>1:พอ</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseEndure">
-        <item>0:Temporary</item>
-        <item>1:1 - 4 year</item>
-        <item>2:5 or more</item>
+        <item>0:ชั่วคราว(ไม่คงทน)</item>
+        <item>1:คงทน(1–4ปี)</item>
+        <item>2:คงทน 5 ปีขึ้นไป</item>
     </string-array>
     <string-array name="houseClean">
-        <item>0:Clean</item>
-        <item>1:Not Clean</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่สะอาด</item>
+        <item>1:สะอาด</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseHave">
-        <item>0:Have</item>
-        <item>1:Not have</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่มี</item>
+        <item>1:มี</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseCorrect">
-        <item>0:Correct</item>
-        <item>1:Not correct</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่ถูกหลัก</item>
+        <item>1:ถูกหลัก</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseWaste">
-        <item>0:Not have</item>
-        <item>1:Cover</item>
-        <item>2:Burn</item>
-        <item>3:Fermentation</item>
-        <item>4:Sent to Garbage</item>
-        <item>5:Others</item>
+        <item>0:ไม่มี</item>
+        <item>1:ฝัง</item>
+        <item>2:เผา</item>
+        <item>3:หมักทำปุ๋ย</item>
+        <item>4:ส่งต่อ (เช่นรถขนขยะมาเก็บ)</item>
+        <item>5:อื่นๆ</item>
     </string-array>
     <string-array name="housePet">
-        <item>0:Raised</item>
-        <item>1:Not raise</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่เลี้ยง</item>
+        <item>1:เลี้ยง</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseUse">
-        <item>0:No,I don\'t</item>
-        <item>1:Yes,I have. But I don\'t use</item>
-        <item>2:Yes,I do.</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่มี</item>
+        <item>1:มี/ไม่ใช้</item>
+        <item>2:มี/ใช้</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseComplete">
-        <item>0:Tidily</item>
-        <item>1:Untidy</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่มีระเบียบ</item>
+        <item>1:มี</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="houseUse2">
-        <item>0:Not Use</item>
-        <item>1:Use</item>
-        <item>9:I don\'t know</item>
+        <item>0:ไม่ใช้</item>
+        <item>1:ใช้</item>
+        <item>9:ไม่ทราบ</item>
     </string-array>
     <string-array name="fptype">
-        <item>0:No family plan</item>
-        <item>1:Pill</item>
-        <item>2:Injection</item>
-        <item>3:Female condom</item>
-        <item>4:Implant</item>
-        <item>5:Condom</item>
-        <item>6:Male Sterilization</item>
-        <item>7:Femal Sterilization</item>
+        <item>0:ไม่ได้คุม</item>
+        <item>1:ยาเม็ด</item>
+        <item>2:ยาฉีด</item>
+        <item>3:ห่วงอนามัย</item>
+        <item>4:ยาฝัง</item>
+        <item>5:ถุงยางอนามัย</item>
+        <item>6:หมันชาย</item>
+        <item>7:หมันหญิง</item>
     </string-array>
     <string-array name="reasonnofp">
-        <item>1:Need child</item>
-        <item>2:Sterilie</item>
-        <item>3:Others</item>
+        <item>1:ต้องการบุตร</item>
+        <item>2:หมันธรรมชาติ</item>
+        <item>3:อื่นๆ</item>
     </string-array>
     <string-array name="pregtestresult">
-        <item>0:Not Pregnant</item>
-        <item>1:Pregnant</item>
-        <item>x:Unable to determine</item>
+        <item>0:ไม่ตั้งครรภ์</item>
+        <item>1:ตั้งครรภ์</item>
+        <item>x:แปรผลไม่ได้</item>
     </string-array>
     <string-array name="pregtestresult_male">
-        <item>0:Not pregnant</item>
-        <item>x:Unable to determine</item>
+        <item>0:ไม่ตั้งครรภ์</item>
+        <item>x:แปรผลไม่ได้</item>
     </string-array>
     <string-array name="disabtype">
-        <item>1:Blind</item>
-        <item>2:Deaf</item>
-        <item>3:Cripple</item>
-        <item>4:Mental Sick</item>
-        <item>5:Handicapped</item>
-        <item>6:Learning Disorder</item>
+        <item>1:พิการทางการมองเห็น</item>
+        <item>2:พิการทางการได้ยิน</item>
+        <item>3:พิการทางการเคลื่อนไหว</item>
+        <item>4:พิการทางจิตใจหรือพฤติกรรม</item>
+        <item>5:พิการทางสติปัญญา</item>
+        <item>6:พิการทางการเรียนรู้</item>
     </string-array>
     <string-array name="disabcause">
-        <item>1:Congenially disable</item>
-        <item>2:Accidentally disable</item>
-        <item>3:Disabling disease</item>
+        <item>1:ความพิการแต่กำเนิด</item>
+        <item>2:ความพิการจากการบาดเจ็บ</item>
+        <item>3:ความพิการจากโรค</item>
     </string-array>
     <string-array name="locatecare">
-        <item>1:Hospital</item>
-        <item>2:Sanitation station</item>
-        <item>3:House</item>
-        <item>4:Others( eg, on the road)</item>
+        <item>1:โรงพยาบาล</item>
+        <item>2:สถานีอนามัย</item>
+        <item>3:บ้าน</item>
+        <item>4:อื่นๆ(กลางทาง)</item>
     </string-array>
     <string-array name="typecancer">
-        <item>1:Breast cancer</item>
-        <item>2:PAP cancer</item>
-        <item>3:VIA cancer</item>
+        <item>1:เต้านม ( Breast )</item>
+        <item>2:ปากมดลูก ( PAP )</item>
+        <item>3:ปากมดลูก ( VIA )</item>
     </string-array>
     <string-array name="cancer_result">
-        <item>x:Waiting"</item>
-        <item>0:Normal</item>
-        <item>1:Abnormal ( Breast Screening )   OR Cat II ( PAP )</item>
-        <item>2:Found cancer cell  ( Breast Screening )  OR  Cat III/IV ( PAP )  </item>
+        <item>x:รอผล</item>
+        <item>0:ปกติ</item>
+        <item>1:พบความผิดปกติ (กรณี Breast Screening)   หรือผิดปกติ Cat II ( กรณี -> PAP )</item>
+        <item>2:พบเซลล์มะเร็ง ( กรณี Breast Screening )  หรือผิดปกติ Cat III/IV ( กรณี- > PAP )  </item>
         <item>3:Negative ( -VIA )</item>
         <item>4:Positive ( +VIA )</item>
-        <item>5:Abnormal (Not cancer)</item>
+        <item>5:พบความผิดปกติที่ไม่ใช่มะเร็ง</item>
     </string-array>
     <string-array name="status_sick">
-        <item>1:Recoverd</item>
-        <item>2:Dead</item>
-        <item>3:Treating</item>
-        <item>4:I don\'t know</item>
+        <item>1:หาย</item>
+        <item>2:ตาย</item>
+        <item>3:ยังรักษา</item>
+        <item>4:ไม่ทราบ</item>
     </string-array>
     <string-array name="coderesult">
-        <item>1:Normal</item>
-        <item>2:Abnormal(Not paralysis)</item>
-        <item>3:Risk(paralysis)</item>
-        <item>4:Medium-Risk(paralysis)</item>
-        <item>5:High-Risk(paralysis)</item>
+        <item>1:ปกติ</item>
+        <item>2:ผิดปกติ(โรคอื่นที่ไม่ใช่อัมพฤกษ์)</item>
+        <item>3:เสี่ยง(โรคอัมพฤกษ์)</item>
+        <item>4:เสี่ยงปานปลาง(โรคอัมพฤกษ์)</item>
+        <item>5:เสี่ยงสูงโรคอัมพฤกษ์</item>
     </string-array>
     <string-array name="deliverresult">
-        <item>ช:Deliverd(Normal)</item>
-        <item>อ:Deliverd(Abnormal - eg, Twin 1 dead 1 alive)</item>
-        <item>ท:Abortion</item>
+        <item>ช:ปกติ(เกิดมีชีพ)</item>
+        <item>อ:อื่นๆ ( แฝด /ตาย 1 มีชีพ 1 / ฯลฯ )</item>
+        <item>ท:แท้ง</item>
     </string-array>
     <string-array name="operater">
-        <item>1:Doctor</item>
-        <item>2:Nurse</item>
-        <item>3:Health Officer</item>
-        <item>4:Midwife</item>
-        <item>5:Other</item>
+        <item>1:แพทย์</item>
+        <item>2:พยาบาล</item>
+        <item>3:จนท.สส.</item>
+        <item>4:ผดุงครรภ์</item>
+        <item>5:อื่นๆ(คลอดเอง)</item>
     </string-array>
     <string-array name="deliverplace">
-        <item>1:Hospital</item>
-        <item>2:Sanitation station</item>
-        <item>3:House</item>
-        <item>4:Others</item>
+        <item>1:รพ.</item>
+        <item>2:สอ.</item>
+        <item>3:ในบ้าน</item>
+        <item>4:อื่นๆ(กลางทาง)</item>
     </string-array>
     <string-array name="delivertype">
         <item>1:NORMAL</item>
         <item>2:CESAREAN</item>
         <item>3:VACCUME</item>
         <item>4:FORCEPS</item>
-        <item>5:BREECH</item>
+        <item>5:ท่าก้น</item>
     </string-array>
     <string-array name="mothercare_level">
-        <item>0:Normal</item>
-        <item>1:Level 1</item>
-        <item>2:Level 2</item>
-        <item>3:Level 3</item>
-        <item>4:Level 4</item>
+        <item>0:ปกติ</item>
+        <item>1:ระดับ 1</item>
+        <item>2:ระดับ 2</item>
+        <item>3:ระดับ 3</item>
+        <item>4:ระดับ 4</item>
     </string-array>
     <string-array name="tear">
-        <item>1:Normal</item>
-        <item>2:Bleeding wound</item>
-        <item>3:Inflaming wound</item>
-        <item>4:Abnormal/Others</item>
+        <item>1:ปกติ</item>
+        <item>2:แผลมีเลือดซึม</item>
+        <item>3:แผลเป็นหนอง</item>
+        <item>4:ผิดปกติ/อื่นๆ</item>
     </string-array>
     <string-array name="dentalcheck">
-        <item>0:Lesser 2 times</item>
-        <item>1:2 times</item>
-        <item>2:After every meal</item>
+        <item>0:น้อยกว่า2ครั้ง</item>
+        <item>1:2ครั้ง</item>
+        <item>2:ทุกครั้งหลังอาหาร</item>
     </string-array>
     <string-array name="hi_lo">
-        <item>0:Low</item>
-        <item>1:Medium</item>
-        <item>2:High</item>
+        <item>0:ต่ำ</item>
+        <item>1:กลาง</item>
+        <item>2:สูง</item>
     </string-array>
     <string-array name="clean">
-        <item>0:Not clean</item>
-        <item>1:Clean</item>
+        <item>0:ไม่สะอาด</item>
+        <item>1:สะอาด</item>
     </string-array>
     <string-array name="appotype">
-        <item>1:Prescription fill</item>
-        <item>2:for Result</item>
-        <item>3:Bandage</item>
-        <item>4:Blood test</item>
-        <item>5:Blood sugar test (DTX)</item>
-        <item>6:Blood pressure test</item>
+        <item>1:รับยา</item>
+        <item>2:ฟังผล</item>
+        <item>3:ทำแผล/ล้างแผล</item>
+        <item>4:เจาะเลือด(ตรวจโรคฯ)</item>
+        <item>5:ตรวจน้ำตาล (DTX)</item>
+        <item>6:วัดความดัน</item>
     </string-array>
     <string-array name="tartar">
-        <item>0:Not found</item>
-        <item>1:Found</item>
+        <item>0:ไม่พบฯ</item>
+        <item>1:พบหินน้ำละลาย</item>
     </string-array>
     <string-array name="gumstatus">
-        <item>0:Normal</item>
-        <item>1:Level 1</item>
-        <item>2:Level 2</item>
-        <item>3:Level 3</item>
-        <item>4:Level 4</item>
-        <item>9:No diag</item>
+        <item>0:ปกติ</item>
+        <item>1:ระดับ 1</item>
+        <item>2:ระดับ 2</item>
+        <item>3:ระดับ 3</item>
+        <item>4:ระดับ 4</item>
+        <item>9:ไม่ตรวจฯ</item>
     </string-array>
     <string-array name="deathplace">
-        <item>1:Hospital</item>
-        <item>2:Other</item>
+        <item>1:ในสถานบริการ</item>
+        <item>2:นอกสถานบริการ</item>
     </string-array>
     <string-array name="source">
-        <item>1:Medical Approval of death</item>
-        <item>2:Death certificate</item>
-        <item>3:Survation</item>
+        <item>1:หนังสือรับรองการตาย</item>
+        <item>2:ใบมรณะบัตร</item>
+        <item>3:สำรวจ</item>
     </string-array>
     <string-array name="deathconcern">
-        <item>9:Unrelated</item>
-        <item>1:Dead in pregnant</item>
-        <item>2:Dead while delievering or within 42 days</item>
+        <item>9:ไม่เกี่ยวกับการตั้งครรภ์และการคลอด</item>
+        <item>1:เสียชีวิตระหว่างตั้งครรภ์</item>
+        <item>2:เสียชีวิตระหว่างคลอดหรือภายใน 42 วัน</item>
     </string-array>
     <string-array name="q_congenitaldisease">
-        <item>1:Not have</item>
-        <item>2:มี Have</item>
-        <item>9:I don\'t know/I can\'t remember</item>
+        <item>1:ไม่มี</item>
+        <item>2:มี ระบุโรคประจำตัว</item>
+        <item>9:ไม่ทราบ/จำไม่ได้</item>
     </string-array>
     <string-array name="vesselItem">
-        <item>1:Jar</item>
-        <item>2:Water tank (33 cm³)</item>
-        <item>3:Water tank (99 cm³)</item>
-        <item>4:Stainless Tank</item>
-        <item>9:Others</item>
+        <item>1:โอ่ง,ตุ่ม</item>
+        <item>2:ฝ. 33</item>
+        <item>3:ฝ. 99</item>
+        <item>4:แท้งค์</item>
+        <item>9:อื่นๆ</item>
     </string-array>
     <string-array name="watertype">
-        <item>11:Rain water</item>
-        <item>21:Underground water</item>
-        <item>22:Ground water</item>
-        <item>23:Water Supply</item>
-        <item>31:Standardise water</item>
-        <item>32:Standardless water</item>
-        <item>41:Filterd water</item>
-        <item>42:Boiled water</item>
-        <item>51:Oxidate pond</item>
-        <item>52:Unoxidate pond</item>
-        <item>61:Oxidate well</item>
-        <item>62:Unoxidate well</item>
-        <item>91:River/Pool/Largoon</item>
-        <item>92:Public pond</item>
-        <item>93:Public well</item>
-        <item>99:Others</item>
+        <item>11:น้ำฝน</item>
+        <item>21:ประปาหมู่บ้าน(บาดาล)</item>
+        <item>22:ประปาหมู่บ้าน(ผิวดิน)</item>
+        <item>23:ประปานครหลวง</item>
+        <item>31:น้ำซื้อได้มาตรฐาน</item>
+        <item>32:น้ำซื้อ ไม่ได้มาตรฐาน</item>
+        <item>41:น้ำที่ปรับปรุงคุณภาพ(ผ่านเครื่องกรอง)</item>
+        <item>42:น้ำที่ปรับปรุงคุณภาพ(ต้ม)</item>
+        <item>51:บ่อบาดาลถูกหลักสุขาฯ</item>
+        <item>52:บ่อบาดาล ไม่ถูกหลักสุขาฯ</item>
+        <item>61:บ่อน้ำตื้นถูกหลักสุขาฯ</item>
+        <item>62:บ่อน้ำตื้น ไม่ถูกหลักสุขาฯ</item>
+        <item>91:แหล่งน้ำธรรมชาติ/แม่น้ำ/ห้วย</item>
+        <item>92:บ่อบาดาล(สาธารณะ)</item>
+        <item>93:บ่อน้ำตื้น(สาธารณะ)</item>
+        <item>99:อะไรก็ไม่รู้</item>
     </string-array>
     <string-array name="animaltype">
-        <item>01:Dogs</item>
-        <item>02:Pigs</item>
-        <item>03:Cats</item>
-        <item>04:Moneys</item>
-        <item>05:Cows</item>
-        <item>06:Buffaloes</item>
-        <item>07:Ducks</item>
-        <item>08:Chickens</item>
-        <item>09:Birds</item>
-        <item>10:Goats</item>
-        <item>11:Sheeps</item>
-        <item>77:Crocodiles</item>
+        <item>01:สุนัข</item>
+        <item>02:สุกร(หมู)</item>
+        <item>03:แมว</item>
+        <item>04:ลิง-ค่าง-บ่าง-ชนี</item>
+        <item>05:โค</item>
+        <item>06:กระบือ</item>
+        <item>07:เป็ด</item>
+        <item>08:ไก่</item>
+        <item>09:นก</item>
+        <item>10:แพะ</item>
+        <item>11:แกะ</item>
+        <item>77:จระเข้</item>
     </string-array>
     <string-array name="unablelevel">
-        <item>1:Self-sufficient </item>
-        <item>2:Should provide</item>
-        <item>3:Urgently provide</item>
-        <item>9:Recovered</item>
+        <item>1:ช่วยเหลือตัวเองได้</item>
+        <item>2:ควรให้ความช่วยเหลือ</item>
+        <item>3:ต้องช่วยเหลือด่วน</item>
+        <item>9:หายจากความพิการ</item>
     </string-array>
     <string-array name="unableprovider">
-        <item>61:Department of Social Development and Welfare</item>
-        <item>62:Ministry of Labour</item>
-        <item>67:Local Province Administration</item>
-        <item>68:Local Sub-district Administration</item>
-        <item>69:Red Cross</item>
-        <item>70:Hospital</item>
+        <item>61:ก.พัฒนาสังคมฯ</item>
+        <item>62:ก.แรงงาน</item>
+        <item>67:อบจ.</item>
+        <item>68:อบต.</item>
+        <item>69:กาชาดฯ</item>
+        <item>70:โรงพยาบาล</item>
     </string-array>
     <string-array name="surface">
         <item>:ไม่ระบุ (กรณีขัดฟัน/ขูดหินน้ำลาย เท่านั้น !!)</item>
@@ -331,7 +330,7 @@
         <item>"ปกติ"</item>
         <item>"ค่อนข้างสูง"</item>
         <item>"สูงเกินเกณฑ์"</item>
-        <item>"ข้อมูลผิดพลาด"</item>
+        <item>"ผิดปรกติ"</item>
     </string-array>
     <string-array name="nlevel3">
         <item>"ผอม"</item>
@@ -340,7 +339,7 @@
         <item>"ค่อนข้างอ้วน"</item>
         <item>"อ้วน"</item>
         <item>"อ้วนมาก"</item>
-        <item>"ข้อมูลผิดพลาด"</item>
+        <item>"ผิดปกติ"</item>
     </string-array>
     <string-array name="riskgroupArray">
         <item>1:ป่วยเรื้อรัง DM/ไตวาย/มะเร็ง/หลอดเลือดสมอง/หัวใจและหลอดเลือด</item>
@@ -433,5 +432,4 @@
         <item>20:ตรวจ phosphate (กรณี CKD stage 3 ขึ้นไป)</item>
         <item>21:ตรวจ PTH (กรณี CKD stage 3 ขึ้นไป)"</item>
     </string-array>
-
 </resources>
