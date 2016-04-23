@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/pregno"/>
+
+        <EditText
+                android:id="@id/code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:ems="2"
+                android:inputType="numberDecimal"
+                android:maxLength="2">
+
+            <requestFocus/>
+        </EditText>
+
+        <TextView
+                android:id="@id/hint"
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"/>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/contracep"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/contracep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/record"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lmp"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <th.in.ffc.util.ThaiDatePicker
+                    android:id="@id/lmp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+            </th.in.ffc.util.ThaiDatePicker>
+
+            <ImageView
+                    android:id="@id/refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_button_refresh"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/edc"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/edc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+        </th.in.ffc.util.ThaiDatePicker>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/first_abnormal"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/abnormal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <LinearLayout
+                android:id="@id/risk"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView
+                    style="@style/FFC.TextView.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pregnanc_risk"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

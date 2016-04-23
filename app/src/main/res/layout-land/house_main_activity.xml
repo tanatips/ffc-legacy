@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:baselineAligned="false">
+
+    <FrameLayout
+            android:id="@id/fragment"
+            android:layout_width="0dp"
+            android:layout_weight="0.35"
+            android:layout_height="match_parent"
+            android:layout_marginRight="2dp">
+
+        <ImageView
+                android:id="@id/image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="12dp"
+                android:contentDescription="@string/not_available"
+                android:scaleType="fitCenter"
+                android:src="@drawable/house_default_background"/>
+
+        <TextView
+                android:id="@id/code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/shape"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+    </FrameLayout>
+
+    <FrameLayout
+            android:id="@id/fragment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.65">
+
+        <include
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                layout="@layout/default_scrollable_tabs_pager"/>
+
+        <View
+                android:layout_width="@dimen/shadow.height"
+                android:layout_height="match_parent"
+                android:background="@drawable/shadow_horizontal"/>
+    </FrameLayout>
+
+</LinearLayout>

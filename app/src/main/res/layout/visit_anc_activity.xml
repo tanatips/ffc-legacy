@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="10dp">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:text="@string/pregno"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <EditText
+                    android:id="@id/code"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:enabled="false"
+                    android:hint="@string/pregno"/>
+
+            <ImageButton
+                    android:id="@id/edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@color/darker_gray"
+                    android:contentDescription="@string/add"
+                    android:src="@drawable/ic_launcher_edit"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pregage"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal">
+
+            <EditText
+                    android:id="@id/age"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:enabled="false"
+                    android:inputType="number"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/anc"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:enabled="false"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/service_at"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/hospital"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vaccine"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true">
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/epi"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+
+            <ImageButton
+                    android:id="@id/answer3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:background="@color/darker_gray"
+                    android:contentDescription="@string/add"
+                    android:src="@drawable/ic_launcher_epi"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/physical_exam"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/weight_height"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <EditText
+                    android:id="@id/weight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="@string/weight"
+                    android:inputType="number|numberDecimal">
+            </EditText>
+
+            <TextView
+                    style="@style/FFC.TextView.Content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/kilogram"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <EditText
+                    android:id="@id/height"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="@string/height"
+                    android:inputType="number|numberDecimal">
+            </EditText>
+
+            <TextView
+                    style="@style/FFC.TextView.Content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/centimeter"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bmi"
+                android:visibility="gone"/>
+
+        <TextView
+                android:id="@id/bmi"
+                style="@style/FFC.TextView.Content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bmi"
+                android:visibility="gone"/>
+
+        <CheckBox
+                android:id="@id/tooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tooth_exam"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/caries"/>
+
+        <EditText
+                android:id="@id/caries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number">
+        </EditText>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tartar"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/tartar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gum_fail"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/gum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/pregnanc_exam"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/abnormal_status"/>
+
+        <CheckBox
+                android:id="@id/nipple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nipple"/>
+
+        <CheckBox
+                android:id="@id/head"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/headache"/>
+
+        <CheckBox
+                android:id="@id/sickening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sinkening"/>
+
+        <CheckBox
+                android:id="@id/tyroid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tyroid"/>
+
+        <CheckBox
+                android:id="@id/leucorrhea"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/utmugo"/>
+
+        <CheckBox
+                android:id="@id/edema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edima"/>
+
+        <CheckBox
+                android:id="@id/uterus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/utblood"/>
+
+        <CheckBox
+                android:id="@id/cramp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cramp"/>
+
+        <CheckBox
+                android:id="@id/urinary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/urinary"/>
+
+        <CheckBox
+                android:id="@id/heart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/heart_attach"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/fundus"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/fundus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sugar"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/sugar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/albumin"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/albumin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/baby_exam"/>
+
+        <CheckBox
+                android:id="@id/dance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/baby_dance"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/baby_position"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/position"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/pilot"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/pilot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/baby_heart"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/hear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <EditText
+                android:id="@id/count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/baby_heart_count"
+                android:inputType="number"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/talas"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/talas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/summarize"/>
+
+        <RadioGroup
+                android:id="@id/summarize"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/answer1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/normal"/>
+
+            <RadioButton
+                    android:id="@id/answer2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/abnormal"/>
+        </RadioGroup>
+
+        <CheckBox
+                android:id="@id/check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/appoint"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+        </th.in.ffc.util.ThaiDatePicker>
+    </LinearLayout>
+
+</ScrollView>

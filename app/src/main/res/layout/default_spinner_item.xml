@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/content"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          style="@style/FFC.TextView.Content"
+          android:minHeight="42dp"
+          android:layout_margin="4dp"
+          android:shadowDx="1"
+          android:shadowDy="1"
+          android:gravity="center_vertical"
+          android:padding="4dp"
+          android:shadowRadius="270"
+          android:background="@drawable/selectable_background"/>
+

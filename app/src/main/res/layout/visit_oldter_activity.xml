@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/visitoldter"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.q_congenitaldisease"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@+id/qdisease"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitoldter.q_congenitaldisease"/>
+
+        <LinearLayout
+                android:id="@+id/ifHaveQ"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.q_diseaes"/>
+
+            <th.in.ffc.widget.SearchableButton
+                    android:id="@+id/qdiagcode"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:text="@string/visitoldter.q_diseaes"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.dentalcheck"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitoldter.dentalcheck"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.sleephour"/>
+
+        <EditText
+                android:id="@id/answer2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:hint="@string/hint_hour"
+                android:inputType="numberDecimal|numberSigned"
+                android:maxLength="2"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.sleep_q1"/>
+
+        <RadioGroup
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/rad1"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/no"/>
+
+            <RadioButton
+                    android:id="@id/rad2"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/yes"/>
+        </RadioGroup>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.clubmember"/>
+
+        <RadioGroup
+                android:id="@id/answer4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/rad1"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/no"/>
+
+            <RadioButton
+                    android:id="@id/rad2"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/yes"/>
+        </RadioGroup>
+
+        <LinearLayout
+                android:id="@+id/clubNameIfHave"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.clubname"/>
+
+            <EditText
+                    android:id="@id/answer5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_club"
+                    android:singleLine="true"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.funded"/>
+
+        <RadioGroup
+                android:id="@id/answer6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/rad1"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/no_recv"/>
+
+            <RadioButton
+                    android:id="@id/rad2"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/recv"/>
+        </RadioGroup>
+
+        <LinearLayout
+                android:id="@+id/fundedIfRecv"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.money_funded"/>
+
+            <EditText
+                    android:id="@id/answer7"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_money"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:maxLength="7"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.carekeeper"/>
+
+        <RadioGroup
+                android:id="@id/answer8"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/rad1"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/no_have"/>
+
+            <RadioButton
+                    android:id="@id/rad2"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/have"/>
+        </RadioGroup>
+
+        <LinearLayout
+                android:id="@+id/ifHaveCare"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.carekeeper_name"/>
+
+            <!-- <EditText -->
+            <!-- android:id="@id/answer9" -->
+            <!-- android:layout_width="fill_parent" -->
+            <!-- android:layout_height="wrap_content" -->
+            <!-- android:hint="@string/hint_carename" -->
+            <!-- android:inputType="textCapWords" /> -->
+
+            <th.in.ffc.widget.SearchableSpinner
+                    android:id="@id/answer9"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_carename"/>
+        </LinearLayout>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitoldter.pressure_q1"/>
+
+        <RadioGroup
+                android:id="@id/answer10"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/rad1"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/no_have"/>
+
+            <RadioButton
+                    android:id="@id/rad2"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/have"/>
+        </RadioGroup>
+
+        <LinearLayout
+                android:id="@+id/ifHavePressure"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.pressure_work"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer11"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/visitoldter.pressure_work"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.pressure_family"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer12"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/visitoldter.pressure_family"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/visitoldter.pressure_social"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer14"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/visitoldter.pressure_social"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

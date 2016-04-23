@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/visitnutrition"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.weight"/>
+
+        <EditText
+                android:id="@id/answer1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:hint="@string/hint_Unit"
+                android:inputType="numberSigned"
+                android:maxLength="3"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.tall"/>
+
+        <EditText
+                android:id="@id/answer2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:hint="@string/hint_Unit"
+                android:inputType="numberSigned"
+                android:maxLength="3"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.headcycle"/>
+
+        <EditText
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:hint="@string/hint_Unit"
+                android:inputType="numberSigned"
+                android:maxLength="2"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.toothnew"/>
+
+        <EditText
+                android:id="@id/answer4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:hint="@string/hint_Unit"
+                android:inputType="numberSigned"
+                android:maxLength="2"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.toothcorrupt"/>
+
+        <EditText
+                android:id="@id/answer5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789."
+                android:hint="@string/hint_Unit"
+                android:inputType="numberSigned"
+                android:maxLength="2"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.navel"/>
+
+        <RadioGroup
+                android:id="@id/answer6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <RadioButton
+                    android:id="@id/rad1"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/no_clean"/>
+
+            <RadioButton
+                    android:id="@id/rad2"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/clean"/>
+        </RadioGroup>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.remark"/>
+
+        <EditText
+                android:id="@id/answer7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_remark"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.nlevel"/>
+
+        <TextView
+                android:id="@+id/answer8"
+                style="@style/FFC.TextView.Content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="Auto Generate by Age(month) devide by Weight"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.nlevel1"/>
+
+        <TextView
+                android:id="@+id/answer9"
+                style="@style/FFC.TextView.Content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="Auto Generate by Age(month) devide by Height"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.nlevel2"/>
+
+        <TextView
+                android:id="@+id/answer10"
+                style="@style/FFC.TextView.Content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="Auto Generate by Weight devide by Height"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitnutrition.dateappoint"/>
+
+        <CheckBox
+                android:id="@id/checkappointcare"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:checked="false"
+                android:text="@string/checkdue"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@+id/answer11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+        </th.in.ffc.util.ThaiDatePicker>
+    </LinearLayout>
+
+</ScrollView>

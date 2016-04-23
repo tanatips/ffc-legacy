@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+            style="@style/FFC.TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/right"/>
+
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rightno"/>
+
+    <EditText
+            android:id="@id/answer2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/rightno"
+            android:maxLines="1"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hosmain"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hossub"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/regis"/>
+
+    <th.in.ffc.util.ThaiDatePicker
+            android:id="@id/answer5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    </th.in.ffc.util.ThaiDatePicker>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/active"/>
+
+    <th.in.ffc.util.ThaiDatePicker
+            android:id="@id/answer6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    </th.in.ffc.util.ThaiDatePicker>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/expire"/>
+
+    <th.in.ffc.util.ThaiDatePicker
+            android:id="@id/answer7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    </th.in.ffc.util.ThaiDatePicker>
+
+</LinearLayout>

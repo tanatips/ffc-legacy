@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:id="@+id/container1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/visitlabcancer"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitlabcancer.typecancer"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/typecancer"
+                android:prompt="@string/visitlabcancer.typecancer"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitlabcancer.result"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/cancer_result"
+                android:prompt="@string/visitlabcancer.result"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitlabcancer.hoslab"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitlabcancer.hosservice">
+        </th.in.ffc.widget.SearchableButton>
+    </LinearLayout>
+
+</ScrollView>

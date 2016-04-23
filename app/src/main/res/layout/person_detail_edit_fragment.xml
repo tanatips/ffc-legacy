@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citizenID"/>
+
+    <EditText
+            android:id="@id/answer1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="13"
+            android:inputType="number|numberSigned"
+            android:maxLength="13"
+            android:maxLines="1"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sex"/>
+
+    <RadioGroup
+            android:id="@id/group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <RadioButton
+                android:id="@id/male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/male"/>
+
+        <RadioButton
+                android:id="@id/female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/female"/>
+    </RadioGroup>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fullname"/>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@id/answer2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <EditText
+            android:id="@id/answer3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/fname"
+            android:inputType="textPersonName"
+            android:maxLines="1">
+
+        <requestFocus/>
+    </EditText>
+
+    <EditText
+            android:id="@id/answer4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/lname"
+            android:inputType="textPersonName"
+            android:maxLines="1"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/birthday"/>
+
+    <th.in.ffc.util.ThaiDatePicker
+            android:id="@id/answer5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    </th.in.ffc.util.ThaiDatePicker>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blood"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/allergic"/>
+
+    <EditText
+            android:id="@id/answer13"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/allergic"
+            android:maxLines="2"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/house"/>
+
+    <th.in.ffc.widget.SearchableSpinner
+            android:id="@id/answer10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/religion"/>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@id/answer8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nation"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/origin"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/occupa"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer16"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/education"/>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@id/answer15"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/income"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <EditText
+                android:id="@id/answer12"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="numberDecimal"
+                android:maxLines="1"/>
+
+        <TextView
+                style="@style/FFC.TextView.Content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bath_per_year"/>
+    </LinearLayout>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tel"/>
+
+    <EditText
+            android:id="@id/answer14"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:maxLength="10"
+            android:maxLines="1"/>
+
+    <TextView
+            style="@style/FFC.TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/address"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visitdiag506address.hno"/>
+
+    <EditText
+            android:id="@+id/hno"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visitdiag506address.mu"/>
+
+    <EditText
+            android:id="@+id/mu"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visitdiag506address.road"/>
+
+    <EditText
+            android:id="@+id/road"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visitdiag506address.subdistcode"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@+id/subdistcode"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visitdiag506address.distcode"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@+id/distcode"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/visitdiag506address.provcode"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@+id/provcode"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/postCode"/>
+
+    <EditText
+            android:id="@+id/postcode"
+            android:inputType="number"
+            android:singleLine="true"
+            android:maxLength="5"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

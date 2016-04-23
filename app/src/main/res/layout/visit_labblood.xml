@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="false"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hosservice"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hoslab"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/result"/>
+
+        <CheckBox
+                android:id="@id/clinic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/pregnant"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hct"/>
+
+        <EditText
+                android:id="@id/answer3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberDecimal">
+        </EditText>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vdrl"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hiv"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hbag"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/talas_of"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/talas_dcip"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>

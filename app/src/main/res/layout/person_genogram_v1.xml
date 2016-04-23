@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@drawable/genogram_v1_background">
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <AbsoluteLayout
+                android:id="@+id/DrawingArea"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+        </AbsoluteLayout>
+    </ScrollView>
+
+    <Button
+            android:id="@+id/btnUnknown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:background="@drawable/blaze_confused"
+            android:visibility="gone">
+    </Button>
+
+    <LinearLayout
+            android:id="@+id/lnlFocusFamily"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="8dip"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="2dip">
+    </LinearLayout>
+
+</FrameLayout>

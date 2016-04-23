@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/visitancdelivcer"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.pregno"/>
+
+        <EditText
+                android:id="@id/answer1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789"
+                android:hint="@string/hint_ppl_order"
+                android:inputType="numberDecimal|numberSigned"
+                android:maxLength="2"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.hosservice"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.hosservice"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.datedeliver"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible">
+        </th.in.ffc.util.ThaiDatePicker>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.delivertime"/>
+
+        <th.in.ffc.util.ThaiTimePicker
+                android:id="@id/answer4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible">
+        </th.in.ffc.util.ThaiTimePicker>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.ancage"/>
+
+        <TextView
+                style="@style/FFC.TextView.Content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dip"
+                />
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.deliverresult"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitancdeliver.deliverresult"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.operater"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitancdeliver.operater"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.delivertype"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitancdeliver.delivertype"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.numdeadinpreg"/>
+
+        <EditText
+                android:id="@id/answer8"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:digits="0123456789"
+                android:hint="@string/hint_ppl"
+                android:inputType="numberDecimal|numberSigned"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.deliverplace"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer9"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitancdeliver.deliverplace"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.deliverend"/>
+
+        <Spinner
+                android:id="@id/answer10"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/visitancdeliver.deliverend"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.signabnormalanc"/>
+
+        <EditText
+                android:id="@id/answer11"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/normalOrNot"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.signabnormaldeliver"/>
+
+        <EditText
+                android:id="@id/answer12"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/normalOrNot"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visitancdeliver.dateappointcare"/>
+
+        <CheckBox
+                android:id="@+id/checkappointcare"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:checked="false"
+                android:text="@string/checkdue"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/answer13"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+        </th.in.ffc.util.ThaiDatePicker>
+    </LinearLayout>
+
+</ScrollView>

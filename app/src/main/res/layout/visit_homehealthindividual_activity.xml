@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/visithomehealthindividual"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visithomehealthindividual.homehealthtype"/>
+
+        <Spinner
+                android:id="@id/answer1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visithomehealthindividual.patientsign"/>
+
+        <th.in.ffc.widget.J_InstantAutoComplete
+                android:id="@id/answer2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_autocomplete"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visithomehealthindividual.homehealthdetail"/>
+
+        <th.in.ffc.widget.J_InstantAutoComplete
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_autocomplete"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visithomehealthindividual.homehealthresult"/>
+
+        <th.in.ffc.widget.J_InstantAutoComplete
+                android:id="@id/answer4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_autocomplete"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visithomehealthindividual.homehealthplan"/>
+
+        <th.in.ffc.widget.J_InstantAutoComplete
+                android:id="@id/answer5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_autocomplete"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/visithomehealthindividual.dateappoint"/>
+
+        <CheckBox
+                android:id="@+id/checkappoint"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:checked="false"
+                android:text="@string/checkdue"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/answer6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+        </th.in.ffc.util.ThaiDatePicker>
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/middle_gray"
+            android:orientation="vertical"
+            android:paddingBottom="4dp">
+
+        <TextView
+                style="@style/FFC.TextView.Content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/drugformula"/>
+
+        <th.in.ffc.widget.SearchableSpinner
+                android:id="@id/code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+        <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <LinearLayout
+                    android:id="@android:id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+            </LinearLayout>
+        </ScrollView>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow.height"
+                android:background="@drawable/shadow"/>
+
+    </FrameLayout>
+
+</LinearLayout>

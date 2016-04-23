@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_marginBottom="3dp"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/visitscreenspecialdisease.codescreen"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@+id/type"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:prompt="@string/visitscreenspecialdisease.codescreen"/>
+
+        <ImageButton
+                android:id="@id/deleted"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_close_inverse"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/LinearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.42"
+                android:text="@string/visitscreenspecialdisease.coderesult"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@+id/value1"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:prompt="@string/visitscreenspecialdisease.coderesult"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/LinearLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+        <EditText
+                android:id="@id/value2"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="@string/persongrow.abnormal"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:divider="@drawable/grey_line"
+            android:dividerPadding="4dp"
+            android:orientation="vertical">
+
+        <Button
+                android:id="@+id/goToQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:text="@string/vs.2q9qQuestion"/>
+    </LinearLayout>
+</LinearLayout>

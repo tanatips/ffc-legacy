@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/house_food_sanitation"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodcook"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodkeepsafe "/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodware "/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodwarewash"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodwarekeep"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.garbageware"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodcookroom"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.foodsanitation"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer8"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.iodeinsalt "/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer9"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.iodeinmaterial"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer10"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.iodeinuse"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer11"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.ftlj"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer12"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.whjrk "/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer13"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.slpp"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer14"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.cht "/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer15"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/house.kmch"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer16"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</ScrollView>

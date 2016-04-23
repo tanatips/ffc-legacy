@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".TrackingActivity">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_weight="6"
+                android:text="@string/visitspecialperson.disabtype"/>
+
+        <ImageButton
+                android:id="@id/deleted"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_close_inverse"/>
+    </LinearLayout>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@+id/type"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/visitspecialperson.disabtype"/>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@+id/cause"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/visitspecialperson.disabcause"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@+id/code"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/visitspecialperson.diagcode"
+            android:text="@string/visitspecialperson.diagcode"
+            />
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="6dp"
+            android:background="@color/lighter_gray"/>
+
+</LinearLayout>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+            android:id="@+id/menu_center"
+            android:icon="@drawable/where_am_i"
+            android:orderInCategory="2"
+            android:showAsAction="ifRoom"
+            android:title="@string/center_text"/>
+    <item
+            android:id="@+id/menu_search"
+            android:icon="@drawable/search"
+            android:orderInCategory="3"
+            android:showAsAction="ifRoom"
+            android:title="@string/search"/>
+    <item
+            android:id="@+id/menu_map_style"
+            android:icon="@drawable/mapstyle"
+            android:orderInCategory="4"
+            android:showAsAction="ifRoom"
+            android:title="@string/map_style_text">
+        <menu>
+            <group
+                    android:id="@+id/menu_map_style_group"
+                    android:checkableBehavior="single">
+                <item
+                        android:id="@+id/menu_sat"
+                        android:title="@string/map1"/>
+                <item
+                        android:id="@+id/menu_sat_path"
+                        android:checked="true"
+                        android:title="@string/map2"/>
+                <item
+                        android:id="@+id/menu_normal"
+                        android:title="@string/map3"/>
+            </group>
+        </menu>
+    </item>
+    <item
+            android:id="@+id/menu_filter"
+            android:icon="@drawable/filter"
+            android:orderInCategory="5"
+            android:showAsAction="ifRoom"
+            android:title="@string/filter_text"/>
+    <item
+            android:id="@+id/menu_wifi_status"
+            android:icon="@drawable/wifi2"
+            android:orderInCategory="0"
+            android:showAsAction="ifRoom"
+            android:title="@string/wifi_text"/>
+    <item
+            android:id="@+id/menu_gps_status"
+            android:icon="@drawable/gps2"
+            android:orderInCategory="1"
+            android:showAsAction="ifRoom"
+            android:title="@string/gps_text"/>
+
+    <item
+            android:id="@+id/addpositionok"
+            android:icon="@drawable/gps2"
+            android:orderInCategory="1"
+            android:showAsAction="always"
+
+            />
+
+</menu>

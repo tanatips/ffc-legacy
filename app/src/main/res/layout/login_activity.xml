@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <fragment
+            android:id="@id/content"
+            android:name="th.in.ffc.security.LoginFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:padding="@dimen/padding.topdown">
+
+        <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="@dimen/sponsor.icon.size"
+                android:layout_height="@dimen/sponsor.icon.size"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_nectec"/>
+
+        <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="@dimen/sponsor.icon.size"
+                android:layout_height="@dimen/sponsor.icon.size"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_ssj_ubon"/>
+    </LinearLayout>
+
+</FrameLayout>

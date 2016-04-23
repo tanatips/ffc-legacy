@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="sugargraphtitle">กราฟแสดงค่าระดับน้ำตาลในเลือด</string>
+    <string name="sugargraphtitlenodata">กราฟแสดงค่าระดับน้ำตาลในเลือด (ไม่มีข้อมูล)</string>
+    <string name="sugargraph">มิลลิกรัม/เดซิลิตร</string>
+    <string name="sugargraphnomalline">เส้นค่าปกติของระดับน้ำตาลในเลือด</string>
+    <string name="sugarlevel">ระดับน้ำตาลในเลือด</string>
+
+    <string name="plusegraphtitle">กราฟแสดงข้อมูลความดันและน้ำหนัก</string>
+    <string name="plusegraphtitlenodata">กราฟแสดงข้อมูลความดันและน้ำหนัก (ไม่มีข้อมูล)</string>
+    <string name="weightkilo">น้ำหนัก(กก)</string>
+    <string name="pluseup">ความดัน(ตัวบน)</string>
+    <string name="plusedown">ความดัน(ตัวล่าง)</string>
+    <string name="plusedate">แกนอ้างอิง</string>
+    <string name="kilo">กิโลกรัม</string>
+    <string name="pluse">ความดัน</string>
+    <string name="monthyear">เดือน/วัน</string>
+
+</resources>

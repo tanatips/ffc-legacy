@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="main_grid_column" type="integer">2</item>
+    <item name="visit_grid_column" type="integer">3</item>
+    <item name="version_code" type="integer">6</item>
+
+</resources>

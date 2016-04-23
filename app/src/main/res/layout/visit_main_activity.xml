@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/middle_gray">
+
+        <ImageView
+                android:id="@id/image"
+                android:layout_width="72dp"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:contentDescription="@string/null_string"
+                android:src="@drawable/person_default_background"/>
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            <TextView
+                    android:id="@id/view1"
+                    style="@style/FFC.TextView.Title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:hint="@string/visit"
+                    android:text="@string/visit"/>
+
+            <TextView
+                    android:id="@id/view3"
+                    style="@style/FFC.TextView.Subject.Inverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:hint="@string/principle_dx"/>
+
+            <TextView
+                    android:id="@id/view4"
+                    style="@style/FFC.TextView.Subject.Inverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/padding.topdown"
+                    android:hint="@string/principle_dx"
+                    android:visibility="invisible"/>
+
+        </LinearLayout>
+
+        <ImageButton
+                android:id="@id/visit"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:background="@drawable/button_cancel_background"
+                android:contentDescription="@string/null_string"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_option"/>
+    </LinearLayout>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <GridView
+                android:id="@id/grid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:numColumns="@integer/visit_grid_column">
+        </GridView>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow.height"
+                android:background="@drawable/shadow"/>
+
+        <ProgressBar
+                android:id="@android:id/progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
+    </FrameLayout>
+
+</LinearLayout>

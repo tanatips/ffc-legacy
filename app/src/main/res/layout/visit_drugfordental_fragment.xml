@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+    <LinearLayout
+            android:id="@+id/LinearLayout4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:orientation="horizontal">
+
+        <Button
+                android:id="@+id/goTeeth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:text="@string/vd.teethmap"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:layout_marginTop="4dp"
+            android:layout_toLeftOf="@+id/LinearLayout3"
+            android:layout_toRightOf="@+id/LinearLayout4">
+
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@+id/type"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="@string/services"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/LinearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayout1"
+            android:layout_margin="5dip"
+            android:layout_toLeftOf="@+id/LinearLayout3"
+            android:layout_toRightOf="@+id/LinearLayout4"
+            android:orientation="horizontal">
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@+id/dentist"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="@string/vd.dentist"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/LinearLayout5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/LinearLayout2"
+            android:layout_margin="5dip"
+            android:layout_toLeftOf="@+id/LinearLayout3"
+            android:layout_toRightOf="@+id/LinearLayout4"
+            android:orientation="horizontal">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="@string/services_charge"/>
+
+        <EditText
+                android:id="@+id/service_charge"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="numberDecimal"
+                android:maxLength="5"
+                android:hint="@string/hint_money"
+                android:enabled="false"
+                />
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/LinearLayout3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="5dip"
+            android:orientation="horizontal">
+
+        <ImageButton
+                android:id="@id/deleted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_action_close_inverse"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

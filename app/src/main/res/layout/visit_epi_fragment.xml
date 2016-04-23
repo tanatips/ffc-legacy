@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/code"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/vaccine"/>
+
+        <ImageButton
+                android:id="@id/deleted"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/delete"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_close_inverse"/>
+    </LinearLayout>
+
+    <AutoCompleteTextView
+            android:id="@id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="20"
+            android:hint="@string/lotno">
+    </AutoCompleteTextView>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+        <CheckBox
+                android:id="@id/check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/expire"/>
+
+    </LinearLayout>
+
+    <th.in.ffc.util.ThaiDatePicker
+            android:id="@id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="6dp"
+            android:background="@color/lighter_gray"/>
+
+</LinearLayout>

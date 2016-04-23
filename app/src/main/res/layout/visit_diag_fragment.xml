@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".TrackingActivity">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+        <TextView
+                android:id="@id/text"
+                style="@style/FFC.TextView.Subject.Inverse"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/principle_dx"
+                android:textSize="@dimen/text"/>
+
+        <ImageButton
+                android:id="@id/appoint"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_appoint"/>
+
+        <CheckBox
+                android:id="@id/check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/continue_"/>
+
+        <ImageButton
+                android:id="@id/deleted"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_close_inverse"/>
+    </LinearLayout>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/diagnosis"/>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@id/type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+    <th.in.ffc.util.ThaiDatePicker
+            android:id="@id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="6dp"
+            android:background="@color/lighter_gray"/>
+
+</LinearLayout>

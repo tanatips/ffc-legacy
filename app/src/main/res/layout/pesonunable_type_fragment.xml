@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".TrackingActivity">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@+id/type"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:prompt="@string/pu_typecode"
+                android:text="@string/pu_typecode"/>
+
+        <ImageButton
+                android:id="@id/deleted"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background"
+                android:contentDescription="@string/cancel"
+                android:minHeight="@dimen/height.min"
+                android:minWidth="@dimen/width.min"
+                android:src="@drawable/ic_action_close_inverse"/>
+    </LinearLayout>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@+id/value1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/pu_unablelevel"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@+id/value3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/pu_disabcause"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@+id/value4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/pu_diag"
+                android:text="@string/pu_diag"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/pu_datestart"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@+id/value5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/pu_datefound"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@+id/value2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"/>
+    </LinearLayout>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="6dp"
+            android:background="@color/lighter_gray"/>
+
+</LinearLayout>

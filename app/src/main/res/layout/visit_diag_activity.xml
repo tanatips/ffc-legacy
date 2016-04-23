@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:animateLayoutChanges="true"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:background="@color/middle_gray"
+            android:orientation="vertical"
+            android:padding="4dp">
+
+        <TextView
+                style="@style/FFC.TextView.Subject.Inverse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/clinic"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/clinic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/not_available"/>
+    </LinearLayout>
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <LinearLayout
+                    android:id="@id/content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:divider="@drawable/grey_line"
+                    android:dividerPadding="4dp"
+                    android:orientation="vertical">
+            </LinearLayout>
+        </ScrollView>
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow.height"
+                android:background="@drawable/shadow"/>
+
+        <View
+                android:layout_gravity="bottom"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow.height"
+                android:background="@drawable/shadow_inverse"
+                android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:animateLayoutChanges="true"
+            android:animationCache="true"
+            android:background="@color/lighter_gray"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+        <CheckBox
+                android:id="@id/check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/appoint"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+        </th.in.ffc.util.ThaiDatePicker>
+
+        <Spinner
+                android:id="@id/type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
+    </LinearLayout>
+
+</LinearLayout>

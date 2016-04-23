@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <LinearLayout
+                android:id="@+id/holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.DATE_EXAM"/>
+
+            <th.in.ffc.util.ThaiDatePicker
+                    android:id="@id/answer1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.SERVPLACE"/>
+
+            <RadioGroup
+                    android:id="@id/answer2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                <RadioButton
+                        android:id="@id/rad1"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="@string/in_place"/>
+
+                <RadioButton
+                        android:id="@id/rad2"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/out_place"/>
+            </RadioGroup>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.SMOKE"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/NCD.SMOKE"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.ALCOHOL"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/NCD.ALCOHOL"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.DMFAMILY"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/NCD.DMFAMILY"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.HTFAMILY"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer6"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/NCD.HTFAMILY"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.WEIGHT"/>
+
+            <EditText
+                    android:id="@id/answer7"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789."
+                    android:hint="@string/kilogram"
+                    android:inputType="number"
+                    android:maxLength="5"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.HEIGHT"/>
+
+            <EditText
+                    android:id="@id/answer8"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789."
+                    android:hint="@string/centimeter"
+                    android:inputType="number"
+                    android:maxLength="5"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.WAIST_CM"/>
+
+            <EditText
+                    android:id="@id/answer9"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789."
+                    android:hint="@string/centimeter"
+                    android:inputType="number"
+                    android:maxLength="5"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.BPH_1"/>
+
+            <EditText
+                    android:id="@id/answer10"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789./"
+                    android:hint="@string/mmhg"
+                    android:inputType="number"
+                    android:maxLength="7"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.BPL_1"/>
+
+            <EditText
+                    android:id="@id/answer11"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789./"
+                    android:hint="@string/mmhg"
+                    android:inputType="number"
+                    android:maxLength="7"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.BPH_2"/>
+
+            <EditText
+                    android:id="@id/answer12"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789./"
+                    android:hint="@string/mmhg"
+                    android:inputType="number"
+                    android:maxLength="7"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.BPL_2"/>
+
+            <EditText
+                    android:id="@id/answer13"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789./"
+                    android:hint="@string/mmhg"
+                    android:inputType="number"
+                    android:maxLength="7"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.BSLEVEL"/>
+
+            <EditText
+                    android:id="@id/answer14"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789./"
+                    android:hint="@string/mgdl"
+                    android:maxLength="10"
+                    android:inputType="number"
+                    />
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.BSTEST"/>
+
+            <th.in.ffc.widget.ArrayFormatSpinner
+                    android:id="@id/answer15"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/NCD.BSTEST"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NCD.SCRPLACE"/>
+
+            <th.in.ffc.widget.SearchableButton
+                    android:id="@id/answer16"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/NCD.SCRPLACE"/>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

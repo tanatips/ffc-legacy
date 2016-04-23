@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                style="@style/FFC.TextView.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/persondeath"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathdate"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@id/answer1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+        </th.in.ffc.util.ThaiDatePicker>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathplace"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/persondeath.deathplace"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deatha"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deatha"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathb"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathb"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathc"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathc"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathd"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathd"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathdisease"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathdisease"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathcause"/>
+
+        <th.in.ffc.widget.SearchableButton
+                android:id="@id/answer8"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deathcause"/>
+
+        <TextView
+                android:id="@+id/isFemale"
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.deliveryconcern"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer9"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/persondeath.deliveryconcern"/>
+
+        <TextView
+                style="@style/FFC.TextView.Subject"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/persondeath.source"/>
+
+        <th.in.ffc.widget.ArrayFormatSpinner
+                android:id="@id/answer10"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/persondeath.source"/>
+    </LinearLayout>
+
+</ScrollView>

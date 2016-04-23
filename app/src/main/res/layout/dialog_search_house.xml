@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:padding="10dip">
+
+    <TextView
+            android:id="@+id/textView_house"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dip"
+            android:text="@string/search_instruction"
+            android:textStyle="bold"
+            android:textAppearance="?android:attr/textAppearanceLarge">
+    </TextView>
+
+    <EditText
+            android:id="@+id/edittext_house"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dip"
+            android:hint="@string/houseNo"
+            android:textAppearance="?android:attr/textAppearanceLarge">
+    </EditText>
+
+    <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <Button
+                android:id="@+id/OKButton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/ok"
+                android:textAppearance="?android:attr/textAppearanceLarge">
+        </Button>
+
+        <Button
+                android:id="@+id/CancelButton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:textAppearance="?android:attr/textAppearanceLarge">
+        </Button>
+    </LinearLayout>
+
+</LinearLayout>

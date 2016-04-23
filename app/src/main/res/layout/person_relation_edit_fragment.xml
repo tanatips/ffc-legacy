@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+            style="@style/FFC.TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/relation"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/familyno"/>
+
+    <EditText
+            android:id="@id/answer1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="2"
+            android:hint="@string/rightno"
+            android:inputType="number"
+            android:maxLength="2"
+            android:maxLines="1"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/familyposition"/>
+
+    <th.in.ffc.widget.SearchableButton
+            android:id="@id/answer2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@id/view1"
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/father"/>
+
+    <th.in.ffc.widget.SearchableSpinner
+            android:id="@id/answer3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@id/view2"
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mother"/>
+
+    <th.in.ffc.widget.SearchableSpinner
+            android:id="@id/answer4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/marry_status"/>
+
+    <th.in.ffc.widget.ArrayFormatSpinner
+            android:id="@id/answer5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@id/view3"
+            style="@style/FFC.TextView.Subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mate"/>
+
+    <th.in.ffc.widget.SearchableSpinner
+            android:id="@id/answer6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

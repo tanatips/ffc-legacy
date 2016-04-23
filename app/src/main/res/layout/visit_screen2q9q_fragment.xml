@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+            android:id="@id/head"
+            style="@style/FFC.TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/header"
+            android:layout_marginTop="8dp"
+            android:text="@string/vs.2q9qQuestion"/>
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <LinearLayout
+                    android:id="@+id/twoQuestion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.depressed"/>
+
+                <RadioGroup
+                        android:id="@id/answer1"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/no_depress"/>
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.95"
+                            android:text="@string/depress"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.fedup"/>
+
+                <RadioGroup
+                        android:id="@id/answer2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/no_depress"/>
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.95"
+                            android:text="@string/depress"/>
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/nineQuestion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                <TextView
+                        android:id="@id/head"
+                        style="@style/FFC.TextView.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/header"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/vs.for9qQuestion"/>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q91"/>
+
+                <RadioGroup
+                        android:id="@id/answer3"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q92"/>
+
+                <RadioGroup
+                        android:id="@id/answer4"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q93"/>
+
+                <RadioGroup
+                        android:id="@id/answer5"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q94"/>
+
+                <RadioGroup
+                        android:id="@id/answer6"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q95"/>
+
+                <RadioGroup
+                        android:id="@id/answer7"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q96"/>
+
+                <RadioGroup
+                        android:id="@id/answer8"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q97"/>
+
+                <RadioGroup
+                        android:id="@id/answer9"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q98"/>
+
+                <RadioGroup
+                        android:id="@id/answer10"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/visitscreenspecialdisease.q99"/>
+
+                <RadioGroup
+                        android:id="@id/answer11"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    <RadioButton
+                            android:id="@id/rad1"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/none"/>
+
+                    <RadioButton
+                            android:id="@id/rad2"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/some"/>
+
+                    <RadioButton
+                            android:id="@id/rad3"
+                            android:layout_width="0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/often"/>
+                </RadioGroup>
+
+                <TextView
+                        style="@style/FFC.TextView.Content.Big"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="@string/vs.9qTotal"/>
+
+                <TextView
+                        android:id="@+id/score1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="#########"
+                        android:textSize="50dip"/>
+
+                <TextView
+                        android:id="@+id/score1_1"
+                        style="@style/FFC.TextView.Content.Big"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text=" "/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/otherHelp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:orientation="vertical">
+
+                <!-- NEW -->
+
+                <TextView
+                        style="@style/FFC.TextView.Title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/vs.moreDetail"/>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vs.riskType"/>
+
+                <th.in.ffc.widget.ArrayFormatSpinner
+                        android:id="@+id/risktype"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dip"
+                        android:prompt="@string/vs.riskgroup"/>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/vs.help"/>
+
+                <CheckBox
+                        android:id="@+id/healthf"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.healthf"/>
+
+                <CheckBox
+                        android:id="@+id/consultf"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.consultf"/>
+
+                <CheckBox
+                        android:id="@+id/cbt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.cbt"/>
+
+                <CheckBox
+                        android:id="@+id/satir"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.satir"/>
+
+                <CheckBox
+                        android:id="@+id/healthbydrug"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.healthbydrug"/>
+
+                <CheckBox
+                        android:id="@+id/healthother"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.healthother"/>
+
+                <TextView
+                        style="@style/FFC.TextView.Subject"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/vs.service"/>
+
+                <CheckBox
+                        android:id="@+id/screen"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.screen"/>
+
+                <CheckBox
+                        android:id="@+id/diag"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.diag"/>
+
+                <CheckBox
+                        android:id="@+id/treatmind"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.treatmind"/>
+
+                <CheckBox
+                        android:id="@+id/treatfollow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.treatfollow"/>
+
+                <CheckBox
+                        android:id="@+id/watchcareful"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dip"
+                        android:text="@string/vs.watchcarefull"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

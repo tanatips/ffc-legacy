@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+            style="@style/FFC.TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/visitspecialperson"/>
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <LinearLayout
+                android:id="@id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:divider="@drawable/grey_line"
+                android:dividerPadding="4dp"
+                android:orientation="vertical">
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/visitspecialperson.disabid"/>
+
+            <EditText
+                    android:id="@id/answer1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_number"/>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/visitspecialperson.datedetect"/>
+
+            <th.in.ffc.util.ThaiDatePicker
+                    android:id="@id/answer2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible">
+            </th.in.ffc.util.ThaiDatePicker>
+
+            <TextView
+                    style="@style/FFC.TextView.Subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/visitspecialperson.dateexpire"/>
+
+            <th.in.ffc.util.ThaiDatePicker
+                    android:id="@id/answer3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible">
+            </th.in.ffc.util.ThaiDatePicker>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

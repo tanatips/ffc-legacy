@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="enable_checkbox"
+            android:title="@string/open"/>
+
+    <PreferenceCategory
+            android:key="house_cat"
+            android:title="@string/house_cat">
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="house_checkbox"
+                android:title="@string/house"/>
+
+        <Preference
+                android:dependency="house_checkbox"
+                android:key="house_subcat"
+                android:title="@string/house_subcat"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:key="misc_cat"
+            android:title="@string/misc_cat">
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="temple_checkbox"
+                android:title="@string/temple_create"/>
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="water_checkbox"
+                android:title="@string/water_create"/>
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="school_checkbox"
+                android:title="@string/school_create"/>
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="business_checkbox"
+                android:title="@string/shop_create"/>
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="hospital_checkbox"
+                android:title="@string/hospital_create"/>
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:dependency="enable_checkbox"
+                android:key="poi_checkbox"
+                android:title="@string/poi_create"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

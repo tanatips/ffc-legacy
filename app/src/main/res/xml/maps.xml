@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<maps>
+    <map name="primaryteeth">
+        <area
+                id="@+id/area1"
+                name="55"
+                shape="poly"
+                coords="11,172,27,141,66,165,62,219,12,225"/>
+        <area
+                id="@+id/area2"
+                name="54"
+                shape="circle"
+                coords="55,120,31"/>
+        <area
+                id="@+id/area3"
+                name="53"
+                shape="circle"
+                coords="83,75,23"/>
+        <area
+                id="@+id/area4"
+                name="52"
+                shape="circle"
+                coords="110,40,21"/>
+        <area
+                id="@+id/area5"
+                name="51"
+                shape="poly"
+                coords="124,7,124,7,170,6,153,50,123,25"/>
+        <area
+                id="@+id/area6"
+                name="61"
+                shape="poly"
+                coords="169,9,194,7,218,15,198,46,180,45"/>
+        <area
+                id="@+id/area7"
+                name="62"
+                shape="circle"
+                coords="231,42,21"/>
+        <area
+                id="@+id/area8"
+                name="63"
+                shape="circle"
+                coords="256,74,21"/>
+        <area
+                id="@+id/area9"
+                name="64"
+                shape="circle"
+                coords="285,118,30"/>
+        <area
+                id="@+id/area10"
+                name="65"
+                shape="poly"
+                coords="279,156,315,148,332,183,320,225,277,218"/>
+        <area
+                id="@+id/area11"
+                name="81"
+                shape="circle"
+                coords="147,430,20"/>
+        <area
+                id="@+id/area12"
+                name="82"
+                shape="circle"
+                coords="111,419,18"/>
+        <area
+                id="@+id/area13"
+                name="83"
+                shape="circle"
+                coords="85,390,23"/>
+        <area
+                id="@+id/area14"
+                name="84"
+                shape="circle"
+                coords="50,347,31"/>
+        <area
+                id="@+id/area15"
+                name="85"
+                shape="circle"
+                coords="32,279,37"/>
+        <area
+                id="@+id/area16"
+                name="71"
+                shape="circle"
+                coords="186,429,20"/>
+        <area
+                id="@+id/area17"
+                name="72"
+                shape="circle"
+                coords="223,418,19"/>
+        <area
+                id="@+id/area18"
+                name="73"
+                shape="circle"
+                coords="251,389,23"/>
+        <area
+                id="@+id/area19"
+                name="74"
+                shape="circle"
+                coords="283,346,29"/>
+        <area
+                id="@+id/area20"
+                name="75"
+                shape="circle"
+                coords="302,277,38"/>
+    </map>
+    <map name="permarteeth">
+        <area
+                id="@+id/area21"
+                name="11"
+                shape="circle"
+                coords="119,29,18 "/>
+        <area
+                id="@+id/area22"
+                name="12"
+                shape="circle"
+                coords="90,41,14 "/>
+        <area
+                id="@+id/area23"
+                name="13"
+                shape="circle"
+                coords="64,57,14 "/>
+        <area
+                id="@+id/area24"
+                name="14"
+                shape="circle"
+                coords="51,85,16 "/>
+        <area
+                id="@+id/area25"
+                name="15"
+                shape="circle"
+                coords="42,111,15 "/>
+        <area
+                id="@+id/area26"
+                name="16"
+                shape="circle"
+                coords="38,146,22 "/>
+        <area
+                id="@+id/area27"
+                name="17"
+                shape="circle"
+                coords="32,183,19 "/>
+        <area
+                id="@+id/area28"
+                name="18"
+                shape="circle"
+                coords="29,220,20 "/>
+        <area
+                id="@+id/area29"
+                name="21"
+                shape="circle"
+                coords="153,29,17 "/>
+        <area
+                id="@+id/area30"
+                name="22"
+                shape="circle"
+                coords="180,42,15 "/>
+        <area
+                id="@+id/area31"
+                name="23"
+                shape="circle"
+                coords="205,56,15 "/>
+        <area
+                id="@+id/area32"
+                name="24"
+                shape="circle"
+                coords="216,84,15 "/>
+        <area
+                id="@+id/area33"
+                name="25"
+                shape="circle"
+                coords="226,108,15 "/>
+        <area
+                id="@+id/area34"
+                name="26"
+                shape="circle"
+                coords="235,140,22 "/>
+        <area
+                id="@+id/area35"
+                name="27"
+                shape="circle"
+                coords="237,183,20 "/>
+        <area
+                id="@+id/area36"
+                name="28"
+                shape="circle"
+                coords="239,217,19 "/>
+        <area
+                id="@+id/area37"
+                name="31"
+                shape="circle"
+                coords="149,467,11 "/>
+        <area
+                id="@+id/area38"
+                name="32"
+                shape="circle"
+                coords="169,464,12 "/>
+        <area
+                id="@+id/area39"
+                name="33"
+                shape="circle"
+                coords="192,454,14 "/>
+        <area
+                id="@+id/area40"
+                name="34"
+                shape="circle"
+                coords="208,429,15 "/>
+        <area
+                id="@+id/area41"
+                name="35"
+                shape="circle"
+                coords="217,398,17 "/>
+        <area
+                id="@+id/area42"
+                name="36"
+                shape="circle"
+                coords="227,363,23 "/>
+        <area
+                id="@+id/area43"
+                name="37"
+                shape="circle"
+                coords="234,320,22 "/>
+        <area
+                id="@+id/area44"
+                name="38"
+                shape="circle"
+                coords="243,278,19 "/>
+        <area
+                id="@+id/area45"
+                name="41"
+                shape="circle"
+                coords="127,468,11 "/>
+        <area
+                id="@+id/area46"
+                name="42"
+                shape="circle"
+                coords="106,465,14 "/>
+        <area
+                id="@+id/area47"
+                name="43"
+                shape="circle"
+                coords="80,453,15 "/>
+        <area
+                id="@+id/area48"
+                name="44"
+                shape="circle"
+                coords="67,427,16 "/>
+        <area
+                id="@+id/area49"
+                name="45"
+                shape="circle"
+                coords="55,398,18 "/>
+        <area
+                id="@+id/area50"
+                name="46"
+                shape="circle"
+                coords="46,363,22 "/>
+        <area
+                id="@+id/area51"
+                name="47"
+                shape="circle"
+                coords="35,322,22 "/>
+        <area
+                id="@+id/area52"
+                name="48"
+                shape="circle"
+                coords="26,280,19 "/>
+    </map>
+</maps>

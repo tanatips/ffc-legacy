@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/relativelayout_main_google_map"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+    <org.osmdroid.views.MapView
+            android:id="@+id/mapview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:state_enabled="true"/>
+    <!-- key for WIS Key android:apiKey="00c4k4GjFT9Rj9TaE6y42HRpncSKu3-DounjOfw"
+        /> -->
+    <!-- key for Debug mode android:apiKey="0Ecev20VUIK1mVp5azWdHQstzJX1oZtF71LDZFA"
+        /> -->
+    <!-- key for Gen APK android:apiKey="0Ecev20VUIK1YbdvMv7dqAXmXCrvDpaJYrNHFQA"
+        /> -->
+    <!-- <ZoomControls -->
+    <!-- android:id="@+id/zoomcontrols" -->
+    <!-- android:visibility="visible" -->
+    <!-- android:layout_width="wrap_content" -->
+    <!-- android:layout_height="wrap_content" -->
+    <!-- android:layout_alignParentBottom="true" -->
+    <!-- android:layout_alignParentRight="true" -->
+    <!-- /> -->
+    <LinearLayout
+            android:id="@+id/linearlayout_zoomcontrols"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:padding="5dip">
+
+        <ImageButton
+                android:id="@+id/imagebutton_zoomout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="2dip"
+                android:background="@null"
+                android:src="@layout/layout_image_button_zoomout"
+                android:visibility="visible"/>
+
+        <ImageButton
+                android:id="@+id/imagebutton_zoomin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dip"
+                android:background="@null"
+                android:src="@layout/layout_image_button_zoomin"
+                android:visibility="visible"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/linearlayout_nectec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:paddingBottom="0px"
+            android:paddingRight="0px">
+
+        <ImageButton
+                android:id="@+id/imagebutton_nectec"
+                android:layout_width="86dp"
+                android:layout_height="70dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/nectec_25th"
+                android:visibility="visible"/>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text">18sp</dimen>
+    <dimen name="text.micro">14sp</dimen>
+    <dimen name="text.sub">16sp</dimen>
+    <dimen name="text.big">21sp</dimen>
+    <dimen name="width.min">42dp</dimen>
+    <dimen name="height.min">42dp</dimen>
+    <dimen name="padding.leftright">6dp</dimen>
+    <dimen name="padding.topdown">4dp</dimen>
+    <dimen name="edittext.padding.leftright">18dp</dimen>
+    <dimen name="edittext.padding.buttom">9dp</dimen>
+    <dimen name="edittext.padding.top">6dp</dimen>
+    <dimen name="text.padding">6dp</dimen>
+    <dimen name="text.padding.sub">2dp</dimen>
+    <dimen name="shadow.height">12dp</dimen>
+
+    <dimen name="grid.icon.size">72dp</dimen>
+    <dimen name="grid.text.size">16sp</dimen>
+
+    <dimen name="sponsor.icon.size">128dp</dimen>
+    <dimen name="state_padding">12dp</dimen>
+
+</resources>

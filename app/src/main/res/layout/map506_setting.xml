@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:text="รูปแบบการแสดงผลของแผนที่"
+            android:textColor="@color/Saddle_Brown"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp">
+
+        <CheckBox
+                android:id="@+id/displayst"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ดาวเทียม"/>
+
+        <CheckBox
+                android:id="@+id/displayhi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="รูปแบบปกติ"/>
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/holo_green_light"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <Switch
+                android:id="@+id/switchnormalhome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="5dp"
+                android:text="แสดง ตำแหน่งบ้านที่ไม่ได้เป็นโรคระบาด"
+                android:textColor="@color/Saddle_Brown"/>
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/holo_green_light"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:text="แสดงข้อมูลตามโรคระบาด"
+            android:textColor="@color/Saddle_Brown"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <CheckBox
+                android:id="@+id/fillternameplauge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ใช่"
+                android:layout_marginLeft="7dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/spinnerlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <Spinner
+                android:id="@+id/listplauge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/holo_green_light"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:text="แสดงข้อมูลตามช่วงเวลา"
+            android:textColor="@color/Saddle_Brown"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <CheckBox
+                android:id="@+id/filltertime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="7dp"
+                android:text="ใช่"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/startdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="7dp"
+                android:text="เริ่มต้น"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@+id/thaiDatePicker1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+        </th.in.ffc.util.ThaiDatePicker>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/enddate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="7dp"
+                android:text="สิ้นสุด"/>
+
+        <th.in.ffc.util.ThaiDatePicker
+                android:id="@+id/ThaiDatePicker02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+        </th.in.ffc.util.ThaiDatePicker>
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/holo_green_light"/>
+
+</LinearLayout>

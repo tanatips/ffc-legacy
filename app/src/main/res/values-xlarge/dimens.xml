@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text">24sp</dimen>
+    <dimen name="text.micro">18sp</dimen>
+    <dimen name="text.sub">20sp</dimen>
+    <dimen name="text.big">30sp</dimen>
+    <dimen name="padding.leftright">10dp</dimen>
+    <dimen name="padding.topdown">7dp</dimen>
+    <dimen name="edittext.padding.leftright">20dp</dimen>
+    <dimen name="edittext.padding.buttom">10dp</dimen>
+    <dimen name="edittext.padding.top">6dp</dimen>
+    <dimen name="text.padding">8dp</dimen>
+    <dimen name="text.padding.sub">3dp</dimen>
+    <dimen name="shadow.height">16dp</dimen>
+    <dimen name="grid.icon.size">144dp</dimen>
+    <dimen name="grid.text.size">32sp</dimen>
+
+    <dimen name="grid.icon.size">84dp</dimen>
+    <dimen name="grid.text.size">20sp</dimen>
+
+</resources>

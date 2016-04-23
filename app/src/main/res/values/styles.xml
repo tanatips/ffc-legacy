@@ -1,8 +1,163 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="FFC.Theme.Light" parent="Theme.Sherlock.Light">
+
+        <item name="android:buttonStyle">@style/FFC.ButtonStyle</item>
+        <item name="android:editTextStyle">@style/FFC.EditTextStyle</item>
+        <item name="android:spinnerStyle">@style/FFC.SpinnerStyle</item>
+        <item name="android:tabWidgetStyle">@style/FFC.TabWidgetStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/FFC.AutoCompleteTextStyle</item>
+        <item name="android:fadingEdgeLength">0dp</item>
+
+        <item name="android:actionBarStyle">@style/FFC.ActionBarStyle</item>
+        <item name="android:actionBarTabStyle">@style/FFC.ActionBarTabStyle</item>
+        <item name="android:actionBarTabTextStyle">@style/FFC.ActionBar.TabTextStyle</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_background</item>
+
+        <item name="actionBarStyle">@style/FFC.ActionBarStyle</item>
+        <item name="actionBarItemBackground">@drawable/selectable_background</item>
+        <item name="actionBarTabStyle">@style/FFC.ActionBarTabStyle</item>
+        <item name="actionBarTabTextStyle">@style/FFC.ActionBar.TabTextStyle</item>
     </style>
+
+    <style name="FFC.ActionBarStyle" parent="Widget.Sherlock.ActionBar.Solid">
+        <item name="android:background">@color/holo_green_dark</item>
+        <item name="android:titleTextStyle">@style/TextAppearance.Sherlock.Widget.ActionBar.Title.Inverse</item>
+        <item name="android:subtitleTextStyle">@style/TextAppearance.Sherlock.Widget.ActionBar.Subtitle.Inverse</item>
+
+        <item name="background">@color/holo_green_dark</item>
+        <item name="titleTextStyle">@style/TextAppearance.Sherlock.Widget.ActionBar.Title.Inverse</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Sherlock.Widget.ActionBar.Subtitle.Inverse</item>
+    </style>
+
+    <style name="FFC.EditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:background">@drawable/edittext_background</item>
+        <item name="android:textSize">@dimen/text</item>
+        <item name="android:paddingLeft">@dimen/edittext.padding.leftright</item>
+        <item name="android:paddingRight">@dimen/edittext.padding.leftright</item>
+        <item name="android:paddingBottom">@dimen/edittext.padding.buttom</item>
+        <item name="android:paddingTop">@dimen/edittext.padding.top</item>
+        <item name="android:minHeight">@dimen/height.min</item>
+        <item name="android:minWidth">@dimen/width.min</item>
+    </style>
+
+    <style name="FFC.AutoCompleteTextStyle" parent="@android:style/Widget.AutoCompleteTextView">
+        <item name="android:background">@drawable/edittext_background</item>
+        <item name="android:textSize">@dimen/text</item>
+        <item name="android:textColor">@drawable/text_content_color</item>
+        <item name="android:paddingLeft">@dimen/edittext.padding.leftright</item>
+        <item name="android:paddingRight">@dimen/edittext.padding.leftright</item>
+        <item name="android:paddingBottom">@dimen/edittext.padding.buttom</item>
+        <item name="android:paddingTop">@dimen/edittext.padding.top</item>
+        <item name="android:minHeight">@dimen/height.min</item>
+        <item name="android:minWidth">@dimen/width.min</item>
+    </style>
+
+    <style name="FFC.SpinnerStyle" parent="@android:style/Widget.Spinner">
+        <item name="android:background">@drawable/spinner_background</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:minHeight">@dimen/height.min</item>
+        <item name="android:minWidth">@dimen/width.min</item>
+    </style>
+
+    <style name="FFC.ButtonStyle" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:textColor">@android:color/primary_text_dark</item>
+        <item name="android:textSize">@dimen/text.sub</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:minHeight">@dimen/height.min</item>
+        <item name="android:minWidth">@dimen/width.min</item>
+    </style>
+
+    <style name="FFC.ButtonStyle.Big">
+        <item name="android:textSize">18dp</item>
+    </style>
+
+    <style name="FFC.ButtonStyle.Cancel">
+        <item name="android:background">@drawable/button_cancel_background</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+
+    <style name="FFC.ActionBarTabStyle" parent="Widget.Sherlock.Light.ActionBar.TabBar">
+
+        <item name="android:background">@drawable/actionbar_tab_bg</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="FFC.ActionBar.TabTextStyle" parent="Widget.Sherlock.Light.ActionBar.TabText">
+        <item name="android:textColor">@drawable/tab_indicator_color</item>
+    </style>
+
+    <style name="FFC.TabWidgetStyle" parent="@android:style/Widget.TabWidget">
+        <item name="android:textAppearance">@style/FFC.TabWidget.textAppearance</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:tabStripEnabled">false</item>
+    </style>
+
+    <style name="FFC.TabWidget.textAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textSize">20sp</item>
+
+    </style>
+
+    <style name="FFC.TextView.Title" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">@color/holo_green_light</item>
+        <item name="android:textSize">@dimen/text.sub</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/textview_title</item>
+        <item name="android:padding">@dimen/text.padding</item>
+    </style>
+
+    <style name="FFC.TextView.Subject" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">@color/Saddle_Brown</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text.sub</item>
+        <item name="android:paddingTop">@dimen/text.padding.sub</item>
+        <item name="android:paddingLeft">@dimen/text.padding</item>
+        <item name="android:paddingRight">@dimen/text.padding</item>
+    </style>
+
+    <style name="FFC.TextView.Subject.Inverse">
+        <item name="android:textColor">@android:color/secondary_text_light</item>
+    </style>
+
+    <style name="FFC.TextView.Content" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">@drawable/text_content_color</item>
+        <item name="android:textSize">@dimen/text</item>
+        <item name="android:hint">@string/not_available</item>
+        <item name="android:paddingTop">@dimen/text.padding.sub</item>
+        <item name="android:paddingLeft">@dimen/text.padding</item>
+        <item name="android:paddingRight">@dimen/text.padding</item>
+    </style>
+
+    <style name="FFC.TextView.Content.Inverse">
+        <item name="android:textColor">@android:color/primary_text_dark</item>
+    </style>
+
+    <style name="FFC.TextView.Content.Big">
+        <item name="android:textSize">@dimen/text.big</item>
+    </style>
+
+    <style name="FFC.TextView.Content.Sub">
+        <item name="android:textSize">@dimen/text.sub</item>
+    </style>
+
+    <style name="FFC.ImageButton.Close" parent="@android:style/Widget.ImageButton">
+        <item name="android:background">@drawable/selectable_background</item>
+        <item name="android:src">@drawable/ic_action_close_inverse</item>
+        <item name="android:minHeight">@dimen/height.min</item>
+        <item name="android:minWidth">@dimen/width.min</item>
+        <item name="android:contentDescription">@string/null_string</item>
+    </style>
+
 
 </resources>
