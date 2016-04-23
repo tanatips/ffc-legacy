@@ -222,7 +222,6 @@
     <string name="within_hos">ในสถานบริการ</string>
     <string name="in_service_time">ในเวลาราชการ</string>
     <string name="patient_incup">ผู้ป่วยใน CUP</string>
-    <string name="drugformula">ยาชุด</string>
     <string name="state_db">ไม่พบฐานข้อมูล</string>
     <string name="state_db_suggest">กรุณาทำการเชื่อมต่อกับ FFC AutoSync แล้วนำเข้าฐานข้อมูลก่อน</string>
     <string name="state_date">วันเวลาไม่อัพเดท</string>
@@ -594,7 +593,6 @@
     <string name="err_no_child">คุณไม่ได้ระบุจำนวนเด็กที่ยังมีชีวิต</string>
     <string name="err_no_numdeadinpreg">คุณไม่ได้ระบุจำนวนเด็กที่เสียชีวิตในครรภ์</string>
     <string name="err_no_dentcode">คุณไม่ได้เลือกงานทันตกรรม</string>
-    <string name="err_no_diagcode">คุณไม่ได้เลือกรหัสการวินิจฉัยของโรคฟัน</string>
     <string name="err_duplicate_growtype">คุณเลือกประเภทพัฒนาการซ้ำกัน</string>
     <string name="err_duplicate_disabletype">คุณเลือกประเภทความพิการซ้ำกัน</string>
     <string name="err_duplicate_problem">คุณเลือกประเภทปัญหาซ้ำกัน</string>
@@ -759,7 +757,6 @@
     <string name="water_create">แหล่งน้ำ</string>
     <string name="school_create">โรงเรียน</string>
     <string name="shop_create">ร้านค้า</string>
-    <string name="house">บ้าน</string>
     <string name="type_prompt">โปรดเลือกประเภท</string>
     <string name="increase_button">เพิ่ม</string>
     <string name="hid">เลขทะเบียนบ้าน</string>
@@ -774,17 +771,13 @@
     <string name="religious_place">ชื่อสถานศาสนา</string>
     <string name="shop_name">ชื่อสถานประกอบการ</string>
     <string name="type">ประเภท</string>
-    <string name="owner">เจ้าของ</string>
     <string name="fresh_food">ขายอาหารสด?</string>
     <string name="food_drink">ขายอาหารสำเร็จ?</string>
-    <string name="sell">ขาย</string>
     <string name="dont_sell">ไม่ขาย</string>
-    <string name="idk">ไม่ทราบ</string>
     <string name="sell_drug">ขายบุหรี่ &amp; เครื่องดื่มผสมแอกอฮอล์?</string>
     <string name="school_name">ชื่อโรงเรียน</string>
     <string name="depend_on">สังกัด</string>
     <string name="maxclass">ชั้นสูงสุด</string>
-    <string name="telephone">เบอร์โทร</string>
     <string name="remove_image">ลบรูป</string>
     <string name="search_instruction">กรุณาใส่เลขที่บ้าน,เลขประจำตัวประชาชน, หรือชื่อบุคคล</string>
     <string name="all_check_string">ทั้งหมด</string>
@@ -808,7 +801,6 @@
     <string name="todo">TODO</string>
     <string name="home_chronic">บ้านผู้เรื้อรัง</string>
     <string name="cdisease">ระบาดวิทยา</string>
-    <string name="pregnant">หญิงตั้งครรภ์</string>
     <string name="from">ตั้งแต่</string>
     <string name="to">ถึง</string>
     <string name="after_pregnant">หญิงหลังคลอด</string>
@@ -901,32 +893,22 @@
     <!-- map506EditHouseDetail -->
     <string name="editposition">การแก้ไขตำแหน่งบ้าน</string>
     <string name="editbymap">แก้ไขจากแผนที่</string>
-    <string name="radius">รัศมีการแพร่กระจาย :</string>
-    <string name="radiuslevel">เลือกระดับการแพร่กระจาย :</string>
     <string name="deleteposition">ลบตำแหน่งบ้าน</string>
     <string name="wantdeleteposition">คุณต้องการลบตำแหน่งของบ้านใช่หรือไม่ ?</string>
 
     <string name="mapncdtitle">ปิงปอง 7 สี</string>
     <string name="mapballtitle">ประเมินความเสี่ยง DM/HT</string>
     <string name="mapballgroup">กลุ่ม</string>
-    <string name="mapballgroup:">กลุ่ม :</string>
     <string name="mapballvillage">หมู่บ้าน</string>
-    <string name="mapballvillage:">หมู่บ้าน :</string>
     <string name="mapballage">อายุ</string>
     <string name="mapballageup">ปีขึ้นไป</string>
     <string name="mapballsearchhint">ชื่อ-นามสกุล บ้านเลขที่</string>
     <string name="notdata">ไม่พบข้อมูล</string>
     <string name="nowloadlisttitle">กำลังประมวลผลข้อมูลกรุณารอสักครู่</string>
     <string name="nowloadlistdetail">กรุณารอสักครู่</string>
-    <string name="fname">ชื่อ</string>
-    <string name="lname">นามสกุล</string>
-    <string name="fullname">ชื่อ-นามสกุล</string>
-    <string name="age">อายุ</string>
-    <string name="age:">อายุ :</string>
     <string name="mapballmho">หมู่</string>
     <string name="allvillage">ทุกหมู่บ้าน</string>
     <string name="processing">ประมวลผล</string>
     <string name="searchplace">ค้นหาสถานที่</string>
-    <string name="search">ค้นหา</string>
 
 </resources>
