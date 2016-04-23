@@ -3,9 +3,9 @@ package th.in.ffc.googlemap.visit506;
 
 import android.content.ContentValues;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.maps.model.LatLng;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;

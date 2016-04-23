@@ -10,12 +10,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.MyLocationOverlay;
 import th.in.ffc.FamilyFolderCollector;
@@ -288,7 +288,7 @@ public class FGActivity extends FFCFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.map_menu, menu);
+        getMenuInflater().inflate(R.menu.map_menu, menu);
         wifi_item = menu.findItem(R.id.menu_wifi_status);
         gps_item = menu.findItem(R.id.menu_gps_status);
 

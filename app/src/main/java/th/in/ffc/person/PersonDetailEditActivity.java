@@ -32,9 +32,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.Window;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.intent.Action;
 import th.in.ffc.provider.PersonProvider.Person;
@@ -74,18 +74,13 @@ public class PersonDetailEditActivity extends PersonActivity {
             pd = Fragment.instantiate(this, PersonDetailEditFragment.class.getName(), args);
             ft.add(R.id.content, pd, "detail");
         }
-
-//		Fragment pr = fm.findFragmentByTag("right");
-//		if(pr == null)
-//			pr = Fragment.instantiate(this, Person, arg2)
-
         ft.commit();
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.edit_activity, menu);
+        getMenuInflater().inflate(R.menu.edit_activity, menu);
         return true;
 
     }

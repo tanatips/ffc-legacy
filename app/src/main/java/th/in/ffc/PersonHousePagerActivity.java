@@ -28,7 +28,7 @@ package th.in.ffc;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.MenuItem;
 import th.in.ffc.app.FFCActionBarTabsPagerActivity;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.building.house.HouseListFragment;

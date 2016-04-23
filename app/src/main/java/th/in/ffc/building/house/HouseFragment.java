@@ -31,8 +31,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import th.in.ffc.R;
 import th.in.ffc.app.form.ViewFormFragment;
 import th.in.ffc.provider.HouseProvider.House;
@@ -92,8 +93,7 @@ public abstract class HouseFragment extends ViewFormFragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(
-            com.actionbarsherlock.view.MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit:
                 Edit();

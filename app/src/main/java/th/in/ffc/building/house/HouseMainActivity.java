@@ -32,12 +32,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 import com.blayzupe.phototaker.PhotoTaker;
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
@@ -163,7 +163,7 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.house_main, menu);
+        getMenuInflater().inflate(R.menu.house_main, menu);
         if (!mGenogramable) {
             menu.removeItem(R.id.genogram);
         }

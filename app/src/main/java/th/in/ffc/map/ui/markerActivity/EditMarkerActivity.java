@@ -2,7 +2,7 @@ package th.in.ffc.map.ui.markerActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import com.actionbarsherlock.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.map.value.MARKER_TYPE;
