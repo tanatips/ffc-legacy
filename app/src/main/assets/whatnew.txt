@@ -1,0 +1,38 @@
+FFC+ 2.1beta
+-เพิ่มกราฟแสดงความดัน น้ำหนัก ชีจตร ในหน้่าดู visit ย้อนหลัง
+-เพิ่มแผนที่โรคระบาดวิทยา ในหน้าหลัก
+-เพิ่มแผนที่ปิงปอง 7 สี ในหน้าหลัก
+
+FFC+ 2.0.5b
+-Support for JHCIS version 29 June 2013
+-Unlock person address muu 
+-Fix Prename code
+-Fix HomeHealthType code 
+-Fix Education code
+
+FFC+ 2.0.5
+-Fix general bug
+-Block Genogram page on outer-village house
+-Changed house picture's name format
+-Added NCD Screen Visit Function
+-Added Address editor for Person Edit Page
+
+FFC+ 2.0.4
+-Add What's new dialog on MainActivity
+-Add 'Process Anyway' in OutOfDateDialog
+-Fix Age calculation for Dead Person bug
+-Remove Family Tree scroll
+
+FFC+ 2.0.3
+-Add Auto-fill PID with zero prefix on new person with null person-id
+-Fix General bug
+
+FFC+ 2.0.1
+-Add new Visit Dental Function
+-Removed English string for use with MIUI ROM
+
+FFC+ 2.0
+-All new design interface for FFC
+-Add new many feature of visit
+-Add new Search-able Spinner for Quickly form answer
+-Add new many feature for Map Activity such as Marker-Filter, New 6 Type of Maker And New performance of Maps 
