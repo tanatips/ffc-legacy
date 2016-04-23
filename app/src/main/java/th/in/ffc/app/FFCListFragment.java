@@ -27,9 +27,9 @@
 package th.in.ffc.app;
 
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.LinearLayout;
-import th.in.ffc.R;
 
 /**
  * add description here! please
@@ -38,18 +38,13 @@ import th.in.ffc.R;
  * @version 1.0
  * @since Family Folder Collector 2.0
  */
-public class FFCListFragment extends FFCFragmentActivity {
+public class FFCListFragment extends ListFragment {
 
     protected static final String TAG = "FFC-listFragment";
 
 
     private LinearLayout mProgessLayout;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.default_list);
-    }
 
     public void showProgess(boolean show) {
         if (mProgessLayout != null) {
@@ -80,7 +75,7 @@ public class FFCListFragment extends FFCFragmentActivity {
     }
 
     public FFCFragmentActivity getFFCActivity() {
-        return this;
+        return (FFCFragmentActivity) getActivity();
     }
 
 

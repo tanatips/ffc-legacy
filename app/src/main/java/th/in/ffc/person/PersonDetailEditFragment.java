@@ -284,9 +284,6 @@ public class PersonDetailEditFragment extends PersonFragment implements
         CursorLoader cl;
         String selection;
         String[] selectionArgs;
-
-        getSherlockActivity()
-                .setSupportProgressBarIndeterminateVisibility(true);
         switch (arg0) {
             case 0:
                 selection = "pid=? AND pcucodeperson=?";
@@ -311,8 +308,6 @@ public class PersonDetailEditFragment extends PersonFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> arg0, Cursor c) {
-        getSherlockActivity().setSupportProgressBarIndeterminateVisibility(
-                false);
         switch (arg0.getId()) {
             case 0:
                 if (c.moveToFirst()) {

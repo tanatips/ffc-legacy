@@ -12,7 +12,7 @@ import th.in.ffc.map.FGActivity;
 import th.in.ffc.map.overlay.FGOverlayManager;
 import th.in.ffc.map.value.MARKER_TYPE;
 
-public class CreateMarkerActivity extends FFCFragmentActivity implements TabListener {
+public class CreateMarkerActivity extends FFCFragmentActivity implements ActionBar.TabListener {
 
     private CreateBaseFragment cb;
     private boolean first;
