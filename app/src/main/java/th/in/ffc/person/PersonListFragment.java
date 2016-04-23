@@ -182,11 +182,7 @@ public class PersonListFragment extends FFCListFragment implements TextWatcher,
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
     public void onSearchRequest() {
-        // TODO Auto-generated method stub
-        super.onSearchRequest();
-
         if (!mInput.isShown()) {
             mInput.setVisibility(View.VISIBLE);
             mInput.requestFocus();
