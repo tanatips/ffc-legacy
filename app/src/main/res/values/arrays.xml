@@ -8,7 +8,6 @@
         <item>@string/no</item>
         <item>@string/yes</item>
     </string-array>
-
     <string-array name="ciga">
         <item>ไม่สูบบุหรี่</item>
         <item>สูบบ้าง บางครั้ง</item>
@@ -37,6 +36,25 @@
         <item>ไม่</item>
         <item>ใช่</item>
     </string-array>
-
-
+    <string-array name="type_list">
+        <item>บ้าน</item>
+        <item>วัด</item>
+        <item>แหล่งน้ำ</item>
+        <item>โรงเรียน</item>
+        <item>ร้านค้า</item>
+        <item>POI</item>
+        <item>โรงพยาบาล</item>
+    </string-array>
+    <string-array name="alchohol_permit_list">
+        <item>ไม่ขาย</item>
+        <item>บุหรี่ (อย่างเดียว)</item>
+        <item>ขายเครื่องดื่มผสมแอกอฮอล์ (อย่างเดียว)</item>
+        <item>ขายทั้งสองอย่าง</item>
+        <item>ไม่ทราบ</item>
+    </string-array>
+    <string-array name="metro_list">
+        <item>เทศบาล</item>
+        <item>นอกเขตเทศบาล</item>
+        <item>ทั้งสองเขตฯ</item>
+    </string-array>
 </resources>
