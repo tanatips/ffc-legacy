@@ -2,6 +2,7 @@ package th.in.ffc.map.overlay;
 
 import android.content.Intent;
 import android.view.View;
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -29,12 +30,12 @@ public class ItemGestureListener implements
         mapView = (MapView) mf.getView().findViewById(R.id.mapview);
     }
 
-    @Override
+/*    @Override
     public boolean onItemDoubleTap(int arg0, Spot spot) {
         // Log.i("TAG!","TAG! double!");
 
         // final int thisIndex;
-        GeoPoint point = spot.getPoint();
+        IGeoPoint point = spot.getPoint();
 
         // List<Overlay> mapOverlays = mapView.getOverlays();
         // if (mapOverlays.size() > 1) {
@@ -43,8 +44,7 @@ public class ItemGestureListener implements
 
         // params.mode = MapView.LayoutParams.MODE_MAP;
 
-        LayoutParams params = new LayoutParams(
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
+        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
                 LayoutParams.BOTTOM_CENTER, 0, -10);
         // setBalloonTouchListener(thisIndex);
 
@@ -62,11 +62,14 @@ public class ItemGestureListener implements
             isRecycled = true;
         }
 
-        MapController mapController = FGActivity.fgsys.getFGMapManager()
-                .getMapController();
+        MapController mapController = FGActivity.fgsys.getFGMapManager().getMapController();
         mapController.animateTo(point);
 
         return true;
+    }*/
+
+    @Override public boolean onItemSingleTapUp(int i, Spot spot) {
+        return false;
     }
 
     @Override
@@ -91,7 +94,7 @@ public class ItemGestureListener implements
         return true;
     }
 
-    @Override
+/*    @Override
     public boolean onItemSingleTapConfirmed(int arg0, Spot spot) {
 
         if (spot.getUid().equals(MARKER_TYPE.HOUSE.name()))
@@ -99,6 +102,6 @@ public class ItemGestureListener implements
                     .startFamilyTree(spot.getPartialID());
 
         return true;
-    }
+    }*/
 
 }

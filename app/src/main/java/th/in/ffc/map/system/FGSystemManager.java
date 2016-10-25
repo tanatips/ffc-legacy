@@ -92,8 +92,8 @@ public class FGSystemManager {
         Double lat = spot.getDoubleLat();
         Double lon = spot.getDoubleLong();
 
-        spot.setLatitude(0);
-        spot.setLongitude(0);
+/*        spot.setLatitude(0);
+        spot.setLongitude(0);*/
 
         if (this.fgDatabaseManager.updateGeoPointToDatabase(spot)) {
             spot.setMarker(null);
@@ -102,8 +102,8 @@ public class FGSystemManager {
             this.fgDatabaseManager.addSpotToAvailable(spot);
             return true;
         } else {
-            spot.setLatitude(lat);
-            spot.setLongitude(lon);
+/*            spot.setLatitude(lat);
+            spot.setLongitude(lon);*/
 
             return false;
         }

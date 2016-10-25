@@ -262,7 +262,7 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements
 
         TextView l1 = new TextView(getApplicationContext());
         l1.setText("���йӡ���Թ�ҧ");
-        l1.setTextAppearance(getApplicationContext(), R.style.AppTheme);
+        l1.setTextAppearance(getApplicationContext(), R.style.FFC_Theme_Light);
         l1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         l1.setTextColor(getResources().getColor(R.color.holo_blue_dark));
         TextView l2 = new TextView(getApplicationContext());

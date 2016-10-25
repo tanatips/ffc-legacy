@@ -44,8 +44,8 @@ public class FGOverlay extends Overlay {
     @Override
     public boolean onLongPress(MotionEvent e, MapView mapView) {
 
-        IGeoPoint geoPoint = mapView.getProjection().fromPixels(e.getX(),
-                e.getY());
+        IGeoPoint geoPoint = mapView.getProjection().fromPixels((int) e.getX(),
+                (int) e.getY());
 
         if (this.fgSystemManager.getFGDatabaseManager().getAvailable().size() == 0) {
             AlertDialog alertDialogAllHouseHasBeenCreated = this.fgSystemManager

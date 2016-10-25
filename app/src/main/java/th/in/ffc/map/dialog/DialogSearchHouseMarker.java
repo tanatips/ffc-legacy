@@ -57,7 +57,7 @@ public class DialogSearchHouseMarker extends Dialog implements View.OnClickListe
                     case FGActivity.INITIALIZE:
                         Spot item = (Spot) msg.obj;
                         fgSystemManager.getFGMapManager().getMapController().animateTo(item.getPoint());
-                        fgSystemManager.getFGMapManager().getGesture().onItemDoubleTap(-1, item);
+                        //fgSystemManager.getFGMapManager().getGesture().onItemDoubleTap(-1, item);
                         break;
                     case FGActivity.FAILED:
                         Toast.makeText(fgSystemManager.getFGActivity().getApplicationContext(), msg.obj.toString(), Toast.LENGTH_LONG).show();

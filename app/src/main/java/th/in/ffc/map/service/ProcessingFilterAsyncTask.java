@@ -52,7 +52,7 @@ public class ProcessingFilterAsyncTask extends AsyncTask<String, String, String>
 
             for (Spot entry : marked) {
 
-                entry.setVisible(sh.getBoolean(entry.getUid().toLowerCase() + "_checkbox", true));
+                //entry.setVisible(sh.getBoolean(entry.getUid().toLowerCase() + "_checkbox", true));
 
                 if (entry.getUid().equals(house_codename))
                     houseSet.put(entry.getPartialID(), entry);
@@ -132,7 +132,7 @@ public class ProcessingFilterAsyncTask extends AsyncTask<String, String, String>
                 } else if (group_check && group_all_check) {
                     // Reset Only House to be all visible
                     for (Spot spot : houseSet.values()) {
-                        spot.setVisible(true);
+                      //  spot.setVisible(true);
                     }
                 }
             }
@@ -143,7 +143,7 @@ public class ProcessingFilterAsyncTask extends AsyncTask<String, String, String>
             Collection<Spot> marked = FGActivity.fgsys.getFGDatabaseManager().getMarked().values();
 
             for (Spot entry : marked) {
-                entry.setVisible(true);
+               // entry.setVisible(true);
             }
         }
 
@@ -170,7 +170,7 @@ public class ProcessingFilterAsyncTask extends AsyncTask<String, String, String>
                 if (spot == null)
                     continue;
 
-                spot.setVisible(visible);
+               // spot.setVisible(visible);
 
                 if (visible) {
                     houseSet.remove(key);

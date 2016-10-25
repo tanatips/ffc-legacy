@@ -449,7 +449,7 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
 
             Intent login = new Intent(Action.RE_LOGIN);
             login.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            login.putExtra("username", new String(getUser()));
+            login.putExtra("username", getUser());
             this.startActivityForResult(login, REQUEST_RELOGIN);
 
             logOut();

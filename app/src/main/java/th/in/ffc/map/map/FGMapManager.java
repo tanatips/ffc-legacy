@@ -10,7 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import org.osmdroid.ResourceProxy;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.google.wrapper.MyLocationOverlay;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -18,14 +19,11 @@ import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.MyLocationOverlay;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.TilesOverlay;
 import th.in.ffc.R;
 import th.in.ffc.map.FGActivity;
 import th.in.ffc.map.MapFragment;
-import th.in.ffc.map.ResourceProxyImpl;
-import th.in.ffc.map.UserResourceProxyImpl;
 import th.in.ffc.map.overlay.FGOverlay;
 import th.in.ffc.map.overlay.ItemGestureListener;
 import th.in.ffc.map.system.FGSystemManager;
@@ -120,13 +118,13 @@ public class FGMapManager implements OnClickListener {
 
         // ----
 
-        markers = new ItemizedIconOverlay<Spot>(new ArrayList<Spot>(), this.gesture, new ResourceProxyImpl(fgActivity.getApplicationContext()));
+        //markers = new ItemizedIconOverlay<Spot>(new ArrayList<Spot>(), this.gesture, new ResourceProxyImpl(fgActivity.getApplicationContext()));
 
         this.emptyOverlay = new FGOverlay(fgSystemManager);
 
         this.mapView.setMultiTouchControls(true);
 
-        this.mapController = this.mapView.getController();
+        //this.mapController = this.mapView.getController();
 
         this.setMapStyle(FinalValue.INT_SATELLITE_OVERLAY);
 
@@ -193,8 +191,8 @@ public class FGMapManager implements OnClickListener {
 
         stackOverlay.add(emptyOverlay);
         stackOverlay.add(markers);
-        if (mLocation != null)
-            stackOverlay.add(mLocation);
+/*        if (mLocation != null)
+            stackOverlay.add(mLocation);*/
 
         currentMapStyle = newStyle;
     }
@@ -205,7 +203,7 @@ public class FGMapManager implements OnClickListener {
 
     private OnlineTileSourceBase initializeSatellite() {
         if (sourceBase == null || (!sourceBase.name().equals("Google_Satellite"))) {
-            sourceBase = new OnlineTileSourceBase("Google_Satellite", ResourceProxy.string.unknown, 1, 19, 256, ".jpg",
+            sourceBase = new OnlineTileSourceBase("Google_Satellite", 1, 19, 256, ".jpg",
                     sat_url.toArray(new String[sat_url.size()])) {
                 @Override
                 public String getTileURLString(final MapTile aTile) {
@@ -218,7 +216,7 @@ public class FGMapManager implements OnClickListener {
 
     private OnlineTileSourceBase initializeGoogleMaps() {
         if (sourceBase == null || (!sourceBase.name().equals("Google_Maps"))) {
-            sourceBase = new OnlineTileSourceBase("Google_Maps", ResourceProxy.string.unknown, 1, 20, 256, ".jpg",
+            sourceBase = new OnlineTileSourceBase("Google_Maps", 1, 20, 256, ".jpg",
                     maps_url.toArray(new String[maps_url.size()])) {
                 @Override
                 public String getTileURLString(final MapTile aTile) {
@@ -232,7 +230,7 @@ public class FGMapManager implements OnClickListener {
     private TilesOverlay initializeGoogleOverlay() {
         if (tileProvider == null) {
             tileProvider = new MapTileProviderBasic(this.fgSystemManager.getFGActivity());
-            final ITileSource tileSource = new OnlineTileSourceBase("Google_Hybrid", ResourceProxy.string.unknown, 1, 19, 256, ".png",
+            final ITileSource tileSource = new OnlineTileSourceBase("Google_Hybrid", 1, 19, 256, ".png",
                     hybrid_url.toArray(new String[hybrid_url.size()])) {
                 @Override
                 public String getTileURLString(final MapTile aTile) {
@@ -323,8 +321,8 @@ public class FGMapManager implements OnClickListener {
     private void initializeCurrentLocation() {
         Context context = fgSystemManager.getFGActivity().getApplicationContext();
 
-        mLocation = new MyLocationOverlay(context, mapView, new UserResourceProxyImpl(context));
-        mapView.getOverlays().add(mLocation);
+       /* mLocation = new MyLocationOverlay(context, mapView, new UserResourceProxyImpl(context));
+        mapView.getOverlays().add(mLocation);*/
         // mLocation.enableMyLocation();
         // mLocation.runOnFirstFix(new Runnable() {
         // @Override

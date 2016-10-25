@@ -2,6 +2,7 @@ package th.in.ffc.map.village.spot;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.OverlayItem;
 import th.in.ffc.R;
@@ -62,13 +63,13 @@ public class Spot extends OverlayItem {
         return ((double) this.mGeoPoint.getLatitudeE6()) / 1E6;
     }
 
-    public void setLatitude(double arg0) {
+/*    public void setLatitude(double arg0) {
         this.mGeoPoint.setLatitudeE6((int) (arg0 * 1E6));
     }
 
     public void setLongitude(double arg0) {
         this.mGeoPoint.setLongitudeE6((int) (arg0 * 1E6));
-    }
+    }*/
 
     public String getID() {
         return pcucode + "h" + this.intPartialID;

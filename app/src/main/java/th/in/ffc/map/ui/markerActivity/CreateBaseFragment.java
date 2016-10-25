@@ -504,8 +504,8 @@ public class CreateBaseFragment extends FFCFragment implements OnClickListener,
                     .toString();
             double doubleLongitude = Double.parseDouble(stringLongitude);
 
-            spot.setLatitude(doubleLatitude);
-            spot.setLongitude(doubleLongitude);
+/*            spot.setLatitude(doubleLatitude);
+            spot.setLongitude(doubleLongitude);*/
 
             Drawable drawable = image_location.getDrawable();
             Bitmap bmp = null;
@@ -548,8 +548,8 @@ public class CreateBaseFragment extends FFCFragment implements OnClickListener,
                     .toString();
             double doubleLongitude = Double.parseDouble(stringLongitude);
 
-            spot.setLatitude(doubleLatitude);
-            spot.setLongitude(doubleLongitude);
+/*            spot.setLatitude(doubleLatitude);
+            spot.setLongitude(doubleLongitude);*/
 
             Log.d("TAG!", "pic_changed=" + FGOverlayManager.pic_changed);
             if (FGOverlayManager.pic_changed) {

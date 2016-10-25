@@ -16,8 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
+import org.osmdroid.google.wrapper.MyLocationOverlay;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.MyLocationOverlay;
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
@@ -91,7 +91,7 @@ public class FGActivity extends FFCFragmentActivity {
                             registerReceiver(conRec, new IntentFilter(
                                     "android.net.conn.CONNECTIVITY_CHANGE"));
 
-                            final MyLocationOverlay lo = fgsys.getFGMapManager()
+                            /*final MyLocationOverlay lo = fgsys.getFGMapManager()
                                     .getMyLocationOverlay();
                             lo.runOnFirstFix(new Runnable() {
                                 @Override
@@ -103,8 +103,8 @@ public class FGActivity extends FFCFragmentActivity {
                             });
                             handler.sendEmptyMessage(LOCATION_INITIALIZE);
 
-                            fgsys.getFGMapManager().getMyLocationOverlay()
-                                    .enableMyLocation();
+                            //fgsys.getFGMapManager().getMyLocationOverlay()
+                                    .enableMyLocation();*/
                         }
 
                         fgsys.getFGMapManager().checkGPS();
@@ -195,7 +195,7 @@ public class FGActivity extends FFCFragmentActivity {
         if (conRec != null) {
             registerReceiver(conRec, new IntentFilter(
                     "android.net.conn.CONNECTIVITY_CHANGE"));
-            fgsys.getFGMapManager().getMyLocationOverlay().enableMyLocation();
+            //fgsys.getFGMapManager().getMyLocationOverlay().enableMyLocation();
         }
     }
 
@@ -267,7 +267,7 @@ public class FGActivity extends FFCFragmentActivity {
         if (fgsys != null) {
             Log.d("TAG!", "Map paused Passed!");
             fgsys.getFGMapManager().clearCahce();
-            fgsys.getFGMapManager().getMyLocationOverlay().disableMyLocation();
+            //fgsys.getFGMapManager().getMyLocationOverlay().disableMyLocation();
         }
         if (conRec != null)
             unregisterReceiver(conRec);
@@ -319,15 +319,15 @@ public class FGActivity extends FFCFragmentActivity {
                 GeoPoint geoPointCurrent;
                 MyLocationOverlay mLocation = fgsys.getFGMapManager()
                         .getMyLocationOverlay();
-                if (mLocation.getMyLocation() != null)
+/*                if (mLocation.getLastFix() != null){
                     fgsys.getFGMapManager().getMapController()
                             .setCenter(mLocation.getMyLocation());
-                else if (location != null) {
+                } else if (location != null) {
                     geoPointCurrent = new GeoPoint(location.getLatitude(),
                             location.getLongitude());
                     fgsys.getFGMapManager().getMapController()
                             .setCenter(geoPointCurrent);
-                }
+                }*/
 
                 // For testing-purpose only
 
