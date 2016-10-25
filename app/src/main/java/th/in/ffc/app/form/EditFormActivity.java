@@ -37,8 +37,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
+import java.security.InvalidParameterException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.form.EditFormActivity.EditFragment.RemoveRequestListener;
@@ -47,10 +48,6 @@ import th.in.ffc.util.DateTime.Date;
 import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.widget.ArrayFormatSpinner;
 import th.in.ffc.widget.SearchableButton;
-
-import java.security.InvalidParameterException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 /**
  * add description here!
@@ -305,9 +302,9 @@ public class EditFormActivity extends FFCFragmentActivity {
                 return false;
             if (TextUtils.isEmpty(data)) {
                 if (!allowNull) {
-                    QuickAction qa = new QuickAction(mContext);
+/*                    QuickAction qa = new QuickAction(mContext);
                     qa.addActionItem(new ActionItem(0, "null"));
-                    qa.show(view);
+                    qa.show(view);*/
 
                     mError = true;
                 }
@@ -319,10 +316,10 @@ public class EditFormActivity extends FFCFragmentActivity {
 
         public void showErrorMessage(View view, String msg) {
             if (!TextUtils.isEmpty(msg)) {
-                mErrorView = view;
+/*                mErrorView = view;
                 QuickAction qa = new QuickAction(mContext);
                 qa.addActionItem(new ActionItem(0, msg));
-                qa.show(mErrorView);
+                qa.show(mErrorView);*/
             }
         }
 

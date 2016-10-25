@@ -35,10 +35,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 import th.in.ffc.R;
 import th.in.ffc.code.HospitalListDialog;
 import th.in.ffc.code.RightListDialog;
@@ -233,9 +235,9 @@ public class PersonRightEditActivity extends PersonActivity {
                 et.retrieveData(Person.RIGHT_EXPIRE, mExpire, regis, null, null);
                 return et.canCommit();
             } else {
-                QuickAction qa = new QuickAction(this.getActivity());
+                /*QuickAction qa = new QuickAction(this.getActivity());
                 qa.addActionItem(new ActionItem(0, getString(R.string.hint_expire_early)));
-                qa.show(mExpire);
+                qa.show(mExpire);*/
                 return false;
             }
 

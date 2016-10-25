@@ -28,7 +28,11 @@ package th.in.ffc.person.visit;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -43,25 +47,49 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.blayzupe.phototaker.PhotoTaker;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
+import java.io.File;
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.intent.Action;
 import th.in.ffc.intent.Category;
 import th.in.ffc.provider.CodeProvider.Diagnosis;
-import th.in.ffc.provider.PersonProvider.*;
+import th.in.ffc.provider.PersonProvider.Death;
+import th.in.ffc.provider.PersonProvider.FFC506RADIUS;
+import th.in.ffc.provider.PersonProvider.Person;
+import th.in.ffc.provider.PersonProvider.Visit;
+import th.in.ffc.provider.PersonProvider.VisitAnc;
+import th.in.ffc.provider.PersonProvider.VisitAncDeliver;
+import th.in.ffc.provider.PersonProvider.VisitAncMotherCare;
+import th.in.ffc.provider.PersonProvider.VisitBabycare;
+import th.in.ffc.provider.PersonProvider.VisitDentalCheck;
+import th.in.ffc.provider.PersonProvider.VisitDiag;
+import th.in.ffc.provider.PersonProvider.VisitDiag506address;
+import th.in.ffc.provider.PersonProvider.VisitDiagAppoint;
+import th.in.ffc.provider.PersonProvider.VisitDrug;
+import th.in.ffc.provider.PersonProvider.VisitDrugDental;
+import th.in.ffc.provider.PersonProvider.VisitDrugDentalDiag;
+import th.in.ffc.provider.PersonProvider.VisitEpi;
+import th.in.ffc.provider.PersonProvider.VisitFamilyplan;
+import th.in.ffc.provider.PersonProvider.VisitIndividual;
+import th.in.ffc.provider.PersonProvider.VisitLabcancer;
+import th.in.ffc.provider.PersonProvider.VisitNutrition;
+import th.in.ffc.provider.PersonProvider.VisitOldter;
+import th.in.ffc.provider.PersonProvider.VisitScreenspecialdisease;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.DateTime.Date;
 import th.in.ffc.util.ThaiCitizenID;
 import th.in.ffc.widget.IntentBaseAdapter;
-
-import java.io.File;
 
 /**
  * add description here! please
@@ -207,10 +235,10 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                         Uri.withAppendedPath(Diagnosis.CONTENT_URI, mPDX),
                         projection, null, null, Diagnosis._ID);
                 if (c.moveToFirst()) {
-                    QuickAction qa = new QuickAction(VisitMainActivity.this);
+                    /*QuickAction qa = new QuickAction(VisitMainActivity.this);
                     qa.addActionItem(new ActionItem(R.string.diagnosis, c
                             .getString(1)));
-                    qa.show(v);
+                    qa.show(v);*/
                 }
             }
         }
@@ -413,10 +441,10 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                     mVisitNo, mPid, mPcuCodePerson);
 
         } else {
-            QuickAction qa = new QuickAction(this);
+            /*QuickAction qa = new QuickAction(this);
             qa.addActionItem(new ActionItem(0,
                     getString(R.string.visit_default_first)));
-            qa.show(mVisitButton);
+            qa.show(mVisitButton);*/
         }
 
     }
