@@ -14,19 +14,20 @@ public class Spot extends OverlayItem {
 
     protected String stringVillCode;
     protected int intPartialID;
+    private Bundle mBundle;
     protected String pcucode;
 
     public Spot(String pcucode, MARKER_TYPE type, String stringVillCode,
                 int intPartialID, double doubleLat, double doubleLong,
                 Bundle mBundle) {
 
-        super(type.name(), null, null, new GeoPoint(doubleLat, doubleLong),
-                mBundle);
+        super(type.name(), null, null, new GeoPoint(doubleLat, doubleLong));
 
         this.pcucode = pcucode;
         this.stringVillCode = stringVillCode;
         this.intPartialID = intPartialID;
 
+        this.mBundle = mBundle;
     }
 
     public String getStringVillName() {

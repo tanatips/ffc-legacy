@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -43,9 +44,6 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
     private LatLng newHousePosition;
     private Marker marker;
     private String mode;
-    private String visitno;
-    private String radius;
-    private String colorcode;
     private ProgressBar progressBar;
     LinearLayout linear_load;
 
@@ -56,18 +54,20 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
         FragmentManager myFragmentManager = getSupportFragmentManager();
         SupportMapFragment myMapFragment = (SupportMapFragment) myFragmentManager
                 .findFragmentById(R.id.map);
-        myMap = myMapFragment.getMap();
-        myMap.setOnMarkerDragListener(drag);
+        myMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(GoogleMap googleMap) {
+                googleMap.setOnMarkerDragListener(drag);
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                myMap = googleMap;
+            }
+        });
         hcode = getIntent().getExtras().getString("hcode");
         mode = getIntent().getExtras().getString("mode");
         status = getIntent().getExtras().getString("status");
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         progressBar = (ProgressBar) findViewById(R.id.nowLoading);
         linear_load = (LinearLayout) findViewById(R.id.linear_load);
         progressBar.setVisibility(ProgressBar.GONE);
         linear_load.setVisibility(LinearLayout.GONE);
-        radius = null;
-        colorcode = null;
         if (mode.equals("1")) {
             LatLng = getIntent().getExtras().getString("LatLng");
             String temp[] = LatLng.split(",");
@@ -80,7 +80,6 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
             GoogleMapSearchPosition searchPlace = new GoogleMapSearchPosition(getApplicationContext());
             searchPlace.setReturnPosition(getPosition);
             myMap.setOnMapLongClickListener(longClick);
-            visitno = getIntent().getExtras().getString("visitno");
 
         }
     }
@@ -193,8 +192,8 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
 
 		@Override
 		public void onDialogListener(String radius, String colorcode) {
-			
-				
+
+
 		}
 	};*/
 

@@ -9,6 +9,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
 
@@ -22,7 +23,6 @@ public class GoogleMapLib {
     private Polygon polygonOnMap;
     private Circle circleMap;
     private Marker edgeMarkerCircle;
-    private MarkerOptions marker;
     private double radius;
     private boolean drawPolygon;
 
@@ -31,14 +31,18 @@ public class GoogleMapLib {
         SupportMapFragment mySupportMapFragment = (SupportMapFragment) myFragmentManager
                 .findFragmentById(MapViewId);
         drawPolygon = false;
-        pointPolygon = new ArrayList<LatLng>();
-        myMap = mySupportMapFragment.getMap();
-        LatLng latlng = new LatLng(13.822578, 100.514233);
-        hashMarker = new HashMap<Marker, Integer>();
-        myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 8.0f));
-        myMap.setOnMapClickListener(myMapClick);
-        myMap.setOnMapLongClickListener(myMapLongClick);
-        myMap.setOnMarkerDragListener(markerDrag);
+        pointPolygon = new ArrayList<>();
+        mySupportMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(GoogleMap googleMap) {
+                myMap = googleMap;
+                LatLng latlng = new LatLng(13.822578, 100.514233);
+                myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 8.0f));
+                myMap.setOnMapClickListener(myMapClick);
+                myMap.setOnMapLongClickListener(myMapLongClick);
+                myMap.setOnMarkerDragListener(markerDrag);
+            }
+        });
+        hashMarker = new HashMap<>();
     }
 
     private void createPolygon() {
@@ -130,7 +134,7 @@ public class GoogleMapLib {
 
         @Override
         public void onMapLongClick(LatLng positionLongClick) {
-            marker = new MarkerOptions();
+            MarkerOptions marker = new MarkerOptions();
             marker.draggable(true);
             marker.position(positionLongClick);
             if (drawPolygon) {

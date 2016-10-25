@@ -21,6 +21,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
 import th.in.ffc.R;
@@ -60,11 +61,16 @@ public class AddHousePositionFragmentActivity extends FFCFragmentActivity {
         FragmentManager myFragmentManager = getSupportFragmentManager();
         SupportMapFragment myMapFragment = (SupportMapFragment) myFragmentManager.findFragmentById(R.id.map);
         commitclick = false;
-        myMap = myMapFragment.getMap();
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        myMap.setOnMarkerDragListener(drag);
-        hcode = getIntent().getExtras().getString("hcode");
-        mode = getIntent().getExtras().getString("mode");
+        myMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(GoogleMap googleMap) {
+                myMap = googleMap;
+                myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                myMap.setOnMarkerDragListener(drag);
+                hcode = getIntent().getExtras().getString("hcode");
+                mode = getIntent().getExtras().getString("mode");
+            }
+        });
+
         radius = null;
         colorcode = null;
         if (mode.equals("1")) {

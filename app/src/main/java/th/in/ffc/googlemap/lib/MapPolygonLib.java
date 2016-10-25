@@ -1,9 +1,12 @@
 package th.in.ffc.googlemap.lib;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.PermissionChecker;
 import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,6 +14,7 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.*;
 
 import java.util.ArrayList;
@@ -28,11 +32,9 @@ public class MapPolygonLib {
     private HashMap<Marker, Integer> markerMap;
     private Polygon polygonOnMap = null;
 
-
     OnMapClickListener mMapClick = new OnMapClickListener() {
 
-        @Override
-        public void onMapClick(LatLng point) {
+        @Override public void onMapClick(LatLng point) {
             myMap.animateCamera(CameraUpdateFactory.newLatLng(point));
             myMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
             markerClicked = false;
@@ -40,8 +42,7 @@ public class MapPolygonLib {
     };
 
     OnMarkerDragListener myMapDrag = new OnMarkerDragListener() {
-        @Override
-        public void onMarkerDrag(Marker marker) {
+        @Override public void onMarkerDrag(Marker marker) {
             if (editMode) {
                 if (areaMode) {
                     point.set(markerMap.get(marker), marker.getPosition());
@@ -49,8 +50,7 @@ public class MapPolygonLib {
                 } else {
                     if (markerMap.get(marker) == 1) {
                         // Drag edge marker
-                        radius = havrsineFormula(point.get(0),
-                                marker.getPosition());
+                        radius = havrsineFormula(point.get(0), marker.getPosition());
                         circle.setRadius(radius);
                     } else {
                         Log.d("panda", "hello");
@@ -58,29 +58,24 @@ public class MapPolygonLib {
                         // Drag center marker
                         point.set(0, marker.getPosition());
                         // edgeMarker = new MarkerOptions();
-                        edge.setPosition(getCircleEdge(radius,
-                                marker.getPosition().latitude,
-                                marker.getPosition().longitude));
+                        edge.setPosition(getCircleEdge(radius, marker.getPosition().latitude, marker.getPosition().longitude));
                         addCircle(point);
                     }
                 }
             }
         }
 
-        @Override
-        public void onMarkerDragEnd(Marker marker) {
+        @Override public void onMarkerDragEnd(Marker marker) {
 
         }
 
-        @Override
-        public void onMarkerDragStart(Marker marker) {
+        @Override public void onMarkerDragStart(Marker marker) {
 
         }
     };
     OnMapLongClickListener myMapLongClick = new OnMapLongClickListener() {
 
-        @Override
-        public void onMapLongClick(LatLng setMarkerPoint) {
+        @Override public void onMapLongClick(LatLng setMarkerPoint) {
             if (editMode) {
                 if (areaMode) {
                     MarkerOptions mm = new MarkerOptions();
@@ -96,9 +91,7 @@ public class MapPolygonLib {
                     MarkerOptions mm = new MarkerOptions();
                     mm.position(setMarkerPoint).draggable(true);
                     MarkerOptions edgeMarker = new MarkerOptions();
-                    edgeMarker.position(
-                            getCircleEdge(radius, setMarkerPoint.latitude,
-                                    setMarkerPoint.longitude)).draggable(true);
+                    edgeMarker.position(getCircleEdge(radius, setMarkerPoint.latitude, setMarkerPoint.longitude)).draggable(true);
                     edge = myMap.addMarker(edgeMarker);
                     markerMap.put(edge, 1);
                     markerMap.put(myMap.addMarker(mm), 0);
@@ -108,24 +101,31 @@ public class MapPolygonLib {
                 }
             }
         }
-
     };
 
-    public MapPolygonLib(Activity activity, int MapViewId) {
+    public MapPolygonLib(final Activity activity, int MapViewId) {
         radius = 100;
         areaMode = true;
         editMode = false;
         point = new ArrayList<LatLng>();
         markerMap = new HashMap<Marker, Integer>();
         FragmentManager myFragmentManager = activity.getFragmentManager();
-        MapFragment myMapFragment = (MapFragment) myFragmentManager
-                .findFragmentById(MapViewId);
-        myMap = myMapFragment.getMap();
-        myMap.setMyLocationEnabled(true);
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        myMap.setOnMapClickListener(mMapClick);
-        myMap.setOnMapLongClickListener(myMapLongClick);
-        myMap.setOnMarkerDragListener(myMapDrag);
+        MapFragment myMapFragment = (MapFragment) myFragmentManager.findFragmentById(MapViewId);
+        myMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(GoogleMap googleMap) {
+                myMap = googleMap;
+                if (PermissionChecker.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && PermissionChecker.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    myMap.setMyLocationEnabled(true);
+                }
+                myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                myMap.setOnMapClickListener(mMapClick);
+                myMap.setOnMapLongClickListener(myMapLongClick);
+                myMap.setOnMarkerDragListener(myMapDrag);
+            }
+        });
+
         markerClicked = false;
     }
 

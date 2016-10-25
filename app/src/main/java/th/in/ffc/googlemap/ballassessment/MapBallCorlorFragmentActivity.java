@@ -27,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -108,12 +109,17 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
         personList = (LinearLayout) findViewById(R.id.personlist);
         FragmentManager myFragmentManager = getSupportFragmentManager();
         SupportMapFragment myMapFragment = (SupportMapFragment) myFragmentManager.findFragmentById(R.id.map);
-        myMap = myMapFragment.getMap();
-        myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(13.822578, 100.514233), 6.0f));
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        myMap.setInfoWindowAdapter(markerInfo);
-        myMap.setOnInfoWindowClickListener(markerInfoClick);
-        myMap.setOnMarkerClickListener(markerClick);
+        myMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(GoogleMap googleMap) {
+                myMap = googleMap;
+                myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(13.822578, 100.514233), 6.0f));
+                myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                myMap.setInfoWindowAdapter(markerInfo);
+                myMap.setOnInfoWindowClickListener(markerInfoClick);
+                myMap.setOnMarkerClickListener(markerClick);
+            }
+        });
+
         doOpenProgressLoadShow();
         hashMaker = new HashMap<String, ArrayList<Marker>>();
         fname = new ArrayList<String>();

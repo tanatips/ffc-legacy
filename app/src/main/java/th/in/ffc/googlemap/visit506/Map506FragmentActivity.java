@@ -27,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
 import th.in.ffc.R;
@@ -91,12 +92,17 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements
         init();
         FragmentManager myFragmentManager = getSupportFragmentManager();
         SupportMapFragment myMapFragment = (SupportMapFragment) myFragmentManager.findFragmentById(R.id.map);
-        myMap = myMapFragment.getMap();
-        myMap.setOnMarkerClickListener(markerClick);
-        myMap.setInfoWindowAdapter(markerInfo);
-        myMap.setOnInfoWindowClickListener(markerInfoClick);
-        myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        myMap.setOnMarkerDragListener(makerLongClick);
+        myMapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override public void onMapReady(GoogleMap googleMap) {
+                myMap = googleMap;
+                myMap.setOnMarkerClickListener(markerClick);
+                myMap.setInfoWindowAdapter(markerInfo);
+                myMap.setOnInfoWindowClickListener(markerInfoClick);
+                myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                myMap.setOnMarkerDragListener(makerLongClick);
+            }
+        });
+
         searchPlace = false;
         fillter = "";
         getLoaderManager().initLoader(0, null, this);
