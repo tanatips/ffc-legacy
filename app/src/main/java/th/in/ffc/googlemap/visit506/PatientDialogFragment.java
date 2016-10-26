@@ -32,10 +32,10 @@ public class PatientDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(R.drawable.ic_launcher);
-        builder.setTitle("��ԡ���ʹ���ª��ͼ�����");
+        builder.setTitle(R.string.click_to_show_patients);
         builder.setView(getContentView());
-        builder.setPositiveButton("��ŧ", positiveButton);
-        builder.setNegativeButton("¡��ԡ", new OnClickListener() {
+        builder.setPositiveButton(R.string.ok, positiveButton);
+        builder.setNegativeButton(R.string.cancel, new OnClickListener() {
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
 

@@ -913,5 +913,18 @@
     <string name="allvillage">ทุกหมู่บ้าน</string>
     <string name="processing">ประมวลผล</string>
     <string name="searchplace">ค้นหาสถานที่</string>
+    <string name="find_places">ค้นหาสถานที่ต่าง ๆ</string>
+    <string name="please_add_house_location">กรุณาเพิ่มตำแหน่งบ้านก่อน</string>
+    <string name="error">ผิดพลาด</string>
+    <string name="please_connect_internet">กรุณาเชื่อมต่ออินเทอร์เน็ต</string>
+    <string name="please_define_keyword_before_search">โปรดระบุคำค้นหาสถานที่</string>
+    <string name="search_place_result_of">ผลลัพธ์การค้นหาของ\"%1$s\"</string>
+    <string name="place_not_found">ไม่พบสถานที่ที่ค้นหา</string>
+    <string name="patient_info">เลขที่ :%1$s\nชื่อ :%2$s\nป่วยเป็นโรค :%3$s\nเริ่มป่วยวันที่ :%4$s</string>
+    <string name="need_find_route_or_read_route_guide">ต้องการค้นหาเส้นทางหรือต้องการอ่านคำแนะนำเส้นทาง</string>
+    <string name="direction_guide">คำแนะนำการเดินทาง</string>
+    <string name="address_506_string_format">%1$s,%2$s,%3$s หมู่%4$s %5$s,%6$s %7$s,%8$s,%9$s</string>
+    <string name="click_to_show_patients">คลิกเพื่อดูรายชื่อผู้ป่วย</string>
+    <string name="please_define_house_position">กรุณาใส่ค่าตำแหน่งของบ้าน</string>
 
 </resources>

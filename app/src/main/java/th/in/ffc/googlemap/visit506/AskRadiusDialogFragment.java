@@ -23,7 +23,7 @@ public class AskRadiusDialogFragment extends DialogFragment {
     private final String COLOR_RED = "#EE0000";
     private final String COLOR_ORANGE = "#ff8c00";
     private final String COLOR_YELLOW = "#ffc500";
-    private String choice[] = {"����", "�ҹ��ҧ", "�ع�ç"};
+    private String choice[] = { "ปกติ", "ปานกลาง" ,"รุนแรง" };
     String radius;
     String radiusSet;
     int levelSet;
@@ -37,6 +37,7 @@ public class AskRadiusDialogFragment extends DialogFragment {
     public static interface onDialogListener {
         public void onDialogListener(String radius, String colorcode, int levelSet);
     }
+
 
     public AskRadiusDialogFragment(String radiusSet, int levelSet) {
         this.radiusSet = radiusSet;
@@ -55,8 +56,8 @@ public class AskRadiusDialogFragment extends DialogFragment {
         builder.setIcon(R.drawable.ic_launcher);
         builder.setTitle("Setting Radius");
         builder.setView(getContentView());
-        builder.setPositiveButton("��ŧ", positiveButton);
-        builder.setNegativeButton("¡��ԡ", new OnClickListener() {
+        builder.setPositiveButton(R.string.ok, positiveButton);
+        builder.setNegativeButton(R.string.cancel, new OnClickListener() {
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
                 dismiss();

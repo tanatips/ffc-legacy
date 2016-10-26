@@ -142,12 +142,13 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
         }
     };
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem direction = menu.add(Menu.NONE, 3, Menu.NONE, "commit");
-        direction.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        direction.setIcon(R.drawable.ic_action_done);
-        MenuItem searchPlace = menu.add(Menu.NONE, 4, Menu.NONE, "����ʶҹ����ҧ�");
+        MenuItem commit = menu.add(Menu.NONE, 3, Menu.NONE, "commit");
+        commit.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        commit.setIcon(R.drawable.ic_action_done);
+        MenuItem searchPlace = menu.add(Menu.NONE, 4, Menu.NONE, R.string.find_places);
         searchPlace.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         searchPlace.setIcon(R.drawable.ic_action_search);
         return super.onCreateOptionsMenu(menu);
@@ -205,17 +206,17 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
                 R.layout.google_map_search_place, null);
 
         final EditText searchPlace = (EditText) sv.findViewById(R.id.searchP_et);
-        searchBuilder.setTitle("����ʶҹ����Ӥѭ");
+        searchBuilder.setTitle(R.string.find_places);
         searchBuilder.setView(sv);
-        searchBuilder.setPositiveButton("����", new DialogInterface.OnClickListener() {
+        searchBuilder.setPositiveButton(R.string.search, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!chk.isNetworkAvailable()) {
                     Builder noNetworkDialog = new Builder(EditPostionHomeFragmentActivity.this);
                     noNetworkDialog.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
-                    noNetworkDialog.setTitle("�Դ��Ҵ");
-                    noNetworkDialog.setMessage("��س����������Թ������");
-                    noNetworkDialog.setPositiveButton("��ŧ", new DialogInterface.OnClickListener() {
+                    noNetworkDialog.setTitle(R.string.error);
+                    noNetworkDialog.setMessage(R.string.please_connect_internet);
+                    noNetworkDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                         }
@@ -223,7 +224,7 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
                     noNetworkDialog.show();
 
                 } else if (TextUtils.isEmpty(searchPlace.getText())) {
-                    Toast.makeText(getApplication(), "�ô�кؤӤ���ʶҹ���",
+                    Toast.makeText(getApplication(), R.string.please_define_keyword_before_search,
                             Toast.LENGTH_SHORT).show();
                 } else {
                     Geocoder geoCoder = new Geocoder(getApplication(), new Locale("th"));
@@ -234,7 +235,7 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
                             Builder foundDialog = new Builder(
                                     EditPostionHomeFragmentActivity.this);
                             foundDialog.setIcon(R.drawable.ic_launcher);
-                            foundDialog.setTitle("���Ѿ���ä��Ңͧ \"" + searchStr + "\"");
+                            foundDialog.setTitle(String.format(getString(R.string.search_place_result_of), searchStr));
                             final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                                     getApplication(),
                                     R.layout.list_item);
@@ -268,9 +269,9 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
                         } else {
                             Builder notFound = new Builder(EditPostionHomeFragmentActivity.this);
                             notFound.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
-                            notFound.setTitle("�Դ��Ҵ");
-                            notFound.setMessage("��辺ʶҹ��������");
-                            notFound.setPositiveButton("��ŧ", new DialogInterface.OnClickListener() {
+                            notFound.setTitle(R.string.error);
+                            notFound.setMessage(R.string.place_not_found);
+                            notFound.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                 }

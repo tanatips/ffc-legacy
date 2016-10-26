@@ -28,8 +28,6 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
     private TextView txtLng;
     private String hcode;
     private boolean onBackPess;
-    private boolean onDatachangeFromMap;
-    private boolean onCommit;
     private String oldLat;
     private String oldLng;
     private LinearLayout laywrite;
@@ -55,10 +53,9 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
         pcucode = a.getExtras().getString("pcucode");
         hcode = getIntent().getExtras().getString("hcode");
         visit = getIntent().getExtras().getString("visitno");
-        onCommit = false;
         oldLat = "";
         oldLng = "";
-        txthouseDetail.setText("��ҹ�Ţ��� " + hno + " ������ " + villno + " �����ҹ " + villname);
+        txthouseDetail.setText("บ้านเลขที่ "+hno+" หมู่ที่ "+villno+" หมู่บ้าน "+villname);
 
     }
 
@@ -173,7 +170,7 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
             if (!TextUtils.isEmpty(txtLat.getText().toString()) && !TextUtils.isEmpty(txtLng.getText().toString())) {
                 commitByText();
             } else {
-                Toast.makeText(getApplicationContext(), "��سҡ�͡���˹觢ͧ��ҹ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.please_define_house_position, Toast.LENGTH_SHORT).show();
             }
         } else {
             commitByMap();
@@ -196,7 +193,6 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
         contentValues.put("colorcode", "#EE0000");
         conResolver = getContentResolver();
         conResolver.insert(FFC506RADIUS.CONTENT_URI, contentValues);
-        onCommit = true;
         if (pid == null) {
             setResult(RESULT_OK);
             this.finish();
@@ -213,7 +209,6 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
         Cursor c = getContentResolver().query(House.CONTENT_URI, projection, selection, selectionArgs, null);
         if (c.moveToFirst()) {
             if (!TextUtils.isEmpty(c.getString(c.getColumnIndex("xgis"))) && !TextUtils.isEmpty(c.getString(c.getColumnIndex("ygis")))) {
-                onCommit = true;
                 if (pid == null) {
                     setResult(RESULT_OK);
                     this.finish();
@@ -221,10 +216,10 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
                     dialogAskCommit();
                 }
             } else {
-                Toast.makeText(getApplicationContext(), "��س�����ҵ��˹觢ͧ��ҹ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.please_define_house_position, Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(getApplicationContext(), "��س�����ҵ��˹觢ͧ��ҹ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.please_define_house_position, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -272,6 +267,7 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
         if (c.moveToFirst()) {
             String newlat = c.getString(c.getColumnIndex("ygis"));
             String newlng = c.getString(c.getColumnIndex("xgis"));
+            boolean onDatachangeFromMap;
             if (!TextUtils.isEmpty(oldLat) && !TextUtils.isEmpty(oldLng)) {
                 onDatachangeFromMap = !newlat.equals(oldLat)
                         || !newlat.equals(oldLng) ? true : false;
@@ -292,9 +288,9 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
     private void dialogAskCommit() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
-        builder.setTitle("�س��ѹ�֡���������º�������� ��е�ͧ���仴�Ἱ������������ ?");
+        builder.setTitle("คุณได้บันทึกข้อมูลเรียบร้อยแล้ว และต้องการไปดูแผนที่ต่อหรือไม่ ?");
         builder.setInverseBackgroundForced(true);
-        builder.setPositiveButton("��������仴�Ἱ���", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("ใช่และเข้าไปดูแผนที่", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Double tempLat = Double.parseDouble(txtLat.getText().toString());
@@ -311,13 +307,13 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
 
             }
         });
-        builder.setNegativeButton("¡��ԡ", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
-        builder.setNeutralButton("��", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

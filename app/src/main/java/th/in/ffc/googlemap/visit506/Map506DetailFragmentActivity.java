@@ -47,9 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
-        LoaderCallbacks<Cursor> {
-
+public class Map506DetailFragmentActivity extends FFCFragmentActivity implements LoaderCallbacks<Cursor> {
 
     private GoogleMap myMap;
     private Marker marker;
@@ -82,8 +80,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
     String pid;
     String pcucodeperson;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map506_fragment_activity);
         linear_load = (LinearLayout) findViewById(R.id.linear_load);
@@ -110,10 +107,11 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
     }
 
     private void setDiaplay(int displayMode) {
-        if (displayMode == 0)
+        if (displayMode == 0) {
             myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        else
+        } else {
             myMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
     }
 
     private void init() {
@@ -136,12 +134,9 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         hasEditHouse = false;
         hashMarkerWindowInfo = new HashMap<Marker, Boolean>();
         progressBar = (ProgressBar) findViewById(R.id.nowLoading);
-
-
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem listPatient = menu.add(Menu.NONE, 2, Menu.NONE, "listPatient");
         listPatient.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         listPatient.setIcon(R.drawable.ic_action_patient_list);
@@ -151,7 +146,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         MenuItem setting = menu.add(Menu.NONE, 1, Menu.NONE, "setting");
         setting.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         setting.setIcon(R.drawable.ic_action_setting);
-        MenuItem searchPlace = menu.add(Menu.NONE, 4, Menu.NONE, "����ʶҹ����ҧ�");
+        MenuItem searchPlace = menu.add(Menu.NONE, 4, Menu.NONE, R.string.find_places);
         searchPlace.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         searchPlace.setIcon(R.drawable.ic_action_search);
         return super.onCreateOptionsMenu(menu);
@@ -159,8 +154,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
 
     private PatientDialogFragment patient;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case 1:
                 if (myDialogFragment == null) {
@@ -202,15 +196,16 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+    @Override public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
         CursorLoader cl = null;
         switch (arg0) {
             case 0:
                 Uri uri = Visit506_Person.CONTENT_URI;
-                String PROJECTION[] = {"visitno", "pid", "fname", "lname", "hcode",
-                        "hno", "xgis", "ygis", "villcode", "villno", "latitude",
-                        "longitude", "status", "sickdatestart", "diseasenamethai", "villname", "radius", "colorcode"};
+                String PROJECTION[] = {
+                        "visitno", "pid", "fname", "lname", "hcode", "hno", "xgis", "ygis", "villcode", "villno",
+                        "latitude", "longitude", "status", "sickdatestart", "diseasenamethai", "villname", "radius",
+                        "colorcode"
+                };
                 String where = "villno !=0 AND status IS NOT NULL";
                 if (!fillter.equals("")) {
                     where += fillter;
@@ -219,7 +214,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                 break;
             case 1:
                 Uri URIHOUSE = House.CONTENT_URI;
-                String[] projection = {"hcode", "xgis", "ygis", "hno"};
+                String[] projection = { "hcode", "xgis", "ygis", "hno" };
                 cl = new CursorLoader(getApplication(), URIHOUSE, projection, null, null, "hcode");
                 break;
             default:
@@ -228,8 +223,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         return cl;
     }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> l, Cursor c) {
+    @Override public void onLoadFinished(Loader<Cursor> l, Cursor c) {
         int id = l.getId();
         switch (id) {
             case 0:
@@ -274,23 +268,20 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
     }
 
     returnPosition getPosition = new returnPosition() {
-        @Override
-        public void returnPosition(LatLng position) {
+        @Override public void returnPosition(LatLng position) {
             myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 13.0f));
         }
     };
 
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> arg0) {
+    @Override public void onLoaderReset(Loader<Cursor> arg0) {
     }
-
 
     private void setPlagueHome(Cursor c) {
         String fname = c.getString(c.getColumnIndex("fname"));
         String lname = c.getString(c.getColumnIndex("lname"));
         String hcode = c.getString(c.getColumnIndex("hcode"));
-        if (!TextUtils.isEmpty(c.getString(c.getColumnIndex("xgis"))) && !TextUtils.isEmpty(c.getString(c.getColumnIndex("ygis")))) {
+        if (!TextUtils.isEmpty(c.getString(c.getColumnIndex("xgis"))) && !TextUtils.isEmpty(
+                c.getString(c.getColumnIndex("ygis")))) {
             if (isNumeric(c.getString(c.getColumnIndex("xgis"))) && isNumeric(c.getString(c.getColumnIndex("ygis")))) {
                 Double lat = Double.parseDouble(c.getString(c.getColumnIndex("ygis")));
                 Double lng = Double.parseDouble(c.getString(c.getColumnIndex("xgis")));
@@ -308,18 +299,34 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                     tagHomeMemberPlague.put(hcode, member);
                 }
                 if (TextUtils.isEmpty(listNamePlague.get(c.getString(c.getColumnIndex("diseasenamethai"))))) {
-                    listNamePlague.put(c.getString(c.getColumnIndex("diseasenamethai")), c.getString(c.getColumnIndex("diseasenamethai")));
+                    listNamePlague.put(c.getString(c.getColumnIndex("diseasenamethai")),
+                            c.getString(c.getColumnIndex("diseasenamethai")));
                 }
                 if (!fname.equals(tagHomeMemberPlague.get(hcode).get(fname))) {
                     showCircle(c, visitno, lat, lng);
-                    String detail = visitno + "," + hcode + "," + hno + " ����" + c.getString(c.getColumnIndex("villno")) + " " + c.getString(c.getColumnIndex("villname"))
-                            + "," + fname + " " + lname + "," + diseasenamethai + "," + sickdatestart;
+                    String detail = visitno
+                            + ","
+                            + hcode
+                            + ","
+                            + hno
+                            + " หมู่"
+                            + c.getString(c.getColumnIndex("villno"))
+                            + " "
+                            + c.getString(c.getColumnIndex("villname"))
+                            + ","
+                            + fname
+                            + " "
+                            + lname
+                            + ","
+                            + diseasenamethai
+                            + ","
+                            + sickdatestart;
                     markerPosition.put(hcode, new LatLng(lat, lng));
                     marker = tagHomeMarker.get(hcode);
 
                     // set marker separate by color
                     /*	String level = c.getString(c.getColumnIndex("level"));
-						if(level.equals("1")){
+                        if(level.equals("1")){
 							// YELLOW
 							marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.house_orange));
 						}
@@ -328,29 +335,48 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
 							marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.house_orange));
 						}
 						else{
-							// RED 
+							// RED
 							marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.house_orange));
 						}*/
                     marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.house_orange));
-
 
                     marker.setDraggable(true);
                     tagHomeMarker.put(hcode, marker);
                     tagHome.put(marker, detail);
                     tagHomeMemberPlague.get(hcode).put(fname, fname);
-                    namePlague.add(hcode + ":" + fname + " " + lname + " " + "," + c.getString(c.getColumnIndex("diseasenamethai")) + "," + c.getString(c.getColumnIndex("sickdatestart")));
+                    namePlague.add(hcode + ":" + fname + " " + lname + " " + "," + c.getString(
+                            c.getColumnIndex("diseasenamethai")) + "," + c.getString(
+                            c.getColumnIndex("sickdatestart")));
                     housePosition.put(hcode, new LatLng(lat, lng));
                     homeStatus.put(hcode, "1");
                     ERRORCODE.add(0);
                     tagPerson.put(fname + " " + lname, detail);
                 }
             } else {
-                namePlague.add(hcode + ":" + fname + " " + lname + " " + "," + c.getString(c.getColumnIndex("diseasenamethai")) + "," + c.getString(c.getColumnIndex("sickdatestart")));
+                namePlague.add(hcode
+                        + ":"
+                        + fname
+                        + " "
+                        + lname
+                        + " "
+                        + ","
+                        + c.getString(c.getColumnIndex("diseasenamethai"))
+                        + ","
+                        + c.getString(c.getColumnIndex("sickdatestart")));
                 housePosition.put(hcode, null);
                 ERRORCODE.add(1);
             }
         } else {
-            namePlague.add(hcode + ":" + fname + " " + lname + " " + "," + c.getString(c.getColumnIndex("diseasenamethai")) + "," + c.getString(c.getColumnIndex("sickdatestart")));
+            namePlague.add(hcode
+                    + ":"
+                    + fname
+                    + " "
+                    + lname
+                    + " "
+                    + ","
+                    + c.getString(c.getColumnIndex("diseasenamethai"))
+                    + ","
+                    + c.getString(c.getColumnIndex("sickdatestart")));
             housePosition.put(hcode, null);
             ERRORCODE.add(2);
         }
@@ -358,9 +384,8 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
 
     private void showCircle(Cursor c, String visitno, double lat, double lng) {
         if (!TextUtils.isEmpty(c.getString(c.getColumnIndex("radius")))) {
-            CircleOptions cirOptions = createCircle(new LatLng(lat, lng)
-                    , c.getString(c.getColumnIndex("radius"))
-                    , c.getString(c.getColumnIndex("colorcode")));
+            CircleOptions cirOptions = createCircle(new LatLng(lat, lng), c.getString(c.getColumnIndex("radius")),
+                    c.getString(c.getColumnIndex("colorcode")));
             circleOptions.put(visitno, cirOptions);
             myMap.addCircle(cirOptions);
         }
@@ -370,8 +395,8 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         radiusCircle = Double.parseDouble(radius);
         String radiusSplit[] = colorCode.split("#");
         String areaColor = "#50" + radiusSplit[1];
-        CircleOptions temps = new CircleOptions()
-                .center(circleCenter).strokeWidth(3)
+        CircleOptions temps = new CircleOptions().center(circleCenter)
+                .strokeWidth(3)
                 .radius(radiusCircle)
                 .strokeColor(Color.parseColor(colorCode))
                 .fillColor(Color.parseColor(areaColor));
@@ -387,10 +412,8 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         return true;
     }
 
-
     PatientListCallback PatientCallback = new PatientListCallback() {
-        @Override
-        public void listCallBack(String hcode, String name) {
+        @Override public void listCallBack(String hcode, String name) {
             if (housePosition.get(hcode) != null) {
                 if (direction == 0) {
                     myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(housePosition.get(hcode), 18.0f));
@@ -400,7 +423,6 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                 askAddPositionDialog(hcode);
             }
         }
-
     };
 
     String fullNameForWindowInfo;
@@ -483,7 +505,8 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         if (gpsEnable) {
             double latitude = gps.getLatitude();
             double longitude = gps.getLongitude();
-            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude,
+                    Toast.LENGTH_LONG).show();
             beginLocation = new LatLng(latitude, longitude);
         } else {
             settingGPS();
@@ -491,16 +514,16 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
     }
 
     private void settingGPS() {
-        Builder alertDialog = new Builder(Map506DetailFragmentActivity.this);
-        alertDialog.setTitle("��駤�� GPS");
-        alertDialog.setMessage("�س������Դ�� GPS ��ͧ��÷���ͧ����Դ���������");
-        alertDialog.setPositiveButton("��駤��", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Map506DetailFragmentActivity.this);
+        alertDialog.setTitle("ตั้งค่า GPS");
+        alertDialog.setMessage("คุณไม่ได้เปิดใช้ GPS ต้องการเปิดใช้หรือไม่ ?");
+        alertDialog.setPositiveButton("ตั้งค่า", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
         });
-        alertDialog.setNegativeButton("¡��ԡ", new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton("ยกเลิก", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
@@ -511,8 +534,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
     String oldHcode;
     OnMarkerClickListener markerClick = new OnMarkerClickListener() {
 
-        @Override
-        public boolean onMarkerClick(Marker marker) {
+        @Override public boolean onMarkerClick(Marker marker) {
             String temp[] = tagHome.get(marker).split(",");
             Intent house = new Intent(Action.VIEW);
             house.addCategory(Category.HOUSE);
@@ -529,11 +551,11 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         String radius = "";
         String visitno;
 
-        @Override
-        public void onMarkerDragStart(Marker marker) {
+        @Override public void onMarkerDragStart(Marker marker) {
             String detail = tagHome.get(marker);
             hcode = detail.split(",");
-            if (!hashMarkerWindowInfo.isEmpty() && hashMarkerWindowInfo.get(marker) != null && hashMarkerWindowInfo.get(marker)) {
+            if (!hashMarkerWindowInfo.isEmpty() && hashMarkerWindowInfo.get(marker) != null && hashMarkerWindowInfo.get(
+                    marker)) {
                 radius = circleOptions.get(visitNoForMarkerDrag).getRadius() + "";
                 visitno = visitNoForMarkerDrag;
                 marker.showInfoWindow();
@@ -558,8 +580,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
             startActivityForResult(a, 1);
         }
 
-        @Override
-        public void onMarkerDragEnd(Marker marker) {
+        @Override public void onMarkerDragEnd(Marker marker) {
             hcode = tagHome.get(marker).split(",");
             tempMarker = tagHomeMarker.get(hcode[1]);
             LatLng position = markerPosition.get(hcode[1]);
@@ -567,20 +588,17 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
             tagHomeMarker.put(hcode[1], tempMarker);
         }
 
-        @Override
-        public void onMarkerDrag(Marker marker) {
+        @Override public void onMarkerDrag(Marker marker) {
 
         }
     };
 
     InfoWindowAdapter markerInfo = new InfoWindowAdapter() {
-        @Override
-        public View getInfoContents(Marker marker) {
+        @Override public View getInfoContents(Marker marker) {
             return null;
         }
 
-        @Override
-        public View getInfoWindow(Marker marker) {
+        @Override public View getInfoWindow(Marker marker) {
             View v = getLayoutInflater().inflate(R.layout.map506_info_window, null);
             TextView txthno = (TextView) v.findViewById(R.id.hno);
             String tempTag[] = null;
@@ -588,21 +606,20 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                 tempTag = tagPerson.get(fullNameForWindowInfo).split(",");
             }
             if (!TextUtils.isEmpty(homeStatus.get(tempTag[1])) && homeStatus.get(tempTag[1]).equals("1")) {
-                String detail = "�Ţ��� :" + tempTag[2] + "\n" + "���� :" + tempTag[3] + "\n" + "�������ä :" + tempTag[4] + "\n" + "����������ѹ��� :" + tempTag[5];
+                String detail = String.format(getString(R.string.patient_info), tempTag[2],
+                        tempTag[3], tempTag[4], tempTag[5]);
                 txthno.setText(detail);
                 visitNoForMarkerDrag = tempTag[0];
                 return v;
             } else {
                 return v;
             }
-
         }
     };
 
     OnInfoWindowClickListener markerInfoClick = new OnInfoWindowClickListener() {
 
-        @Override
-        public void onInfoWindowClick(Marker marker) {
+        @Override public void onInfoWindowClick(Marker marker) {
             String temp[] = tagHome.get(marker).split(",");
             Intent house = new Intent(Action.VIEW);
             house.addCategory(Category.HOUSE);
@@ -610,7 +627,6 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
             house.setData(Uri.withAppendedPath(House.CONTENT_URI, "" + temp[1]));
             startActivity(house);
         }
-
     };
     private Polyline lineDirection;
 
@@ -632,11 +648,10 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
             }
         }
     };
-*/
-    settingCallBack callBack = new settingCallBack() {
+*/ settingCallBack callBack = new settingCallBack() {
         @Override
-        public void settingCallBack(boolean chkSwitch, String queryNamePlauge,
-                                    String dateStart, String dateEnd, int displaymode) {
+        public void settingCallBack(boolean chkSwitch, String queryNamePlauge, String dateStart, String dateEnd,
+                int displaymode) {
             if (TextUtils.isEmpty(queryNamePlauge) && TextUtils.isEmpty(dateStart) && TextUtils.isEmpty(dateEnd)) {
                 if (TextUtils.isEmpty(fillter)) {
                     fillter = "";
@@ -658,9 +673,23 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                 }
                 if (!TextUtils.isEmpty(dateStart) && !TextUtils.isEmpty(dateEnd)) {
                     if (!fillter.equals("")) {
-                        fillter += " AND (date(sickdatestart) >= " + "\"" + dateStart + "\")" + " AND (date(sickdatestart) <= " + "\"" + dateEnd + "\")";
+                        fillter += " AND (date(sickdatestart) >= "
+                                + "\""
+                                + dateStart
+                                + "\")"
+                                + " AND (date(sickdatestart) <= "
+                                + "\""
+                                + dateEnd
+                                + "\")";
                     } else {
-                        fillter = " AND (date(sickdatestart) >= " + "\"" + dateStart + "\")" + " AND (date(sickdatestart) <= " + "\"" + dateEnd + "\")";
+                        fillter = " AND (date(sickdatestart) >= "
+                                + "\""
+                                + dateStart
+                                + "\")"
+                                + " AND (date(sickdatestart) <= "
+                                + "\""
+                                + dateEnd
+                                + "\")";
                     }
                     PatientDialogFragment.settingTimeQuery(fillter);
                 }
@@ -680,8 +709,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         getLoaderManager().restartLoader(1, null, this);
     }
 
-    @Override
-    protected void onResume() {
+    @Override protected void onResume() {
         super.onResume();
         if (hasEditHouse) {
 
@@ -690,80 +718,73 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
 
     private void searhPlace() {
         final CheckNetwork chk = new CheckNetwork(getApplicationContext());
-        Builder searchBuilder = new Builder(
-                Map506DetailFragmentActivity.this);
-        View sv = LayoutInflater.from(this).inflate(
-                R.layout.google_map_search_place, null);
+        Builder searchBuilder = new Builder(Map506DetailFragmentActivity.this);
+        View sv = LayoutInflater.from(this).inflate(R.layout.google_map_search_place, null);
 
         final EditText searchPlace = (EditText) sv.findViewById(R.id.searchP_et);
-        searchBuilder.setTitle("����ʶҹ����Ӥѭ");
+        searchBuilder.setTitle(R.string.find_places);
         searchBuilder.setView(sv);
-        searchBuilder.setPositiveButton("����", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        searchBuilder.setPositiveButton(R.string.search, new DialogInterface.OnClickListener() {
+            @Override public void onClick(DialogInterface dialog, int which) {
                 if (!chk.isNetworkAvailable()) {
                     Builder noNetworkDialog = new Builder(Map506DetailFragmentActivity.this);
                     noNetworkDialog.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
-                    noNetworkDialog.setTitle("�Դ��Ҵ");
-                    noNetworkDialog.setMessage("��س����������Թ������");
-                    noNetworkDialog.setPositiveButton("��ŧ", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    noNetworkDialog.setTitle(R.string.error);
+                    noNetworkDialog.setMessage(R.string.please_connect_internet);
+                    noNetworkDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override public void onClick(DialogInterface dialog, int which) {
                         }
                     });
                     noNetworkDialog.show();
-
                 } else if (TextUtils.isEmpty(searchPlace.getText())) {
-                    Toast.makeText(getApplication(), "�ô�кؤӤ���ʶҹ���",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(), R.string.please_define_keyword_before_search, Toast.LENGTH_SHORT)
+                            .show();
                 } else {
                     Geocoder geoCoder = new Geocoder(getApplication(), new Locale("th"));
                     String searchStr = searchPlace.getText().toString();
                     try {
                         final List<android.location.Address> addresses = geoCoder.getFromLocationName(searchStr, 10);
                         if (addresses.size() > 0) {
-                            Builder foundDialog = new Builder(
-                                    Map506DetailFragmentActivity.this);
+                            Builder foundDialog = new Builder(Map506DetailFragmentActivity.this);
                             foundDialog.setIcon(R.drawable.ic_launcher);
-                            foundDialog.setTitle("���Ѿ���ä��Ңͧ \"" + searchStr + "\"");
-                            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                                    getApplication(),
-                                    R.layout.list_item);
+                            foundDialog.setTitle(String.format(getString(R.string.search_place_result_of), searchStr));
+                            final ArrayAdapter<String> arrayAdapter =
+                                    new ArrayAdapter<String>(getApplication(), R.layout.list_item);
 
                             for (int i = 0; i < addresses.size(); i++) {
                                 String addressStr = null;
                                 for (int j = 0; j < addresses.get(i).getMaxAddressLineIndex(); j++) {
                                     if (j == 0) {
                                         addressStr = addresses.get(i).getAddressLine(j) + "\n";
-                                    } else addressStr += addresses.get(i).getAddressLine(j) + " ";
+                                    } else {
+                                        addressStr += addresses.get(i).getAddressLine(j) + " ";
+                                    }
                                 }
                                 if (!TextUtils.isEmpty(addressStr)) {
                                     arrayAdapter.add(addressStr.replace("null", ""));
-                                } else arrayAdapter.add(searchStr);
-
+                                } else {
+                                    arrayAdapter.add(searchStr);
+                                }
                             }
 
-                            foundDialog.setAdapter(arrayAdapter,
-                                    new DialogInterface.OnClickListener() {
+                            foundDialog.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
 
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            addresses.get(which);
-                                            double latitude = addresses.get(which).getLatitude();
-                                            double longitude = addresses.get(which).getLongitude();
-                                            final LatLng zone = new LatLng(latitude, longitude);
-                                            myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(zone, 18));
-                                        }
-                                    });
+                                @Override public void onClick(DialogInterface dialog, int which) {
+                                    addresses.get(which);
+                                    double latitude = addresses.get(which).getLatitude();
+                                    double longitude = addresses.get(which).getLongitude();
+                                    final LatLng zone = new LatLng(latitude, longitude);
+                                    myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(zone, 18));
+                                }
+                            });
                             foundDialog.show();
                         } else {
                             Builder notFound = new Builder(Map506DetailFragmentActivity.this);
                             notFound.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
-                            notFound.setTitle("�Դ��Ҵ");
-                            notFound.setMessage("��辺ʶҹ��������");
-                            notFound.setPositiveButton("��ŧ", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                            notFound.setTitle(R.string.error);
+                            notFound.setMessage(R.string.place_not_found);
+                            notFound.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override public void onClick(DialogInterface dialog, int which) {
                                 }
                             });
                             notFound.show();
@@ -779,8 +800,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         mDialog.show();
     }
 
-    @Override
-    protected void onActivityResult(int request, int result, Intent intent) {
+    @Override protected void onActivityResult(int request, int result, Intent intent) {
         super.onActivityResult(request, result, intent);
         if (result == RESULT_OK) {
             myMap.clear();
@@ -791,7 +811,5 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
             getLoaderManager().restartLoader(1, null, this);
         }
     }
-
-
 }
 

@@ -1,5 +1,14 @@
 package th.in.ffc.googlemap.visit506;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import th.in.ffc.R;
+import th.in.ffc.util.ThaiDatePicker;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -9,17 +18,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import th.in.ffc.R;
-import th.in.ffc.util.ThaiDatePicker;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Switch;
 
 public class Map506SettingDialogFragment extends DialogFragment {
 
@@ -62,7 +67,7 @@ public class Map506SettingDialogFragment extends DialogFragment {
 
     public static interface settingCallBack {
         public void settingCallBack(boolean chkSwitch, String queryNamePlauge,
-                                    String startDate, String endDate, int displayMode);
+                String startDate, String endDate, int displayMode);
     }
 
     public Map506SettingDialogFragment(HashMap<String, String> listNamePlague) {
@@ -86,10 +91,10 @@ public class Map506SettingDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(R.drawable.ic_launcher);
-        builder.setTitle("��õ�駤�ҡ���ʴ���");
+        builder.setTitle("การตั้งค่าการแสดงผล");
         builder.setView(getContentView());
-        builder.setPositiveButton("��ŧ", positiveButton);
-        builder.setNegativeButton("¡��ԡ", new OnClickListener() {
+        builder.setPositiveButton("ตกลง", positiveButton);
+        builder.setNegativeButton("ยกเลิก", new OnClickListener() {
             @Override
             public void onClick(DialogInterface arg0, int arg1) {
                 queryTime = oldQueryTime;
@@ -188,7 +193,7 @@ public class Map506SettingDialogFragment extends DialogFragment {
         Iterator<Map.Entry<String, String>> iterator = listNamePlague
                 .entrySet().iterator();
         ArrayList<String> params = new ArrayList<String>();
-        // params.add("������");
+        // params.add("ทั้งหมด");
         while (iterator.hasNext()) {
             Map.Entry<String, String> entry = iterator.next();
             params.add(entry.getValue());
@@ -205,7 +210,7 @@ public class Map506SettingDialogFragment extends DialogFragment {
     OnCheckedChangeListener onCheckList = new OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
-                                     boolean isChecked) {
+                boolean isChecked) {
             switch (buttonView.getId()) {
                 case R.id.filltertime:
                     if (isChecked) {

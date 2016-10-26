@@ -45,7 +45,7 @@ public class EditDetailHouseFragmentActivity extends FFCFragmentActivity {
     private String oldRadius;
     private String oldLat;
     private String oldLng;
-    private String choice[] = {"����", "�ҹ��ҧ", "�ع�ç"};
+    private String choice[] = { "ปกติ", "ปานกลาง", "รุนแรง" };
     private LinearLayout laywrite;
     private LinearLayout laymap;
     private CheckBox chkWrite;
@@ -67,7 +67,7 @@ public class EditDetailHouseFragmentActivity extends FFCFragmentActivity {
         LatLng = a.getExtras().getString("LatLng");
         visit = a.getExtras().getString("visitno");
         hcode = houseDetail[1];
-        String setDetail = "��ҹ�Ţ���" + houseDetail[2];
+        String setDetail = "บ้านเลขที่" + houseDetail[2];
         if (TextUtils.isEmpty(status) || status.equals("0")) {
             linear.setVisibility(View.GONE);
         } else {
