@@ -1,6 +1,5 @@
 package th.in.ffc.googlemap.ballassessment;
 
-
 import android.app.AlertDialog.Builder;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.app.ProgressDialog;
@@ -16,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,17 +50,18 @@ import java.util.List;
 import java.util.Locale;
 
 public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implements LoaderCallbacks<Cursor> {
-    private final String[] risk = {"�����ع�ç(�ä�á��͹)" + "\n" + "����,��ʹ���ʹ��ͧ,����"
-            , "����(�ع�ç)" + "\n" + "����ҹ �����ѹ���Ե�٧ HbA1c >= 8 Bp : >= 180/110 FBS : 183"
-            , "����(�ҹ��ҧ)" + "\n" + "����ҹ �����ѹ���Ե�٧ HbA1c >= 7-7.9 Bp : >= 160-179/100-109 FBS : 155-182"
-            , "����(��͹)" + "\n" + "����ҹ �����ѹ���Ե�٧ HbA1c < 7 Bp : >= 140-159/90-99 FBS : 126-154"
-            , "���������§�٧" + "\n" + "Bp : >= 120-139/80-89 FBS : 100-125"
-            , "���ŵ���ͧ��" + "\n" + "Bp : >= 120/80 FBS : 100"
-            , "����", "������Ǩ"};
-    private final int[] resourceBall = {R.drawable.ncd_ball_7, R.drawable.ncd_ball_6,
-            R.drawable.ncd_ball_5, R.drawable.ncd_ball_4,
-            R.drawable.ncd_ball_3, R.drawable.ncd_ball_2,
-            R.drawable.ncd_ball_1, R.drawable.ncd_ball_0};
+    private final String[] risk = {
+            "ป่วยรุนแรง(โรคแทรกซ้อน)" + "\n" + "หัวใจ,หลอดเลือดสมอง,ไตวาย",
+            "ป่วย(รุนแรง)" + "\n" + "เบาหวาน ความดันโลหิตสูง HbA1c >= 8 Bp : >= 180/110 FBS : 183",
+            "ป่วย(ปานกลาง)" + "\n" + "เบาหวาน ความดันโลหิตสูง HbA1c >= 7-7.9 Bp : >= 160-179/100-109 FBS : 155-182",
+            "ป่วย(อ่อน)" + "\n" + "เบาหวาน ความดันโลหิตสูง HbA1c < 7 Bp : >= 140-159/90-99 FBS : 126-154",
+            "กลุ่มเสี่ยงสูง" + "\n" + "Bp : >= 120-139/80-89 FBS : 100-125",
+            "ดูแลตัวเองได้" + "\n" + "Bp : >= 120/80 FBS : 100", "ปกติ", "ไม่ได้ตรวจ"
+    };
+    private final int[] resourceBall = {
+            R.drawable.ncd_ball_7, R.drawable.ncd_ball_6, R.drawable.ncd_ball_5, R.drawable.ncd_ball_4,
+            R.drawable.ncd_ball_3, R.drawable.ncd_ball_2, R.drawable.ncd_ball_1, R.drawable.ncd_ball_0
+    };
     private GoogleMap myMap;
     private TextView age;
     private Spinner villChoice;
@@ -97,8 +98,7 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
     ArrayList<Integer> indexSearch;
     String oldVillno;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_ball_fragmentactivity);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -147,29 +147,29 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
         firstGen = true;
         markerDetail = new HashMap<Marker, String>();
         markerTag = new HashMap<String, Marker>();
-
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
         SearchView searchView = new SearchView(getSupportActionBar().getThemedContext());
         searchView.setOnQueryTextListener(queryListener);
         int id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
         TextView textView = (TextView) searchView.findViewById(id);
         textView.setTextColor(Color.WHITE);
         searchView.setQueryHint(getString(R.string.mapballsearchhint));
-        menu.add("Search").setIcon(R.drawable.ic_action_search).setActionView(searchView)
+        menu.add("Search")
+                .setIcon(R.drawable.ic_action_search)
+                .setActionView(searchView)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         return true;
     }
 
     private void setRiskSpinner() {
         LayoutInflater inflater = getLayoutInflater();
-        SpinnerRiskAdapter adp = new SpinnerRiskAdapter(getApplicationContext(),
-                R.layout.map_ncd_risk_spinnercustom, risk, inflater, resourceBall);
+        SpinnerRiskAdapter adp =
+                new SpinnerRiskAdapter(getApplicationContext(), R.layout.map_ncd_risk_spinnercustom, risk, inflater,
+                        resourceBall);
         groupChoice.setAdapter(adp);
     }
-
 
     public void onClick(View v) {
         String villname = villChoice.getSelectedItem().toString();
@@ -184,7 +184,6 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
             genRisk.setFillterQueryVillno(villno);
             genRisk.setFillterAge(fillterAge);
             genRisk.onReStartQuery(groupRisk);
-
         } else if (villnameHash.get(villname).equals("0") && !oldVillno.equals(villnameHash.get(villname))) {
             fillterAge = age.getText().toString();
             myMap.clear();
@@ -216,20 +215,19 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
         }
     }
 
-
     private void doOpenProgressLoadShow() {
         personList.setVisibility(LinearLayout.GONE);
-        progress = ProgressDialog.show(this, getString(R.string.nowloadlisttitle),
-                getString(R.string.nowloadlistdetail), true);
+        progress =
+                ProgressDialog.show(this, getString(R.string.nowloadlisttitle), getString(R.string.nowloadlistdetail),
+                        true);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+    @Override public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
         CursorLoader cl = null;
         switch (arg0) {
             case 99:
                 Uri uri = PersonHouse.CONTENT_URI;
-                String[] projection = {"hcode", "fname", "lname", "xgis", "ygis", "villname", "villno", "hno"};
+                String[] projection = { "hcode", "fname", "lname", "xgis", "ygis", "villname", "villno", "hno" };
                 String arg = "villno != 0";
                 if (where != null) {
                     myMap.clear();
@@ -246,8 +244,7 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
 
     HashMap<String, String> hashVillno;
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> arg0, Cursor c) {
+    @Override public void onLoadFinished(Loader<Cursor> arg0, Cursor c) {
         hashVillno = new HashMap<String, String>();
         if (c.moveToFirst()) {
             do {
@@ -271,8 +268,7 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
         }
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> arg0) {
+    @Override public void onLoaderReset(Loader<Cursor> arg0) {
         // TODO Auto-generated method stub
 
     }
@@ -284,8 +280,7 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
     }
 
     onQueryListener onQueryListener = new onQueryListener() {
-        @Override
-        public void onQueryFinish() {
+        @Override public void onQueryFinish() {
             setMap();
         }
     };
@@ -311,9 +306,28 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
         }
         for (int i = 0; i < position.size(); i++) {
             if (position.get(i) != null) {
-                String detail = pid.get(i) + "," + pcupersoncode.get(i) + "," + getString(R.string.fname) + " " + fname.get(i) + " "
-                        + lname.get(i) + " " + getString(R.string.mapballage) + " " + ages.get(i) + " ��" + "\n" + hno.get(i)
-                        + getString(R.string.mapballmho) + " " + listVillNo.get(i) + " " + villName.get(i);
+                String detail = pid.get(i)
+                        + ","
+                        + pcupersoncode.get(i)
+                        + ","
+                        + getString(R.string.fname)
+                        + " "
+                        + fname.get(i)
+                        + " "
+                        + lname.get(i)
+                        + " "
+                        + getString(R.string.mapballage)
+                        + " "
+                        + ages.get(i)
+                        + " "
+                        + getString(R.string.year)
+                        + "\n"
+                        + hno.get(i)
+                        + getString(R.string.mapballmho)
+                        + " "
+                        + listVillNo.get(i)
+                        + " "
+                        + villName.get(i);
                 Marker maker = myMap.addMarker(new MarkerOptions().position(position.get(i)));
                 maker.setIcon(BitmapDescriptorFactory.fromResource(resourceBall[groupRisk]));
                 markerTag.put(hcode.get(i), maker);
@@ -345,10 +359,10 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
 
     onListItemClickListener onItemClickListener = new onListItemClickListener() {
 
-        @Override
-        public void onItemClickListener(int positionClick) {
+        @Override public void onItemClickListener(int positionClick) {
             if (indexSearch != null && !indexSearch.isEmpty()) {
-                myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position.get(indexSearch.get(positionClick)), 18.0f));
+                myMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(position.get(indexSearch.get(positionClick)), 18.0f));
                 Marker markerTemp = markerTag.get(hcode.get(indexSearch.get(positionClick)));
                 if (markerTemp != null) {
                     markerTemp.showInfoWindow();
@@ -365,7 +379,6 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
                     //	Toast.makeText(getApplicationContext(), "��辺���˹觢ͧ��ҹ��ѧ��� ��سҵ�Ǩ�ͺ�ҹ������", Toast.LENGTH_SHORT).show();
                 }
             }
-
         }
     };
 
@@ -376,13 +389,11 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
     }
 
     InfoWindowAdapter markerInfo = new InfoWindowAdapter() {
-        @Override
-        public View getInfoContents(Marker marker) {
+        @Override public View getInfoContents(Marker marker) {
             return null;
         }
 
-        @Override
-        public View getInfoWindow(Marker marker) {
+        @Override public View getInfoWindow(Marker marker) {
             View v = getLayoutInflater().inflate(R.layout.map_risk_infowindow, null);
             TextView txthno = (TextView) v.findViewById(R.id.hno);
             String tempTag[] = markerDetail.get(marker).split(",");
@@ -393,16 +404,14 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
 
     OnInfoWindowClickListener markerInfoClick = new OnInfoWindowClickListener() {
 
-        @Override
-        public void onInfoWindowClick(Marker marker) {
+        @Override public void onInfoWindowClick(Marker marker) {
             String temp[] = markerDetail.get(marker).split(",");
             onStartPersonActivity(temp[0], temp[1]);
         }
     };
 
     OnMarkerClickListener markerClick = new OnMarkerClickListener() {
-        @Override
-        public boolean onMarkerClick(Marker marker) {
+        @Override public boolean onMarkerClick(Marker marker) {
             String temp[] = markerDetail.get(marker).split(",");
             onStartPersonActivity(temp[0], temp[1]);
             return true;
@@ -410,8 +419,7 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
     };
 
     SearchView.OnQueryTextListener queryListener = new SearchView.OnQueryTextListener() {
-        @Override
-        public boolean onQueryTextChange(String newText) {
+        @Override public boolean onQueryTextChange(String newText) {
             if (TextUtils.isEmpty(newText)) {
                 indexSearch = null;
                 setRiskPersonList();
@@ -431,8 +439,7 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
             return false;
         }
 
-        @Override
-        public boolean onQueryTextSubmit(String query) {
+        @Override public boolean onQueryTextSubmit(String query) {
             Toast.makeText(getApplicationContext(), "Searching for: " + query + "...", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -474,16 +481,16 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
         EditText textsearch = (EditText) findViewById(R.id.textsearch);
         CheckNetwork chk = new CheckNetwork(getApplicationContext());
         if (TextUtils.isEmpty(textsearch.getText().toString())) {
-            Toast.makeText(getApplicationContext(), "�ô�кؤӤ���ʶҹ���", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.please_define_keyword_before_search, Toast.LENGTH_SHORT)
+                    .show();
         } else {
             if (!chk.isNetworkAvailable()) {
                 Builder noNetworkDialog = new Builder(MapBallCorlorFragmentActivity.this);
                 noNetworkDialog.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
-                noNetworkDialog.setTitle("�Դ��Ҵ");
-                noNetworkDialog.setMessage("��س����������Թ������");
-                noNetworkDialog.setPositiveButton("��ŧ", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                noNetworkDialog.setTitle(R.string.error);
+                noNetworkDialog.setMessage(R.string.please_connect_internet);
+                noNetworkDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) {
                     }
                 });
                 noNetworkDialog.show();
@@ -493,47 +500,45 @@ public class MapBallCorlorFragmentActivity extends FFCFragmentActivity implement
                 try {
                     final List<android.location.Address> addresses = geoCoder.getFromLocationName(searchStr, 10);
                     if (addresses.size() > 0) {
-                        Builder foundDialog = new Builder(
-                                MapBallCorlorFragmentActivity.this);
+                        AlertDialog.Builder foundDialog = new AlertDialog.Builder(MapBallCorlorFragmentActivity.this);
                         foundDialog.setIcon(R.drawable.ic_launcher);
-                        foundDialog.setTitle("���Ѿ���ä��Ңͧ \"" + searchStr + "\"");
-                        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                                getApplication(),
-                                R.layout.list_item);
+                        foundDialog.setTitle(String.format(getString(R.string.search_place_result_of), searchStr));
+                        final ArrayAdapter<String> arrayAdapter =
+                                new ArrayAdapter<String>(getApplication(), R.layout.list_item);
 
                         for (int i = 0; i < addresses.size(); i++) {
                             String addressStr = null;
                             for (int j = 0; j < addresses.get(i).getMaxAddressLineIndex(); j++) {
                                 if (j == 0) {
                                     addressStr = addresses.get(i).getAddressLine(j) + "\n";
-                                } else addressStr += addresses.get(i).getAddressLine(j) + " ";
+                                } else {
+                                    addressStr += addresses.get(i).getAddressLine(j) + " ";
+                                }
                             }
                             if (!TextUtils.isEmpty(addressStr)) {
                                 arrayAdapter.add(addressStr.replace("null", ""));
-                            } else arrayAdapter.add(searchStr);
-
+                            } else {
+                                arrayAdapter.add(searchStr);
+                            }
                         }
-                        foundDialog.setAdapter(arrayAdapter,
-                                new DialogInterface.OnClickListener() {
+                        foundDialog.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
 
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        addresses.get(which);
-                                        double latitude = addresses.get(which).getLatitude();
-                                        double longitude = addresses.get(which).getLongitude();
-                                        final LatLng zone = new LatLng(latitude, longitude);
-                                        myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(zone, 18));
-                                    }
-                                });
+                            @Override public void onClick(DialogInterface dialog, int which) {
+                                addresses.get(which);
+                                double latitude = addresses.get(which).getLatitude();
+                                double longitude = addresses.get(which).getLongitude();
+                                final LatLng zone = new LatLng(latitude, longitude);
+                                myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(zone, 18));
+                            }
+                        });
                         foundDialog.show();
                     } else {
                         Builder notFound = new Builder(MapBallCorlorFragmentActivity.this);
                         notFound.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
-                        notFound.setTitle("�Դ��Ҵ");
-                        notFound.setMessage("��辺ʶҹ��������");
-                        notFound.setPositiveButton("��ŧ", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                        notFound.setTitle(R.string.error);
+                        notFound.setMessage(R.string.place_not_found);
+                        notFound.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialog, int which) {
                             }
                         });
                         notFound.show();

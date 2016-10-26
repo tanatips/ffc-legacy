@@ -51,8 +51,8 @@ public class RiskAdapter extends ArrayAdapter<String> {
         TextView txtname = (TextView) personlist.findViewById(R.id.name);
         TextView txthno = (TextView) personlist.findViewById(R.id.hno);
         if (name != null) {
-            txtname.setText(name.get(position) + " " + lname.get(position) + " ���� " + age.get(position) + " ��");
-            txthno.setText(hno.get(position) + " ���� " + villno.get(position) + " " + villname.get(position));
+            txtname.setText(name.get(position)+ " "+lname.get(position)+" อายุ "+age.get(position)+" ปี");
+            txthno.setText(hno.get(position)+ " หมู่ "+villno.get(position)+" "+villname.get(position));
         }
 
 
