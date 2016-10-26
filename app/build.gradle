@@ -11,15 +11,33 @@ android {
     defaultConfig {
         applicationId "th.in.ffc"
         minSdkVersion 16
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
     }
+
+    signingConfigs {
+        Properties properties = new Properties()
+        properties.load(rootProject.file('local.properties').newDataInputStream())
+
+        release {
+            storeFile file("release.keystore")
+            keyAlias 'wis@nectec'
+            keyPassword properties.getProperty("release.keypassword")
+            storePassword properties.getProperty("release.storepassword")
+        }
+    }
+
     buildTypes {
+        debug {
+            manifestPlaceholders = [google_map_key: 'AIzaSyB5YIs0wdbJvMJ-RuUPwyYkt3A67M08Z8w']
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [google_map_key: 'AIzaSyB5YIs0wdbJvMJ-RuUPwyYkt3A67M08Z8w']
         }
     }
 }
