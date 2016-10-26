@@ -43,6 +43,7 @@ import android.widget.TextView;
 import th.in.ffc.app.FFCGridActivity;
 import th.in.ffc.intent.Action;
 import th.in.ffc.intent.Category;
+import th.in.ffc.security.CryptographerService;
 import th.in.ffc.util.AssetReader;
 import th.in.ffc.widget.IntentBaseAdapter;
 
@@ -184,7 +185,8 @@ public class MainActivity extends FFCGridActivity {
                         registerReceiver(mEncrypterReceiver, mEncryptFilter);
                         mRegis = true;
 
-                        Intent service = new Intent(Action.ENCRYPT);
+                        Intent service = new Intent(MainActivity.this, CryptographerService.class);
+                        service.setAction(Action.ENCRYPT);
                         startService(service);
                     }
                 });

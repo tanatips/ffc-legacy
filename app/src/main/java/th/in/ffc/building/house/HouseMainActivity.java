@@ -38,6 +38,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.blayzupe.phototaker.PhotoTaker;
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
@@ -51,6 +52,7 @@ import th.in.ffc.provider.HouseProvider.Village;
 import th.in.ffc.provider.PersonProvider.Person;
 
 import java.io.*;
+import th.in.ffc.security.LoginActivity;
 
 /**
  * add description here! please
@@ -109,6 +111,8 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
         // new String[] { House.VILLCODE }, null, null,
         // House.DEFAULT_SORTING);
         // if (c.moveToFirst()) {
+
+        Toast.makeText(HouseMainActivity.this , getPcuCode()+data.getLastPathSegment(), Toast.LENGTH_LONG).show();
         doSetupImage(getPcuCode().concat("h" + data.getLastPathSegment())
                 .concat(".jpg"));
         mPhotoThrumb = getPcuCode().concat("h" + data.getLastPathSegment())

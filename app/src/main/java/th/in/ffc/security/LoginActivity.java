@@ -141,7 +141,8 @@ public class LoginActivity extends FFCFragmentActivity implements
                         mRegistedEncrypter = true;
                     }
 
-                    Intent service = new Intent(Action.ENCRYPT);
+                    Intent service = new Intent(LoginActivity.this, CryptographerService.class);
+                    service.setAction(Action.ENCRYPT);
                     startService(service);
 
                     ProgressDialog pro = new ProgressDialog(LoginActivity.this);
@@ -221,9 +222,9 @@ public class LoginActivity extends FFCFragmentActivity implements
         registerReceiver(mDecrypterReceiver, mDecryptFilter);
         mRegistedDecrypter = true;
 
-        Intent service = new Intent(Action.DECRYPT);
+        Intent service = new Intent(this, CryptographerService.class);
+        service.setAction(Action.DECRYPT);
         startService(service);
-
     }
 
     private boolean isEncryptServiceRunning() {
