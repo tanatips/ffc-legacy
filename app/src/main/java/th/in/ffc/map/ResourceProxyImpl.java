@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 import th.in.ffc.R;
 
 public class ResourceProxyImpl {
-
+    //TODO Change to Google Map
 /*    private final Context mContext;
 
     public ResourceProxyImpl(final Context pContext) {

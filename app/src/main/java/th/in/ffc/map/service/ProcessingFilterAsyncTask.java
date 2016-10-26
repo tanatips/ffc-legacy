@@ -143,6 +143,7 @@ public class ProcessingFilterAsyncTask extends AsyncTask<String, String, String>
             Collection<Spot> marked = FGActivity.fgsys.getFGDatabaseManager().getMarked().values();
 
             for (Spot entry : marked) {
+                //TODO Change to Google Map
                // entry.setVisible(true);
             }
         }

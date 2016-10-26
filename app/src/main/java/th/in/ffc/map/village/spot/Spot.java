@@ -63,10 +63,12 @@ public class Spot extends OverlayItem {
         return ((double) this.mGeoPoint.getLatitudeE6()) / 1E6;
     }
 
+    //TODO Change to Google Map
 /*    public void setLatitude(double arg0) {
         this.mGeoPoint.setLatitudeE6((int) (arg0 * 1E6));
     }
 
+    //TODO Change to Google Map
     public void setLongitude(double arg0) {
         this.mGeoPoint.setLongitudeE6((int) (arg0 * 1E6));
     }*/

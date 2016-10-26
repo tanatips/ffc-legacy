@@ -191,6 +191,7 @@ public class FGMapManager implements OnClickListener {
 
         stackOverlay.add(emptyOverlay);
         stackOverlay.add(markers);
+        //TODO Change to Google Map
 /*        if (mLocation != null)
             stackOverlay.add(mLocation);*/
 
@@ -321,6 +322,7 @@ public class FGMapManager implements OnClickListener {
     private void initializeCurrentLocation() {
         Context context = fgSystemManager.getFGActivity().getApplicationContext();
 
+        //TODO Change to Google Map
        /* mLocation = new MyLocationOverlay(context, mapView, new UserResourceProxyImpl(context));
         mapView.getOverlays().add(mLocation);*/
         // mLocation.enableMyLocation();

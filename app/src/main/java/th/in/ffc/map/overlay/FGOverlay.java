@@ -44,6 +44,7 @@ public class FGOverlay extends Overlay {
     @Override
     public boolean onLongPress(MotionEvent e, MapView mapView) {
 
+        //TODO Change to Google Map
         IGeoPoint geoPoint = mapView.getProjection().fromPixels((int) e.getX(),
                 (int) e.getY());
 

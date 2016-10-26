@@ -91,6 +91,7 @@ public class FGActivity extends FFCFragmentActivity {
                             registerReceiver(conRec, new IntentFilter(
                                     "android.net.conn.CONNECTIVITY_CHANGE"));
 
+                            //TODO Change to Google Map
                             /*final MyLocationOverlay lo = fgsys.getFGMapManager()
                                     .getMyLocationOverlay();
                             lo.runOnFirstFix(new Runnable() {
@@ -319,6 +320,7 @@ public class FGActivity extends FFCFragmentActivity {
                 GeoPoint geoPointCurrent;
                 MyLocationOverlay mLocation = fgsys.getFGMapManager()
                         .getMyLocationOverlay();
+                //TODO Change to Google Map
 /*                if (mLocation.getLastFix() != null){
                     fgsys.getFGMapManager().getMapController()
                             .setCenter(mLocation.getMyLocation());

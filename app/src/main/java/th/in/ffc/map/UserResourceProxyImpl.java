@@ -1,7 +1,7 @@
 package th.in.ffc.map;
 
 public class UserResourceProxyImpl {
-
+    //TODO Change to Google Map
     /*private final Context mContext;
 
     public UserResourceProxyImpl(final Context pContext) {

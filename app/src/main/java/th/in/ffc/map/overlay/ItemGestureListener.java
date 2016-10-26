@@ -30,6 +30,7 @@ public class ItemGestureListener implements
         mapView = (MapView) mf.getView().findViewById(R.id.mapview);
     }
 
+    //TODO Change to Google Map
 /*    @Override
     public boolean onItemDoubleTap(int arg0, Spot spot) {
         // Log.i("TAG!","TAG! double!");
@@ -94,6 +95,7 @@ public class ItemGestureListener implements
         return true;
     }
 
+    //TODO Change to Google Map
 /*    @Override
     public boolean onItemSingleTapConfirmed(int arg0, Spot spot) {
 

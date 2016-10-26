@@ -92,6 +92,7 @@ public class FGSystemManager {
         Double lat = spot.getDoubleLat();
         Double lon = spot.getDoubleLong();
 
+        //TODO Change to Google Map
 /*        spot.setLatitude(0);
         spot.setLongitude(0);*/
 
@@ -102,6 +103,7 @@ public class FGSystemManager {
             this.fgDatabaseManager.addSpotToAvailable(spot);
             return true;
         } else {
+            //TODO Change to Google Map
 /*            spot.setLatitude(lat);
             spot.setLongitude(lon);*/
 
@@ -119,7 +121,7 @@ public class FGSystemManager {
     public void editMarkerOnMap(Spot spot) {
         if (this.fgDatabaseManager.updateGeoPointToDatabase(spot)) {
             this.fgMapManager.getMapView().invalidate();
-
+            //TODO Change to Google Map
             // this.fgOverlayManager.removeMarkerFromMap(spot);
             // this.fgOverlayManager.markMarkerOnMap(spot);
         }
