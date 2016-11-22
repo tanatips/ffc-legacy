@@ -29,19 +29,19 @@
                 android:orientation="horizontal">
 
             <RadioButton
-                    android:id="@+id/rad1"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/old"/>
+                android:id="@id/rad1"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/old"/>
 
             <RadioButton
-                    android:id="@+id/rad2"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:text="@string/new2"/>
+                android:id="@id/rad2"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/new2"/>
         </RadioGroup>
 
         <TextView
@@ -95,19 +95,19 @@
                 android:orientation="horizontal">
 
             <RadioButton
-                    android:id="@+id/rad1"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/use"/>
+                android:id="@id/rad1"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/use"/>
 
             <RadioButton
-                    android:id="@+id/rad2"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:text="@string/notUse"/>
+                android:id="@id/rad2"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/notUse"/>
         </RadioGroup>
 
         <LinearLayout

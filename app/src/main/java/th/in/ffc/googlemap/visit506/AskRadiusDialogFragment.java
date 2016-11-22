@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import th.in.ffc.R;
 
 public class AskRadiusDialogFragment extends DialogFragment {
@@ -30,20 +31,16 @@ public class AskRadiusDialogFragment extends DialogFragment {
     int textSpinner;
 
     static AskRadiusDialogFragment newInstance(String radiusSet, int levelSet) {
-        AskRadiusDialogFragment f = new AskRadiusDialogFragment(radiusSet, levelSet);
+        AskRadiusDialogFragment f = new AskRadiusDialogFragment();
+        f.radiusSet = radiusSet;
+        f.levelSet = levelSet;
+        f.radius = "1000";
+        f.textSpinner = 0;
         return f;
     }
 
-    public static interface onDialogListener {
-        public void onDialogListener(String radius, String colorcode, int levelSet);
-    }
-
-
-    public AskRadiusDialogFragment(String radiusSet, int levelSet) {
-        this.radiusSet = radiusSet;
-        this.levelSet = levelSet;
-        radius = "1000";
-        textSpinner = 0;
+    public interface onDialogListener {
+        void onDialogListener(String radius, String colorcode, int levelSet);
     }
 
     public void setOnDialogListener(onDialogListener listener) {

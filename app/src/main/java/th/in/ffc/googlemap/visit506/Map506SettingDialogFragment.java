@@ -1,14 +1,5 @@
 package th.in.ffc.googlemap.visit506;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import th.in.ffc.R;
-import th.in.ffc.util.ThaiDatePicker;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -25,6 +16,16 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import th.in.ffc.R;
+import th.in.ffc.util.ThaiDatePicker;
 
 public class Map506SettingDialogFragment extends DialogFragment {
 
@@ -60,27 +61,23 @@ public class Map506SettingDialogFragment extends DialogFragment {
 
     static Map506SettingDialogFragment newInstance(
             HashMap<String, String> listNamePlague) {
-        Map506SettingDialogFragment f = new Map506SettingDialogFragment(
-                listNamePlague);
+        Map506SettingDialogFragment f = new Map506SettingDialogFragment();
+        f.listNamePlague = listNamePlague;
+        f.checkDisHi = false;
+        f.checkDisSt = true;
+        f.queryTime = false;
+        f.queryPlauge = false;
+        f.markerState = true;
+        f.dateStart = "";
+        f.dateEnd = "";
+        f.plauge = "";
+        f.displayMode = 0;
         return f;
     }
 
-    public static interface settingCallBack {
-        public void settingCallBack(boolean chkSwitch, String queryNamePlauge,
+    public interface settingCallBack {
+        void settingCallBack(boolean chkSwitch, String queryNamePlauge,
                 String startDate, String endDate, int displayMode);
-    }
-
-    public Map506SettingDialogFragment(HashMap<String, String> listNamePlague) {
-        this.listNamePlague = listNamePlague;
-        checkDisHi = false;
-        checkDisSt = true;
-        queryTime = false;
-        queryPlauge = false;
-        markerState = true;
-        dateStart = "";
-        dateEnd = "";
-        plauge = "";
-        displayMode = 0;
     }
 
     public void setOnClickListenerCallBack(settingCallBack callback) {

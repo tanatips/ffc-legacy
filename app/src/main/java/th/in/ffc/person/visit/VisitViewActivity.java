@@ -22,6 +22,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
+
+import java.io.File;
+import java.util.ArrayList;
+
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCActionBarTabsPagerActivity;
@@ -32,11 +36,13 @@ import th.in.ffc.person.visit.VisitSugarBloodFragment.onShowListener;
 import th.in.ffc.provider.CodeProvider.Clinic;
 import th.in.ffc.provider.CodeProvider.Diagnosis;
 import th.in.ffc.provider.CodeProvider.Drug;
-import th.in.ffc.provider.PersonProvider.*;
+import th.in.ffc.provider.PersonProvider.Person;
+import th.in.ffc.provider.PersonProvider.PersonColumns;
+import th.in.ffc.provider.PersonProvider.Visit;
+import th.in.ffc.provider.PersonProvider.VisitColumns;
+import th.in.ffc.provider.PersonProvider.VisitDiag;
+import th.in.ffc.provider.PersonProvider.VisitDrug;
 import th.in.ffc.util.DateTime;
-
-import java.io.File;
-import java.util.ArrayList;
 
 public class VisitViewActivity extends FFCActionBarTabsPagerActivity {
 
@@ -189,7 +195,7 @@ public class VisitViewActivity extends FFCActionBarTabsPagerActivity {
         haveGraph = true;
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragment = new VisitGraphFragment(contextGraph);
+        fragment = new VisitGraphFragment();
         Bundle bundle = new Bundle();
         bundle.putString("pid", mPid);
         bundle.putString("visitdate", datePager.get(lastPage - currentpage));
@@ -202,11 +208,13 @@ public class VisitViewActivity extends FFCActionBarTabsPagerActivity {
     public void createSugarGraph() {
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragment = new VisitSugarBloodFragment(showLayoutListener);
+        VisitSugarBloodFragment visitSugarBloodFragment = new VisitSugarBloodFragment();
+        visitSugarBloodFragment.setOnShowListener(showLayoutListener);
+        this.fragment = visitSugarBloodFragment;
         Bundle bundle = new Bundle();
         bundle.putString("pid", mPid);
-        fragment.setArguments(bundle);
-        fragmentTransaction.replace(R.id.sugar_graph1, fragment);
+        this.fragment.setArguments(bundle);
+        fragmentTransaction.replace(R.id.sugar_graph1, this.fragment);
         fragmentTransaction.commit();
     }
 

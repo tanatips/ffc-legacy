@@ -9,12 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
 import org.achartengine.GraphicalView;
+
+import java.util.ArrayList;
+
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragment;
 import th.in.ffc.provider.PersonProvider.VISIT_VISITLABSUGARBLOOD;
-
-import java.util.ArrayList;
 
 
 public class VisitSugarBloodFragment extends FFCFragment {
@@ -28,16 +30,20 @@ public class VisitSugarBloodFragment extends FFCFragment {
     LinearLayout linear;
     boolean checkType;
     GraphicalView gView;
+
+    public void setOnShowListener(VisitSugarBloodFragment.onShowListener onShowListener) {
+        this.onShowListener = onShowListener;
+    }
+
     onShowListener onShowListener;
 
-    public VisitSugarBloodFragment(onShowListener onShowListener) {
+    public VisitSugarBloodFragment() {
         dateOfSugar = new ArrayList<String>();
         valueOfSugar = new ArrayList<String>();
         seriesSugar = new ArrayList<ArrayList<String>>();
         seriesDateSugar = new ArrayList<ArrayList<String>>();
         TAG = new ArrayList<String>();
         checkType = true;
-        this.onShowListener = onShowListener;
     }
 
     private void query() {

@@ -11,12 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import org.achartengine.GraphicalView;
+
+import java.util.ArrayList;
+
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragment;
 import th.in.ffc.provider.PersonProvider.Visit;
-
-import java.util.ArrayList;
 
 public class VisitGraphFragment extends FFCFragment {
 
@@ -38,11 +40,6 @@ public class VisitGraphFragment extends FFCFragment {
 
     public VisitGraphFragment() {
         this.context = getActivity();
-        init();
-    }
-
-    public VisitGraphFragment(Context context) {
-        this.context = context;
         init();
     }
 
