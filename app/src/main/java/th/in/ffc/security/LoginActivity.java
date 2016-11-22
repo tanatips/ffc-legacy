@@ -30,20 +30,29 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
+
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.LoginEvent;
+
+import java.io.File;
+
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.intent.Action;
 import th.in.ffc.provider.DbOpenHelper;
-
-import java.io.File;
 
 /**
  * This Login Activity use LoginFragment for handler with Login process, if
@@ -201,15 +210,23 @@ public class LoginActivity extends FFCFragmentActivity implements
     }
 
     @Override
-    public void onLoginSuccess(String PcuCode, String user) {
+    public void onLoginSuccess(String pcuCode, String user) {
 
-        super.logIn(PcuCode, user);
+        super.logIn(pcuCode, user);
+        Answers.getInstance().logLogin(new LoginEvent()
+            .putMethod("basic")
+            .putSuccess(true)
+            .putCustomAttribute("pcu", pcuCode));
+        Crashlytics.setUserName(user);
+        Crashlytics.setUserIdentifier(String.format("%s:%s", pcuCode, user));
         doDecryptDatabase();
     }
 
     @Override
     public void onLoginFailre(String message) {
-
+        Answers.getInstance().logLogin(new LoginEvent()
+            .putMethod("basic")
+            .putSuccess(false));
         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
 
     }

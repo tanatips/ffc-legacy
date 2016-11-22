@@ -37,8 +37,23 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
+import java.util.ArrayList;
+
 import th.in.ffc.R;
 import th.in.ffc.code.DrugListDialog;
 import th.in.ffc.intent.Action;
@@ -49,8 +64,6 @@ import th.in.ffc.util.Log;
 import th.in.ffc.widget.InstantAutoComplete;
 import th.in.ffc.widget.SearchableButton;
 import th.in.ffc.widget.SearchableButton.OnItemSelectListener;
-
-import java.util.ArrayList;
 
 /**
  * add description here!
@@ -152,6 +165,11 @@ public class VisitDrugActivity extends VisitActivity implements
 
                 Log.d(TAG, "insert drug=" + uri.toString());
 
+                Answers.getInstance().logCustom(new CustomEvent("Drug")
+                    .putCustomAttribute("cost", et.getContentValues().getAsFloat(VisitDrug.COST))
+                    .putCustomAttribute("user", getUser())
+                    .putCustomAttribute("pcu", getPcuCode())
+                    .putCustomAttribute("code", code));
             } else if (f.action.equals(Action.EDIT)) {
 
                 Uri updateUri = VisitDrug.getContentUriId(
@@ -161,6 +179,7 @@ public class VisitDrugActivity extends VisitActivity implements
                         "update drug=" + update + " uri="
                                 + updateUri.toString());
             }
+
         }
 
         if (finishable)

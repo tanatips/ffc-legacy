@@ -40,8 +40,25 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
+import java.util.ArrayList;
+
 import th.in.ffc.R;
 import th.in.ffc.code.ClinicListDialog;
 import th.in.ffc.code.DiagnosisListDialog;
@@ -57,8 +74,6 @@ import th.in.ffc.util.DateTime.Date;
 import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.widget.ArrayFormatSpinner;
 import th.in.ffc.widget.SearchableButton;
-
-import java.util.ArrayList;
 
 /**
  * add description here!
@@ -198,8 +213,7 @@ public class VisitDiagActivity extends VisitActivity implements
                 String code = et.getContentValues().getAsString(VisitDiag.CODE);
                 if (isAddedCode(codeList, code)) {
                     finishable = false;
-                    Toast.makeText(this, R.string.duplicate_drug,
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.duplicate_drug, Toast.LENGTH_SHORT).show();
                     break;
                 } else
                     codeList.add(code);
@@ -224,13 +238,18 @@ public class VisitDiagActivity extends VisitActivity implements
                     f.action = Action.EDIT;
                     f.key = code;
                     Log.d(TAG, "insert diag=" + insert.toString());
+
+                    Answers.getInstance().logCustom(new CustomEvent("Diagnosis")
+                        .putCustomAttribute("code", code)
+                        .putCustomAttribute("type", cv.getAsString(VisitDiag.TYPE))
+                        .putCustomAttribute("continue", f.conti ? "yes" : "no")
+                        .putCustomAttribute("pcu", getPcuCode())
+                        .putCustomAttribute("user", getUser()));
                 } else if (action.equals(Action.EDIT)) {
                     Uri updateUri = VisitDiag.getContentUriId(
                             Long.parseLong(getVisitNo()), f.key);
                     int update = et.commit(updateUri, null, null);
-                    Log.d(TAG,
-                            "update drug=" + update + " uri="
-                                    + updateUri.toString());
+                    Log.d(TAG, "update drug=" + update + " uri=" + updateUri.toString());
                 }
             }
         }

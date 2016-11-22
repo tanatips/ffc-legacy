@@ -31,12 +31,9 @@ import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import th.in.ffc.FamilyFolderCollector;
-import th.in.ffc.R;
-import th.in.ffc.app.FFCFragmentActivity;
-import th.in.ffc.intent.Action;
-import th.in.ffc.provider.HouseProvider.House;
-import th.in.ffc.provider.PersonProvider.PersonColumns;
+
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -46,6 +43,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import th.in.ffc.FamilyFolderCollector;
+import th.in.ffc.R;
+import th.in.ffc.app.FFCFragmentActivity;
+import th.in.ffc.intent.Action;
+import th.in.ffc.provider.HouseProvider.House;
+import th.in.ffc.provider.PersonProvider.PersonColumns;
 
 public class FamilyTree extends FFCFragmentActivity {
 
@@ -284,6 +288,11 @@ public class FamilyTree extends FFCFragmentActivity {
         if (mHCode != -1) {
             PersonView.HCode = mHCode;
             mPCUCode = getIntent().getStringExtra("pcucode");
+
+            Answers.getInstance().logContentView(new ContentViewEvent()
+                .putContentType("Genogram")
+                .putContentId(String.format("%s/%s", mPCUCode, mHCode)));
+
             Uri uri = Uri.withAppendedPath(
                     th.in.ffc.provider.PersonProvider.Person.CONTENT_URI,
                     "house/" + mHCode + "/family");
@@ -295,6 +304,7 @@ public class FamilyTree extends FFCFragmentActivity {
             } else
                 mCountFamily = 0;
             initialize();
+
 
             if (mCountFamily > 0) {
                 mFamilys = new HashMap<Integer, Family>();

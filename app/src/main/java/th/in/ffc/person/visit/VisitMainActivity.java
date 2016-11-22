@@ -28,7 +28,11 @@ package th.in.ffc.person.visit;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -51,8 +55,15 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.blayzupe.phototaker.PhotoTaker;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
 import java.io.File;
+
+import me.piruin.quickaction.ActionItem;
+import me.piruin.quickaction.QuickAction;
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
@@ -95,9 +106,9 @@ import th.in.ffc.widget.IntentBaseAdapter;
  * @since Family Folder Collector 2.0
  */
 public class VisitMainActivity extends FFCFragmentActivity implements
-        PhotoTaker.OnCropFinishListener, View.OnClickListener,
-        th.in.ffc.widget.IntentBaseAdapter.OnItemClickListener,
-        View.OnLongClickListener, LoaderCallbacks<Cursor> {
+    PhotoTaker.OnCropFinishListener, View.OnClickListener,
+    th.in.ffc.widget.IntentBaseAdapter.OnItemClickListener,
+    View.OnLongClickListener, LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_VISIT_NO = "visitno";
     public static final String EXTRA_VISIT_PATH = "visitpath";
@@ -111,8 +122,8 @@ public class VisitMainActivity extends FFCFragmentActivity implements
     private static final int LOAD_PERSON = 1;
 
     private String[] PROJECTION = new String[]{Person.PCUPERSONCODE,
-            Person.FULL_NAME, Person.CITIZEN_ID, Person.BIRTH, Person.SEX,
-            Person.RIGHT_CODE};
+        Person.FULL_NAME, Person.CITIZEN_ID, Person.BIRTH, Person.SEX,
+        Person.RIGHT_CODE};
 
     private String mVisitNo;
     private String mPid;
@@ -153,6 +164,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
         mVisitNo = getIntent().getStringExtra(Visit.NO);
         if (!TextUtils.isEmpty(mVisitNo))
             mVisitText.setText(getString(R.string.visit) + " #" + mVisitNo);
+
 
         mVisitButton.setEnabled(false);
         // Uri deathUri = Uri.withAppendedPath(Death.CONTENT_URI, mPid);
@@ -196,9 +208,9 @@ public class VisitMainActivity extends FFCFragmentActivity implements
         if (!TextUtils.isEmpty(mVisitNo)) {
             ContentResolver cr = getContentResolver();
             Cursor c = cr.query(VisitDiag.CONTENT_URI, new String[]{
-                            VisitDiag.CODE, VisitDiag.TYPE},
-                    "visitno=? AND dxtype='01'", new String[]{mVisitNo,},
-                    VisitDiag.DEFAULT_SORTING);
+                    VisitDiag.CODE, VisitDiag.TYPE},
+                "visitno=? AND dxtype='01'", new String[]{mVisitNo,},
+                VisitDiag.DEFAULT_SORTING);
             if (c.moveToFirst()) {
                 mPDX = c.getString(0);
                 mDX.setText(mPDX);
@@ -212,10 +224,10 @@ public class VisitMainActivity extends FFCFragmentActivity implements
             }
 
             File img = new File(FamilyFolderCollector.PHOTO_DIRECTORY_SERVICE,
-                    mVisitNo.concat(".jpg"));
+                mVisitNo.concat(".jpg"));
             if (img.exists())
                 mVisitImage.setImageDrawable(Drawable.createFromPath(img
-                        .getAbsolutePath()));
+                    .getAbsolutePath()));
         }
     }
 
@@ -228,13 +240,13 @@ public class VisitMainActivity extends FFCFragmentActivity implements
 
             if (!TextUtils.isEmpty(mPDX)) {
                 Cursor c = getContentResolver().query(
-                        Uri.withAppendedPath(Diagnosis.CONTENT_URI, mPDX),
-                        projection, null, null, Diagnosis._ID);
+                    Uri.withAppendedPath(Diagnosis.CONTENT_URI, mPDX),
+                    projection, null, null, Diagnosis._ID);
                 if (c.moveToFirst()) {
-                    /*QuickAction qa = new QuickAction(VisitMainActivity.this);
+                    QuickAction qa = new QuickAction(VisitMainActivity.this);
                     qa.addActionItem(new ActionItem(R.string.diagnosis, c
-                            .getString(1)));
-                    qa.show(v);*/
+                        .getString(1)));
+                    qa.show(v);
                 }
             }
         }
@@ -253,7 +265,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                 if (!TextUtils.isEmpty(mPDX)) {
                     if (mDX.getTag() != null) {
                         Toast.makeText(this, R.string.hint_more_dx,
-                                Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                     } else {
                         ContentValues cv = new ContentValues();
                         cv.put(Visit.TIME_END, DateTime.getCurrentTime());
@@ -304,7 +316,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                     if (data.getAction().equals(Action.INSERT)) {
                         mVisitNo = data.getData().getLastPathSegment();
                         mVisitText.setText(getString(R.string.visit) + " #"
-                                + mVisitNo);
+                            + mVisitNo);
                     }
                 }
                 break;
@@ -320,32 +332,49 @@ public class VisitMainActivity extends FFCFragmentActivity implements
         visit.setType(Visit.CONTENT_ITEM_TYPE);
 
         visit.addCategory((c.getInt(c.getColumnIndex(Person.SEX)) == 1) ? Category.MALE
-                : Category.FEMALE);
+            : Category.FEMALE);
 
         mSex = c.getInt(c.getColumnIndex(Person.SEX));
 
         Date current = Date.newInstance(DateTime.getCurrentDate());
         Date born = Date
-                .newInstance(c.getString(c.getColumnIndex(Person.BIRTH)));
+            .newInstance(c.getString(c.getColumnIndex(Person.BIRTH)));
+        String ageRange = "undefine";
         if (born != null) {
             AgeCalculator cal = new AgeCalculator(current, born);
             Date age = cal.calulate();
             mAge = age.year;
             if (age.year < 2) {
+                ageRange = "baby";
                 visit.addCategory(Category.BABY);
             } else if (age.year < 12) {
+                ageRange = "children";
                 visit.addCategory(Category.CHILDREN);
             } else if (age.year < 20) {
+                ageRange = "teenage";
                 visit.addCategory(Category.TEENAGE);
             } else if (age.year < 60) {
+                ageRange = "adult";
                 visit.addCategory(Category.ADULT);
             } else {
+                ageRange = "elder";
                 visit.addCategory(Category.ELDER);
             }
         }
 
+
+        CustomEvent visitEvent = new CustomEvent("Visit")
+            .putCustomAttribute("pcu", getPcuCode())
+            .putCustomAttribute("user", getUser())
+            .putCustomAttribute("sex", mSex == 1 ? "male" : "female")
+            .putCustomAttribute("type", TextUtils.isEmpty(mVisitNo) ? "new" : "edit");
+        if (born != null) {
+            visitEvent.putCustomAttribute("age", mAge).putCustomAttribute("age-range", ageRange);
+        }
+        Answers.getInstance().logCustom(visitEvent);
+
         IntentBaseAdapter adapter = new IntentBaseAdapter(this, visit,
-                R.layout.grid_item, R.id.image, R.id.text);
+            R.layout.grid_item, R.id.image, R.id.text);
         OnItemClickListener listener = adapter.getOnItemClickListener(this);
 
         mVisitGrid.setAdapter(adapter);
@@ -372,7 +401,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
         // else
         // filename = mVisitNo.concat("_" + (photo.length + 1) + ".jpg");
         mPhotoTaker.setOutput(FamilyFolderCollector.PHOTO_DIRECTORY_SERVICE,
-                filename);
+            filename);
         return true;
     }
 
@@ -408,13 +437,13 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                     visit.addCategory(Category.DEFAULT);
                     visit.addCategory(Category.VISIT);
                     VisitActivity.startVisitActivityForResult(this, visit,
-                            REQUEST_VISIT_DEFAULT, null, mPid, mPcuCodePerson);
+                        REQUEST_VISIT_DEFAULT, null, mPid, mPcuCodePerson);
                 } else {
                     Intent visit = new Intent(Action.EDIT);
                     visit.addCategory(Category.DEFAULT);
                     visit.addCategory(Category.VISIT);
                     VisitActivity.startVisitActivityForResult(this, visit,
-                            REQUEST_VISIT_DEFAULT, mVisitNo, mPid, mPcuCodePerson);
+                        REQUEST_VISIT_DEFAULT, mVisitNo, mPid, mPcuCodePerson);
                 }
                 break;
         }
@@ -434,7 +463,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                 requestCode = REQUEST_VISIT_DIAG;
 
             VisitActivity.startVisitActivityForResult(this, visit, requestCode,
-                    mVisitNo, mPid, mPcuCodePerson);
+                mVisitNo, mPid, mPcuCodePerson);
 
         } else {
             /*QuickAction qa = new QuickAction(this);
@@ -466,29 +495,29 @@ public class VisitMainActivity extends FFCFragmentActivity implements
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.discard));
             builder.setPositiveButton(R.string.yes,
-                    new DialogInterface.OnClickListener() {
+                new DialogInterface.OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
 
-                            ProgressDialog p = new ProgressDialog(
-                                    VisitMainActivity.this);
-                            p.setMessage(getString(R.string.please_wait));
-                            p.show();
+                        ProgressDialog p = new ProgressDialog(
+                            VisitMainActivity.this);
+                        p.setMessage(getString(R.string.please_wait));
+                        p.show();
 
-                            Thread t = new Thread(DiscardThread);
-                            t.start();
-                        }
-                    });
+                        Thread t = new Thread(DiscardThread);
+                        t.start();
+                    }
+                });
             builder.setNegativeButton(R.string.no,
-                    new DialogInterface.OnClickListener() {
+                new DialogInterface.OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
             builder.create().show();
 
         }
@@ -552,7 +581,7 @@ public class VisitMainActivity extends FFCFragmentActivity implements
             // "pid =? AND pcucodeperson=?", new String[]{mPid,mPcuCodePerson});
             // remove Visit Screenspecialdisease
             cr.delete(VisitScreenspecialdisease.CONTENT_URI, where,
-                    selectionArgs);
+                selectionArgs);
             // remove Visit AncDeliver
             cr.delete(VisitAncDeliver.CONTENT_URI, where, selectionArgs);
             // remove Visit AncMothercare
@@ -578,13 +607,13 @@ public class VisitMainActivity extends FFCFragmentActivity implements
             case LOAD_DEATH:
                 Uri deathUri = Uri.withAppendedPath(Death.CONTENT_URI, mPid);
                 cl = new CursorLoader(this, deathUri, new String[]{Death.CAUSE},
-                        null, null, Death.UPDATE);
+                    null, null, Death.UPDATE);
                 return cl;
             case LOAD_PERSON:
                 mProgress.setVisibility(View.VISIBLE);
                 Uri uri = getIntent().getData();
                 cl = new CursorLoader(this, uri, PROJECTION, null, null,
-                        Person.DEFAULT_SORTING);
+                    Person.DEFAULT_SORTING);
                 return cl;
             default:
                 return null;
@@ -607,12 +636,12 @@ public class VisitMainActivity extends FFCFragmentActivity implements
             case LOAD_PERSON:
                 if (c.moveToFirst()) {
                     mPcuCodePerson = c.getString(c
-                            .getColumnIndex(Person.PCUPERSONCODE));
+                        .getColumnIndex(Person.PCUPERSONCODE));
                     String id = c.getString(c.getColumnIndex(Person.CITIZEN_ID));
                     doSetupActionBar(
-                            c.getString(c.getColumnIndex(Person.FULL_NAME)),
-                            (!TextUtils.isEmpty(id)) ? ThaiCitizenID.parse(id)
-                                    : null);
+                        c.getString(c.getColumnIndex(Person.FULL_NAME)),
+                        (!TextUtils.isEmpty(id)) ? ThaiCitizenID.parse(id)
+                            : null);
                     doSetupGrid(c);
 
                     getSupportLoaderManager().initLoader(LOAD_DEATH, null, this);

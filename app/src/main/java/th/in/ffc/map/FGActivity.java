@@ -1,7 +1,11 @@
 package th.in.ffc.map;
 
 import android.app.Dialog;
-import android.content.*;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,8 +20,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
+
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+
 import org.osmdroid.google.wrapper.MyLocationOverlay;
 import org.osmdroid.util.GeoPoint;
+
+import java.io.File;
+import java.util.HashMap;
+
 import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
@@ -33,9 +45,6 @@ import th.in.ffc.map.value.MARKER_TYPE;
 import th.in.ffc.person.genogram.V1.Family;
 import th.in.ffc.person.genogram.V1.FamilyTree;
 import th.in.ffc.provider.HouseProvider.House;
-
-import java.io.File;
-import java.util.HashMap;
 
 public class FGActivity extends FFCFragmentActivity {
 
@@ -68,8 +77,12 @@ public class FGActivity extends FFCFragmentActivity {
 
         setSupportProgressBarIndeterminateVisibility(false);
 
+        Answers.getInstance().logContentView(new ContentViewEvent()
+            .putContentId(getPcuCode())
+            .putContentType("Map"));
+
         DATA_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/Android/data/" + this.getPackageName() + "/";
+            + "/Android/data/" + this.getPackageName() + "/";
         PICTURE_PATH = DATA_PATH + "pictures/";
         TEMP_PATH = DATA_PATH + "temps/";
 
@@ -89,10 +102,10 @@ public class FGActivity extends FFCFragmentActivity {
                             Log.d("TAG!", "conRec is null!");
                             conRec = new ConnectivityReceiver();
                             registerReceiver(conRec, new IntentFilter(
-                                    "android.net.conn.CONNECTIVITY_CHANGE"));
+                                "android.net.conn.CONNECTIVITY_CHANGE"));
 
                             //TODO Change to Google Map
-                            /*final MyLocationOverlay lo = fgsys.getFGMapManager()
+                            final MyLocationOverlay lo = fgsys.getFGMapManager()
                                     .getMyLocationOverlay();
                             lo.runOnFirstFix(new Runnable() {
                                 @Override
@@ -104,15 +117,15 @@ public class FGActivity extends FFCFragmentActivity {
                             });
                             handler.sendEmptyMessage(LOCATION_INITIALIZE);
 
-                            //fgsys.getFGMapManager().getMyLocationOverlay()
-                                    .enableMyLocation();*/
+                            fgsys.getFGMapManager().getMyLocationOverlay()
+                                .enableMyLocation();
                         }
 
                         fgsys.getFGMapManager().checkGPS();
                         break;
                     case LOCATION_INITIALIZE:
                         GeoPoint point = fgsys.getFGGPSManager()
-                                .getGeoPointCurrent();
+                            .getGeoPointCurrent();
                         if (point == null)
                             point = FinalValue.GEOPOINT_VICTORY;
                         fgsys.getFGMapManager().getMapController().setCenter(point);
@@ -143,7 +156,7 @@ public class FGActivity extends FFCFragmentActivity {
     protected void onStart() {
         super.onStart();
         SharedPreferences prefsFamilyTree = getSharedPreferences(
-                FamilyTree.PREFS_NAME, Context.MODE_PRIVATE);
+            FamilyTree.PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefsFamilyTree.edit();
         editor.putBoolean(FamilyTree.PREFS_FIRST, true);
         editor.putInt(FamilyTree.PREFS_FOCUS, 1);
@@ -164,7 +177,7 @@ public class FGActivity extends FFCFragmentActivity {
                 }
             };
             new GeneralAsyncTask(this, null, handler, INITIALIZE, FAILED)
-                    .execute(r, null);
+                .execute(r, null);
         } else if (!fgsys.getFGActivity().equals(this)) {
             Log.i("TAG!", "Not equal!");
             Runnable r = new Runnable() {
@@ -174,7 +187,7 @@ public class FGActivity extends FFCFragmentActivity {
                 }
             };
             new GeneralAsyncTask(this, null, handler, INITIALIZE, FAILED)
-                    .execute(r, null);
+                .execute(r, null);
         } else {
             Log.i("TAG!", "Normally functional");
             fgsys.getFGMapManager().checkGPS();
@@ -195,7 +208,7 @@ public class FGActivity extends FFCFragmentActivity {
         super.onResume();
         if (conRec != null) {
             registerReceiver(conRec, new IntentFilter(
-                    "android.net.conn.CONNECTIVITY_CHANGE"));
+                "android.net.conn.CONNECTIVITY_CHANGE"));
             //fgsys.getFGMapManager().getMyLocationOverlay().enableMyLocation();
         }
     }
@@ -222,7 +235,7 @@ public class FGActivity extends FFCFragmentActivity {
             return null;
 
         return BitmapFactory.decodeFile(FGActivity.PICTURE_PATH + type + "/"
-                + filename + "_thumb.jpg");
+            + filename + "_thumb.jpg");
     }
 
     public static String getPicturePath(MARKER_TYPE type, String filename) {
@@ -234,9 +247,9 @@ public class FGActivity extends FFCFragmentActivity {
 
     public static boolean removePicture(MARKER_TYPE type, String filename) {
         File file1 = new File(FGActivity.PICTURE_PATH + type + "/" + filename
-                + ".jpg");
+            + ".jpg");
         File file2 = new File(FGActivity.PICTURE_PATH + type + "/" + filename
-                + "_thumb.jpg");
+            + "_thumb.jpg");
         return file1.delete() && file2.delete();
     }
 
@@ -280,7 +293,7 @@ public class FGActivity extends FFCFragmentActivity {
 
         if (requestCode == FinalValue.FILTER_REQUEST) {
             SharedPreferences sh = this.getSharedPreferences(
-                    PreferenceFilter.FILE_XML, MODE_PRIVATE);
+                PreferenceFilter.FILE_XML, MODE_PRIVATE);
 
             // Check if whether this function is open by user
             new ProcessingFilterAsyncTask(this, sh).execute("");
@@ -319,7 +332,7 @@ public class FGActivity extends FFCFragmentActivity {
                 Location location = fgsys.getFGGPSManager().getLastKnownLocation();
                 GeoPoint geoPointCurrent;
                 MyLocationOverlay mLocation = fgsys.getFGMapManager()
-                        .getMyLocationOverlay();
+                    .getMyLocationOverlay();
                 //TODO Change to Google Map
 /*                if (mLocation.getLastFix() != null){
                     fgsys.getFGMapManager().getMapController()
@@ -345,12 +358,12 @@ public class FGActivity extends FFCFragmentActivity {
                 return true;
             case R.id.menu_filter:
                 this.startActivityForResult(
-                        new Intent(this, PreferenceFilter.class),
-                        FinalValue.FILTER_REQUEST);
+                    new Intent(this, PreferenceFilter.class),
+                    FinalValue.FILTER_REQUEST);
                 return true;
             case R.id.menu_search:
                 Dialog dialogSearchHouseMarker = fgsys.getFGDialogManager()
-                        .getDialogSearchHouseMarker();
+                    .getDialogSearchHouseMarker();
                 dialogSearchHouseMarker.show();
                 return true;
             case R.id.menu_wifi_status:
@@ -358,7 +371,7 @@ public class FGActivity extends FFCFragmentActivity {
                 return true;
             case R.id.menu_gps_status:
                 this.startActivity(new Intent(
-                        Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                 return true;
             case R.id.menu_sat:
                 fgsys.getFGMapManager().setMapStyle(FinalValue.INT_SATELLITE);
@@ -366,7 +379,7 @@ public class FGActivity extends FFCFragmentActivity {
                 return true;
             case R.id.menu_sat_path:
                 fgsys.getFGMapManager().setMapStyle(
-                        FinalValue.INT_SATELLITE_OVERLAY);
+                    FinalValue.INT_SATELLITE_OVERLAY);
                 item.setChecked(true);
                 return true;
             case R.id.menu_normal:
@@ -384,7 +397,7 @@ public class FGActivity extends FFCFragmentActivity {
         String[] projection = new String[]{House._ID, House.X_GIS, House.Y_GIS};
         String selection = "hcode=?";
         Cursor c = getContentResolver().query(House.CONTENT_URI, projection, selection,
-                new String[]{hcode}, House._ID);
+            new String[]{hcode}, House._ID);
         if (c.moveToFirst()) {
             double x = c.getDouble(1);
             double y = c.getDouble(2);
@@ -392,7 +405,7 @@ public class FGActivity extends FFCFragmentActivity {
                 Toast.makeText(this, "x=" + x + " y=" + y, Toast.LENGTH_SHORT).show();
                 GeoPoint geo = new GeoPoint(y, x);
                 fgsys.getFGMapManager().getMapController()
-                        .setCenter(geo);
+                    .setCenter(geo);
             }
 
         }
