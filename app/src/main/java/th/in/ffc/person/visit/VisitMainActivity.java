@@ -466,10 +466,10 @@ public class VisitMainActivity extends FFCFragmentActivity implements
                 mVisitNo, mPid, mPcuCodePerson);
 
         } else {
-            /*QuickAction qa = new QuickAction(this);
+            QuickAction qa = new QuickAction(this);
             qa.addActionItem(new ActionItem(0,
                     getString(R.string.visit_default_first)));
-            qa.show(mVisitButton);*/
+            qa.show(mVisitButton);
         }
 
     }
