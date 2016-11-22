@@ -28,11 +28,7 @@ package th.in.ffc.person.visit;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;

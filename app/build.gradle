@@ -1,16 +1,12 @@
 apply plugin: 'com.android.application'
 
-repositories {
-    jcenter()
-}
-
 android {
     compileSdkVersion 25
     buildToolsVersion "23.0.3"
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "th.in.ffc"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -48,4 +44,5 @@ dependencies {
     compile "com.google.android.gms:play-services-maps:9.8.0"
     compile 'org.osmdroid:osmdroid-android:5.5:release@aar'
     compile 'org.osmdroid:osmdroid-third-party:5.5:release@aar'
+    compile 'me.piruin:quickaction:2.0'
 }

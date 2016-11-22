@@ -37,9 +37,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import me.piruin.quickaction.ActionItem;
+import me.piruin.quickaction.QuickAction;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.form.EditFormActivity.EditFragment.RemoveRequestListener;
@@ -246,8 +250,8 @@ public class EditFormActivity extends FFCFragmentActivity {
             setmRemoveListener(listener);
         }
 
-        public static interface RemoveRequestListener {
-            public void onRemove(String action, String tag, String key);
+        public interface RemoveRequestListener {
+            void onRemove(String action, String tag, String key);
         }
 
         public abstract boolean onSave(EditTransaction et);
@@ -302,9 +306,9 @@ public class EditFormActivity extends FFCFragmentActivity {
                 return false;
             if (TextUtils.isEmpty(data)) {
                 if (!allowNull) {
-/*                    QuickAction qa = new QuickAction(mContext);
+                    QuickAction qa = new QuickAction(mContext);
                     qa.addActionItem(new ActionItem(0, "null"));
-                    qa.show(view);*/
+                    qa.show(view);
 
                     mError = true;
                 }
@@ -316,10 +320,10 @@ public class EditFormActivity extends FFCFragmentActivity {
 
         public void showErrorMessage(View view, String msg) {
             if (!TextUtils.isEmpty(msg)) {
-/*                mErrorView = view;
+                mErrorView = view;
                 QuickAction qa = new QuickAction(mContext);
                 qa.addActionItem(new ActionItem(0, msg));
-                qa.show(mErrorView);*/
+                qa.show(mErrorView);
             }
         }
 
@@ -458,8 +462,9 @@ public class EditFormActivity extends FFCFragmentActivity {
             String[] array = mContext.getResources().getStringArray(
                     stringArrayId);
             int select = view.getSelectedItemPosition();
-            if (select > (array.length - 1) || select < 0)
+            if (select > (array.length - 1) || select < 0) {
                 throw new InvalidParameterException("array select out of range");
+            }
 
             String item = array[select];
             mCv.put(col, item.substring(0, item.indexOf(":")));
@@ -572,7 +577,7 @@ public class EditFormActivity extends FFCFragmentActivity {
         /**
          * this commit will insert Transaction to database
          *
-         * @param URI for insert values
+         * @param uri for insert values
          * @return URI of content that just insert or null if update not success
          * @since 1.0
          */

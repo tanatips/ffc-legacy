@@ -41,6 +41,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import me.piruin.quickaction.ActionItem;
+import me.piruin.quickaction.QuickAction;
 import th.in.ffc.R;
 import th.in.ffc.code.HospitalListDialog;
 import th.in.ffc.code.RightListDialog;
@@ -235,9 +238,9 @@ public class PersonRightEditActivity extends PersonActivity {
                 et.retrieveData(Person.RIGHT_EXPIRE, mExpire, regis, null, null);
                 return et.canCommit();
             } else {
-                /*QuickAction qa = new QuickAction(this.getActivity());
+                QuickAction qa = new QuickAction(this.getActivity());
                 qa.addActionItem(new ActionItem(0, getString(R.string.hint_expire_early)));
-                qa.show(mExpire);*/
+                qa.show(mExpire);
                 return false;
             }
 
