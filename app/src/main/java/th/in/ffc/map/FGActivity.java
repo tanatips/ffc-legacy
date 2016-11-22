@@ -105,20 +105,20 @@ public class FGActivity extends FFCFragmentActivity {
                                 "android.net.conn.CONNECTIVITY_CHANGE"));
 
                             //TODO Change to Google Map
-                            final MyLocationOverlay lo = fgsys.getFGMapManager()
-                                    .getMyLocationOverlay();
-                            lo.runOnFirstFix(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Log.d("TAG!", "RUN!");
-                                    fgsys.getFGGPSManager().regenerateProvider();
-                                    handler.sendEmptyMessage(LOCATION_INITIALIZE);
-                                }
-                            });
-                            handler.sendEmptyMessage(LOCATION_INITIALIZE);
-
-                            fgsys.getFGMapManager().getMyLocationOverlay()
-                                .enableMyLocation();
+//                            final MyLocationOverlay lo = fgsys.getFGMapManager()
+//                                    .getMyLocationOverlay();
+//                            lo.runOnFirstFix(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Log.d("TAG!", "RUN!");
+//                                    fgsys.getFGGPSManager().regenerateProvider();
+//                                    handler.sendEmptyMessage(LOCATION_INITIALIZE);
+//                                }
+//                            });
+//                            handler.sendEmptyMessage(LOCATION_INITIALIZE);
+//
+//                            fgsys.getFGMapManager().getMyLocationOverlay()
+//                                .enableMyLocation();
                         }
 
                         fgsys.getFGMapManager().checkGPS();

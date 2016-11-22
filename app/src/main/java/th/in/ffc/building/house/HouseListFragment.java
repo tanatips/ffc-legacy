@@ -42,8 +42,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
+
 import th.in.ffc.R;
 import th.in.ffc.app.FFCListFragment;
 import th.in.ffc.intent.Action;
@@ -151,7 +156,7 @@ public class HouseListFragment extends FFCListFragment implements
         house.addCategory(Category.HOUSE);
         house.setType(House.CONTENT_ITEM_TYPE);
         house.setData(Uri.withAppendedPath(House.CONTENT_URI, "" + id));
-        startActivity(house);
+        getFFCActivity().startActivity(house);
     }
 
     // implementation of OnItemSelectionListener
