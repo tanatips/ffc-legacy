@@ -39,3 +39,11 @@ build
 *.ipr
 *~
 *.swp
+
+# Fabric.io
+fabric.properties
+session_analytics.tap
+crashlytics-build.properties
+crashlytics.properties
+com.crashlytics.settings.json
+com_crashlytics_export_strings.xml

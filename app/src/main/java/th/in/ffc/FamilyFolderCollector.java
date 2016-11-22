@@ -28,9 +28,14 @@ package th.in.ffc;
 
 import android.app.Application;
 import android.os.Build;
-import th.in.ffc.person.genogram.V1.Family;
+
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 
 import java.util.Map;
+
+import io.fabric.sdk.android.Fabric;
+import th.in.ffc.person.genogram.V1.Family;
 
 /**
  * <<<<<<< HEAD Extended Application class for handle global method and hold
@@ -129,4 +134,14 @@ public class FamilyFolderCollector extends Application {
 
     public boolean[] mFoundMember;
     public Map<Integer, Family> mFamilys;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+            .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+            .build();
+        Fabric.with(this, crashlyticsKit);
+    }
 }
