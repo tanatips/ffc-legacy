@@ -42,6 +42,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
 import th.in.ffc.R;
 import th.in.ffc.intent.Action;
 import th.in.ffc.provider.CodeProvider.HealthSuggest;
@@ -200,11 +201,9 @@ public class VisitDefaultActivity extends VisitActivity implements
         if (TextUtils.isEmpty(mVisitNo))
             return false;
         EditTransaction et = beginTransaction();
-        boolean weight = false;
-        boolean height = false;
-        weight = et.retrieveData(Visit.WEIGHT, mWeight, true, 0.0f, 300.0f,
+        boolean weight = et.retrieveData(Visit.WEIGHT, mWeight, false, 0.0f, 300.0f,
                 "weight, out of range");
-        height = et.retrieveData(Visit.HEIGHT, mHeight, true, 0.0f, 300.0f,
+        boolean height = et.retrieveData(Visit.HEIGHT, mHeight, false, 0.0f, 300.0f,
                 "height, out of range");
         et.retrieveData(Visit.ASS, mAss, true, 0.0f, 300.0f,
                 "Ass, out of range");
