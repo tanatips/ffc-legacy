@@ -52,6 +52,10 @@ android {
             manifestPlaceholders = [google_map_key: 'AIzaSyB5YIs0wdbJvMJ-RuUPwyYkt3A67M08Z8w']
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -62,9 +66,7 @@ dependencies {
     compile 'org.osmdroid:osmdroid-android:5.5:release@aar'
     compile 'org.osmdroid:osmdroid-third-party:5.5:release@aar'
     compile 'me.piruin:quickaction:2.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
-        transitive = true;
-    }
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') { transitive = true; }
 }
 
 apply plugin: 'com.google.gms.google-services'
