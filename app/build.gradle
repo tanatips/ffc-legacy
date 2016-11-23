@@ -7,6 +7,7 @@ buildscript {
         classpath 'io.fabric.tools:gradle:1.22.0'
     }
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
@@ -24,37 +25,57 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
     }
 
     signingConfigs {
-        Properties properties = new Properties()
-        properties.load(rootProject.file('local.properties').newDataInputStream())
+
+        debug {
+            storeFile file("debug.keystore")
+        }
 
         release {
+            Properties properties
+            if (file('local.properties').exists()) {
+                properties = new Properties()
+                properties.load(rootProject.file('local.properties').newDataInputStream())
+            }
+
             storeFile file("release.keystore")
             keyAlias 'wis@nectec'
-            keyPassword properties.getProperty("release.keypassword")
-            storePassword properties.getProperty("release.storepassword")
+            keyPassword properties?.getProperty("release.keypassword") ?:
+                    System.getenv('RELEASE_KEY_PASSWORD')
+            storePassword properties?.getProperty("release.keypassword") ?:
+                    System.getenv('RELEASE_KEY_PASSWORD')
         }
     }
 
     buildTypes {
         debug {
+            signingConfig signingConfigs.debug
+            versionNameSuffix " debug"
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
-            manifestPlaceholders = [google_map_key: 'AIzaSyB5YIs0wdbJvMJ-RuUPwyYkt3A67M08Z8w']
+            manifestPlaceholders = [google_map_key: 'AIzaSyC9K6xSWv4pGnTTmxzpYziOm_5q02yOI20']
         }
 
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            manifestPlaceholders = [google_map_key: 'AIzaSyB5YIs0wdbJvMJ-RuUPwyYkt3A67M08Z8w']
+            manifestPlaceholders = [google_map_key: 'AIzaSyBxLlvsh23x0AQkkVPEF1eP5aSKIVwgCY8']
         }
     }
 
     lintOptions {
         abortOnError false
+    }
+
+    packagingOptions {
+        exclude "LICENSE.txt"
+        exclude "META-INF/DEPENDENCIES"
+        exclude "META-INF/ASL2.0"
+        exclude "META-INF/NOTICE"
+        exclude "META-INF/LICENSE"
     }
 }
 
