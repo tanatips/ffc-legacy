@@ -48,5 +48,8 @@ crashlytics.properties
 com.crashlytics.settings.json
 com_crashlytics_export_strings.xml
 
-# Android
+# Google
 google-services.json
+
+# App Secret
+secrets.tar
