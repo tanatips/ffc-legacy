@@ -17,6 +17,9 @@ android:
     - android-25
     - extra-android-support
     - extra-android-m2repository
+  licenses:
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_0fee3d7982d9_key -iv $encrypted_0fee3d7982d9_iv -in secrets.tar.enc -out secrets.tar -d
