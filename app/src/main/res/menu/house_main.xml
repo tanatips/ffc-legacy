@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-            android:id="@id/genogram"
-            android:icon="@drawable/ic_action_genogram"
-            android:showAsAction="always"
-            android:title="@string/genogram">
-    </item>
-    <item
-            android:id="@id/map"
-            android:showAsAction="ifRoom"
-            android:icon="@drawable/ic_action_map"
-            android:title="@string/map">
-    </item>
+  <item
+      android:id="@id/genogram"
+      android:icon="@drawable/ic_action_genogram"
+      android:title="@string/genogram"
+      app:showAsAction="always">
+  </item>
+  <item
+      android:id="@id/map"
+      android:icon="@drawable/ic_action_map"
+      android:title="@string/map"
+      app:showAsAction="ifRoom">
+  </item>
 
 </menu>

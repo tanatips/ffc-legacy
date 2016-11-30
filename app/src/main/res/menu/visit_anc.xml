@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-            android:id="@id/blood"
-            android:title="@string/lab_blood"
-            android:icon="@drawable/ic_action_lab_blood"
-            android:showAsAction="always"/>
-    <item
-            android:id="@id/save"
-            android:icon="@drawable/ic_action_done"
-            android:showAsAction="always|withText"
-            android:title="@string/save"/>
+  <item
+      android:id="@id/blood"
+      android:icon="@drawable/ic_action_lab_blood"
+      android:title="@string/lab_blood"
+      app:showAsAction="always"/>
+  <item
+      android:id="@id/save"
+      android:icon="@drawable/ic_action_done"
+      android:title="@string/save"
+      app:showAsAction="always|withText"/>
 
-    <item
-            android:id="@id/add"
-            android:icon="@drawable/ic_action_add"
-            android:title="@string/add"
-            android:showAsAction="always">
-    </item>
+  <item
+      android:id="@id/add"
+      android:icon="@drawable/ic_action_add"
+      android:title="@string/add"
+      app:showAsAction="always">
+  </item>
 </menu>

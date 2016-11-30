@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-            android:id="@id/visit"
-            android:icon="@drawable/ic_action_visit"
-            android:showAsAction="always|withText"
-            android:title="@string/visit">
-    </item>
-    <item
-            android:id="@id/camera"
-            android:icon="@drawable/ic_action_camera"
-            android:showAsAction="ifRoom">
-    </item>
+  <item
+      android:id="@id/visit"
+      android:icon="@drawable/ic_action_visit"
+      android:title="@string/visit"
+      app:showAsAction="always|withText">
+  </item>
+  <item
+      android:id="@id/camera"
+      android:icon="@drawable/ic_action_camera"
+      android:title="@string/camera"
+      app:showAsAction="ifRoom">
+  </item>
 
 </menu>
