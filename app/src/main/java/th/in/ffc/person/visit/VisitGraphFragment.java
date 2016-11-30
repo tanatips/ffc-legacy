@@ -22,8 +22,6 @@ import th.in.ffc.provider.PersonProvider.Visit;
 
 public class VisitGraphFragment extends FFCFragment {
 
-    private Context context;
-    private VisitGraphPluseWeight gph;
     private String pid;
     private ArrayList<String> dateOfWeight;
     private ArrayList<String> valueOfWeight;
@@ -39,18 +37,17 @@ public class VisitGraphFragment extends FFCFragment {
     GraphicalView gView;
 
     public VisitGraphFragment() {
-        this.context = getActivity();
         init();
     }
 
     private void init() {
-        dateOfWeight = new ArrayList<String>();
-        valueOfWeight = new ArrayList<String>();
-        dateOfPressure = new ArrayList<String>();
-        valueOfPressure = new ArrayList<String>();
-        seriesGraphValue = new ArrayList<ArrayList<String>>();
-        seriesGraphDate = new ArrayList<ArrayList<String>>();
-        seriesGraphTAG = new ArrayList<String>();
+        dateOfWeight = new ArrayList<>();
+        valueOfWeight = new ArrayList<>();
+        dateOfPressure = new ArrayList<>();
+        valueOfPressure = new ArrayList<>();
+        seriesGraphValue = new ArrayList<>();
+        seriesGraphDate = new ArrayList<>();
+        seriesGraphTAG = new ArrayList<>();
     }
 
     private void queryData() {
@@ -97,13 +94,13 @@ public class VisitGraphFragment extends FFCFragment {
         linear = (LinearLayout) v.findViewById(R.id.sugarbloodgraph);
         textview = (TextView) v.findViewById(R.id.text);
         Bundle arg = getArguments();
-        gph = new VisitGraphPluseWeight(context);
+        VisitGraphPluseWeight gph = new VisitGraphPluseWeight(getContext());
         if (arg != null) {
             pid = arg.getString("pid");
             dateHilight = arg.getString("visitdate");
             queryData();
         } else {
-            VisitGraphDefault gg = new VisitGraphDefault(context);
+            VisitGraphDefault gg = new VisitGraphDefault(getContext());
             gg.setDefaultGraph(getString(R.string.plusegraphtitlenodata));
             gView = gg.getGraph();
             linear.addView(gView);
@@ -126,7 +123,7 @@ public class VisitGraphFragment extends FFCFragment {
             gView = gph.getGraph();
             linear.addView(gView);
         } else {
-            VisitGraphDefault gg = new VisitGraphDefault(context);
+            VisitGraphDefault gg = new VisitGraphDefault(getContext());
             gg.setDefaultGraph(getString(R.string.plusegraphtitlenodata));
             gView = gg.getGraph();
             linear.addView(gView);
