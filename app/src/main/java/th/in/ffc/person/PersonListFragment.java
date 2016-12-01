@@ -158,7 +158,7 @@ public class PersonListFragment extends FFCListFragment implements TextWatcher,
                 if (mHcode != null) {
                     add.putExtra(Person.HCODE, mHcode);
                 }
-                startActivity(add);
+                getFFCActivity().startActivity(add);
                 break;
             case R.id.search:
                 InputMethodManager imm = (InputMethodManager) getFFCActivity()

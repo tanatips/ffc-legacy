@@ -44,6 +44,7 @@ import th.in.ffc.FamilyFolderCollector;
 import th.in.ffc.R;
 import th.in.ffc.intent.Action;
 import th.in.ffc.provider.PersonProvider.Visit;
+import th.in.ffc.security.CryptographerService;
 import th.in.ffc.security.TrackingFragmentActivity;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.DateTime.Date;
@@ -497,7 +498,8 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
             } else {
                 Log.d("FFC", "re-encrypt");
                 reLogin = true;
-                Intent encrypter = new Intent(Action.ENCRYPT);
+                Intent encrypter = new Intent(FFCFragmentActivity.this, CryptographerService.class);
+                encrypter.setAction(Action.ENCRYPT);
                 startService(encrypter);
             }
         }
