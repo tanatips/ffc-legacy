@@ -76,8 +76,7 @@ public class ItemGestureListener implements
     public boolean onItemSingleTapUp(int i, Spot spot) {
         if (spot.getUid().equals(MARKER_TYPE.HOUSE.name()))
             FGActivity.fgsys.getFGActivity()
-                    .startFamilyTree(spot.getPartialID());
-
+                    .startFamilyTree(spot.getPartialID(),spot);
         return true;
     }
 

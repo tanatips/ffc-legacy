@@ -414,13 +414,14 @@ public class FGActivity extends FFCFragmentActivity {
         return handler;
     }
 
-    public void startFamilyTree(int hcode) {
+    public void startFamilyTree(int hcode, Spot spot) {
 
         Intent intent = new Intent(Action.MAIN);
         intent.addCategory(Category.HOUSE);
         intent.setData(ContentUris.withAppendedId(House.CONTENT_URI, hcode));
         intent.putExtra("hcode", hcode);
-
+        intent.putExtra("doubleLatitude", spot.getDoubleLat());
+        intent.putExtra("doubleLongitude", spot.getDoubleLong());
 
         // SharedPreferences house = getSharedPreferences("house", 0);
         // SharedPreferences.Editor editor = house.edit();
@@ -564,7 +565,7 @@ public class FGActivity extends FFCFragmentActivity {
                 double y = c.getDouble(2);
                 if (x > 0 || y > 0) {
 //                    Toast.makeText(this, "x=" + x + " y=" + y, Toast.LENGTH_SHORT).show();
-                    GeoPoint geo = new GeoPoint(y, x);
+                    GeoPoint geo = new GeoPoint(x, y);
                     mapView.getController().setCenter(geo);
                 }
                 else {

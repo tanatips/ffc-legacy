@@ -410,6 +410,9 @@ public class VisitDefaultActivity extends VisitActivity implements
                 if (RespRate.indexOf("-") < 0) {
                     mPulse.setText(RespRate);
                 }
+                if (spO2PluseRate.indexOf("-") < 0) {
+                    mPulse.setText(spO2PluseRate);
+                }
                 if (requestCode == DEVICE_RESULT_ONE) {
                     if (hight.indexOf("-") < 0 && low.indexOf("-") < 0) {
                         mPressure.setText(hight + "/" + low);

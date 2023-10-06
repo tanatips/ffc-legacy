@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/overlay_black"
         android:gravity="center"
-        android:text="Cuff:--\nHigh:120 Low:80 Mean:75"
+        android:text="Cuff:--\nHigh:-- Low:-- Mean:--"
         />
 
     <LinearLayout

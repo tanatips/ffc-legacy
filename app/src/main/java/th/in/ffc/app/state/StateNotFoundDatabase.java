@@ -26,6 +26,7 @@
 
 package th.in.ffc.app.state;
 
+import static android.Manifest.permission.MANAGE_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
@@ -58,11 +59,14 @@ import java.io.File;
  */
 public class StateNotFoundDatabase extends FFCFragmentActivity {
 
-    private static final int REQUEST_CODE_ASK_PERMISSIONS_EXTERNAL_STORAGE=12;
+    private static final int REQUEST_CODE_ASK_PERMISSIONS_EXTERNAL_STORAGE = 12;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkExternalStoragePermission();
+        if (SDK_INT >= Build.VERSION_CODES.R) {
+            checkExternalStoragePermission();
+        }
         setEnableAutoReLogin(false);
         setEnableCheckMediaState(true);
         setEnableCheckDatabase(false);
@@ -78,18 +82,35 @@ public class StateNotFoundDatabase extends FFCFragmentActivity {
             this.finish();
         }
     }
-//    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean checkExternalStoragePermission(){
-        int hasStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasStoragePermission != PackageManager.PERMISSION_GRANTED) {
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_ASK_PERMISSIONS_EXTERNAL_STORAGE);
-                return false;
-            }
-            return false;
-        } else return true;
-    }
 
+    //    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    private boolean checkExternalStoragePermission() {
+
+                int hasWriteStoragePermission = ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE);
+                int hasReadStoragePermission = ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE);
+                int hasManageStoragePermission = ContextCompat.checkSelfPermission(this, MANAGE_EXTERNAL_STORAGE);
+                if (hasWriteStoragePermission != PackageManager.PERMISSION_GRANTED ||
+                        hasReadStoragePermission != PackageManager.PERMISSION_GRANTED ||
+                        hasManageStoragePermission != PackageManager.PERMISSION_GRANTED
+                ) {
+                    if (
+                            !ActivityCompat.shouldShowRequestPermissionRationale(this, WRITE_EXTERNAL_STORAGE) ||
+                                    !ActivityCompat.shouldShowRequestPermissionRationale(this, READ_EXTERNAL_STORAGE) ||
+                                    !ActivityCompat.shouldShowRequestPermissionRationale(this, MANAGE_EXTERNAL_STORAGE)
+                    ) {
+                        requestPermissions(new String[]{
+                                        WRITE_EXTERNAL_STORAGE,
+                                        READ_EXTERNAL_STORAGE,
+                                        MANAGE_EXTERNAL_STORAGE
+                                },
+                                REQUEST_CODE_ASK_PERMISSIONS_EXTERNAL_STORAGE);
+                        return false;
+                    }
+                    return false;
+                } else return true;
+
+    }
     @Override
     public void onBackPressed() {
         File userDb = new File(FamilyFolderCollector.PATH_USER_DATABASE);

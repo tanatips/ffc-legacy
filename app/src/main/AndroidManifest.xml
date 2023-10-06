@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="th.in.ffc">
 
     <permission
@@ -7,14 +8,16 @@
         android:protectionLevel="signature"></permission>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="th.in.ffc.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA"
+        tools:ignore="PermissionImpliesUnsupportedChromeOsHardware" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -34,7 +37,7 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@style/FFC.Theme.Light"
         android:usesCleartextTraffic="true">
-        <activity
+        <activity android:exported="true"
             android:name=".security.PdpaActivity"
             >
         </activity>
@@ -63,26 +66,26 @@
             android:name=".provider.CodeProvider"
             android:authorities="th.in.ffc.provider.CodeProvider"
             android:enabled="true"
-            android:exported="false"></provider>
+            android:exported="true"></provider>
         <provider
             android:name=".provider.UserProvider"
             android:authorities="th.in.ffc.provider.UserProvider"
             android:enabled="true"
-            android:exported="false"></provider>
+            android:exported="true"></provider>
         <provider
             android:name=".provider.PersonProvider"
             android:authorities="th.in.ffc.provider.PersonProvider"
             android:enabled="true"
-            android:exported="false"></provider>
+            android:exported="true"></provider>
         <provider
             android:name=".provider.HouseProvider"
             android:authorities="th.in.ffc.provider.HouseProvider"
             android:enabled="true"
-            android:exported="false"></provider>
+            android:exported="true"></provider>
 
         <service
             android:name=".security.CryptographerService"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.ENCRYPT" />
             </intent-filter>
@@ -91,7 +94,7 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".security.LoginActivity">
+        <activity android:exported="true" android:name=".security.LoginActivity">
             <intent-filter android:label="@string/app_lable">
                 <action android:name="android.intent.action.MAIN" />
 
@@ -120,7 +123,7 @@
         </activity>
         <activity
             android:name=".PersonHousePagerActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/person"
             android:windowSoftInputMode="stateHidden">
@@ -132,7 +135,7 @@
         </activity>
         <activity
             android:name=".PersonHousePagerActivity$DummyActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/house"
             android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/ic_launcher_house">
@@ -144,7 +147,7 @@
         <activity
             android:name=".person.PersonMainActivity"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.MAIN" />
                 <action android:name="ffc.intent.action.VIEW" />
@@ -157,7 +160,7 @@
         </activity>
         <activity
             android:name=".person.PersonDetailEditActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/general">
             <intent-filter android:icon="@drawable/ic_launcher_person_detail">
                 <action android:name="ffc.intent.action.EDIT" />
@@ -180,7 +183,7 @@
         <activity
             android:name=".person.PersonRelationEditActivity"
             android:configChanges="orientation"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/relation">
             <intent-filter android:icon="@drawable/ic_launcher_person_relation">
                 <action android:name="ffc.intent.action.EDIT" />
@@ -194,7 +197,7 @@
         </activity>
         <activity
             android:name=".person.PersonRightEditActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/right">
             <intent-filter android:icon="@drawable/ic_launcher_person_right">
                 <action android:name="ffc.intent.action.EDIT" />
@@ -208,7 +211,7 @@
         </activity>
         <activity
             android:name=".person.PersonBehaviorEditActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.EDIT" />
                 <action android:name="ffc.intent.action.INSERT" />
@@ -223,7 +226,7 @@
         <activity
             android:name=".person.visit.VisitViewActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:exported="false">
+            android:exported="true">
             <intent-filter
                 android:icon="@drawable/ic_launcher_visit_view"
                 android:label="@string/visit_record">
@@ -237,7 +240,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitMainActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter
                 android:icon="@drawable/ic_launcher_visit_edit"
                 android:label="@string/visit_new">
@@ -251,7 +254,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDefaultActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/visit">
             <intent-filter>
                 <action android:name="ffc.intent.action.INSERT" />
@@ -275,7 +278,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDrugFormulaActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_drug_formula"
             android:label="@string/drugformula">
             <intent-filter>
@@ -298,7 +301,7 @@
         <activity
             android:name=".person.visit.VisitDiagActivity"
             android:configChanges="orientation"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_diagnosis"
             android:label="@string/diagnosis">
             <intent-filter>
@@ -320,7 +323,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDrugActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_drug"
             android:label="@string/drug">
             <intent-filter>
@@ -342,7 +345,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitAncPregnancyActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_anc"
             android:label="@string/anc">
             <intent-filter>
@@ -360,7 +363,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitAncActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_anc"
             android:label="@string/anc">
             <intent-filter>
@@ -378,7 +381,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitLabBloodActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_blood"
             android:label="@string/lab_blood">
             <intent-filter>
@@ -401,7 +404,7 @@
         <activity
             android:name=".person.visit.VisitEpiActivity"
             android:configChanges="orientation"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_epi"
             android:label="@string/epi">
             <intent-filter>
@@ -423,7 +426,7 @@
         </activity> <!-- ADD BY JEY -->
         <activity
             android:name=".person.visit.VisitHomeHealthIndividualActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_homehealth"
             android:label="@string/visithomehealthindividual"
             android:windowSoftInputMode="stateHidden">
@@ -445,7 +448,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitFamilyplanActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_familyplan"
             android:label="@string/visitfp"
             android:windowSoftInputMode="stateHidden">
@@ -464,7 +467,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitLabcancerActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_labcancer"
             android:label="@string/visitlabcancer"
             android:windowSoftInputMode="stateHidden">
@@ -483,7 +486,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitBabycareActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_babycare"
             android:label="@string/visitbabycare"
             android:windowSoftInputMode="stateHidden">
@@ -501,7 +504,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDiag506addressActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_visit506"
             android:label="@string/visitdiag506address"
             android:windowSoftInputMode="stateHidden">
@@ -516,7 +519,7 @@
         </activity> <!-- <activity -->
         <!-- android:name=".person.visit.VisitSpecialpersonActivity" -->
         <!-- android:configChanges="orientation" -->
-        <!-- android:exported="false" -->
+        <!-- android:exported="true" -->
         <!-- android:label="@string/visitspecialperson" -->
         <!-- android:windowSoftInputMode="stateHidden" > -->
         <!-- <intent-filter android:icon="@drawable/ic_launcher_handicapped" > -->
@@ -530,7 +533,7 @@
         <activity
             android:name=".person.disability.PersonunableMainActivity"
             android:configChanges="orientation"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/pu_personunable"
             android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/ic_launcher_handicapped">
@@ -545,7 +548,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitScreenspecialdiseaseActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_psychiatry"
             android:label="@string/visitscreenspecialdisease"
             android:windowSoftInputMode="stateHidden">
@@ -567,7 +570,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitAncDeliverMotherCareActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_mothercare"
             android:label="@string/visitancmothercare"
             android:windowSoftInputMode="stateHidden">
@@ -585,7 +588,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitOldterActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_elder"
             android:label="@string/visitoldter"
             android:windowSoftInputMode="stateHidden">
@@ -603,7 +606,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitNutritionActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_nutrition"
             android:label="@string/visitnutrition"
             android:windowSoftInputMode="stateHidden">
@@ -623,7 +626,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDentalcheckActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_mouth"
             android:label="@string/visitdentalcheck"
             android:windowSoftInputMode="stateHidden">
@@ -643,7 +646,7 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDrugForDentalActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
             android:windowSoftInputMode="stateHidden">
@@ -665,26 +668,26 @@
         </activity>
         <activity
             android:name=".person.visit.VisitDrugDentalActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
             android:windowSoftInputMode="stateHidden|adjustNothing"></activity>
         <activity
             android:name=".person.visit.VisitDrugDentalDiagActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
             android:windowSoftInputMode="stateHidden|adjustNothing"></activity>
         <activity
             android:name=".person.visit.ToothSelectorActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
             android:windowSoftInputMode="stateHidden|adjustNothing"></activity>
         <activity
             android:name=".person.visit.VisitPersongrowActivity"
             android:configChanges="orientation"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_grow"
             android:label="@string/persongrow"
             android:windowSoftInputMode="stateHidden">
@@ -701,7 +704,7 @@
         </activity>
         <activity
             android:name=".building.house.HouseMainActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.MAIN" />
                 <action android:name="ffc.intent.action.VIEW" />
@@ -714,7 +717,7 @@
         </activity>
         <activity
             android:name=".app.state.StateMediaUnmount"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.STATE_MEDIA_UNMOUNT" />
 
@@ -723,7 +726,7 @@
         </activity>
         <activity
             android:name=".app.state.StateNotFoundDatabase"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.STATE_NOT_FOUND_DATABASE" />
 
@@ -732,37 +735,37 @@
         </activity>
         <activity
             android:name=".app.state.StateDateNotUpdate"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.STATE_DATE_NOT_UPDATE" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".building.house.HouseCarrierEditActivity"></activity>
-        <activity android:name=".building.house.HouseDetailEditActivity"></activity>
-        <activity android:name=".building.house.HouseFoodEditActivity"></activity>
-        <activity android:name=".building.house.HouseSanitaionEditActivity"></activity>
-        <activity android:name=".building.house.HouseWaterEditActivity"></activity> <!-- Added by J -->
-        <activity android:name=".person.visit.WomenEditActivity" />
-        <activity
+        <activity android:exported="true" android:name=".building.house.HouseCarrierEditActivity"></activity>
+        <activity android:exported="true" android:name=".building.house.HouseDetailEditActivity"></activity>
+        <activity android:exported="true" android:name=".building.house.HouseFoodEditActivity"></activity>
+        <activity android:exported="true" android:name=".building.house.HouseSanitaionEditActivity"></activity>
+        <activity android:exported="true" android:name=".building.house.HouseWaterEditActivity"></activity> <!-- Added by J -->
+        <activity android:exported="true" android:name=".person.visit.WomenEditActivity" />
+        <activity android:exported="true"
             android:name=".building.house.HouseWaterVesselActivity"
             android:configChanges="orientation"
             android:label="@string/housevesselwater.vessel"
             android:windowSoftInputMode="stateHidden"></activity>
-        <activity
+        <activity android:exported="true"
             android:name=".building.house.HouseCarrierAnimalActivity"
             android:configChanges="orientation"
             android:label="@string/houseanimal"
             android:windowSoftInputMode="stateHidden"></activity>
-        <activity
+        <activity android:exported="true"
             android:name=".building.house.HouseCarrierMosquitoActivity"
             android:configChanges="orientation"
             android:label="@string/housegenusculex"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
             android:name=".person.PersonDeathActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/persondeath">
             <intent-filter android:icon="@drawable/ic_launcher_death">
                 <action android:name="ffc.intent.action.EDIT" />
@@ -777,7 +780,7 @@
         <activity
             android:name=".map.FGActivity"
             android:configChanges="orientation|keyboard|keyboardHidden|locale"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/map">
             <intent-filter
                 android:icon="@drawable/ic_launcher_map"
@@ -794,12 +797,13 @@
             </intent-filter>
         </activity>
         <activity
+            android:exported="true"
             android:name=".map.ui.markerActivity.CreateMarkerActivity"
             android:configChanges="orientation" />
         <activity
             android:name=".map.ui.infoUI.IncreaseHouse"
             android:configChanges="orientation"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.INSERT" />
 
@@ -808,42 +812,46 @@
             </intent-filter>
         </activity>
         <activity
+            android:exported="true"
             android:name=".map.ui.infoUI.IncreaseWater"
             android:configChanges="orientation" />
         <activity
+            android:exported="true"
             android:name=".map.ui.infoUI.IncreaseShop"
             android:configChanges="orientation" />
         <activity
+            android:exported="true"
             android:name=".map.ui.infoUI.IncreaseSchool"
             android:configChanges="orientation" />
-        <activity
+        <activity android:exported="true"
             android:name=".map.ui.markerActivity.EditMarkerActivity"
             android:configChanges="orientation" />
         <activity
+            android:exported="true"
             android:name=".map.ui.infoUI.IncreasePOI"
             android:configChanges="orientation" />
-        <activity
+        <activity android:exported="true"
             android:name=".map.ui.infoUI.IncreaseHospital"
             android:configChanges="orientation" />
-        <activity
+        <activity android:exported="true"
             android:name=".map.ui.infoUI.IncreaseVillage"
             android:configChanges="orientation" />
-        <activity
+        <activity android:exported="true"
             android:name=".map.ui.infoUI.IncreaseTemple"
             android:configChanges="orientation" />
-        <activity
+        <activity  android:exported="true"
             android:name=".map.preference.PreferenceFilter"
             android:configChanges="orientation" />
-        <activity
+        <activity  android:exported="true"
             android:name=".map.preference.BaseListPreference"
             android:configChanges="orientation" />
-        <activity
+        <activity android:exported="true"
             android:name=".map.preference.HousePreference"
             android:configChanges="orientation" />
         <activity
             android:name=".person.genogram.V1.FamilyTree"
             android:configChanges="orientation"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/genogram">
             <intent-filter android:icon="@drawable/ic_launcher_person_relation">
                 <action android:name="ffc.intent.action.GENOGRAM" />
@@ -852,24 +860,28 @@
             </intent-filter>
         </activity>
         <activity
+            android:exported="true"
             android:name=".person.visit.VisitEpiAppointActivity"
             android:configChanges="orientation"
             android:icon="@drawable/ic_launcher_visit_appoint"
             android:label="@string/appoint"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
+            android:exported="true"
             android:name=".godmode.godMain"
             android:configChanges="orientation"
             android:label="@string/appoint"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
+            android:exported="true"
             android:name=".godmode.godModeMain"
             android:configChanges="orientation"
             android:label="@string/appoint"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
+
             android:name=".person.disability.PersonunableTypeEdit"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.EDIT" />
                 <action android:name="ffc.intent.action.INSERT" />
@@ -881,10 +893,12 @@
 
                 <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />
             </intent-filter>
-        </activity>
+        </activity
+             >
         <activity
+
             android:name=".person.disability.PersonunableProbEdit"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.EDIT" />
                 <action android:name="ffc.intent.action.INSERT" />
@@ -899,7 +913,7 @@
         </activity>
         <activity
             android:name=".person.disability.PersonunableNeedEdit"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.EDIT" />
                 <action android:name="ffc.intent.action.INSERT" />
@@ -914,7 +928,7 @@
         </activity>
         <activity
             android:name=".person.disability.PersonunableHelpEdit"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="ffc.intent.action.EDIT" />
                 <action android:name="ffc.intent.action.INSERT" />
@@ -927,14 +941,14 @@
                 <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />
             </intent-filter>
         </activity>
-        <activity
+        <activity android:exported="true"
             android:name=".person.visit.VisitScreenspecialquestionActivity"
             android:configChanges="orientation"
             android:label="@string/vs.2q9qQuestion"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
             android:name=".person.visit.ncd.VisitNCDActivity"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_ncd"
             android:label="@string/ncd"
             android:windowSoftInputMode="stateHidden">
@@ -957,7 +971,7 @@
         <activity
             android:name=".googlemap.visit506.Map506FragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/map_gis"
             android:windowSoftInputMode="stateHidden">
@@ -970,7 +984,7 @@
         <activity
             android:name=".googlemap.visit506.Map506DetailFragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/map_gis"
             android:windowSoftInputMode="stateHidden">
@@ -984,7 +998,7 @@
         <activity
             android:name=".googlemap.ballassessment.MapBallCorlorFragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/mapncdtitle"
             android:windowSoftInputMode="stateHidden">
@@ -997,7 +1011,7 @@
         <activity
             android:name=".googlemap.visit506.EditDetailHouseFragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/map_gis"
             android:windowSoftInputMode="stateHidden">
@@ -1011,7 +1025,7 @@
         <activity
             android:name=".googlemap.visit506.EditPostionHomeFragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/map_gis"
             android:windowSoftInputMode="stateHidden">
@@ -1025,7 +1039,7 @@
         <activity
             android:name=".googlemap.visit506.AddHousePositionFragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/map_gis"
             android:windowSoftInputMode="stateHidden">
@@ -1039,7 +1053,7 @@
         <activity
             android:name=".googlemap.visit506.AddDetailHousePositionFragmentActivity"
             android:configChanges="orientation|screenSize"
-            android:exported="false"
+            android:exported="true"
             android:icon="@drawable/ic_launcher"
             android:label="@string/map_gis"
             android:windowSoftInputMode="stateHidden">
@@ -1050,7 +1064,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.berry_med.monitordemo.activity.DeviceMainActivity"></activity>
+        <activity android:exported="true" android:name="com.berry_med.monitordemo.activity.DeviceMainActivity"></activity>
 
         <meta-data
             android:name="io.fabric.ApiKey"

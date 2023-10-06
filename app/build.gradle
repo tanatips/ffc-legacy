@@ -21,15 +21,15 @@ repositories {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "25.0.0"
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "th.in.ffc"
         minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 30000
-        versionName "3.0.0"
+        targetSdkVersion 31
+        versionCode 30001
+        versionName "3.0.1"
     }
 
     signingConfigs {

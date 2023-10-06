@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/overlay_black"
         android:gravity="center"
-        android:text="SPO2:--  Pulse Rate:-- "
+        android:text="SPO2:--  Pulse Rate:--"
         />
 
     <com.berry_med.monitordemo.view.WaveformView
