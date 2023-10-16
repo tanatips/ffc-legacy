@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 //import android.support.v7.app.AppCompatActivity;
 //import android.support.v7.preference.PreferenceFragmentCompat;
@@ -81,26 +82,36 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
 
 
     private void initData() {
-        // enable the Bluetooth Adapter
-        BTController bt = new BTController(this);
-        mBtController = bt.getDefaultBTController(this);
-        mBtController.registerBroadcastReceiver(this);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
 
-        mBtController.enableBtAdpter();
-
-        mDataParser = new DataParser(this);
-        mDataParser.start();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionsIfNecessary(new String[]{
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_ADVERTISE,
-                    Manifest.permission.BLUETOOTH_SCAN
-            });
-            return;
+            ) {
+                requestPermissionsIfNecessary(new String[]{
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_ADVERTISE,
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                });
+                return;
+            }
         }
+        else {
+            // enable the Bluetooth Adapter
+            BTController bt = new BTController(this);
+            mBtController = bt.getDefaultBTController(this);
+            mBtController.registerBroadcastReceiver(this);
+
+            mBtController.enableBtAdpter();
+
+            mDataParser = new DataParser(this);
+            mDataParser.start();
+        }
+
     }
 
     private void initView() {
@@ -135,16 +146,23 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
                 BluetoothDevice device = mBluetoothDevices.get(pos);
                 mBtController.startScan(false);
                 mBtController.connect(DeviceMainActivity.this, device);
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    requestPermissionsIfNecessary(new String[]{
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_SCAN
-                    });
-                    return;
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.S) {
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+                            || ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED
+                            || ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+                            || ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                            || ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+
+                    ) {
+                        requestPermissionsIfNecessary(new String[]{
+                                Manifest.permission.BLUETOOTH_CONNECT,
+                                Manifest.permission.BLUETOOTH_ADVERTISE,
+                                Manifest.permission.BLUETOOTH_SCAN,
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                        });
+                        return;
+                    }
                 }
                 tvBtinfo.setText(device.getName() + ": " + device.getAddress());
                 mConnectingDialog.show();
@@ -180,7 +198,7 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
         wfSpO2 = (WaveformView) findViewById(R.id.wfSpO2);
         wfECG = (WaveformView) findViewById(R.id.wfECG);
 
-       }
+    }
     private void requestPermissionsIfNecessary(String[] permissions) {
         ArrayList<String> permissionsToRequest = new ArrayList<>();
         for (String permission : permissions) {
@@ -217,7 +235,16 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
         public void onClick (View v){
         switch (v.getId()) {
             case R.id.btnBtCtr:
+                if(mBtController==null) {
+                    BTController bt = new BTController(this);
+                    mBtController = bt.getDefaultBTController(this);
+                    mBtController.registerBroadcastReceiver(this);
 
+                    mBtController.enableBtAdpter();
+
+                    mDataParser = new DataParser(this);
+                    mDataParser.start();
+                }
                 if (!mBtController.isBTConnected()) {
 
                     mBluetoothDevices.clear();
