@@ -243,7 +243,7 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
         String distance = directionBox.remove(0);
         String time = directionBox.remove(0);
         ArrayAdapter<String> modeAdapter =
-                new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item, R.id.listItem, directionBox);
+                new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item_device, R.id.listItem, directionBox);
         modeList.setAdapter(modeAdapter);
 
         LinearLayout title = new LinearLayout(getApplicationContext());
@@ -822,7 +822,7 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
                             foundDialog.setTitle(String.format(getString(R.string.search_place_result_of), searchStr));
                             final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                                     getApplication(),
-                                    R.layout.list_item);
+                                    R.layout.list_item_device);
 
                             for(int i=0;i<addresses.size();i++){
                                 String addressStr = null;

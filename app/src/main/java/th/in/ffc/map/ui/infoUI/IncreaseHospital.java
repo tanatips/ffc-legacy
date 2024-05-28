@@ -132,7 +132,7 @@ public class IncreaseHospital extends FFCFragmentActivity implements OnClickList
         Cursor cur = db.getCursor(query);
         ArrayAdapter<SpinnerItem> temp_list = null;
         if (cur.moveToFirst()) {
-            temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item);
+            temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item_device);
             do {
                 temp_list.add(new SpinnerItem(cur.getString(1), cur.getString(0)));
             } while (cur.moveToNext());

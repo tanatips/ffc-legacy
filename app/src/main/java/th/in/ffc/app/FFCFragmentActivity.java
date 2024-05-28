@@ -409,12 +409,12 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
 
     @Override
     public void onScreenOff() {
-        startTimer();
+//        startTimer();
     }
 
     @Override
     public void onUserLeave(boolean systemInterrupt) {
-        startTimer();
+//        startTimer();
     }
 
     @Override
@@ -425,7 +425,7 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
     @Override
     public void onUserBack() {
         Log.d("FFC", "user is back!");
-        stopTimer();
+//        stopTimer();
     }
 
 

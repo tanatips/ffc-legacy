@@ -21,13 +21,16 @@ repositories {
 }
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "25.0.0"
+//    compileSdkVersion 33
+//    buildToolsVersion "25.0.0"
+    namespace "th.in.ffc"
+    compileSdk 33
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "th.in.ffc"
-        minSdkVersion 23
-        targetSdkVersion 31
+        namespace "th.in.ffc"
+        minSdk 23
+        targetSdk 33
         versionCode 30001
         versionName "3.0.1"
     }
@@ -82,23 +85,25 @@ android {
         exclude "META-INF/NOTICE"
         exclude "META-INF/LICENSE"
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    compile 'com.android.support:appcompat-v7:25.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
+
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation "com.google.android.gms:play-services-maps:18.0.2"
     implementation 'com.google.android.gms:play-services-analytics:18.0.1'
 
-//    implementation 'org.osmdroid:osmdroid-android:5.5:release@aar'
-//    implementation 'org.osmdroid:osmdroid-third-party:5.5:release@aar'
-//    implementation 'me.piruin:quickaction:2.4.3'
+
     implementation 'com.github.piruin:quickaction:2.4.3'
     implementation 'org.osmdroid:osmdroid-android:6.1.10'
     implementation 'com.google.android.libraries.places:places:2.1.0'
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') { transitive = true; }
-//    implementation('com.crashlytics.sdk.android:crashlytics:17.2.2@aar') { transitive = true; }
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
     implementation 'com.google.android.material:material:1.0.0'
 

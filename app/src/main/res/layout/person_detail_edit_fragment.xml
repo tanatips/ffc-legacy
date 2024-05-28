@@ -18,7 +18,12 @@
             android:inputType="number|numberSigned"
             android:maxLength="13"
             android:maxLines="1"/>
-
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ใช้เครื่องอ่านบััตรประชาชน"
+        android:id="@+id/smartcard_reader"
+        />
     <TextView
             style="@style/FFC.TextView.Subject"
             android:layout_width="wrap_content"

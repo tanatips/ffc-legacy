@@ -356,7 +356,7 @@ public class AddHousePositionFragmentActivity extends FFCFragmentActivity {
                             foundDialog.setTitle(String.format(getString(R.string.search_place_result_of), searchStr));
                             final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                                     getApplication(),
-                                    R.layout.list_item);
+                                    R.layout.list_item_device);
 
                             for (int i = 0; i < addresses.size(); i++) {
                                 String addressStr = null;

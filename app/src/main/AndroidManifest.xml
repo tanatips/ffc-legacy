@@ -5,24 +5,34 @@
 
     <permission
         android:name="th.in.ffc.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature"></permission>
+        android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="th.in.ffc.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA"
+    <uses-permission
+        android:name="android.permission.CAMERA"
         tools:ignore="PermissionImpliesUnsupportedChromeOsHardware" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30"
+        tools:ignore="CoarseFineLocation" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_INTERNET_STATE" />
@@ -34,16 +44,21 @@
 
     <application
         android:name=".FamilyFolderCollector"
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/FFC.Theme.Light"
-        android:usesCleartextTraffic="true">
-        <activity android:exported="true"
-            android:name=".security.PdpaActivity"
-            >
+        android:supportsRtl="true"
+        android:theme="@style/FFC.Theme.Light">
+
+        <activity
+            android:name=".SmartCardReaderActivity"
+            android:exported="true" >
         </activity>
+        <activity
+            android:name=".security.PdpaActivity"
+            android:exported="true"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -69,22 +84,22 @@
             android:name=".provider.CodeProvider"
             android:authorities="th.in.ffc.provider.CodeProvider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
         <provider
             android:name=".provider.UserProvider"
             android:authorities="th.in.ffc.provider.UserProvider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
         <provider
             android:name=".provider.PersonProvider"
             android:authorities="th.in.ffc.provider.PersonProvider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
         <provider
             android:name=".provider.HouseProvider"
             android:authorities="th.in.ffc.provider.HouseProvider"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
 
         <service
             android:name=".security.CryptographerService"
@@ -97,10 +112,11 @@
             </intent-filter>
         </service>
 
-        <activity android:exported="true" android:name=".security.LoginActivity">
+        <activity
+            android:name=".security.LoginActivity"
+            android:exported="true">
             <intent-filter android:label="@string/app_lable">
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -674,19 +690,19 @@
             android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
-            android:windowSoftInputMode="stateHidden|adjustNothing"></activity>
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
         <activity
             android:name=".person.visit.VisitDrugDentalDiagActivity"
             android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
-            android:windowSoftInputMode="stateHidden|adjustNothing"></activity>
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
         <activity
             android:name=".person.visit.ToothSelectorActivity"
             android:exported="true"
             android:icon="@drawable/ic_launcher_dental"
             android:label="@string/VisitDrugdental"
-            android:windowSoftInputMode="stateHidden|adjustNothing"></activity>
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
         <activity
             android:name=".person.visit.VisitPersongrowActivity"
             android:configChanges="orientation"
@@ -745,27 +761,42 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:exported="true" android:name=".building.house.HouseCarrierEditActivity"></activity>
-        <activity android:exported="true" android:name=".building.house.HouseDetailEditActivity"></activity>
-        <activity android:exported="true" android:name=".building.house.HouseFoodEditActivity"></activity>
-        <activity android:exported="true" android:name=".building.house.HouseSanitaionEditActivity"></activity>
-        <activity android:exported="true" android:name=".building.house.HouseWaterEditActivity"></activity> <!-- Added by J -->
-        <activity android:exported="true" android:name=".person.visit.WomenEditActivity" />
-        <activity android:exported="true"
+        <activity
+            android:name=".building.house.HouseCarrierEditActivity"
+            android:exported="true" />
+        <activity
+            android:name=".building.house.HouseDetailEditActivity"
+            android:exported="true" />
+        <activity
+            android:name=".building.house.HouseFoodEditActivity"
+            android:exported="true" />
+        <activity
+            android:name=".building.house.HouseSanitaionEditActivity"
+            android:exported="true" />
+        <activity
+            android:name=".building.house.HouseWaterEditActivity"
+            android:exported="true" /> <!-- Added by J -->
+        <activity
+            android:name=".person.visit.WomenEditActivity"
+            android:exported="true" />
+        <activity
             android:name=".building.house.HouseWaterVesselActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:label="@string/housevesselwater.vessel"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:exported="true"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:name=".building.house.HouseCarrierAnimalActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:label="@string/houseanimal"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:exported="true"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:name=".building.house.HouseCarrierMosquitoActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:label="@string/housegenusculex"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".person.PersonDeathActivity"
             android:exported="true"
@@ -800,9 +831,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="true"
             android:name=".map.ui.markerActivity.CreateMarkerActivity"
-            android:configChanges="orientation" />
+            android:configChanges="orientation"
+            android:exported="true" />
         <activity
             android:name=".map.ui.infoUI.IncreaseHouse"
             android:configChanges="orientation"
@@ -815,42 +846,49 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="true"
             android:name=".map.ui.infoUI.IncreaseWater"
-            android:configChanges="orientation" />
+            android:configChanges="orientation"
+            android:exported="true" />
         <activity
-            android:exported="true"
             android:name=".map.ui.infoUI.IncreaseShop"
-            android:configChanges="orientation" />
+            android:configChanges="orientation"
+            android:exported="true" />
         <activity
-            android:exported="true"
             android:name=".map.ui.infoUI.IncreaseSchool"
-            android:configChanges="orientation" />
-        <activity android:exported="true"
-            android:name=".map.ui.markerActivity.EditMarkerActivity"
-            android:configChanges="orientation" />
+            android:configChanges="orientation"
+            android:exported="true" />
         <activity
-            android:exported="true"
+            android:name=".map.ui.markerActivity.EditMarkerActivity"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.ui.infoUI.IncreasePOI"
-            android:configChanges="orientation" />
-        <activity android:exported="true"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.ui.infoUI.IncreaseHospital"
-            android:configChanges="orientation" />
-        <activity android:exported="true"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.ui.infoUI.IncreaseVillage"
-            android:configChanges="orientation" />
-        <activity android:exported="true"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.ui.infoUI.IncreaseTemple"
-            android:configChanges="orientation" />
-        <activity  android:exported="true"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.preference.PreferenceFilter"
-            android:configChanges="orientation" />
-        <activity  android:exported="true"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.preference.BaseListPreference"
-            android:configChanges="orientation" />
-        <activity android:exported="true"
+            android:configChanges="orientation"
+            android:exported="true" />
+        <activity
             android:name=".map.preference.HousePreference"
-            android:configChanges="orientation" />
+            android:configChanges="orientation"
+            android:exported="true" />
         <activity
             android:name=".person.genogram.V1.FamilyTree"
             android:configChanges="orientation"
@@ -863,26 +901,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="true"
             android:name=".person.visit.VisitEpiAppointActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:icon="@drawable/ic_launcher_visit_appoint"
             android:label="@string/appoint"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
-            android:exported="true"
             android:name=".godmode.godMain"
             android:configChanges="orientation"
-            android:label="@string/appoint"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity
             android:exported="true"
+            android:label="@string/appoint"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:name=".godmode.godModeMain"
             android:configChanges="orientation"
+            android:exported="true"
             android:label="@string/appoint"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
-
             android:name=".person.disability.PersonunableTypeEdit"
             android:exported="true">
             <intent-filter>
@@ -896,10 +933,8 @@
 
                 <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />
             </intent-filter>
-        </activity
-             >
+        </activity>
         <activity
-
             android:name=".person.disability.PersonunableProbEdit"
             android:exported="true">
             <intent-filter>
@@ -944,11 +979,12 @@
                 <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />
             </intent-filter>
         </activity>
-        <activity android:exported="true"
+        <activity
             android:name=".person.visit.VisitScreenspecialquestionActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:label="@string/vs.2q9qQuestion"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".person.visit.ncd.VisitNCDActivity"
             android:exported="true"
@@ -1067,8 +1103,27 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:exported="true" android:name="com.berry_med.monitordemo.activity.DeviceMainActivity"></activity>
+        <activity
+            android:name="com.berry_med.monitordemo.activity.DeviceMainActivity"
+            android:exported="true" /> <!-- ***************USB Reader Out-App Permission*************** -->
+        <!-- Remark this activity block if don't want Out-App permission -->
+        <activity
+            android:name="rd.nalib.UsbEventReceiverActivity"
+            android:directBootAware="true"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:process=":UsbEventReceiverActivityProcess"
+            android:taskAffinity="com.example.taskAffinityUsbEventReceiver"
+            android:theme="@style/Theme.Transparent">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
 
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity> <!-- ***************USB Reader Out-App Permission*************** -->
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="985b93fe45ed65dc37e25e81a8c5ce5ba9c217fa" />

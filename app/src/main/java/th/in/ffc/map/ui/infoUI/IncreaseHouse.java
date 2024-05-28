@@ -195,7 +195,7 @@ public class IncreaseHouse extends FFCFragmentActivity implements OnClickListene
 
                     ArrayAdapter<SpinnerItem> temp_list = null;
                     if (cur.moveToFirst()) {
-                        temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item);
+                        temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item_device);
                         do {
                             String str = cur.getString(0);
                             temp_list.add(new SpinnerItem(str, str));
@@ -214,7 +214,7 @@ public class IncreaseHouse extends FFCFragmentActivity implements OnClickListene
                     cur = db.getCursor(query);
                     temp_list = null;
                     if (cur.moveToFirst()) {
-                        temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item);
+                        temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item_device);
                         do {
                             temp_list.add(new SpinnerItem(cur.getString(0), cur.getString(1)));
                         } while (cur.moveToNext());
@@ -250,7 +250,7 @@ public class IncreaseHouse extends FFCFragmentActivity implements OnClickListene
                     cur = db.getCursor(query);
                     temp_list = null;
                     if (cur.moveToFirst()) {
-                        temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item);
+                        temp_list = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item_device);
                         do {
                             temp_list.add(new SpinnerItem(cur.getString(1), cur.getString(0)));
                         } while (cur.moveToNext());

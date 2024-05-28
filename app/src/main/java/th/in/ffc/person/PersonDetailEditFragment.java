@@ -27,6 +27,7 @@
 package th.in.ffc.person;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
@@ -38,10 +39,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import th.in.ffc.R;
+import th.in.ffc.SmartCardReaderActivity;
 import th.in.ffc.app.FFCSearchListDialog;
 import th.in.ffc.app.form.EditFormActivity.EditTransaction;
 import th.in.ffc.code.*;
@@ -94,7 +97,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
 
     int newPid;
     String mHcode;
-
+    Button smartcard_reader;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -142,7 +145,14 @@ public class PersonDetailEditFragment extends PersonFragment implements
         distcode = (SearchableButton) view.findViewById(R.id.distcode);
         provcode = (SearchableButton) view.findViewById(R.id.provcode);
         postcode = (EditText) view.findViewById(R.id.postcode);
-
+        smartcard_reader = (Button) view.findViewById(R.id.smartcard_reader);
+        smartcard_reader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), SmartCardReaderActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 

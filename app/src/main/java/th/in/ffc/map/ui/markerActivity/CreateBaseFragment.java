@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -30,10 +29,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import com.ibus.phototaker.ImageResizer;
 import com.ibus.phototaker.PhotoTaker;
 
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.api.IMapController;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragment;
 import th.in.ffc.map.FGActivity;
@@ -48,9 +43,7 @@ import th.in.ffc.map.value.MARKER_TYPE;
 import th.in.ffc.map.village.spot.Spot;
 
 import java.io.File;
-import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -104,11 +97,11 @@ public class CreateBaseFragment extends FFCFragment implements OnClickListener,
             switch (msg.what) {
                 case FGActivity.INITIALIZE:
                     ArrayAdapter<SpinnerItem> adapter = new ArrayAdapter<SpinnerItem>(
-                            fgSystemManager.getFGActivity(), R.layout.list_item,
+                            fgSystemManager.getFGActivity(), R.layout.list_item_device,
                             items);
                     CreateBaseFragment.this.autoTextInfo.setAdapter(adapter);
                     adapter = new ArrayAdapter<SpinnerItem>(
-                            fgSystemManager.getFGActivity(), R.layout.list_item,
+                            fgSystemManager.getFGActivity(), R.layout.list_item_device,
                             items);
                     CreateBaseFragment.this.spinner_misc.setAdapter(adapter);
                     items = null;

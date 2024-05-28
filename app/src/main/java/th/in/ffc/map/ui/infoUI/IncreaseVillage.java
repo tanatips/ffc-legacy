@@ -130,7 +130,7 @@ public class IncreaseVillage extends FFCFragmentActivity implements OnClickListe
                 }
 
                 CharSequence[] list = IncreaseVillage.this.getResources().getTextArray(R.array.metro_list);
-                ArrayAdapter<SpinnerItem> adapter = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item);
+                ArrayAdapter<SpinnerItem> adapter = new ArrayAdapter<SpinnerItem>(fgSystem.getFGActivity(), R.layout.list_item_device);
                 for (int i = 0; i < list.length; i++) {
                     adapter.add(new SpinnerItem(list[i].toString(), "" + (i + 1)));
                 }
