@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -16,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -187,7 +190,17 @@ public class SmartCardReaderActivity extends AppCompatActivity {
 
                 /*================= Close Lib =================*/
                 NALibs.closeLibNA();
-                System.exit(0);
+
+                Bitmap bitmap = ((BitmapDrawable) iv_Photo.getDrawable()).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                Intent intent = new Intent();
+                intent.putExtra("result",tv_Result.getText());
+                intent.putExtra("image",byteArray);
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+//                System.exit(0);
             }
         });
         tv_Result = findViewById(R.id.tv_Result);

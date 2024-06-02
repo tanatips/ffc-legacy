@@ -26,6 +26,10 @@
 
 package th.in.ffc.person;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -73,8 +77,8 @@ public class PersonDetailEditActivity extends PersonActivity {
         if (pd == null) {
             pd = Fragment.instantiate(this, PersonDetailEditFragment.class.getName(), args);
             ft.add(R.id.content, pd, "detail");
+            ft.commit();
         }
-        ft.commit();
 
     }
 
@@ -138,5 +142,22 @@ public class PersonDetailEditActivity extends PersonActivity {
         public boolean onSave(EditTransaction et);
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        FragmentManager fm = getSupportFragmentManager();
+        PersonDetailEditFragment f = (PersonDetailEditFragment) fm.findFragmentByTag("detail");
+        if (f != null) {
+            if (requestCode == f.SMART_CARD_READER_CODE ) {
+                if (resultCode == Activity.RESULT_OK) {
+                    byte[] byteArray = data.getByteArrayExtra("image");
+                    String strIdcard = data.getStringExtra("result");
+                    if (byteArray != null) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                        f.imgPerson.setImageBitmap(bitmap);
+                    }
+                }
+            }
+        }
+    }
 }

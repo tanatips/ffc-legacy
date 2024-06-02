@@ -26,13 +26,20 @@
 
 package th.in.ffc.person;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -41,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import th.in.ffc.R;
@@ -98,6 +106,10 @@ public class PersonDetailEditFragment extends PersonFragment implements
     int newPid;
     String mHcode;
     Button smartcard_reader;
+
+    public ImageView imgPerson;
+
+    int SMART_CARD_READER_CODE=1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -145,12 +157,14 @@ public class PersonDetailEditFragment extends PersonFragment implements
         distcode = (SearchableButton) view.findViewById(R.id.distcode);
         provcode = (SearchableButton) view.findViewById(R.id.provcode);
         postcode = (EditText) view.findViewById(R.id.postcode);
+        imgPerson = (ImageView) view.findViewById(R.id.imgPerson);
         smartcard_reader = (Button) view.findViewById(R.id.smartcard_reader);
         smartcard_reader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), SmartCardReaderActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,SMART_CARD_READER_CODE);
+
             }
         });
         return view;
@@ -520,6 +534,21 @@ public class PersonDetailEditFragment extends PersonFragment implements
                     "subdistcode=? AND distcode='" + c.getString(4)
                             + "' AND provcode='" + c.getShort(5) + "'");
             postcode.setText(c.getString(6));
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SMART_CARD_READER_CODE ) {
+            if (resultCode == Activity.RESULT_OK) {
+                byte[] byteArray = data.getByteArrayExtra("image");
+                String strIdcard = data.getStringExtra("result");
+                if (byteArray != null) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                    imgPerson.setImageBitmap(bitmap);
+                }
+            }
         }
     }
 }
