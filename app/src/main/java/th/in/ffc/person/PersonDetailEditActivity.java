@@ -240,10 +240,18 @@ public class PersonDetailEditActivity extends PersonActivity {
                         f.birthday.updateDate(year , month, day);
                         f.prename.setSelection(defaultPosition);
 
-                        for(MyItem province: provinces){
-                            if(province.nane.equals(idcardInfo[16])){
-                                f.provcode.setSelectionById(province.id);
-                                System.out.println("ID: " + province.id + ", Name: " + province.nane);
+                        for(MyItem item: provinces){
+                            if(item.nane.equals(idcardInfo[16])){
+                                f.provcode.setSelectionById(item.id);
+                                System.out.println("Province ID: " + item.id + ", Name: " + item.nane);
+                                break;
+                            }
+                        }
+
+                        for(MyItem item: districts){
+                            if(item.nane.equals(idcardInfo[16])){
+                                f.distcode.setSelectionById(item.id);
+                                System.out.println("District ID: " + item.id + ", Name: " + item.nane);
                                 break;
                             }
                         }
