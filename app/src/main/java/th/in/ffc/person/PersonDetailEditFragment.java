@@ -58,6 +58,7 @@ import th.in.ffc.app.form.EditFormActivity.EditTransaction;
 import th.in.ffc.code.*;
 import th.in.ffc.intent.Action;
 import th.in.ffc.person.PersonDetailEditActivity.Saveable;
+import th.in.ffc.provider.CodeProvider;
 import th.in.ffc.provider.PersonProvider.Person;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.DateTime.Date;
@@ -177,6 +178,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
 
         provcode.setDialog(getFFCActivity().getSupportFragmentManager(),
                 ProvinceListDialog.class, "prov");
+
         distcode.setDialog(getFFCActivity().getSupportFragmentManager(),
                 DistrictListDialog.class, "dist");
         subdistcode.setDialog(getFFCActivity().getSupportFragmentManager(),

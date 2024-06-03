@@ -26,21 +26,33 @@
 
 package th.in.ffc.person;
 
+import static android.app.PendingIntent.getActivity;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.loader.content.CursorLoader;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import th.in.ffc.R;
 import th.in.ffc.intent.Action;
+import th.in.ffc.provider.CodeProvider;
 import th.in.ffc.provider.PersonProvider.Person;
 import th.in.ffc.provider.PersonProvider.PersonColumns;
 
@@ -53,6 +65,10 @@ import th.in.ffc.provider.PersonProvider.PersonColumns;
  */
 public class PersonDetailEditActivity extends PersonActivity {
 
+
+    List<MyItem> provinces = new ArrayList<>();
+    List<MyItem> districts = new ArrayList<>();
+    List<MyItem> tambons = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (getIntent().getAction().equals(Action.INSERT))
@@ -79,6 +95,8 @@ public class PersonDetailEditActivity extends PersonActivity {
             ft.add(R.id.content, pd, "detail");
             ft.commit();
         }
+        loadProvince();
+        loadDistrict();
 
     }
 
@@ -142,6 +160,45 @@ public class PersonDetailEditActivity extends PersonActivity {
         public boolean onSave(EditTransaction et);
     }
 
+    void loadProvince(){
+        String selection = null;
+        String[] selectionArgs = null;
+        Cursor c =getApplication().getContentResolver()
+                .query(CodeProvider.Province.CONTENT_URI,
+                        new String[]{
+                                CodeProvider.Province.PROVCODE,
+                                 CodeProvider.Province.NAME}, selection, selectionArgs,
+                        CodeProvider.Province.DEFAULT_SORTING);
+
+        if (c.moveToFirst()) {
+            do {
+                String code = c.getString(c.getColumnIndexOrThrow(CodeProvider.Province.PROVCODE));
+                String name = c.getString(c.getColumnIndexOrThrow(CodeProvider.Province.NAME));
+                Log.d("province", "procode: " + code + ", name: " + name );
+                provinces.add(new MyItem(code,name));
+            }  while (c.moveToNext());
+        }
+    }
+    void loadDistrict(){
+        String selection = null;
+        String[] selectionArgs = null;
+        Cursor c =getApplication().getContentResolver()
+                .query(CodeProvider.District.CONTENT_URI,
+                        new String[]{
+                                CodeProvider.District.DISTCODE,
+                                CodeProvider.District.NAME}, selection, selectionArgs,
+                        CodeProvider.District.DEFAULT_SORTING);
+
+        if (c.moveToFirst()) {
+            do {
+                String code = c.getString(c.getColumnIndexOrThrow(CodeProvider.District.DISTCODE));
+                String name = c.getString(c.getColumnIndexOrThrow(CodeProvider.District.NAME));
+                Log.d("district", "distcode: " + code + ", name: " + name );
+                districts.add(new MyItem(code,name));
+            }  while (c.moveToNext());
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -156,8 +213,52 @@ public class PersonDetailEditActivity extends PersonActivity {
                         Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                         f.imgPerson.setImageBitmap(bitmap);
                     }
+                    if(strIdcard!=null){
+                        String[] idcardInfo = strIdcard.split("#");
+                        f.citizenId.setText(idcardInfo[0].toString());
+                        f.fname.setText(idcardInfo[2].toString());
+                        f.lname.setText(idcardInfo[4].toString());
+                        f.hno.setText(idcardInfo[9].toString());
+                        if(idcardInfo[1].toString().equals("นาย")) {
+                            f.sex.findViewById(R.id.male).setActivated(true);
+                        } else {
+                            f.sex.findViewById(R.id.female).setActivated(true);
+                        }
+                        String[] prenameArray = getResources().getStringArray(R.array.prename);
+                        String defaultValue = idcardInfo[1];
+                        int defaultPosition = -1;
+                        for (int i = 0; i < prenameArray.length; i++) {
+                            if (prenameArray[i].contains(defaultValue)) {
+                                defaultPosition = i;
+                                break;
+                            }
+                        }
+                        int day,month,year;
+                        year = Integer.parseInt(idcardInfo[18].substring(0,4))-543;
+                        month = Integer.parseInt(idcardInfo[18].substring(4,6))-1;
+                        day = Integer.parseInt(idcardInfo[18].substring(6,8));
+                        f.birthday.updateDate(year , month, day);
+                        f.prename.setSelection(defaultPosition);
+
+                        for(MyItem province: provinces){
+                            if(province.nane.equals(idcardInfo[16])){
+                                f.provcode.setSelectionById(province.id);
+                                System.out.println("ID: " + province.id + ", Name: " + province.nane);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
+        }
+    }
+    class MyItem {
+        private String id;
+        private String nane;
+
+        MyItem(String id, String nane) {
+            this.id = id;
+            this.nane = nane;
         }
     }
 }
