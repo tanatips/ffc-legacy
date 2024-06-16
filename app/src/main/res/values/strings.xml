@@ -542,6 +542,7 @@
     <string name="persondeath.deathplace">สถานที่ตาย</string>
     <string name="persondeath.deliveryconcern">เหตุการตายเกี่ยวข้องกับการคลอดบุตรหรือไม่</string>
     <string name="persondeath.source">แหล่งที่มาของข้องมูล</string>
+
     <!-- PersonUnable -->
     <string name="pu_personunable">ผู้พิการ</string>
     <string name="pu_typecode">กรุณาเลือกประเภทของความพิการ</string>
@@ -941,6 +942,7 @@
     <string name="search_devices">Search Devices</string>
     <string name="device_berry">เครื่องมือวัด (Berry Med)</string>
     <string name="title_pdpa"> ข้อตกลงการใช้บริการ </string>
+    <string name="form_15">แบบคัดกรอง</string>
     <string name="pdpa">
 
 \t\t\t\t\t\โปรดอ่านข้อตกลงฉบับนี้อย่างระมัดระวังก่อนใช้บริการ และโปรดปฏิบัติตามเงื่อนไข ตลอดจนข้อกำหนดในข้อตกลงฉบับนี้อย่างเคร่งครัด
