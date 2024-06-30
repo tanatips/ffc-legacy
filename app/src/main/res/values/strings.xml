@@ -942,7 +942,8 @@
     <string name="search_devices">Search Devices</string>
     <string name="device_berry">เครื่องมือวัด (Berry Med)</string>
     <string name="title_pdpa"> ข้อตกลงการใช้บริการ </string>
-    <string name="form_15">แบบคัดกรอง</string>
+    <string name="form_15">แบบคัดกรอง 15-34</string>
+    <string name="form_35">แบบคัดกรอง 35-50</string>
     <string name="pdpa">
 
 \t\t\t\t\t\โปรดอ่านข้อตกลงฉบับนี้อย่างระมัดระวังก่อนใช้บริการ และโปรดปฏิบัติตามเงื่อนไข ตลอดจนข้อกำหนดในข้อตกลงฉบับนี้อย่างเคร่งครัด
@@ -968,4 +969,40 @@
 เนื้อหา ข้อความ รูปแบบ ของบริการนี้เป็นลิขสิทธิ์ของผู้ให้บริการ การทำซ้ำ ลอกเลียนดัดแปลง คัดลอก กระจายหรือจำหน่ายจ่ายแจก บางส่วนหรือทั้งหมดจากทรัพย์สินทางปัญญานี้โดยมิได้รับอนุญาตจากเจ้าของลิขสิทธิ์เป็นลายลักษณ์อักษร ถือเป็นการกระทำอันผิดกฎหมายอันเป็นการละเมิด และผู้กระทำความผิดจะได้รับโทษตามที่กฎหมายได้กำหนดไว้"
 
     </string>
+    <string name="pp_fee_schedule_15_34">แบบคัดกรองและประเมิณปัจจัยเสี่ยงต่อสุขภาพกาย สุขภาพจิต ตามบริการ PP Fee schedule(กลุ่ม 15-34 ปี)</string>
+    <string name="idcard">เลขที่บัตรประชาชน</string>
+    <string name="name">ชื่อ</string>
+    <string name="lastname">สกุล</string>
+    <string name="age_form">อายุ(ปี)</string>
+    <string name="phone_no">เบอร์โทร</string>
+    <string name="hn">HN</string>
+    <string name="date_authen">วันที่ทำการ Authen</string>
+    <string name="no_authen">เลขที่ Authen</string>
+    <string name="weight_kg">น้ำหนัก(กก.)</string>
+    <string name="height_cm">ส่วนสูง</string>
+    <string name="waist_circumference">รอบเอว(ซม.)</string>
+    <string name="bp">BP</string>
+    <string name="bmi_2">BMI(กก/ม2)</string>
+    <string name="symptoms_pressure">ความดัน(ค่าบน)</string>
+    <string name="diastolic_pressure">ความดัน(ค่าล่าง)</string>
+    <string name="cigarette_form">บุหรี่</string>
+    <string name="cigarette_1b52">ไม่สูบ ไม่เคยสูบบุหรี่ 1B52</string>
+    <string name="cigarette_1b51">ไม่สูบ เคยสูบบุหรี่แต่เลิกแล้ว 1B51</string>
+    <string name="cigarette_1b50">สูบ 1B50 (กรณีตอบสูบให้ทำแบบประเมิน Fagerstrom Test และ ASSIST)</string>
+    <string name="smoke_once_in_a_while">สูบนานๆ ครั้ง</string>
+    <string name="smoke_occasionally">สูบเป็นครั้งคราว</string>
+    <string name="smoke_regularly">สูบเป็นประจำ</string>
+    <string name="cigarette_1b530">1B530 การให้คำแนะนำผู้ติดบุหรี่แบบสั้น (Brief Advice)</string>
+    <string name="cigarette_1b531">1B531 การให้คำปรึกษาเพื่อเลิกบุหรี่ (Counseling Advice)</string>
+    <string name="cigarette_1b532">1B532 การให้คำปรึกษาและให้ยาเพื่อเลิกบุหรี่ (Conseling Advice + Medicine)</string>
+    <string name="drink_1b600">ไม่ดิ่ม/ตลอดชีวิตไม่เคยดื่มเลย 1B600</string>
+    <string name="drink_1b601">เคยดิ่มแต่หยุดแล้ว 1 ปีขึ้นไป 1B601</string>
+    <string name="drink">ดื่ม</string>
+    <string name="once_in_a_while">นานๆ ครั้ง</string>
+    <string name="occasionally">เป็นครั้งคราว</string>
+    <string name="regularly">เป็นประจำ</string>
+    <string name="drink_1b602">1B602 ระดับเสี่ยงต่ำ(0-10)</string>
+    <string name="drink_1b603">1B603 ระดับเสี่ยงปานกลาง(11-26)</string>
+    <string name="drink_1b604">1B604 ระดับเสี่ยงสูง(คะแนนตั้งแต่ 27 ขึ้นไป)</string>
+    <string name="gender">เพศ</string>
 </resources>
