@@ -1001,8 +1001,22 @@
     <string name="once_in_a_while">นานๆ ครั้ง</string>
     <string name="occasionally">เป็นครั้งคราว</string>
     <string name="regularly">เป็นประจำ</string>
-    <string name="drink_1b602">1B602 ระดับเสี่ยงต่ำ(0-10)</string>
-    <string name="drink_1b603">1B603 ระดับเสี่ยงปานกลาง(11-26)</string>
-    <string name="drink_1b604">1B604 ระดับเสี่ยงสูง(คะแนนตั้งแต่ 27 ขึ้นไป)</string>
+    <string name="drink_1b602">1B602 ระดับเสี่ยงต่ำ(0-10) \n >>> 1B610 การให้คำแนะนำ (brief advice)</string>
+    <string name="drink_1b603">1B603 ระดับเสี่ยงปานกลาง(11-26) \n >>> 1B611 การให้คำปรึกษาแบบสั้น (brief counseling)</string>
+    <string name="drink_1b604">1B604 ระดับเสี่ยงสูง(คะแนนตั้งแต่ 27 ขึ้นไป) \n >>> 1B612 การส่งต่อเพื่อรับการประเมินและการบำบัดโดยผู้เชี่ยวขาญ(refer)</string>
     <string name="gender">เพศ</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="AssessBodyMassIndex">ประเมินดัชนีมวลกาย (ชั่งนํ้าหนักวัดส่วนสูง) และรอบเอว</string>
+    <string name="InterpretationOfBodyMassIndex">แปลผลดัชนีมวลกาย(BMI)</string>
+    <string name="bmi_18_5"><![CDATA[BMI <18.5 ต่ำกว่าเกณฑ์]]></string>
+    <string name="bmi_18_5_22_90">BMI 18.5-22.90 ปกติสมส่วน</string>
+    <string name="bmi_23_24_90">BMI 23-24.90 น้ําหนักเกิน</string>
+    <string name="bmi_25_29_90_1">BMI 25-29.90 อ้วนระดับ 1</string>
+    <string name="bmi_30_2"><![CDATA[BMI >30 อ้วนระดับ 2]]></string>
+    <string name="WaistCircumferenceInterpretation">แปลผลเส้นรอบเอว (ประเมินภาวะอ้วน)</string>
+    <string name="Normal_90_80">ปกติ (ผู้ชายน้อยกว่า 90 ซม. ผู้หญิงน้อยกว่า 80 ซม)</string>
+    <string name="Obese_90_80">อ้วน (ผู้ชายตั้งแต่ 90 ซม. ขึ้นไป, ผู้หญิงตั้งแต่ 80 ซม. ขึ้นไป)</string>
+    <string name="BloodPressure">ตรวจวัดความดันโลหิต</string>
+    <string name="InterpretationOfTheRisk">แปลผลความเสี่ยงการเกิดโรคความดันโลหิตสูง</string>
 </resources>

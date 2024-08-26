@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".app.form.screening.BloodPressureFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="@string/BloodPressure" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="@string/InterpretationOfTheRisk" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1,2,3,4"
+        android:padding="4dp">
+        <TableRow>
+            <TextView
+                android:text="การจำแนกโรคความดันโลหิตสูงตามความรุนแรง"
+                android:padding="8dp"
+                android:textStyle="bold"
+                android:background="#e0e0e0"
+                android:gravity="center"
+                android:layout_span="5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView android:text=""
+                android:padding="8dp"
+                android:background="#e0e0e0"/>
+        </TableRow>
+        <!-- Header Row -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp"
+                android:background="#e0e0e0" />
+
+            <TextView
+                android:text="Category"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:background="#e0e0e0" />
+
+            <TextView
+                android:text="SBP"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:background="#e0e0e0" />
+            <TextView
+                android:text=""
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:background="#e0e0e0" />
+            <TextView
+                android:text="DBP"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:background="#e0e0e0" />
+
+            <TextView
+                android:text="การแปลผลความดันโลหิต"
+                android:padding="4dp"
+                android:textStyle="bold"
+                android:background="#e0e0e0" />
+        </TableRow>
+
+        <!-- Row 1 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="Optimal"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="&lt;120"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="และ"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="&lt;80"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="ต่ำกว่าเกณฑ์"
+                android:padding="4dp" />
+        </TableRow>
+
+        <!-- Row 2 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="Normal"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="120-129"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="และ/หรือ"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="80-84"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="ปกติ"
+                android:padding="4dp" />
+        </TableRow>
+
+        <!-- Row 3 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="High normal"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="130-139"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="และ/หรือ"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="85-89"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="สูงกว่าเกณฑ์"
+                android:padding="4dp" />
+        </TableRow>
+
+        <!-- Row 4 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="Hypertension ระดับ 1"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="140-159"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="และ/หรือ"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="90-99"
+                android:padding="4dp" />
+        </TableRow>
+
+        <!-- Row 5 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="Hypertension ระดับ 2"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="160-179"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="และ/หรือ"
+                android:padding="4dp" />
+            <TextView
+                android:text="100-109"
+                android:padding="4dp" />
+        </TableRow>
+
+        <!-- Row 6 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="Hypertension ระดับ 3"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="≥180"
+                android:padding="4dp" />
+            <TextView
+                android:text="และ/หรือ"
+                android:padding="4dp" />
+            <TextView
+                android:text="≥110"
+                android:padding="4dp" />
+        </TableRow>
+
+        <!-- Row 7 -->
+        <TableRow>
+            <TextView
+                android:text=""
+                android:padding="4dp" />
+
+            <TextView
+                android:text="Isolated systolic\n hypertension (ISH)"
+                android:padding="4dp" />
+
+            <TextView
+                android:text="≥140"
+                android:padding="4dp" />
+            <TextView
+                android:text="และ"
+                android:padding="4dp" />
+            <TextView
+                android:text="&lt;90"
+                android:padding="4dp" />
+        </TableRow>
+
+    </TableLayout>
+    </HorizontalScrollView>
+</LinearLayout>

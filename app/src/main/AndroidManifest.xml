@@ -54,16 +54,12 @@
         <activity
             android:name=".person.PersonScreeningForm15Activity"
             android:exported="true"
-            android:label="@string/form_15">
+            android:label="@string/form_15"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/osm_ic_follow_me">
-                <action android:name="ffc.intent.action.EDIT" />
-
-                <category android:name="ffc.intent.category.PERSON" />
-                <category android:name="ffc.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="ffc.intent.action.MAIN" />
+                <category android:name="ffc.intent.category.TAB" />
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -73,15 +69,12 @@
         <activity
             android:name=".person.PersonScreeningForm35Activity"
             android:exported="true"
-            android:label="@string/form_35">
+            android:label="@string/form_35"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/osm_ic_follow_me">
-                <action android:name="ffc.intent.action.EDIT" />
-
-                <category android:name="ffc.intent.category.PERSON" />
-                <category android:name="ffc.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />
+                <action android:name="ffc.intent.action.MAIN" />
+                <category android:name="ffc.intent.category.TAB" />
+<!--                <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />-->
             </intent-filter>
         </activity>
         <activity
@@ -146,11 +139,11 @@
         <activity
             android:name=".security.LoginActivity"
             android:exported="true">
-<!--            <intent-filter android:label="@string/app_lable">-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+            <intent-filter android:label="@string/app_lable">
+                <action android:name="android.intent.action.MAIN" />
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="ffc.intent.action.LOGIN" />
 
@@ -1076,7 +1069,8 @@
             <intent-filter android:icon="@drawable/icon_ncd">
                 <action android:name="ffc.intent.action.MAIN" />
 
-                <category android:name="ffc.intent.category.TAB" />
+                <category android:name="ffc.intent.category.TAB"
+                    />
             </intent-filter>
         </activity>
         <activity
