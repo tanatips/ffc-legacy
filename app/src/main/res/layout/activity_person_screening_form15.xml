@@ -33,6 +33,7 @@
            android:name="th.in.ffc.app.form.screening.PersonInfoFragment"
            android:layout_width="match_parent"
            android:layout_height="match_parent"
+
            />
         <HorizontalScrollView
             android:layout_width="match_parent"

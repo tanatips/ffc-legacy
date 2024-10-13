@@ -1019,4 +1019,12 @@
     <string name="Obese_90_80">อ้วน (ผู้ชายตั้งแต่ 90 ซม. ขึ้นไป, ผู้หญิงตั้งแต่ 80 ซม. ขึ้นไป)</string>
     <string name="BloodPressure">ตรวจวัดความดันโลหิต</string>
     <string name="InterpretationOfTheRisk">แปลผลความเสี่ยงการเกิดโรคความดันโลหิตสูง</string>
+    <string name="Regularly">เป็นประจำ</string>
+    <string name="Often">เป็นบ่อยครั้ง</string>
+    <string name="Sometimes">เป็นบางครั้ง</string>
+    <string name="VeryLittle">เป็นน้อยมากหรือแทบไม่มี</string>
+    <string name="NothingAtAll">ไม่มีเลย</string>
+    <string name="SomeDays_1_7">เป็นบางวัน ( 1-7 วัน )</string>
+    <string name="Frequent_7_days"><![CDATA[เป็นบ่อย ( > 7 วัน )]]></string>
+    <string name="EveryDay">เป็นทุกวัน</string>
 </resources>

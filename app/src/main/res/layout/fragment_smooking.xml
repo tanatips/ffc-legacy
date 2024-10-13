@@ -24,63 +24,72 @@
                 />
 
             <RadioGroup
-                android:id="@+id/rdoSmoker"
+                android:id="@+id/rdoSmokerGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <RadioButton
+                    android:id="@+id/rdoSmokerGroup1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/cigarette_1b52"
                     />
                 <RadioButton
+                    android:id="@+id/rdoSmokerGroup2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/cigarette_1b51"
                     />
                 <RadioButton
+                    android:id="@+id/rdoSmokerGroup3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/cigarette_1b50"
                     />
                 <RadioGroup
-                    android:id="@+id/rdosmoking"
+                    android:id="@+id/rdoSmokerAssist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <RadioButton
+                        android:id="@+id/rdoSmokerAssist1"
                         android:layout_marginLeft="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/smoke_once_in_a_while"/>
                     <RadioButton
+                        android:id="@+id/rdoSmokerAssist2"
                         android:layout_marginLeft="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/smoke_occasionally"/>
                     <RadioButton
+                        android:id="@+id/rdoSmokerAssist3"
                         android:layout_marginLeft="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/smoke_regularly"/>
                 </RadioGroup>
                 <RadioGroup
-                    android:id="@+id/rdoTakecaresmoking"
+                    android:id="@+id/rdoSmokerRegularly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <RadioButton
+                        android:id="@+id/rdoSmokerRegularly1"
                         android:layout_marginLeft="40dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/cigarette_1b530"/>
                     <RadioButton
+                        android:id="@+id/rdoSmokerRegularly2"
                         android:layout_marginLeft="40dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/cigarette_1b531"/>
                     <RadioButton
+                        android:id="@+id/rdoSmokerRegularly3"
                         android:layout_marginLeft="40dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"

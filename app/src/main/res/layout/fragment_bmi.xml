@@ -7,7 +7,7 @@
     tools:context=".app.form.screening.BmiFragment">
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_height="1500dp"
         android:layout_margin="5dp"
         >
         <LinearLayout

@@ -56,7 +56,7 @@
             android:exported="true"
             android:label="@string/form_15"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/osm_ic_follow_me">
+            <intent-filter android:icon="@drawable/ic_check_list">
                 <action android:name="ffc.intent.action.MAIN" />
                 <category android:name="ffc.intent.category.TAB" />
 <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -122,6 +122,12 @@
         <provider
             android:name=".provider.HouseProvider"
             android:authorities="th.in.ffc.provider.HouseProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <provider
+            android:name=".provider.ScreeningFormProvider"
+            android:authorities="th.in.ffc.provider.ScreeningFormProvider"
             android:enabled="true"
             android:exported="true" />
 

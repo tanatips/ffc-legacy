@@ -5,38 +5,35 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import java.util.ArrayList;
+
 import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.BloodPressureFragment;
 import th.in.ffc.app.form.screening.BmiFragment;
+import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
+import th.in.ffc.app.form.screening.FragmentTabInfo;
 import th.in.ffc.app.form.screening.SmookingFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
-    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    ArrayList<FragmentTabInfo> fragmentTabInfos;
+    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<FragmentTabInfo> fragmentTabInfos) {
         super(fragmentActivity);
+        this.fragmentTabInfos=fragmentTabInfos;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        switch (position) {
-            case 0:
-                return new BmiFragment();
-            case 1:
-                return new BloodPressureFragment();
-            case 2:
-                return new AlcoholFragment();
-            case 3:
-                return new AlcoholFragment();
-            case 4:
-                return new AlcoholFragment();
-            default:
-                return new SmookingFragment();
-        }
+        return fragmentTabInfos.get(position).getFragment();
     }
 
     @Override
     public int getItemCount() {
-        return 4; // จำนวน tab ทั้งหมด
+        return fragmentTabInfos.size();
+    }
+
+    public Fragment getFragmentAt(int position){
+        return fragmentTabInfos.get(position).getFragment();
     }
 }

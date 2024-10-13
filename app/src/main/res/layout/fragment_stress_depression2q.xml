@@ -1,14 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".app.form.screening.StressDepression2qFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:paddingTop="20dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="การคัดกรองโรคซึมเศร้าด้วย 2 คําถาม (2Q)"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1.ใน 2 สัปดาห์ที่ผ่านมารวมวันนี้ ท่านรู้สึกหดหู่เศร้าหรือท้อแท้สิ้นหวัง หรือไม่"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress2qQ1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress2qQ1_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="ไม่มี"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress2qQ1_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="มี"/>
+                    </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
 
-</FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2.ใน 2 สัปดาห์ที่ผ่านมารวมวันนี้ ท่านรู้สึกเบื่อ ทําอะไรก็ไม่เพลิดเพลิน หรือไม่"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress2qQ2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress2qQ2_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="ไม่มี"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress2qQ2_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="มี"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

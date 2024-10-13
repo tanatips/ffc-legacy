@@ -1,14 +1,424 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".app.form.screening.StressDepression9qFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+    <TextView
+        android:paddingTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="การคัดกรองโรคซึมเศร้าด้วย 9 คําถาม (9Q)"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1.เบื่อไม่สนใจอยากทำอะไร"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ1_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ1_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ1_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ1_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2.ไม่สบายใจ ซึมเศร้า ท้อแท้"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ2_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ2_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ2_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ2_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3.หลับยาก หรือหลับ ๆ ตื่น ๆ หรือหลับมากไป"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ3_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ3_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ3_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ3_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4.เหนื่อยง่าย หรือ ไม่ค่อยมีแรง"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ4_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ4_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ4_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ4_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5.เบ่ืออาหาร หรือ กินมากเกินไป"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ5_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ5_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ5_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ5_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6.รู้สึกไม่ดีกับตัวเอง คิดว่า ตัวเองล้มเหลว หรือ ทําให้ตนเองหรือครอบครัวผิดหวัง"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ6_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ6_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ6_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ6_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7.สมาธิไม่ดีเวลาทําอะไร เช่น ดูโทรทัศน์ ฟังวิทยุ หรือทํางานที่ต้องใช่ความต้ังใจ"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ7_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ7_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ7_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ7_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="8.พูดช้า ทําอะไรช้าจนคนอื่นสังเกตเห็นได้ หรือกระสับกระส่ายไม่สามารถอยู่น่ิงได้เหมือนที่เคยเป็น"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ8"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ8_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ8_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ8_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ8_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="9.คิดทําร้ายตนเอง หรือ คิดว่าถ้าตายไปคงจะดี"
+                android:padding="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioGroup
+                    android:id="@+id/rdoStress9qQ9"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ9_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/NothingAtAll"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ9_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/SomeDays_1_7"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ9_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/Frequent_7_days"/>
+                    <RadioButton
+                        android:id="@+id/rdoStress9qQ9_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="@string/EveryDay"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

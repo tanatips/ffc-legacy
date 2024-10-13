@@ -1,14 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="1400dp"
+    android:orientation="vertical"
     tools:context=".app.form.screening.AssessmentOfObesityFragment">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1.มีปัญหาการนอน นอนไม่หลับหรือนอนมาก"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoObesityQ1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ1_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นน้อยมากหรือแทบไม่มี"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ1_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบางครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ1_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบ่อยครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ1_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นประจำ"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2.มีสมาธิน้อยลง"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoObesityQ2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ2_1"
+                            android:height="48dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นน้อยมากหรือแทบไม่มี"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ2_2"
+                            android:height="48dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบางครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ2_3"
+                            android:height="48dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบ่อยครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ2_4"
+                            android:height="48dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นประจำ"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3.หงุดหงิด / กระวนกระวาย / ว้าวุ่นใจ"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoObesityQ3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ3_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นน้อยมากหรือแทบไม่มี"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ3_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบางครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ3_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบ่อยครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ3_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นประจำ"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4.รู้สึกเบื่อ เซ็ง"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoObesityQ4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ4_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นน้อยมากหรือแทบไม่มี"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ4_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบางครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ4_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นบ่อยครั้ง"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ4_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="เป็นประจำ"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="5.ไม่อยากพบปะผู้คน"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoObesityQ5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ5_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="@string/VeryLittle"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ5_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="@string/Sometimes"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ5_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="@string/Often"/>
+                        <RadioButton
+                            android:id="@+id/rdoObesityQ5_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="@string/Regularly"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+</LinearLayout>

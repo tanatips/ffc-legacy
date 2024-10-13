@@ -128,6 +128,7 @@ public class ThaiDatePicker extends LinearLayout {
         mSpnYear.setAdapter(yearAdapter);
         this.addView(mSpnYear, IntegerParam);
 
+        mSpnDay.setOnItemSelectedListener(mDaySelectedListener);
         mSpnMonth.setOnItemSelectedListener(mYearMonthSelectedListener);
         mSpnYear.setOnItemSelectedListener(mYearMonthSelectedListener);
 
@@ -141,6 +142,24 @@ public class ThaiDatePicker extends LinearLayout {
         addSpinner(mContext, Locale.JAPANESE);
     }
 
+    Integer dateitem = 0;
+    OnItemSelectedListener mDaySelectedListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            int month = mSpnMonth.getSelectedItemPosition();
+            int th_year = mSpnYear.getSelectedItemPosition() + START_YEAR;
+            int en_year = th_year - 543;
+            if(dateitem!=i) {
+                dateitem = i;
+                ThaiDatePicker.this.updateDaySpinner(en_year, month);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+
+        }
+    };
     OnItemSelectedListener mYearMonthSelectedListener = new OnItemSelectedListener() {
 
         @Override

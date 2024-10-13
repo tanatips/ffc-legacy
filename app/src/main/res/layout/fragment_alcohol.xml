@@ -24,84 +24,79 @@
                 />
 
             <RadioGroup
-                android:id="@+id/rdodrink"
+                android:id="@+id/rdoDrinking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <RadioButton
+                    android:id="@+id/rdoDrinking1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/drink_1b600"
                     />
                 <RadioButton
+                    android:id="@+id/rdoDrinking2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/drink_1b601"
                     />
                 <RadioButton
+                    android:id="@+id/rdoDrinking3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/drink"
                     />
                 <RadioGroup
-                    android:id="@+id/rdodrinker"
+                    android:id="@+id/rdoDrinkingFrequency"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <RadioButton
+                        android:id="@+id/rdoDrinkingFrequency1"
                         android:layout_marginLeft="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/once_in_a_while"/>
                     <RadioButton
+                        android:id="@+id/rdoDrinkingFrequency2"
                         android:layout_marginLeft="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/occasionally"/>
                     <RadioButton
+                        android:id="@+id/rdoDrinkingFrequency3"
                         android:layout_marginLeft="20dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/regularly"/>
                 </RadioGroup>
                 <RadioGroup
-                    android:id="@+id/rdodrinking"
+                    android:id="@+id/rdoDrinkingAlway"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <RadioButton
+                        android:id="@+id/rdoDrinkingAlway1"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginLeft="40dp"
                         android:text="@string/drink_1b602" />
 
                     <RadioButton
+                        android:id="@+id/rdoDrinkingAlway2"
                         android:layout_marginLeft="40dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/drink_1b603"/>
                     <RadioButton
+                        android:id="@+id/rdoDrinkingAlway3"
                         android:layout_marginLeft="40dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="@string/drink_1b604"/>
-                    <!--                        <RadioButton-->
-                    <!--                            android:layout_marginLeft="60dp"-->
-                    <!--                            android:layout_width="wrap_content"-->
-                    <!--                            android:layout_height="match_parent"-->
-                    <!--                            android:text="1B602 ระดับเสี่ยงต่ำ(0-10) >>> 1B610 การให้คำแนะนำ(brief advice)"/>-->
-                    <!--                        <RadioButton-->
-                    <!--                            android:layout_marginLeft="60dp"-->
-                    <!--                            android:layout_width="wrap_content"-->
-                    <!--                            android:layout_height="match_parent"-->
-                    <!--                            android:text="1B603 ระดับเสี่ยงปานกลาง(11-26) >>> การให้คำปรึกษาแบบสั้น(brief counseling)"/>-->
-                    <!--                        <RadioButton-->
-                    <!--                            android:layout_marginLeft="60dp"-->
-                    <!--                            android:layout_width="wrap_content"-->
-                    <!--                            android:layout_height="match_parent"-->
-                    <!--                            android:text="1B604 ระดับเสี่ยงสูง(คะแนนตั้งแต่ 27 ขึ้นไป) >>> ส่งต่อเพื่อรับการประเมินและบำบัดโดยผู้เชี่ยวชาญ(refer)"/>-->
+
 
                 </RadioGroup>
             </RadioGroup>

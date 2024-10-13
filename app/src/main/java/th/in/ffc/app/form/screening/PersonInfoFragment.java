@@ -1,6 +1,8 @@
 package th.in.ffc.app.form.screening;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,18 +12,28 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Calendar;
 
 import th.in.ffc.R;
 import th.in.ffc.SmartCardReaderActivity;
+import th.in.ffc.screeningform.PersonInfo;
+import th.in.ffc.util.DateTime;
 import th.in.ffc.util.ThaiDatePicker;
 
 public class PersonInfoFragment extends Fragment {
@@ -33,9 +45,25 @@ public class PersonInfoFragment extends Fragment {
 
     RadioButton rdoMale,rdoFemale;
 
+    private OnDataPass dataPasser;
+    PersonInfo personInfo;
+
+   
+
     public PersonInfoFragment() {
         // Required empty public constructor
     }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -49,6 +77,7 @@ public class PersonInfoFragment extends Fragment {
         rdoGender = (RadioGroup) view.findViewById(R.id.rdoGender);
         rdoMale = (RadioButton) view.findViewById(R.id.rdoMale);
         rdoFemale = (RadioButton) view.findViewById(R.id.rdoFemale);
+        personInfo = new PersonInfo();
         smartcard_reader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,6 +85,58 @@ public class PersonInfoFragment extends Fragment {
                 activityResultLauncher.launch(intent);
             }
         });
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                personInfo.setIdcard(citizenId.getText().toString());
+                personInfo.setFname(fname.getText().toString());
+                personInfo.setLname(lname.getText().toString());
+                dataPasser.onDataPass(personInfo);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        birthday.setOnDateUpdateListner(new ThaiDatePicker.OnDateUpdateListener() {
+            @Override
+            public void onDateUpdate(DateTime.Date date) {
+                  personInfo.setBirthday(date.toString());
+//                Toast.makeText(getContext(),date.toString(),Toast.LENGTH_LONG).show();
+            }
+        });
+//        birthday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Toast.makeText(getContext(),"Test",Toast.LENGTH_LONG).show();
+//            }
+//        });
+        citizenId.addTextChangedListener(watcher);
+        fname.addTextChangedListener(watcher);
+        lname.addTextChangedListener(watcher);
+        rdoGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // Find which radio button is selected
+                switch (checkedId) {
+                    case R.id.rdoMale:
+                        personInfo.setGender("M");
+                        dataPasser.onDataPass(personInfo);
+                        Toast.makeText(getContext(), "M", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.rdoFemale:
+                        personInfo.setGender("F");
+                        dataPasser.onDataPass(personInfo);
+                        Toast.makeText(getContext(), "F", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        });
+
         return view;
     }
     private ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(

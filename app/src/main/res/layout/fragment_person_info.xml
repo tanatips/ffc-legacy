@@ -38,6 +38,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </th.in.ffc.util.ThaiDatePicker>
+
+    <Button
+        android:id="@+id/btnSelectDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Date" />
+
+    <TextView
+        android:id="@+id/tvSelectedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected date will appear here"
+        android:paddingTop="20dp" />
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="60dp"

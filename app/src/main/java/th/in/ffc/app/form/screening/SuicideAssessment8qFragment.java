@@ -2,48 +2,30 @@ package th.in.ffc.app.form.screening;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
+import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SuicideAssessment8qFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SuicideAssessment8qFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    SuicideAssessment8qLiveData suicideAssessment8qLiveData;
+    SharedViewModel shareViewModel;
     public SuicideAssessment8qFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SuicideAssessment8qFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static SuicideAssessment8qFragment newInstance(String param1, String param2) {
         SuicideAssessment8qFragment fragment = new SuicideAssessment8qFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,10 +33,87 @@ public class SuicideAssessment8qFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
+        shareViewModel = new SharedViewModel();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        View parentViewPager = (View) view.getParent();
+        if (parentViewPager != null) {
+            parentViewPager.post(() -> {
+                int height = view.getMeasuredHeight();
+                ViewGroup.LayoutParams layoutParams = parentViewPager.getLayoutParams();
+                layoutParams.height = height;
+                parentViewPager.setLayoutParams(layoutParams);
+            });
         }
+        RadioGroup rdoSuicideQ1 = view.findViewById(R.id.rdoSuicideQ1);
+        RadioGroup rdoSuicideQ2 = view.findViewById(R.id.rdoSuicideQ2);
+        RadioGroup rdoSuicideQ3 = view.findViewById(R.id.rdoSuicideQ3);
+        RadioGroup rdoSuicideQ4 = view.findViewById(R.id.rdoSuicideQ4);
+        RadioGroup rdoSuicideQ5 = view.findViewById(R.id.rdoSuicideQ5);
+        RadioGroup rdoSuicideQ6 = view.findViewById(R.id.rdoSuicideQ6);
+        RadioGroup rdoSuicideQ7 = view.findViewById(R.id.rdoSuicideQ7);
+        RadioGroup rdoSuicideQ8 = view.findViewById(R.id.rdoSuicideQ8);
+        rdoSuicideQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ1(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+
+        rdoSuicideQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ2(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+        rdoSuicideQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ3(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+        rdoSuicideQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ4(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+        rdoSuicideQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ5(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+        rdoSuicideQ6.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ6(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+        rdoSuicideQ7.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ7(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
+        rdoSuicideQ8.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                suicideAssessment8qLiveData.setSelectedQ8(i);
+                shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+            }
+        });
     }
 
     @Override

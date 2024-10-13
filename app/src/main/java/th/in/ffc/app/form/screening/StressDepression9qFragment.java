@@ -2,13 +2,19 @@ package th.in.ffc.app.form.screening;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,50 +23,129 @@ import th.in.ffc.R;
  */
 public class StressDepression9qFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    StressDepression9qLiveData stressDepression9qLiveData;
+    SharedViewModel shareViewModel;
     public StressDepression9qFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment StressDepression9qFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static StressDepression9qFragment newInstance(String param1, String param2) {
         StressDepression9qFragment fragment = new StressDepression9qFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        stressDepression9qLiveData = new StressDepression9qLiveData();
+        shareViewModel = new SharedViewModel();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        View parentViewPager = (View) view.getParent();
+        if (parentViewPager != null) {
+            parentViewPager.post(() -> {
+                int height = view.getMeasuredHeight();
+                ViewGroup.LayoutParams layoutParams = parentViewPager.getLayoutParams();
+                layoutParams.height = height;
+                parentViewPager.setLayoutParams(layoutParams);
+            });
         }
+        RadioGroup rdoStress9qQ1 = view.findViewById(R.id.rdoStress9qQ1);
+        RadioGroup rdoStress9qQ2 = view.findViewById(R.id.rdoStress9qQ2);
+        RadioGroup rdoStress9qQ3 = view.findViewById(R.id.rdoStress9qQ3);
+        RadioGroup rdoStress9qQ4 = view.findViewById(R.id.rdoStress9qQ4);
+        RadioGroup rdoStress9qQ5 = view.findViewById(R.id.rdoStress9qQ5);
+        RadioGroup rdoStress9qQ6 = view.findViewById(R.id.rdoStress9qQ6);
+        RadioGroup rdoStress9qQ7 = view.findViewById(R.id.rdoStress9qQ7);
+        RadioGroup rdoStress9qQ8 = view.findViewById(R.id.rdoStress9qQ8);
+        RadioGroup rdoStress9qQ9 = view.findViewById(R.id.rdoStress9qQ9);
+        rdoStress9qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ1(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ2(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ3(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ4(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ5(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ6.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ6(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ7.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ7(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ8.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ8(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
+        rdoStress9qQ9.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression9qLiveData.setSelectedQ9(i);
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+            }
+        });
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_stress_depression9q, container, false);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
     }
 }

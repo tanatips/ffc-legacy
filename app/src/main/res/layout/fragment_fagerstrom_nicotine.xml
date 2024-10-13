@@ -1,14 +1,665 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="1500dp"
     tools:context=".app.form.screening.FagerstromNicotineFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:scrollbars="vertical"
+        android:fillViewport="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1.โดยปกติคุณ สูบบุหรี่วันละกี่มวน"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoNicotineQ1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ1_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="10 มวลหรือน้อยกว่า"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ1_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="10-20 มวน"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ1_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="21-30 มวน"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ1_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="มากกว่า 31 มวน"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
 
-</FrameLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2.หนังตื่นนอนตอนเช้าคุณสูบบุหรี่มวนแรกเมื่อไหร่"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoNicotineQ2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ2_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="ภายใน 5 นาทีหลังตื่นนอน"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ2_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="ุ6-30 นาที หลังตื่นนอน"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ2_3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="31-60 นาที หลังตื่นนอน"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ2_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="มากกว่า 60 นาที"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3.คุณสูบบุหรี่จัดในชั่วโมงแรกหลังตื่นนอน\n(สูบมากกว่าในช่วงเวลาอื่นของวัน)"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoNicotineQ3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ3_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="ใช่"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ3_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:text="ไม่ใช่"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4.บุหรี่มวนไหนที่คุณไม่อยากเลิกมากที่สุด"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoNicotineQ4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ4_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="1"
+                            android:text="มวนแรกต้อนเช้า"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ4_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="0"
+                            android:text="มวนอื่นๆ"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="5.คุณรู้สึกลำบากหรือยุ่งยากไหมที่ต้องอยู่ใน 'เขตปลอดบุหรี่' \n เช่น โรงภาพยนต์ รถโดยสาร ร้านอาหาร"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoNicotineQ5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ5_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="1"
+                            android:text="รู้สึกลำบาก"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ5_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="0"
+                            android:text="ไม่รู้สึกลำบาก"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="6.คุณยังต้องสูบบุหรี่ แม้จะเจ็บป่วย นอนพักตลอดในโรงพยาบาล"
+                    android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <RadioGroup
+                        android:id="@+id/rdoNicotineQ6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="20dp">
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ6_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="1"
+                            android:text="ใช่"/>
+                        <RadioButton
+                            android:id="@+id/rdoNicotineQ6_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:tag="0"
+                            android:text="ไม่ใช่"/>
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+<!--        <HorizontalScrollView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            <TableLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:stretchColumns="1,2,3,4">-->
+
+<!--                &lt;!&ndash; หัวตาราง &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="แบบทดสอบการติดบุหรี่ (Fagerstrom Test for Nicotine Dependence)"-->
+<!--                        android:layout_span="5"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:gravity="center"-->
+<!--                        android:background="#e0e0e0"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; หัวคอลัมน์ &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="คำถาม"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:background="#e0e0e0"-->
+<!--                        android:textStyle="bold" />-->
+<!--                    <TextView-->
+<!--                        android:text="คำตอบ"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:background="#e0e0e0"-->
+<!--                        android:textStyle="bold" />-->
+<!--                    <TextView-->
+<!--                        android:text="ระดับคะแนน"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:background="#e0e0e0"-->
+<!--                        android:textStyle="bold" />-->
+<!--                    <TextView-->
+<!--                        android:text="คะแนนที่ประเมินได้"-->
+<!--                        android:background="#e0e0e0"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:textStyle="bold" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp"-->
+<!--                        android:background="#e0e0e0"-->
+<!--                        android:textStyle="bold" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 1 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+
+<!--                        android:text="1.โดยปกติคุณ\nสูบบุหรี่วันละกี่มวน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="10 มวน หรือน้อยกว่า"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="0"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B501"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 2 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="11-20 มวน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B502"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 3 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="21-30 มวน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="2"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B503"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 4 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="มากกว่า 31 มวน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="3"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B504"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 5 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="2.หลังตื่นนอนคุณ\nสูบบุหรี่ภายในกี่นาที"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="ภายใน 5 นาทีหลังตื่นนอน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="3"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B505"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 6 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="6-30 นาทีหลังตื่นนอน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="2"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B506"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 7 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="31-60 นาทีหลังตื่นนอน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B507"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 8 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="มากกว่า 60 นาทีหลังตื่นนอน"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="0"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B508"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 9 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="3.คุณสูบบุหรี่ในช่วงแรก\nหลังตื่นนอนหรือไม่"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="ใช่"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B509"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 10 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="ไม่ใช่"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="0"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B510"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 11 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="4.บุหรี่มวนไหนที่คุณ\nไม่อยากเลิกมากที่สุด"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="มวนแรกตอนเช้า"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B511"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 12 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="มวนอื่นๆ"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="0"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B512"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 13 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="5.คุณรู้สึกอยากสูบบุหรี่\nอยู่ตลอดเวลาไหม\nเมื่อคุณไม่สามารถสูบบุหรี่ได้"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="รู้สึกมาก"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B513"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 14 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="ไม่รู้สึกมาก"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="0"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B514"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 15 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="6.คุณยังต้องสูบบุหรี่ \nแม้จะเป็นไข้นอนพักที่\nโรงพยาบาลหรือไม่"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="ใช่"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B515"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; Row 16 &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="0dp"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="ไม่ใช่"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="0"-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text=""-->
+<!--                        android:padding="8dp" />-->
+<!--                    <TextView-->
+<!--                        android:text="1B516"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; แถวสุดท้าย: รวมคะแนน &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="รวมคะแนน"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:textStyle="bold" />-->
+<!--                    <TextView-->
+<!--                        android:layout_span="2"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:gravity="right"-->
+<!--                        android:text="10" />-->
+<!--                </TableRow>-->
+
+<!--                &lt;!&ndash; ผลการประเมิน &ndash;&gt;-->
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="แปลผลคะแนน"-->
+<!--                        android:layout_span="4"-->
+<!--                        android:padding="8dp"-->
+<!--                        android:textStyle="bold" />-->
+<!--                </TableRow>-->
+
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="คะแนน 0 - 3 คะแนน แสดงว่า ไม่เป็นหรือมีการติดบุหรี่ในระดับต่ำ"-->
+<!--                        android:layout_span="4"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="คะแนน 4 - 5 คะแนน แสดงว่า มีการติดบุหรี่ในระดับปานกลาง"-->
+<!--                        android:layout_span="4"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="คะแนน 6 - 7 คะแนน แสดงว่า มีการติดบุหรี่ในระดับสูง"-->
+<!--                        android:layout_span="4"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="คะแนน 8 - 9 คะแนน แสดงว่า มีการติดบุหรี่ในระดับสูงมาก"-->
+<!--                        android:layout_span="4"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--                <TableRow>-->
+<!--                    <TextView-->
+<!--                        android:text="คะแนน 10 คะแนน แสดงว่า มีการติดบุหรี่ในระดับสูงมาก"-->
+<!--                        android:layout_span="4"-->
+<!--                        android:padding="8dp" />-->
+<!--                </TableRow>-->
+
+<!--            </TableLayout>-->
+<!--        </HorizontalScrollView>-->
+    </ScrollView>
+
+
+</LinearLayout>

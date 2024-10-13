@@ -2,13 +2,20 @@ package th.in.ffc.app.form.screening;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.datalive.DrinkingLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,44 +24,23 @@ import th.in.ffc.R;
  */
 public class AlcoholFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    DrinkingLiveData drinkingLiveData;
+    SharedViewModel shareViewModel;
 
     public AlcoholFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AlcoholFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static AlcoholFragment newInstance(String param1, String param2) {
         AlcoholFragment fragment = new AlcoholFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        drinkingLiveData = new DrinkingLiveData();
+        shareViewModel = new SharedViewModel();
     }
 
     @Override
@@ -62,5 +48,91 @@ public class AlcoholFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_alcohol, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        RadioGroup rdoDrinking = view.findViewById(R.id.rdoDrinking);
+//        RadioButton rdoDrinking1 = view.findViewById(R.id.rdoDrinking1);
+//        RadioButton rdoDrinking2 = view.findViewById(R.id.rdoDrinking2);
+//        RadioButton rdoDrinking3 = view.findViewById(R.id.rdoDrinking3);
+        RadioGroup rdoDrinkingFrequency = view.findViewById(R.id.rdoDrinkingFrequency);
+        RadioButton rdoDrinkingFrequency1 = view.findViewById(R.id.rdoDrinkingFrequency1);
+        RadioButton rdoDrinkingFrequency2 = view.findViewById(R.id.rdoDrinkingFrequency2);
+        RadioButton rdoDrinkingFrequency3 = view.findViewById(R.id.rdoDrinkingFrequency3);
+        RadioGroup rdoDrinkingAlway = view.findViewById(R.id.rdoDrinkingAlway);
+        RadioButton rdoDrinkingAlway1 = view.findViewById(R.id.rdoDrinkingAlway1);
+        RadioButton rdoDrinkingAlway2 = view.findViewById(R.id.rdoDrinkingAlway2);
+        RadioButton rdoDrinkingAlway3 = view.findViewById(R.id.rdoDrinkingAlway3);
+        rdoDrinkingFrequency.setVisibility(View.INVISIBLE);
+        rdoDrinkingAlway.setVisibility(View.INVISIBLE);
+        rdoDrinking.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                if(checkedId == R.id.rdoDrinking3){
+                    rdoDrinkingFrequency.setVisibility(View.VISIBLE);
+                }
+                else {
+                    rdoDrinkingFrequency.setVisibility(View.INVISIBLE);
+                    rdoDrinkingFrequency1.setChecked(false);
+                    rdoDrinkingFrequency2.setChecked(false);
+                    rdoDrinkingFrequency3.setChecked(false);
+                }
+                drinkingLiveData.setSelectedRdoDriking(checkedId);
+                shareViewModel.setDrinkingMutableLiveData(drinkingLiveData);
+            }
+        });
+        rdoDrinkingFrequency.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                if(checkedId == R.id.rdoDrinkingFrequency3){
+                    rdoDrinkingAlway.setVisibility(View.VISIBLE);
+                }
+                else {
+                    rdoDrinkingAlway.setVisibility(View.INVISIBLE);
+                    rdoDrinkingAlway1.setChecked(false);
+                    rdoDrinkingAlway2.setChecked(false);
+                    rdoDrinkingAlway3.setChecked(false);
+                }
+                drinkingLiveData.setSelectedRdoDrikingFrequency(checkedId);
+                shareViewModel.setDrinkingMutableLiveData(drinkingLiveData);
+            }
+        });
+
+        rdoDrinkingAlway.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                drinkingLiveData.setSelectedRdoDrikingAlway(checkedId);
+                shareViewModel.setDrinkingMutableLiveData(drinkingLiveData);
+            }
+        });
+
+        shareViewModel.getDrinkingMutableLiveData().observe(getViewLifecycleOwner(), drinkingLiveData -> {
+            if(drinkingLiveData != null){
+                if(drinkingLiveData.getSelectedRdoDriking()!=null) {
+                    rdoDrinking.check(drinkingLiveData.getSelectedRdoDriking());
+                }
+                if(drinkingLiveData.getSelectedRdoDrikingFrequency()!=null) {
+                    rdoDrinkingFrequency.check(drinkingLiveData.getSelectedRdoDrikingFrequency());
+                }
+                if(drinkingLiveData.getSelectedRdoDrikingAlway()!=null) {
+                    rdoDrinkingAlway.check(drinkingLiveData.getSelectedRdoDrikingAlway());
+                }
+            }
+        });
+    }
+
+    public static class StressDepression9qLiveDataModel  extends ViewModel {
+        public StressDepression9qLiveData getStressDepression9qLiveData() {
+            return stressDepression9qLiveData;
+        }
+
+        public void setStressDepression9qLiveData(StressDepression9qLiveData stressDepression9qLiveData) {
+            this.stressDepression9qLiveData = stressDepression9qLiveData;
+        }
+
+        StressDepression9qLiveData stressDepression9qLiveData;
+
     }
 }

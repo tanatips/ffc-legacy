@@ -2,13 +2,18 @@ package th.in.ffc.app.form.screening;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.datalive.AssessmentOfObesityLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,44 +22,57 @@ import th.in.ffc.R;
  */
 public class StressDepression2qFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    StressDepression2qLiveData stressDepression2qLiveData;
+    SharedViewModel shareViewModel;
 
     public StressDepression2qFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment StressDepression2qFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static StressDepression2qFragment newInstance(String param1, String param2) {
         StressDepression2qFragment fragment = new StressDepression2qFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        stressDepression2qLiveData = new StressDepression2qLiveData();
+        shareViewModel = new SharedViewModel();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        super.onViewCreated(view, savedInstanceState);
+        View parentViewPager = (View) view.getParent();
+        if (parentViewPager != null) {
+            parentViewPager.post(() -> {
+                int height = view.getMeasuredHeight();
+                ViewGroup.LayoutParams layoutParams = parentViewPager.getLayoutParams();
+                layoutParams.height = height;
+                parentViewPager.setLayoutParams(layoutParams);
+            });
         }
+        RadioGroup rdoStress2qQ1 = view.findViewById(R.id.rdoStress2qQ1);
+        RadioGroup rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
+        rdoStress2qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression2qLiveData.setSelectedQ1(i);
+                shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
+            }
+        });
+
+        rdoStress2qQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepression2qLiveData.setSelectedQ2(i);
+                shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
+            }
+        });
+
     }
 
     @Override

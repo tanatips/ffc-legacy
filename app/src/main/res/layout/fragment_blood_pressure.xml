@@ -11,12 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
+        android:layout_margin="10dp"
         android:text="@string/BloodPressure" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
+        android:layout_margin="10dp"
         android:text="@string/InterpretationOfTheRisk" />
 
     <HorizontalScrollView
@@ -248,4 +250,5 @@
 
     </TableLayout>
     </HorizontalScrollView>
+
 </LinearLayout>
