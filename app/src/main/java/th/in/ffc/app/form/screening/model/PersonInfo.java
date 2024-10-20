@@ -1,4 +1,4 @@
-package th.in.ffc.screeningform;
+package th.in.ffc.app.form.screening.model;
 
 public class PersonInfo {
     private String id;

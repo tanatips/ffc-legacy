@@ -1,4 +1,4 @@
-package th.in.ffc.screeningform;
+package th.in.ffc.app.form.screening.dao;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
+import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
 
 public class SfPersonInfoDao {

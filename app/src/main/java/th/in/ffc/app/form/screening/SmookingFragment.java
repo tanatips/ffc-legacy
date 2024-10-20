@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.widget.RadioGroup;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
+import th.in.ffc.app.form.screening.model.SmokerInfo;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,6 +30,9 @@ public class SmookingFragment extends Fragment {
     SharedViewModel shareViewModel;
 
     SmookingLiveData smookingLiveData;
+
+    private OnDataPass dataPasser;
+    private SmokerInfo smokerInfo;
     public SmookingFragment() {
         // Required empty public constructor
     }
@@ -56,9 +61,19 @@ public class SmookingFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        smokerInfo = new SmokerInfo();
         RadioGroup rdoSmokerGroup = view.findViewById(R.id.rdoSmokerGroup);
         RadioGroup rdoSmokerAssist = view.findViewById(R.id.rdoSmokerAssist);
         RadioGroup rdoSmokerRegularly = view.findViewById(R.id.rdoSmokerRegularly);
@@ -86,8 +101,21 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerAssist2.setChecked(false);
                     rdoSmokerAssist3.setChecked(false);
                 }
+                String data = "";
+                if(checkedId == R.id.rdoSmokerGroup1) {
+                    data = "1";
+                } else  if(checkedId == R.id.rdoSmokerGroup2)
+                {
+                    data = "2";
+                } else if(checkedId == R.id.rdoSmokerGroup3)
+                {
+                    data = "3";
+                }
                 smookingLiveData.setSelectedRdoSmokerGroup(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
+
+                smokerInfo.setSmokerGroup(data);
+                dataPasser.onSmokerInfo(smokerInfo);
             }
         });
         rdoSmokerAssist.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -102,8 +130,20 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
                 }
+                String data = "";
+                if(checkedId == R.id.rdoSmokerAssist1) {
+                    data = "1";
+                } else  if(checkedId == R.id.rdoSmokerAssist2)
+                {
+                    data = "2";
+                } else if(checkedId == R.id.rdoSmokerAssist3)
+                {
+                    data = "3";
+                }
                 smookingLiveData.setSelectedRdoSmokerAssist(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
+                smokerInfo.setSmokerAssist(data);
+                dataPasser.onSmokerInfo(smokerInfo);
             }
         });
 
@@ -112,6 +152,18 @@ public class SmookingFragment extends Fragment {
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
                 smookingLiveData.setSelectedRdoSmokerRegularly(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
+                String data = "";
+                if(checkedId == R.id.rdoSmokerRegularly1) {
+                    data = "1";
+                } else  if(checkedId == R.id.rdoSmokerRegularly2)
+                {
+                    data = "2";
+                } else if(checkedId == R.id.rdoSmokerRegularly3)
+                {
+                    data = "3";
+                }
+                smokerInfo.setSmokerRegularly(data);
+                dataPasser.onSmokerInfo(smokerInfo);
             }
         });
 

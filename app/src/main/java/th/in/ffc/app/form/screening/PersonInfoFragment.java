@@ -1,7 +1,6 @@
 package th.in.ffc.app.form.screening;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,18 +20,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Calendar;
 
 import th.in.ffc.R;
 import th.in.ffc.SmartCardReaderActivity;
-import th.in.ffc.screeningform.PersonInfo;
+import th.in.ffc.app.form.screening.model.DataCenterInfo;
+import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.ThaiDatePicker;
 
@@ -96,7 +92,7 @@ public class PersonInfoFragment extends Fragment {
                 personInfo.setIdcard(citizenId.getText().toString());
                 personInfo.setFname(fname.getText().toString());
                 personInfo.setLname(lname.getText().toString());
-                dataPasser.onDataPass(personInfo);
+                dataPasser.onPersonInfo(personInfo);
             }
             @Override
             public void afterTextChanged(Editable s) {
@@ -125,12 +121,12 @@ public class PersonInfoFragment extends Fragment {
                 switch (checkedId) {
                     case R.id.rdoMale:
                         personInfo.setGender("M");
-                        dataPasser.onDataPass(personInfo);
+                        dataPasser.onPersonInfo(personInfo);
                         Toast.makeText(getContext(), "M", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.rdoFemale:
                         personInfo.setGender("F");
-                        dataPasser.onDataPass(personInfo);
+                        dataPasser.onPersonInfo(personInfo);
                         Toast.makeText(getContext(), "F", Toast.LENGTH_SHORT).show();
                         break;
                 }

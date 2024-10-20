@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,8 @@ import android.widget.RadioGroup;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.datalive.DrinkingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
+import th.in.ffc.app.form.screening.model.DrinkingInfo;
+import th.in.ffc.app.form.screening.model.SmokerInfo;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,8 +30,21 @@ public class AlcoholFragment extends Fragment {
     DrinkingLiveData drinkingLiveData;
     SharedViewModel shareViewModel;
 
+    private OnDataPass dataPasser;
+    private DrinkingInfo drinkingInfo;
+
     public AlcoholFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
     }
 
     public static AlcoholFragment newInstance(String param1, String param2) {
@@ -67,6 +83,7 @@ public class AlcoholFragment extends Fragment {
         RadioButton rdoDrinkingAlway3 = view.findViewById(R.id.rdoDrinkingAlway3);
         rdoDrinkingFrequency.setVisibility(View.INVISIBLE);
         rdoDrinkingAlway.setVisibility(View.INVISIBLE);
+        drinkingInfo = new DrinkingInfo();
         rdoDrinking.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
@@ -81,6 +98,18 @@ public class AlcoholFragment extends Fragment {
                 }
                 drinkingLiveData.setSelectedRdoDriking(checkedId);
                 shareViewModel.setDrinkingMutableLiveData(drinkingLiveData);
+                String data = "";
+                if(checkedId == R.id.rdoDrinking1) {
+                    data = "1";
+                } else  if(checkedId == R.id.rdoDrinking2)
+                {
+                    data = "2";
+                } else if(checkedId == R.id.rdoDrinking3)
+                {
+                    data = "3";
+                }
+                drinkingInfo.setDrinking(data);
+                dataPasser.onDrinkingInfo(drinkingInfo);
             }
         });
         rdoDrinkingFrequency.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -97,6 +126,18 @@ public class AlcoholFragment extends Fragment {
                 }
                 drinkingLiveData.setSelectedRdoDrikingFrequency(checkedId);
                 shareViewModel.setDrinkingMutableLiveData(drinkingLiveData);
+                String data = "";
+                if(checkedId == R.id.rdoDrinkingFrequency1) {
+                    data = "1";
+                } else  if(checkedId == R.id.rdoDrinkingFrequency2)
+                {
+                    data = "2";
+                } else if(checkedId == R.id.rdoDrinkingFrequency3)
+                {
+                    data = "3";
+                }
+                drinkingInfo.setDrinkingFrequency(data);
+                dataPasser.onDrinkingInfo(drinkingInfo);
             }
         });
 
@@ -105,6 +146,18 @@ public class AlcoholFragment extends Fragment {
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
                 drinkingLiveData.setSelectedRdoDrikingAlway(checkedId);
                 shareViewModel.setDrinkingMutableLiveData(drinkingLiveData);
+                String data = "";
+                if(checkedId == R.id.rdoDrinkingAlway1) {
+                    data = "1";
+                } else  if(checkedId == R.id.rdoDrinkingAlway2)
+                {
+                    data = "2";
+                } else if(checkedId == R.id.rdoDrinkingAlway3)
+                {
+                    data = "3";
+                }
+                drinkingInfo.setDrinkingAlway(data);
+                dataPasser.onDrinkingInfo(drinkingInfo);
             }
         });
 

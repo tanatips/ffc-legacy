@@ -2,29 +2,18 @@ package th.in.ffc.person;
 
 
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +21,6 @@ import java.util.List;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.AssessmentOfObesityFragment;
-import th.in.ffc.app.form.screening.BloodPressureFragment;
-import th.in.ffc.app.form.screening.BmiFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
 import th.in.ffc.app.form.screening.FragmentTabInfo;
 import th.in.ffc.app.form.screening.OnDataPass;
@@ -41,13 +28,11 @@ import th.in.ffc.app.form.screening.SmookingFragment;
 import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
-import th.in.ffc.app.form.screening.SummaryOfAssistFragment;
-import th.in.ffc.provider.HouseProvider;
-import th.in.ffc.provider.PersonProvider;
-import th.in.ffc.provider.ScreeningFormProvider;
-import th.in.ffc.screeningform.PersonInfo;
-import th.in.ffc.screeningform.SfPersonInfoDao;
-import th.in.ffc.util.DateTime;
+import th.in.ffc.app.form.screening.model.DataCenterInfo;
+import th.in.ffc.app.form.screening.model.DrinkingInfo;
+import th.in.ffc.app.form.screening.model.PersonInfo;
+import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
+import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.util.ViewPagerAdapter;
 
 public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass {
@@ -167,9 +152,31 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
     }
 
+//    @Override
+//    public void onDataPass(DataCenterInfo data) {
+//        PersonInfo personInfo = data.getPersonInfo();
+//        String msg = "====> "+personInfo.getIdcard()+ " "+personInfo.getFname()+" "+personInfo.getLname()+" "+personInfo.getGender();
+//        System.out.println(msg);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+//    }
+
     @Override
-    public void onDataPass(PersonInfo data) {
-        String msg = "====> "+data.getIdcard()+ " "+data.getFname()+" "+data.getLname()+" "+data.getGender();
+    public void onPersonInfo(PersonInfo personInfo) {
+
+        String msg = "====> "+personInfo.getIdcard()+ " "+personInfo.getFname()+" "+personInfo.getLname()+" "+personInfo.getGender();
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onSmokerInfo(SmokerInfo smokerInfo) {
+        String msg = "====> "+smokerInfo.getSmokerGroup()+" "+smokerInfo.getSmokerAssist()+" "+smokerInfo.getSmokerRegularly();
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+    }
+    @Override
+    public void onDrinkingInfo(DrinkingInfo drinkingInfo) {
+        String msg = "====> "+drinkingInfo.getDrinking()+" "+drinkingInfo.getDrinkingFrequency()+" "+drinkingInfo.getDrinkingAlway();
         System.out.println(msg);
         Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
     }
