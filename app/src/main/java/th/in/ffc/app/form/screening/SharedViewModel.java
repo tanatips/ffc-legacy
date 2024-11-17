@@ -4,7 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import th.in.ffc.app.form.screening.datalive.AssessmentOfObesityLiveData;
+import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
 import th.in.ffc.app.form.screening.datalive.DrinkingLiveData;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
@@ -24,9 +25,11 @@ public class SharedViewModel extends ViewModel {
     private  MutableLiveData<CigaretteAddictionTestLiveData>  cigaretteAddictionTestLiveDataMutableLiveData = new MutableLiveData<>();
 
 
-    private  MutableLiveData<AssessmentOfObesityLiveData>  assessmentOfObesityLiveDataMutableLiveData = new MutableLiveData<>();
+    private  MutableLiveData<StressDepressionLiveData>  assessmentOfObesityLiveDataMutableLiveData = new MutableLiveData<>();
 
     private  MutableLiveData<SuicideAssessment8qLiveData>  suicideAssessment8qLiveDataMutableLiveData = new MutableLiveData<>();
+
+    private  MutableLiveData<HealthRiskAssessmentLiveData>  healthRiskAssessmentLiveDataMutableLiveData = new MutableLiveData<>();
 
     public void setStressDepression9qLiveData(StressDepression9qLiveData value) {
         stressDepression9qLiveDataModelMutableLiveData.setValue(value);
@@ -70,11 +73,11 @@ public class SharedViewModel extends ViewModel {
     }
 
     // assessmentOfObesityLiveDataMutableLiveData
-    public void setAssessmentOfObesityLiveDataMutableLiveData(AssessmentOfObesityLiveData value) {
+    public void setAssessmentOfObesityLiveDataMutableLiveData(StressDepressionLiveData value) {
         assessmentOfObesityLiveDataMutableLiveData.setValue(value);
     }
 
-    public LiveData<AssessmentOfObesityLiveData> getAssessmentOfObesityLiveDataMutableLiveData() {
+    public LiveData<StressDepressionLiveData> getAssessmentOfObesityLiveDataMutableLiveData() {
         return assessmentOfObesityLiveDataMutableLiveData;
     }
 
@@ -86,5 +89,13 @@ public class SharedViewModel extends ViewModel {
 
     public LiveData<SuicideAssessment8qLiveData> getSuicideAssessment8qMutableLiveData() {
         return suicideAssessment8qLiveDataMutableLiveData;
+    }
+
+    public MutableLiveData<HealthRiskAssessmentLiveData> getHealthRiskAssessmentLiveDataMutableLiveData() {
+        return healthRiskAssessmentLiveDataMutableLiveData;
+    }
+
+    public void setHealthRiskAssessmentLiveDataMutableLiveData(HealthRiskAssessmentLiveData value) {
+        this.healthRiskAssessmentLiveDataMutableLiveData.setValue(value);
     }
 }

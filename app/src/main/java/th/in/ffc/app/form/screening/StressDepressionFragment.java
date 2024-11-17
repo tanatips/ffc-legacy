@@ -1,60 +1,218 @@
 package th.in.ffc.app.form.screening;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
+import th.in.ffc.app.form.screening.model.DrinkingInfo;
+import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link StressDepressionFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class StressDepressionFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    StressDepressionLiveData stressDepressionLiveData;
+    SharedViewModel shareViewModel;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private OnDataPass dataPasser;
+    private StressDepressionInfo stressDepressionInfo;
+    ArrayList<Integer> points;
 
     public StressDepressionFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment StressDepressionFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static StressDepressionFragment newInstance(String param1, String param2) {
         StressDepressionFragment fragment = new StressDepressionFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        stressDepressionLiveData = new StressDepressionLiveData();
+        shareViewModel = new SharedViewModel();
+        points = new ArrayList<>();
+        points.addAll(Arrays.asList(0,0,0,0,0,0));
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        View parentViewPager = (View) view.getParent();
+        if (parentViewPager != null) {
+            parentViewPager.post(() -> {
+                int height = view.getMeasuredHeight();
+                ViewGroup.LayoutParams layoutParams = parentViewPager.getLayoutParams();
+                layoutParams.height = height;
+                parentViewPager.setLayoutParams(layoutParams);
+            });
         }
+        RadioGroup rdoObesityQ1 = view.findViewById(R.id.rdoObesityQ1);
+        RadioGroup rdoObesityQ2 = view.findViewById(R.id.rdoObesityQ2);
+        RadioGroup rdoObesityQ3 = view.findViewById(R.id.rdoObesityQ3);
+        RadioGroup rdoObesityQ4 = view.findViewById(R.id.rdoObesityQ4);
+        RadioGroup rdoObesityQ5 = view.findViewById(R.id.rdoObesityQ5);
+        stressDepressionInfo = new StressDepressionInfo();
+        rdoObesityQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepressionLiveData.setSelectedQ1(i);
+                shareViewModel.setAssessmentOfObesityLiveDataMutableLiveData(stressDepressionLiveData);
+
+                String data = "";
+                if(R.id.rdoObesityQ1_1 == i) {
+                    data = "1";
+                    points.set(0,0);
+                }
+                else if(R.id.rdoObesityQ1_2 == i) {
+                    data = "2";
+                    points.set(0,1);
+                }
+                else if(R.id.rdoObesityQ1_3 == i) {
+                    data = "3";
+                    points.set(0,2);
+                }
+                else if(R.id.rdoObesityQ1_4 == i) {
+                    data = "4";
+                    points.set(0,3);
+                }
+                stressDepressionInfo.setQ1(data);
+                stressDepressionInfo.setPoints(points);
+                dataPasser.onStressDepression(stressDepressionInfo);
+            }
+        });
+        rdoObesityQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepressionLiveData.setSelectedQ2(i);
+                shareViewModel.setAssessmentOfObesityLiveDataMutableLiveData(stressDepressionLiveData);
+                String data = "";
+                if(R.id.rdoObesityQ2_1 == i) {
+                    data = "1";
+                    points.set(1,0);
+                }
+                else if(R.id.rdoObesityQ2_2 == i) {
+                    data = "2";
+                    points.set(1,1);
+                }
+                else if(R.id.rdoObesityQ2_3 == i) {
+                    data = "3";
+                    points.set(1,2);
+                }
+                else if(R.id.rdoObesityQ2_4 == i) {
+                    data = "4";
+                    points.set(1,3);
+                }
+                stressDepressionInfo.setQ2(data);
+                stressDepressionInfo.setPoints(points);
+                dataPasser.onStressDepression(stressDepressionInfo);
+            }
+        });
+
+        rdoObesityQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepressionLiveData.setSelectedQ3(i);
+                shareViewModel.setAssessmentOfObesityLiveDataMutableLiveData(stressDepressionLiveData);
+                String data = "";
+                if(R.id.rdoObesityQ3_1 == i) {
+                    data = "1";
+                    points.set(2,0);
+                }
+                else if(R.id.rdoObesityQ3_2 == i) {
+                    data = "2";
+                    points.set(2,1);
+                }
+                else if(R.id.rdoObesityQ3_3 == i) {
+                    data = "3";
+                    points.set(2,2);
+                }
+                else if(R.id.rdoObesityQ3_4 == i) {
+                    data = "4";
+                    points.set(2,3);
+                }
+                stressDepressionInfo.setQ3(data);
+                stressDepressionInfo.setPoints(points);
+                dataPasser.onStressDepression(stressDepressionInfo);
+            }
+        });
+
+        rdoObesityQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepressionLiveData.setSelectedQ4(i);
+                shareViewModel.setAssessmentOfObesityLiveDataMutableLiveData(stressDepressionLiveData);
+                String data = "";
+                if(R.id.rdoObesityQ4_1 == i) {
+                    data = "1";
+                    points.set(3,0);
+                }
+                else if(R.id.rdoObesityQ4_2 == i) {
+                    data = "2";
+                    points.set(3,1);
+                }
+                else if(R.id.rdoObesityQ4_3 == i) {
+                    data = "3";
+                    points.set(3,2);
+                }
+                else if(R.id.rdoObesityQ4_4 == i) {
+                    data = "4";
+                    points.set(3,3);
+                }
+                stressDepressionInfo.setQ4(data);
+                stressDepressionInfo.setPoints(points);
+                dataPasser.onStressDepression(stressDepressionInfo);
+            }
+        });
+
+        rdoObesityQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                stressDepressionLiveData.setSelectedQ5(i);
+                shareViewModel.setAssessmentOfObesityLiveDataMutableLiveData(stressDepressionLiveData);
+                String data = "";
+                if(R.id.rdoObesityQ5_1 == i) {
+                    data = "1";
+                    points.set(4,0);
+                }
+                else if(R.id.rdoObesityQ5_2 == i) {
+                    data = "2";
+                    points.set(4,1);
+                }
+                else if(R.id.rdoObesityQ5_3 == i) {
+                    data = "3";
+                    points.set(4,2);
+                }
+                else if(R.id.rdoObesityQ5_4 == i) {
+                    data = "4";
+                    points.set(4,3);
+                }
+                stressDepressionInfo.setQ5(data);
+                stressDepressionInfo.setPoints(points);
+                dataPasser.onStressDepression(stressDepressionInfo);
+            }
+        });
+
     }
 
     @Override

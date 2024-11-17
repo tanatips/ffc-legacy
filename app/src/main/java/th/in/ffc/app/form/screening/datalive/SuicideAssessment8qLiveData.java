@@ -4,6 +4,8 @@ public class SuicideAssessment8qLiveData {
     private Integer selectedQ1;
     private Integer selectedQ2;
     private Integer selectedQ3;
+
+    private Integer selectedQ3_2_1;
     private Integer selectedQ4;
     private Integer selectedQ5;
     private Integer selectedQ6;
@@ -32,6 +34,14 @@ public class SuicideAssessment8qLiveData {
 
     public void setSelectedQ3(Integer selectedQ3) {
         this.selectedQ3 = selectedQ3;
+    }
+
+    public Integer getSelectedQ3_2_1() {
+        return selectedQ3_2_1;
+    }
+
+    public void setSelectedQ3_2_1(Integer selectedQ3_2_1) {
+        this.selectedQ3_2_1 = selectedQ3_2_1;
     }
 
     public Integer getSelectedQ4() {
@@ -73,5 +83,4 @@ public class SuicideAssessment8qLiveData {
     public void setSelectedQ8(Integer selectedQ8) {
         this.selectedQ8 = selectedQ8;
     }
-
 }

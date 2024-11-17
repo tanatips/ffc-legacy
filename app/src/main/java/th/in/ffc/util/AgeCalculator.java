@@ -31,6 +31,9 @@ import android.content.Context;
 import th.in.ffc.R;
 import th.in.ffc.util.DateTime.Date;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class AgeCalculator {
 
     public static final int max_year = 12;
@@ -129,5 +132,31 @@ public class AgeCalculator {
                 + date.day + " " + context.getString(R.string.day);
     }
 
+    public static int calculateAge(String birthDateStr) {
+        try {
+            // แปลง string เป็น Date
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date birthDate = sdf.parse(birthDateStr);
+
+            // หาวันที่ปัจจุบัน
+            Calendar today = Calendar.getInstance();
+            Calendar birthDay = Calendar.getInstance();
+            birthDay.setTime(birthDate);
+
+            // คำนวณอายุ
+            int age = today.get(Calendar.YEAR) - birthDay.get(Calendar.YEAR);
+
+            // ตรวจสอบว่าผ่านวันเกิดปีนี้หรือยัง
+            if (today.get(Calendar.DAY_OF_YEAR) < birthDay.get(Calendar.DAY_OF_YEAR)) {
+                age--;
+            }
+
+            return age;
+
+        } catch (Exception e) {
+            // กรณีที่ format วันที่ไม่ถูกต้อง
+            return -1;
+        }
+    }
 
 }

@@ -3,6 +3,7 @@ package th.in.ffc.person;
 
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,8 @@ import java.util.List;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.AlcoholFragment;
-import th.in.ffc.app.form.screening.AssessmentOfObesityFragment;
+import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
+import th.in.ffc.app.form.screening.StressDepressionFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
 import th.in.ffc.app.form.screening.FragmentTabInfo;
 import th.in.ffc.app.form.screening.OnDataPass;
@@ -28,11 +30,17 @@ import th.in.ffc.app.form.screening.SmookingFragment;
 import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
-import th.in.ffc.app.form.screening.model.DataCenterInfo;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
+import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
+import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
+import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
+import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
+import th.in.ffc.app.form.screening.model.StressDepressionInfo;
+import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
+import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.ViewPagerAdapter;
 
 public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass {
@@ -45,6 +53,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
     private Context mContext;
 
+    PersonInfo personInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,19 +64,22 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         btnOk = findViewById(R.id.btnOK);
         mContext = getBaseContext();
         ArrayList<FragmentTabInfo> fragmentTabInfos = new ArrayList<>();
+        personInfo = new PersonInfo();
+        personInfo.setBirthday("1990-01-01");
 //        submitButton = findViewById(R.id.submitButton);
 //        resultTextView = findViewById(R.id.resultTextView);
 
 //        fragmentTabInfos.add(new FragmentTabInfo(new BmiFragment(),"ดัชนีมวลกาย(BMI)"));
 //        fragmentTabInfos.add(new FragmentTabInfo(new BloodPressureFragment(),"ตรวจวัดความดันโลหิต"));
         fragmentTabInfos.add(new FragmentTabInfo(new SmookingFragment(),"คัดกรองความเสี่ยงจากการสูบบุหรี่"));
-        fragmentTabInfos.add(new FragmentTabInfo(new AlcoholFragment(),"คัดกรองความเสี่ยงจากการดื่มสุรา"));
         fragmentTabInfos.add(new FragmentTabInfo(new FagerstromNicotineFragment(),"แบบทดสอบการติดบุหรี่"));
+        fragmentTabInfos.add(new FragmentTabInfo(new AlcoholFragment(),"คัดกรองความเสี่ยงจากการดื่มสุรา"));
 //        fragmentTabInfos.add(new FragmentTabInfo(new SummaryOfAssistFragment(),"สรุปคะแนนแบบคัดกรอง ASSIST"));
-        fragmentTabInfos.add(new FragmentTabInfo(new AssessmentOfObesityFragment(),"ประเมินภาวะเครียด-ซึมเศร้า"));
+        fragmentTabInfos.add(new FragmentTabInfo(new StressDepressionFragment(),"ประเมินภาวะเครียด-ซึมเศร้า"));
         fragmentTabInfos.add(new FragmentTabInfo(new StressDepression2qFragment(),"คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)"));
         fragmentTabInfos.add(new FragmentTabInfo(new StressDepression9qFragment(),"คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)"));
         fragmentTabInfos.add(new FragmentTabInfo(new SuicideAssessment8qFragment(),"การประเมินการฆ่าตัวตายด้วย 8 คําถาม (8Q)"));
+        fragmentTabInfos.add(new FragmentTabInfo(new HealthRiskAssessmentFragment(),"แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน"));
         viewPagerAdapter = new ViewPagerAdapter(this,fragmentTabInfos);
 
         viewPager.setAdapter(viewPagerAdapter);
@@ -91,7 +104,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             public void onClick(View view) {
                 try {
                     SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
-                    PersonInfo personInfo = new PersonInfo();
+
                     personInfo.setIdcard("1234567890123");
                     personInfo.setFname("John");
                     personInfo.setLname("Doe");
@@ -127,10 +140,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         System.out.println(p.getId()+" "+p.getFname());
                     }
                     System.out.println("===== End get data by id ======");
-                    Toast.makeText(getBaseContext(), "Test==>", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), "Test==>", Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e){
-                    Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -157,7 +170,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 //        PersonInfo personInfo = data.getPersonInfo();
 //        String msg = "====> "+personInfo.getIdcard()+ " "+personInfo.getFname()+" "+personInfo.getLname()+" "+personInfo.getGender();
 //        System.out.println(msg);
-//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
 //    }
 
     @Override
@@ -165,19 +178,128 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
         String msg = "====> "+personInfo.getIdcard()+ " "+personInfo.getFname()+" "+personInfo.getLname()+" "+personInfo.getGender();
         System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onSmokerInfo(SmokerInfo smokerInfo) {
         String msg = "====> "+smokerInfo.getSmokerGroup()+" "+smokerInfo.getSmokerAssist()+" "+smokerInfo.getSmokerRegularly();
         System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
     @Override
     public void onDrinkingInfo(DrinkingInfo drinkingInfo) {
         String msg = "====> "+drinkingInfo.getDrinking()+" "+drinkingInfo.getDrinkingFrequency()+" "+drinkingInfo.getDrinkingAlway();
         System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onNicotineInfo(NicotineInfo nicotineInfo) {
+        final int[] sum = {0};
+        // ต้องเป็น final array เพราะใช้ใน lambda
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            nicotineInfo.getPoints().forEach(num -> sum[0] += num);
+        }
+
+        String msg = "====> "+nicotineInfo.getNicotine1()
+                +" "+nicotineInfo.getNicotine2()
+                +" "+nicotineInfo.getNicotine3()
+                +" "+nicotineInfo.getNicotine4()
+                +" "+nicotineInfo.getNicotine5()
+                +" "+nicotineInfo.getNicotine6()
+                +" คะแนน: "+ sum[0]
+                ;
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStressDepression(StressDepressionInfo data) {
+
+        String msg = "====> "+data.getQ1()
+                +" "+data.getQ2()
+                +" "+data.getQ3()
+                +" "+data.getQ4()
+                +" "+data.getQ5()
+                +" คะแนน: "+data.getSum()
+                +"  "+data.getResultCode()
+                +"  "+data.getResultDescription()
+                ;
+
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStressDepression2q(StressDepression2qInfo data) {
+        data.analyze();
+        String msg = "====> "+data.getQ1()
+                +" "+data.getQ2()
+                +" คะแนน : "+data.getSum()
+                +" "+data.getResultCode()
+                +" "+data.getResultDescription()
+                ;
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onStressDepression9q(StressDepression9qInfo data) {
+        Integer age = AgeCalculator.calculateAge(personInfo.getBirthday());
+        data.analyze(age);
+        String msg = "====> "
+                +data.getQ1()
+                +" "+data.getQ2()
+                +" "+data.getQ3()
+                +" "+data.getQ4()
+                +" "+data.getQ5()
+                +" "+data.getQ6()
+                +" "+data.getQ7()
+                +" "+data.getQ8()
+                +" "+data.getQ9()
+                +" คะแนน: "+data.getSum()
+                +"  "+data.getResultCode()
+                +"  "+data.getResultDescription()
+                ;
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSuicideAssessment8q(SuicideAssessment8qInfo data) {
+        String msg = "====> "
+                +data.getQ1()
+                +" "+data.getQ2()
+                +" "+data.getQ3()
+                +" "+data.getQ3_2_1()
+                +" "+data.getQ4()
+                +" "+data.getQ5()
+                +" "+data.getQ6()
+                +" "+data.getQ7()
+                +" "+data.getQ8()
+                ;
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onHealthRiskAssessmentInfo(HealthRiskAssessmentInfo data) {
+        String msg = "====> "+data.getHealthRiskQ1()
+                +" "+data.getHealthRiskQ2()
+                +" "+data.getHealthRiskQ3()
+                +" "+data.getHealthRiskQ4()
+                +" "+data.getHealthRiskQ5()
+                +" "+data.getHealthRiskQ6()
+                ;
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
     }
 }

@@ -1,6 +1,6 @@
 package th.in.ffc.app.form.screening.datalive;
 
-public class AssessmentOfObesityLiveData {
+public class StressDepressionLiveData {
     private Integer selectedQ1;
     private Integer selectedQ2;
     private Integer selectedQ3;

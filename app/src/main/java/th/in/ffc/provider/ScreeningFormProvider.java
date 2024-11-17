@@ -121,7 +121,7 @@ public class ScreeningFormProvider extends ContentProvider {
     }
 
     public static final class SfPersonInfo implements BaseColumns {
-        public static final String TABLENAME = "sf_person_info";
+        public static final String TABLENAME = "ffc_sf_person_info";
 
         public static HashMap<String, String> PROJECTION_MAP;
 
@@ -222,6 +222,73 @@ public class ScreeningFormProvider extends ContentProvider {
 //        public static final String DRINKING_POINT = "drinking_point";
 //        public static final String RISK_LEVEL = "risk_level";
 //        public static final String DRINKING_ADVICE = "drinking_advice";
+    }
+
+    public static final  class SfDrinkingInfo implements  BaseColumns {
+        public static final String TABLENAME = "ffc_sf_drinking_info";
+
+        public static HashMap<String, String> PROJECTION_MAP;
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScreeningFormProvider.AUTHORITY + "/sf_drinking_info");
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/vnd.ffc.sf_drinking_info";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/vnd.ffc.sf_drinking_info";
+
+        public static final String ID = "id";
+
+        public static final String IDCARD = "idcard";
+
+        public static final String PERSONINFO_ID = "personinfo_id";
+        public static final String ALCOHOL_STATUS  = "alcohol_status"; // 1B600, 1B601, 3
+        public static final String CREATE_BY = "create_by";
+        public static final String CREATE_DATE = "create_date";
+        public static final String UPDATE_BY = "update_by";
+        public static final String UPDATE_DATE = "update_date";
+        public static final String CREATE_TABLE =" CREATE TABLE "+TABLENAME+" (" +
+                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                IDCARD +" TEXT NOT NULL," +
+                PERSONINFO_ID + " TEXT NOT NULL," +
+                ALCOHOL_STATUS +" TEXT NOT NULL," +
+                CREATE_BY +" TEXT," +
+                CREATE_DATE +" DATE," +
+                UPDATE_BY +" TEXT," +
+                UPDATE_DATE +" DATE," +
+                ")";
+
+    }
+
+    public static final class SfSmokerInfo implements  BaseColumns {
+        public static final String TABLENAME = "ffc_sf_smoker_info";
+
+        public static HashMap<String, String> PROJECTION_MAP;
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScreeningFormProvider.AUTHORITY + "/sf_smoker_info");
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/vnd.ffc.sf_smoker_info";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/vnd.ffc.sf_smoker_info";
+
+        public static final String ID = "id";
+        public static final String IDCARD = "idcard";
+        public static final String PERSONINFO_ID = "personinfo_id";
+        public static final String SMOKER_STATUS  = "smoker_status";
+        public static final String CREATE_BY = "create_by";
+        public static final String CREATE_DATE = "create_date";
+        public static final String UPDATE_BY = "update_by";
+        public static final String UPDATE_DATE = "update_date";
+        public static final String CREATE_TABLE =" CREATE TABLE "+TABLENAME+" (" +
+                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                IDCARD +" TEXT NOT NULL," +
+                PERSONINFO_ID + " TEXT NOT NULL," +
+                SMOKER_STATUS +" TEXT NOT NULL," +
+                CREATE_BY +" TEXT," +
+                CREATE_DATE +" DATE," +
+                UPDATE_BY +" TEXT," +
+                UPDATE_DATE +" DATE," +
+                ")";
     }
 }
 

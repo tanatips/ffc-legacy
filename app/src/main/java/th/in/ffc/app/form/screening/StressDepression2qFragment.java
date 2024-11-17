@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,9 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import th.in.ffc.R;
-import th.in.ffc.app.form.screening.datalive.AssessmentOfObesityLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
+import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
+import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,8 +27,14 @@ import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
  */
 public class StressDepression2qFragment extends Fragment {
 
-    StressDepression2qLiveData stressDepression2qLiveData;
-    SharedViewModel shareViewModel;
+    private StressDepression2qLiveData stressDepression2qLiveData;
+    private SharedViewModel shareViewModel;
+
+    private OnDataPass dataPasser;
+    private StressDepression2qInfo stressDepression2qInfo;
+
+    private ArrayList<Integer> points;
+
 
     public StressDepression2qFragment() {
         // Required empty public constructor
@@ -40,6 +51,18 @@ public class StressDepression2qFragment extends Fragment {
         super.onCreate(savedInstanceState);
         stressDepression2qLiveData = new StressDepression2qLiveData();
         shareViewModel = new SharedViewModel();
+        stressDepression2qInfo = new StressDepression2qInfo();
+        points = new ArrayList<>();
+        points.addAll(Arrays.asList(0,0));
+    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
     }
 
     @Override
@@ -59,17 +82,41 @@ public class StressDepression2qFragment extends Fragment {
         RadioGroup rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
         rdoStress2qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                stressDepression2qLiveData.setSelectedQ1(i);
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                String data="";
+                if (checkedId == R.id.rdoStress2qQ1_1) {
+                    data= "1";
+                    points.set(0,0);
+                } else if (checkedId == R.id.rdoStress2qQ1_2) {
+                    data= "2";
+                    points.set(0,1);
+                }
+                stressDepression2qLiveData.setSelectedQ1(checkedId);
                 shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
+
+                stressDepression2qInfo.setQ1(data);
+                stressDepression2qInfo.setPoints(points);
+                dataPasser.onStressDepression2q(stressDepression2qInfo);
             }
         });
 
         rdoStress2qQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                stressDepression2qLiveData.setSelectedQ2(i);
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                String data="";
+                if (checkedId == R.id.rdoStress2qQ2_1) {
+                    data= "1";
+                    points.set(1,0);
+                } else if (checkedId == R.id.rdoStress2qQ2_2) {
+                    data= "2";
+                    points.set(1,1);
+                }
+                stressDepression2qLiveData.setSelectedQ2(checkedId);
                 shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
+
+                stressDepression2qInfo.setQ2(data);
+                stressDepression2qInfo.setPoints(points);
+                dataPasser.onStressDepression2q(stressDepression2qInfo);
             }
         });
 

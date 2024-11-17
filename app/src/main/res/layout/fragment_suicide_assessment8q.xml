@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <RadioGroup
-                    android:id="@+id/rdoSuicideQ2"
+                    android:id="@+id/rdoSuicideQ1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -60,7 +60,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <RadioGroup
-                    android:id="@+id/rdoSuicideQ1"
+                    android:id="@+id/rdoSuicideQ2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
