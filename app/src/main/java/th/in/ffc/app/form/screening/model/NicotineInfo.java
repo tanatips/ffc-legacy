@@ -4,12 +4,21 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class NicotineInfo {
-    private String Nicotine1;
-    private String Nicotine2;
-    private String Nicotine3;
-    private String Nicotine4;
-    private String Nicotine5;
-    private String Nicotine6;
+    private String id;
+
+    private String personId;
+    private String idcard;
+    private String Nicotine1 = "0";
+    private String Nicotine2 = "0";
+    private String Nicotine3 = "0";
+    private String Nicotine4 = "0";
+    private String Nicotine5 = "0";
+    private String Nicotine6 = "0";
+
+    private String created_by;
+    private String created_date;
+    private String updated_by;
+    private String updated_date;
 
     private ArrayList<Integer> points;
 
@@ -77,5 +86,61 @@ public class NicotineInfo {
 
     public void setSum(Integer sum) {
         this.sum = sum;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getCreated_by() {
+        return created_by;
+    }
+
+    public void setCreated_by(String created_by) {
+        this.created_by = created_by;
+    }
+
+    public String getCreated_date() {
+        return created_date;
+    }
+
+    public void setCreated_date(String created_date) {
+        this.created_date = created_date;
+    }
+
+    public String getUpdated_by() {
+        return updated_by;
+    }
+
+    public void setUpdated_by(String updated_by) {
+        this.updated_by = updated_by;
+    }
+
+    public String getUpdated_date() {
+        return updated_date;
+    }
+
+    public void setUpdated_date(String updated_date) {
+        this.updated_date = updated_date;
+    }
+
+    public String getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(String personId) {
+        this.personId = personId;
+    }
+
+    public String getIdcard() {
+        return idcard;
+    }
+
+    public void setIdcard(String idcard) {
+        this.idcard = idcard;
     }
 }

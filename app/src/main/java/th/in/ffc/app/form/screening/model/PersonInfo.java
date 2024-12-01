@@ -17,10 +17,10 @@ public class PersonInfo {
     private String bp;
     private double systolic_pressure;
     private double diastolic_pressure;
-    private String create_by;
-    private String create_date;
-    private String update_by;
-    private String update_date;
+    private String created_by;
+    private String created_date;
+    private String updated_by;
+    private String updated_date;
     private Integer send_to_claim;
 
     public String getId() {
@@ -151,36 +151,36 @@ public class PersonInfo {
         this.diastolic_pressure = diastolic_pressure;
     }
 
-    public String getCreate_by() {
-        return create_by;
+    public String getCreated_by() {
+        return created_by;
     }
 
-    public void setCreate_by(String create_by) {
-        this.create_by = create_by;
+    public void setCreated_by(String created_by) {
+        this.created_by = created_by;
     }
 
-    public String getCreate_date() {
-        return create_date;
+    public String getCreated_date() {
+        return created_date;
     }
 
-    public void setCreate_date(String create_date) {
-        this.create_date = create_date;
+    public void setCreated_date(String created_date) {
+        this.created_date = created_date;
     }
 
-    public String getUpdate_by() {
-        return update_by;
+    public String getUpdated_by() {
+        return updated_by;
     }
 
-    public void setUpdate_by(String update_by) {
-        this.update_by = update_by;
+    public void setUpdated_by(String updated_by) {
+        this.updated_by = updated_by;
     }
 
-    public String getUpdate_date() {
-        return update_date;
+    public String getUpdated_date() {
+        return updated_date;
     }
 
-    public void setUpdate_date(String update_date) {
-        this.update_date = update_date;
+    public void setUpdated_date(String updated_date) {
+        this.updated_date = updated_date;
     }
 
     public Integer getSend_to_claim() {

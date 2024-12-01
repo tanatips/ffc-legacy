@@ -39,25 +39,6 @@
         android:layout_height="wrap_content">
     </th.in.ffc.util.ThaiDatePicker>
 
-    <Button
-        android:id="@+id/btnSelectDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Select Date" />
-
-    <TextView
-        android:id="@+id/tvSelectedDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selected date will appear here"
-        android:paddingTop="20dp" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/age_form"
-        />
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -94,66 +75,77 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
     <EditText
+        android:id="@+id/txtPhoneNo"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/phone_no"
         />
     <EditText
+        android:id="@+id/txtHn"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/hn"
         />
     <EditText
+        android:id="@+id/txtAuthenDate"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/date_authen"
         />
     <EditText
+        android:id="@+id/txtAuthenNo"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/no_authen"
         />
     <EditText
+        android:id="@+id/txtWeight"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/weight_kg"
         />
     <EditText
+        android:id="@+id/txtHeight"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/height_cm"
         />
     <EditText
+        android:id="@+id/txtWaistCircumference"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/waist_circumference"
         />
     <EditText
+        android:id="@+id/txtBp"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/bp"
         />
     <EditText
+        android:id="@+id/txtBmi"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/bmi_2"
         />
     <EditText
+        android:id="@+id/txySymptomsPressure"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"
         android:hint="@string/symptoms_pressure"
         />
     <EditText
+        android:id="@+id/txyDiastolicPressure"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:textColor="@color/black"

@@ -52,20 +52,32 @@
         android:supportsRtl="true"
         android:theme="@style/FFC.Theme.Light">
         <activity
+            android:name=".person.SearchPersonActivity"
+            android:exported="true"   android:label="@string/search"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:icon="@drawable/ic_action_search">
+                <action android:name="ffc.intent.action.MAIN" />
+
+                <category android:name="ffc.intent.category.TAB" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".person.PersonScreeningForm15Activity"
             android:exported="true"
             android:label="@string/form_15"
             android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/ic_check_list">
                 <action android:name="ffc.intent.action.MAIN" />
+
                 <category android:name="ffc.intent.category.TAB" />
-<!--                <action android:name="android.intent.action.MAIN" />-->
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
         <activity
             android:name=".person.PersonScreeningForm35Activity"
             android:exported="true"
@@ -73,8 +85,9 @@
             android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/osm_ic_follow_me">
                 <action android:name="ffc.intent.action.MAIN" />
+
                 <category android:name="ffc.intent.category.TAB" />
-<!--                <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" />-->
+                <!-- <data android:mimeType="vnd.android.cursor.item/vnd.ffc.person" /> -->
             </intent-filter>
         </activity>
         <activity
@@ -124,7 +137,6 @@
             android:authorities="th.in.ffc.provider.HouseProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.ScreeningFormProvider"
             android:authorities="th.in.ffc.provider.ScreeningFormProvider"
@@ -1075,8 +1087,7 @@
             <intent-filter android:icon="@drawable/icon_ncd">
                 <action android:name="ffc.intent.action.MAIN" />
 
-                <category android:name="ffc.intent.category.TAB"
-                    />
+                <category android:name="ffc.intent.category.TAB" />
             </intent-filter>
         </activity>
         <activity
