@@ -2,6 +2,7 @@ package th.in.ffc.app.form.screening.datalive;
 
 public class SmookingLiveData {
 
+    private String personId;
     private Integer selectedRdoSmokerGroup;
     private Integer selectedRdoSmokerAssist;
     private Integer selectedRdoSmokerRegularly;
@@ -30,5 +31,11 @@ public class SmookingLiveData {
         this.selectedRdoSmokerRegularly = selectedRdoSmokerRegularly;
     }
 
+    public String getPersonId() {
+        return personId;
+    }
 
+    public void setPersonId(String personId) {
+        this.personId = personId;
+    }
 }

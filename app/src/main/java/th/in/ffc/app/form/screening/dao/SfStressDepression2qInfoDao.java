@@ -14,11 +14,11 @@ import th.in.ffc.provider.ScreeningFormProvider;
 public class SfStressDepression2qInfoDao {
     private Context mContext;
 
-    public static Uri getStressDepressionUriById(Integer id) {
+    public static Uri getStressDepression2qUriById(Integer id) {
         return Uri.withAppendedPath(ScreeningFormProvider.SfStressDepression2qInfo.CONTENT_URI, id.toString());
     }
 
-    public static Uri getStressDepressionUri() {
+    public static Uri getStressDepression2qUri() {
         return ScreeningFormProvider.SfStressDepression2qInfo.CONTENT_URI;
     }
 
@@ -56,7 +56,7 @@ public class SfStressDepression2qInfoDao {
     public StressDepression2qInfo getById(Integer id) {
         String select = "ID = ?";
         String[] selectionArgs = new String[]{id.toString()};
-        Cursor cursor = mContext.getContentResolver().query(getStressDepressionUriById(id), null, select, selectionArgs, null);
+        Cursor cursor = mContext.getContentResolver().query(getStressDepression2qUriById(id), null, select, selectionArgs, null);
         StressDepression2qInfo data = new StressDepression2qInfo();
 
         if (cursor != null) {
@@ -93,7 +93,7 @@ public class SfStressDepression2qInfoDao {
     public List<StressDepression2qInfo> getByPersonId(Integer personId) {
         String select = "person_info_id = ?";
         String[] selectionArgs = new String[]{personId.toString()};
-        Cursor cursor = mContext.getContentResolver().query(getStressDepressionUri(), null, select, selectionArgs, null);
+        Cursor cursor = mContext.getContentResolver().query(getStressDepression2qUriById(personId), null, select, selectionArgs, null);
         List<StressDepression2qInfo> stressDepressionInfos = new ArrayList<>();
 
         if (cursor != null) {
@@ -144,7 +144,7 @@ public class SfStressDepression2qInfoDao {
         values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         values.put("updated_by", "");
 
-        mContext.getContentResolver().update(getStressDepressionUriById(Integer.valueOf(data.getId())),
+        mContext.getContentResolver().update(getStressDepression2qUriById(Integer.valueOf(data.getId())),
                 values, select, selectionArgs);
         return 1;
     }
@@ -152,7 +152,7 @@ public class SfStressDepression2qInfoDao {
     public int delete(String id) {
         String select = "ID=?";
         String[] selectionArgs = {id};
-        mContext.getContentResolver().delete(getStressDepressionUri(), select, selectionArgs);
+        mContext.getContentResolver().delete(getStressDepression2qUri(), select, selectionArgs);
         return 1;
     }
 }

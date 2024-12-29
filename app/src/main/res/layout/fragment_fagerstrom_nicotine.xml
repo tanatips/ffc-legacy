@@ -21,6 +21,13 @@
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="10dp"
+                    android:textStyle="bold"
+                    android:text="แบบทดสอบการติดบุหรี่"
+                    />
+                <TextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="1.โดยปกติคุณ สูบบุหรี่วันละกี่มวน"
                     android:padding="8dp" />

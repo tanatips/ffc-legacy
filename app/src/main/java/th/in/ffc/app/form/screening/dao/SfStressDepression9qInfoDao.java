@@ -106,7 +106,7 @@ public class SfStressDepression9qInfoDao {
     public List<StressDepression9qInfo> getByPersonId(Integer personId) {
         String select = "person_info_id = ?";
         String[] selectionArgs = new String[]{personId.toString()};
-        Cursor cursor = mContext.getContentResolver().query(getStressDepressionUri(), null, select, selectionArgs, null);
+        Cursor cursor = mContext.getContentResolver().query(getStressDepressionUriById(personId), null, select, selectionArgs, null);
         List<StressDepression9qInfo> stressDepressionInfos = new ArrayList<>();
 
         if (cursor != null) {

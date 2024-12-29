@@ -18,7 +18,7 @@ import th.in.ffc.provider.ScreeningFormProvider;
 
 public class SfPersonInfoDao {
 
-    private Context mContext;
+    private static Context mContext;
 
     public SfPersonInfoDao(Context context) {
         this.mContext = context;
@@ -29,7 +29,7 @@ public class SfPersonInfoDao {
     public static Uri getPersonInfoUriAppend(String name) {
         return Uri.withAppendedPath(ScreeningFormProvider.SfPersonInfo.CONTENT_URI,name);
     }
-    public List<PersonInfo> getSfPersonInfoAll() {
+    public static List<PersonInfo> getSfPersonInfoAll() {
         Cursor cursor = mContext.getContentResolver().query(getPersonInfoUriAppend("list"), null, null, null, null);
         List<PersonInfo> personInfos = new ArrayList<>();
         if (cursor != null) {
@@ -63,7 +63,7 @@ public class SfPersonInfoDao {
         return personInfos;
     }
 
-    public List<PersonInfo> getSfPersonInfoById(Integer id) {
+    public static List<PersonInfo> getSfPersonInfoById(Integer id) {
 
         String select =  "ID = ?";
         String[] selectionArgs = new String[]{id.toString()};
@@ -100,7 +100,7 @@ public class SfPersonInfoDao {
         return personInfos;
     }
 
-    public long update(PersonInfo personInfo){
+    public static long update(PersonInfo personInfo){
         try {
             String select="ID=?";
             String[] selectionArgs = {personInfo.getId()};
@@ -114,7 +114,7 @@ public class SfPersonInfoDao {
             return 0;
         }
     }
-    public String insert(PersonInfo personInfo) {
+    public static String insert(PersonInfo personInfo) {
         try {
             ContentValues values = new ContentValues();
             values= getPutvaluePersonInfo(personInfo,values);
@@ -130,7 +130,7 @@ public class SfPersonInfoDao {
             return e.getMessage();
         }
     }
-    private ContentValues getPutvaluePersonInfo(PersonInfo personInfo,ContentValues values){
+    private static ContentValues getPutvaluePersonInfo(PersonInfo personInfo,ContentValues values){
         putString(values, "IDCARD", personInfo.getIdcard());
         putString(values, "FNAME", personInfo.getFname());
         putString(values, "LNAME", personInfo.getLname());
@@ -144,6 +144,7 @@ public class SfPersonInfoDao {
         putDouble(values, "HEIGHT", personInfo.getHeight());
         putDouble(values, "WAIST_SIZE", personInfo.getWaist_size());
         putString(values, "BP", personInfo.getBp());
+        putString(values, "BMI", personInfo.getBmi());
         putDouble(values, "SYSTOLIC_PRESSURE", personInfo.getSystolic_pressure());
         putDouble(values, "DIASTOLIC_PRESSURE", personInfo.getDiastolic_pressure());
         putString(values, "CREATED_BY", personInfo.getCreated_by());
@@ -153,7 +154,7 @@ public class SfPersonInfoDao {
         putInt(values, "SEND_TO_CLAIM", personInfo.getSend_to_claim());
         return values;
     }
-    public List<PersonInfo> searchPerson(String idcard, String firstName, String lastName) {
+    public static List<PersonInfo> searchPerson(String idcard, String firstName, String lastName) {
         List<PersonInfo> results = new ArrayList<>();
 
         // สร้าง where clause และ arguments

@@ -3,6 +3,7 @@ package th.in.ffc.person;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -15,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -27,6 +29,8 @@ import java.util.List;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
+import th.in.ffc.app.form.screening.PersonInfoFragment;
+import th.in.ffc.app.form.screening.SharedViewModel;
 import th.in.ffc.app.form.screening.StressDepressionFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
 import th.in.ffc.app.form.screening.FragmentTabInfo;
@@ -43,6 +47,14 @@ import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepressionInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
+import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
+import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
+import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
+import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
+import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
+import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
@@ -63,7 +75,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private ViewPager2 viewPager;
     private ViewPagerAdapter viewPagerAdapter;
 
-    private Button btnOk;
+    private Button btnOk, btnCancel;
 
     private Context mContext;
 
@@ -91,6 +103,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
         btnOk = findViewById(R.id.btnOK);
+        btnCancel = findViewById(R.id.btnCancel);
         mContext = getBaseContext();
         ArrayList<FragmentTabInfo> fragmentTabInfos = new ArrayList<>();
 //        personInfo = new PersonInfo();
@@ -121,12 +134,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-//                ViewGroup.LayoutParams layoutParams = viewPager.getLayoutParams();
-////                layoutParams.height = 5000;
-//                viewPager.setLayoutParams(layoutParams);
                 viewPager.post(() -> adjustViewPagerHeight(viewPager.getCurrentItem(),viewPager,viewPagerAdapter));
-
             }
         });
         viewPager.post(() -> adjustViewPagerHeight(viewPager.getCurrentItem(),viewPager,viewPagerAdapter));
@@ -144,7 +152,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         saveStressDepression9q();
                         saveSuicideAssessment8q();
                         saveHealthRiskAssessment();
-                      //  Toast.makeText(getBaseContext(), "Test==>", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
                     }
                 }
                 catch (Exception e){
@@ -153,6 +161,55 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
             }
         });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+        getPersonInfoDetail();
+    }
+    private void getPersonInfoDetail(){
+
+        String personId = getIntent().getStringExtra("person_id");
+        if(personId!=null) {
+            // ใน Activity
+            SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+
+            PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
+            personInfoLiveData.setId(personId);
+            viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
+
+            SmookingLiveData smookingLiveData = new SmookingLiveData();
+            smookingLiveData.setPersonId(personId);
+            viewModel.setSmookingMutableLiveData(smookingLiveData);
+
+            CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
+            cigaretteAddictionTestLiveData.setPersonId(personId);
+            viewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
+
+            StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
+            stressDepressionLiveData.setPersonId(personId);
+            viewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
+
+            StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
+            stressDepression2qLiveData.setPersonId(personId);
+            viewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
+
+            StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
+            stressDepression9qLiveData.setPersonId(personId);
+            viewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
+
+
+            SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
+            suicideAssessment8qLiveData.setPersonId(personId);
+            viewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+
+
+            HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
+            healthRiskAssessmentLiveData.setPersonId(personId);
+            viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+        }
     }
     private String savePerson(){
         SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
@@ -161,10 +218,6 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             this.personInfo.setId(id);
         } else {
             sfPersonInfoDao.update(this.personInfo);
-        }
-        List<PersonInfo> personInfos = sfPersonInfoDao.getSfPersonInfoAll();
-        for(PersonInfo p: personInfos){
-            System.out.println(p.getId()+" "+p.getFname());
         }
         List<PersonInfo> personInfos1 = sfPersonInfoDao.getSfPersonInfoById(Integer.parseInt(this.personInfo.getId()));
         System.out.println("===== Start get data by id ======");
@@ -328,45 +381,35 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             fragment.getView().post(() -> {
                 int width = View.MeasureSpec.makeMeasureSpec(viewPager.getWidth(), View.MeasureSpec.EXACTLY);
                 int height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
                 fragment.getView().measure(width, height);
                 int measuredHeight = fragment.getView().getMeasuredHeight();
                 ViewGroup.LayoutParams layoutParams = viewPager.getLayoutParams();
                 layoutParams.height = measuredHeight;
                 viewPager.setLayoutParams(layoutParams);
+
             });
         }
     }
 
     @Override
     public void onPersonInfo(PersonInfo data) {
-        String msg = "====> "+data.getIdcard()+ " "+data.getFname()+" "+data.getLname()+" "+data.getGender();
+        String msg = "====> "+data.getBirthday()+" "+data.getIdcard()+ " "+data.getFname()+" "+data.getLname()+" "+data.getGender();
         System.out.println(msg);
-        if( this.personInfo == null){
-            this.personInfo = data;
-        }
-       // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getBaseContext(),msg,Toast.LENGTH_SHORT).show();
+        this.personInfo = data;
     }
 
     @Override
     public void onSmokerInfo(SmokerInfo data) {
-        String msg = "====> "+data.getSmokerGroup()+" "+data.getSmokerAssist()+" "+data.getSmokerRegularly();
-        System.out.println(msg);
-        if(this.smokerInfo == null){
-            this.smokerInfo = data;
-        }
+        this.smokerInfo = data;
         this.smokerInfo.setSmokerRegularly(data.getSmokerRegularly());
         this.smokerInfo.setSmokerGroup(data.getSmokerGroup());
         this.smokerInfo.setSmokerAssist(data.getSmokerAssist());
-       // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
     @Override
     public void onDrinkingInfo(DrinkingInfo data) {
-        String msg = "====> "+data.getDrinking()+" "+data.getDrinkingFrequency()+" "+data.getDrinkingAlway();
-        System.out.println(msg);
-        if(this.drinkingInfo==null){
-            this.drinkingInfo = data;
-        }
-       // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+        this.drinkingInfo = data;
     }
     @Override
     public void onNicotineInfo(NicotineInfo data) {
@@ -387,7 +430,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +" คะแนน: "+ sum[0]
                 ;
         System.out.println(msg);
-       // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+
+//       Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -401,9 +445,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +"  "+data.getResultCode()
                 +"  "+data.getResultDescription()
                 ;
-        if(this.stressDepressionInfo==null){
+//        if(this.stressDepressionInfo==null){
             this.stressDepressionInfo = data;
-        }
+//        }
         System.out.println(msg);
        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
@@ -417,9 +461,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +" "+data.getResultCode()
                 +" "+data.getResultDescription()
                 ;
-        if(this.stressDepression2qInfo==null){
+//        if(this.stressDepression2qInfo==null){
             this.stressDepression2qInfo = data;
-        }
+//        }
 
         System.out.println(msg);
        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();

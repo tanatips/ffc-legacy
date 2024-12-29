@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +15,13 @@ import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfStressDepressionInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
-import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
+import th.in.ffc.util.Log;
 
 public class StressDepressionFragment extends Fragment {
 
@@ -28,6 +31,12 @@ public class StressDepressionFragment extends Fragment {
     private OnDataPass dataPasser;
     private StressDepressionInfo stressDepressionInfo;
     ArrayList<Integer> points;
+
+    private RadioGroup rdoObesityQ1;
+    private RadioGroup rdoObesityQ2;
+    private RadioGroup rdoObesityQ3;
+    private RadioGroup rdoObesityQ4;
+    private RadioGroup rdoObesityQ5;
 
     public StressDepressionFragment() {
         // Required empty public constructor
@@ -67,11 +76,11 @@ public class StressDepressionFragment extends Fragment {
                 parentViewPager.setLayoutParams(layoutParams);
             });
         }
-        RadioGroup rdoObesityQ1 = view.findViewById(R.id.rdoObesityQ1);
-        RadioGroup rdoObesityQ2 = view.findViewById(R.id.rdoObesityQ2);
-        RadioGroup rdoObesityQ3 = view.findViewById(R.id.rdoObesityQ3);
-        RadioGroup rdoObesityQ4 = view.findViewById(R.id.rdoObesityQ4);
-        RadioGroup rdoObesityQ5 = view.findViewById(R.id.rdoObesityQ5);
+        rdoObesityQ1 = view.findViewById(R.id.rdoObesityQ1);
+        rdoObesityQ2 = view.findViewById(R.id.rdoObesityQ2);
+        rdoObesityQ3 = view.findViewById(R.id.rdoObesityQ3);
+        rdoObesityQ4 = view.findViewById(R.id.rdoObesityQ4);
+        rdoObesityQ5 = view.findViewById(R.id.rdoObesityQ5);
         stressDepressionInfo = new StressDepressionInfo();
         rdoObesityQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -212,7 +221,7 @@ public class StressDepressionFragment extends Fragment {
                 dataPasser.onStressDepression(stressDepressionInfo);
             }
         });
-
+        loadData();
     }
 
     @Override
@@ -221,4 +230,71 @@ public class StressDepressionFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_stress_depression, container, false);
     }
+    private void loadData(){
+        SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(getContext());
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getStressDepressionLiveDataMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+            if(data.getPersonId()!=null){
+                List<StressDepressionInfo> stressDepressionInfos = sfStressDepressionInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
+                for(StressDepressionInfo stressDepressionInfo :stressDepressionInfos){
+                    Log.d("Stress Depression", "Stress Depression info:"+stressDepressionInfo);
+                    setStressDepressionInfo(stressDepressionInfo);
+                }
+            }
+        });
+    }
+    public void setStressDepressionInfo(StressDepressionInfo info) {
+        this.stressDepressionInfo = info;
+        updateUI();
+    }
+
+    private void updateUI() {
+        if (stressDepressionInfo == null) return;
+
+        // Set answers from existing data
+        setRadioGroupFromAnswer(rdoObesityQ1, stressDepressionInfo.getQ1(), "rdoObesityQ1_");
+        setRadioGroupFromAnswer(rdoObesityQ2, stressDepressionInfo.getQ2(), "rdoObesityQ2_");
+        setRadioGroupFromAnswer(rdoObesityQ3, stressDepressionInfo.getQ3(), "rdoObesityQ3_");
+        setRadioGroupFromAnswer(rdoObesityQ4, stressDepressionInfo.getQ4(), "rdoObesityQ4_");
+        setRadioGroupFromAnswer(rdoObesityQ5, stressDepressionInfo.getQ5(), "rdoObesityQ5_");
+
+        calculatePoints();
+    }
+
+    private void setRadioGroupFromAnswer(RadioGroup group, String answer, String idPrefix) {
+        if (!answer.equals("0")) {
+            int radioId = getResources().getIdentifier(
+                    idPrefix + answer,
+                    "id", requireContext().getPackageName());
+            if (radioId != 0) {
+                group.check(radioId);
+            }
+        }
+    }
+    private void calculatePoints() {
+        ArrayList<Integer> points = new ArrayList<>();
+
+        // แปลงค่าคำตอบเป็นคะแนน (0-3 คะแนน)
+        points.add(getPointFromAnswer(stressDepressionInfo.getQ1()));
+        points.add(getPointFromAnswer(stressDepressionInfo.getQ2()));
+        points.add(getPointFromAnswer(stressDepressionInfo.getQ3()));
+        points.add(getPointFromAnswer(stressDepressionInfo.getQ4()));
+        points.add(getPointFromAnswer(stressDepressionInfo.getQ5()));
+
+        stressDepressionInfo.setPoints(points);
+
+        // คำนวณผลอัตโนมัติ (getSum() จะคำนวณ resultCode และ resultDescription ให้)
+        stressDepressionInfo.getSum();
+    }
+    private int getPointFromAnswer(String answer) {
+        // แปลงคำตอบเป็นคะแนน
+        switch (answer) {
+            case "1": return 0; // เป็นน้อยมากหรือแทบไม่มี
+            case "2": return 1; // เป็นบางครั้ง
+            case "3": return 2; // เป็นบ่อยครั้ง
+            case "4": return 3; // เป็นประจำ
+            default: return 0;
+        }
+    }
+
 }

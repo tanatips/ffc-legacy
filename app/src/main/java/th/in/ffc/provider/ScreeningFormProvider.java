@@ -99,7 +99,7 @@ public class ScreeningFormProvider extends ContentProvider {
 
         mUriMatcher.addURI(AUTHORITY, "sf_stress_depression_2q_info", SF_STRESS_DEPRESSION_2Q_INFO);
         mUriMatcher.addURI(AUTHORITY, "sf_stress_depression_2q_info/list", SF_STRESS_DEPRESSION_2Q_INFO_ITEMS);
-        mUriMatcher.addURI(AUTHORITY, "sf_stress_depression_2q_info/#", SF_STRESS_DEPRESSION_2Q_INFO_ITEMS);
+        mUriMatcher.addURI(AUTHORITY, "sf_stress_depression_2q_info/#", SF_STRESS_DEPRESSION_2Q_INFO_ID);
 
         mUriMatcher.addURI(AUTHORITY, "sf_health_risk_assessment_info", SF_HEALTH_RISK_ASSESSMENT_INFO);
         mUriMatcher.addURI(AUTHORITY, "sf_health_risk_assessment_info/list", SF_HEALTH_RISK_ASSESSMENT_INFO_ITEMS);
@@ -113,6 +113,16 @@ public class ScreeningFormProvider extends ContentProvider {
         try {
             mOpenHelper = new DbOpenHelper(this.getContext());
 //            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
+
+
             mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
@@ -153,7 +163,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfPersonInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_SMOKER_INFO_ITEM_ID:
-                selection = SfSmokerInfo.ID + "=?";
+//                selection = SfSmokerInfo.ID + "=?";
                 builder.setTables(SfSmokerInfo.TABLENAME);
                 builder.setProjectionMap(SfSmokerInfo.PROJECTION_MAP);
                 break;
@@ -162,7 +172,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfStressDepressionInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_STRESS_DEPRESSION_INFO_ID:
-                selection = SfStressDepressionInfo.ID + "=?";
+//                selection = SfStressDepressionInfo.ID + "=?";
                 builder.setTables(SfStressDepressionInfo.TABLENAME);
                 builder.setProjectionMap(SfStressDepressionInfo.PROJECTION_MAP);
                 break;
@@ -172,7 +182,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfNicotineInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_NICOTINE_INFO_ID:
-                selection = SfNicotineInfo.ID + "=?";
+//                selection = SfNicotineInfo.ID + "=?";
                 builder.setTables(SfNicotineInfo.TABLENAME);
                 builder.setProjectionMap(SfNicotineInfo.PROJECTION_MAP);
                 break;
@@ -182,7 +192,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfDrinkingInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_DRINKING_INFO_ID:
-                selection = SfDrinkingInfo.ID + "=?";
+//                selection = SfDrinkingInfo.ID + "=?";
                 builder.setTables(SfDrinkingInfo.TABLENAME);
                 builder.setProjectionMap(SfDrinkingInfo.PROJECTION_MAP);
                 break;
@@ -192,7 +202,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfSuicideAssessment8qInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_SUICIDE_ASSESSMENT_8Q_INFO_ID:
-                selection = SfSuicideAssessment8qInfo.ID + "=?";
+//                selection = SfSuicideAssessment8qInfo.ID + "=?";
                 builder.setTables(SfSuicideAssessment8qInfo.TABLENAME);
                 builder.setProjectionMap(SfSuicideAssessment8qInfo.PROJECTION_MAP);
                 break;
@@ -202,7 +212,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfStressDepression2qInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_STRESS_DEPRESSION_2Q_INFO_ID:
-                selection = SfStressDepression2qInfo.ID + "=?";
+//                selection = SfStressDepression2qInfo.ID + "=?";
                 builder.setTables(SfStressDepression2qInfo.TABLENAME);
                 builder.setProjectionMap(SfStressDepression2qInfo.PROJECTION_MAP);
                 break;
@@ -211,7 +221,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfStressDepression9qInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_STRESS_DEPRESSION_9Q_INFO_ID:
-                selection = SfStressDepression9qInfo.ID + "=?";
+//                selection = SfStressDepression9qInfo.ID + "=?";
                 builder.setTables(SfStressDepression9qInfo.TABLENAME);
                 builder.setProjectionMap(SfStressDepression9qInfo.PROJECTION_MAP);
                 break;
@@ -221,7 +231,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfHealthRiskAssessmentInfo.PROJECTION_MAP);
                 break;
             case ScreeningFormProvider.SF_HEALTH_RISK_ASSESSMENT_INFO_ID:
-                selection = SfHealthRiskAssessmentInfo.ID + "=?";
+//                selection = SfHealthRiskAssessmentInfo.ID + "=?";
                 builder.setTables(SfHealthRiskAssessmentInfo.TABLENAME);
                 builder.setProjectionMap(SfHealthRiskAssessmentInfo.PROJECTION_MAP);
                 break;
@@ -304,22 +314,25 @@ public class ScreeningFormProvider extends ContentProvider {
             case SF_SMOKER_INFO_ITEM_ID:
                 rowUpdated = db.update(SfSmokerInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
+            case SF_NICOTINE_INFO_ID:
+                rowUpdated = db.update(SfNicotineInfo.TABLENAME, contentValues, selection, selectionArgs);
+                break;
             case SF_STRESS_DEPRESSION_INFO_ID:
                 rowUpdated = db.update(SfStressDepressionInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
             case SF_DRINKING_INFO_ID:
                 rowUpdated = db.update(SfDrinkingInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
-            case SF_STRESS_DEPRESSION_2Q_INFO:
+            case SF_STRESS_DEPRESSION_2Q_INFO_ID:
                 rowUpdated = db.update(SfStressDepression2qInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
-            case SF_STRESS_DEPRESSION_9Q_INFO:
+            case SF_STRESS_DEPRESSION_9Q_INFO_ID:
                 rowUpdated = db.update(SfStressDepression9qInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
-            case SF_SUICIDE_ASSESSMENT_8Q_INFO:
+            case SF_SUICIDE_ASSESSMENT_8Q_INFO_ID:
                 rowUpdated = db.update(SfSuicideAssessment8qInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
-            case SF_HEALTH_RISK_ASSESSMENT_INFO:
+            case SF_HEALTH_RISK_ASSESSMENT_INFO_ID:
                 rowUpdated = db.update(SfHealthRiskAssessmentInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
         }
@@ -362,6 +375,7 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String HEIGHT = "height";
         public static final String WAIST_SIZE = "waist_size";
         public static final String BP = "bp";
+        public static final String BMI = "bmi";
         public static final String SYSTOLIC_PRESSURE = "systolic_pressure";
         public static final String DIASTOLIC_PRESSURE = "diastolic_pressure";
         public static final String CREATED_BY = "created_by";
@@ -385,6 +399,7 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfPersonInfo.HEIGHT, "height AS " + SfPersonInfo.HEIGHT);
             PROJECTION_MAP.put(SfPersonInfo.WAIST_SIZE, "waist_size AS " + SfPersonInfo.WAIST_SIZE);
             PROJECTION_MAP.put(SfPersonInfo.BP, "bp AS " + SfPersonInfo.BP);
+            PROJECTION_MAP.put(SfPersonInfo.BMI, "bp AS " + SfPersonInfo.BMI);
             PROJECTION_MAP.put(SfPersonInfo.SYSTOLIC_PRESSURE, "systolic_pressure AS " + SfPersonInfo.SYSTOLIC_PRESSURE);
             PROJECTION_MAP.put(SfPersonInfo.DIASTOLIC_PRESSURE, "diastolic_pressure AS " + SfPersonInfo.DIASTOLIC_PRESSURE);
             PROJECTION_MAP.put(SfPersonInfo.CREATED_BY, "created_by AS " + SfPersonInfo.CREATED_BY);
@@ -409,6 +424,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 HEIGHT +" REAL," +
                 WAIST_SIZE +" REAL," +
                 BP +" TEXT, " +
+                BMI +" TEXT, " +
                 SYSTOLIC_PRESSURE +" REAL," +
                 DIASTOLIC_PRESSURE +" REAL," +
                 CREATED_BY +" TEXT," +
@@ -418,18 +434,7 @@ public class ScreeningFormProvider extends ContentProvider {
                 SEND_TO_CLAIM + " INTEGER "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
                 ")";
           public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
-//        public static final String SMOOKING = "smooking"; // 1B52, 1B51, 1B50
-//        public static final String SMOOKING_FREQUENCY = "smooking_frequency"; // 1 = สูบนานๆ ครั้ง, 2 = สูบเป็นครั้งคราว 3 = สูบเป็นประจำ
-//        public static final String SMOMOKIN_ADVICE = "smooking_advice";
-//        // 1B530 (ฺฺBrief Advice)
-//        // 1B531 (Counseling Advice)
-//        // !B532 (Conseling Advice + MedicineX
-//        public static final String DRINKING = "drinking";
-//        public static final String DRINKING_FREQUENCY = "drinking_frequency";
-//
-//        public static final String DRINKING_POINT = "drinking_point";
-//        public static final String RISK_LEVEL = "risk_level";
-//        public static final String DRINKING_ADVICE = "drinking_advice";
+
     }
 
     public static final  class SfDrinkingInfo implements  BaseColumns {
@@ -547,6 +552,8 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
                 ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 IDCARD +" TEXT NOT NULL," +
@@ -604,7 +611,7 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
-
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PERSON_INFO_ID + " TEXT NOT NULL," +
@@ -667,6 +674,7 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -732,7 +740,7 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
-
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PERSON_INFO_ID + " TEXT NOT NULL," +
@@ -808,7 +816,7 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
-
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PERSON_INFO_ID + " TEXT NOT NULL," +
@@ -873,6 +881,8 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +

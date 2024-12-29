@@ -1,5 +1,7 @@
 package com.berry_med.monitordemo.data;
 
+import th.in.ffc.util.Log;
+
 /**
  * Created by ZXX on 2016/8/3.
  */
@@ -20,6 +22,12 @@ public class NIBP {
         this.lowPressure = lowPressure;
         this.cuffPressure = cuffPressure;
         this.status = status;
+        Log.d("NIBP====>","highPressure:"+highPressure
+                +", meanPressure:"+meanPressure
+                +", lowPressure:"+lowPressure
+                +", cuffPressure:"+cuffPressure
+                +", status:"+status
+        );
     }
 
     public int getMeanPressure() {

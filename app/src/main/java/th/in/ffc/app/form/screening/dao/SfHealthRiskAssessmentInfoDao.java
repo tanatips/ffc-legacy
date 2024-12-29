@@ -83,7 +83,7 @@ public class SfHealthRiskAssessmentInfoDao {
     public List<HealthRiskAssessmentInfo> getByPersonId(Integer personId) {
         String select = "person_info_id = ?";
         String[] selectionArgs = new String[]{personId.toString()};
-        Cursor cursor = mContext.getContentResolver().query(getHealthRiskUri(), null, select, selectionArgs, null);
+        Cursor cursor = mContext.getContentResolver().query(getHealthRiskUriById(personId), null, select, selectionArgs, null);
         List<HealthRiskAssessmentInfo> healthRiskInfos = new ArrayList<>();
 
         if (cursor != null) {

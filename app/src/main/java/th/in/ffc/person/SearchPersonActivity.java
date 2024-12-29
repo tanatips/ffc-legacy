@@ -51,9 +51,9 @@ public class SearchPersonActivity extends AppCompatActivity {
 
         // Setup item click
         adapter.setOnItemClickListener(person -> {
-//            Intent intent = new Intent(this, PersonDetailActivity.class);
-//            intent.putExtra("person_id", person.getId());
-//            startActivity(intent);
+            Intent intent = new Intent(this, PersonScreeningForm15Activity.class);
+            intent.putExtra("person_id", person.getId());
+            startActivity(intent);
         });
     }
 

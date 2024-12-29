@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".person.BmiInfoActivity">
+
+    <TableLayout
+        android:id="@+id/bmi_table"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:background="@color/purple_500"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ค่า BMI"
+                android:textColor="@color/white"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="การแปลผล"
+                android:textColor="@color/white"
+                android:textStyle="bold"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row_underweight"
+            android:padding="8dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="น้อยกว่า 18.5"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ต่ำกว่าเกณฑ์"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row_normal"
+            android:background="#F5F5F5"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="18.5 - 22.9"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="สมส่วน"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row_overweight"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="23.0 - 24.9"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="น้ำหนักเกิน"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row_obese"
+            android:background="#F5F5F5"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="25.0 - 29.9"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="โรคอ้วน"/>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/row_extreme_obese"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">= 30"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="โรคอ้วนอันตราย"/>
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>

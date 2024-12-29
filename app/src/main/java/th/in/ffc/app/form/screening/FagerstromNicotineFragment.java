@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +15,15 @@ import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfNicotineInfoDao;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
+import th.in.ffc.app.form.screening.model.SmokerInfo;
+import th.in.ffc.util.Log;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,6 +39,14 @@ public class FagerstromNicotineFragment extends Fragment {
     NicotineInfo nicotineInfo;
 
     ArrayList<Integer> points;
+
+    private RadioGroup rdoNicotineQ1;
+    private RadioGroup rdoNicotineQ2;
+    private RadioGroup rdoNicotineQ3;
+    private RadioGroup rdoNicotineQ4;
+    private RadioGroup rdoNicotineQ5;
+    private RadioGroup rdoNicotineQ6;
+
 
     public FagerstromNicotineFragment() {
 
@@ -85,12 +98,12 @@ public class FagerstromNicotineFragment extends Fragment {
         points.addAll(Arrays.asList(0,0,0,0,0,0));
 
         nicotineInfo = new NicotineInfo();
-        RadioGroup rdoNicotineQ1 = view.findViewById(R.id.rdoNicotineQ1);
-        RadioGroup rdoNicotineQ2 = view.findViewById(R.id.rdoNicotineQ2);
-        RadioGroup rdoNicotineQ3 = view.findViewById(R.id.rdoNicotineQ3);
-        RadioGroup rdoNicotineQ4 = view.findViewById(R.id.rdoNicotineQ4);
-        RadioGroup rdoNicotineQ5 = view.findViewById(R.id.rdoNicotineQ5);
-        RadioGroup rdoNicotineQ6 = view.findViewById(R.id.rdoNicotineQ6);
+        rdoNicotineQ1 = view.findViewById(R.id.rdoNicotineQ1);
+        rdoNicotineQ2 = view.findViewById(R.id.rdoNicotineQ2);
+        rdoNicotineQ3 = view.findViewById(R.id.rdoNicotineQ3);
+        rdoNicotineQ4 = view.findViewById(R.id.rdoNicotineQ4);
+        rdoNicotineQ5 = view.findViewById(R.id.rdoNicotineQ5);
+        rdoNicotineQ6 = view.findViewById(R.id.rdoNicotineQ6);
         rdoNicotineQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -227,6 +240,113 @@ public class FagerstromNicotineFragment extends Fragment {
                 dataPasser.onNicotineInfo(nicotineInfo);
             }
         });
+        loadData();
+    }
 
+    private void loadData(){
+        SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(getContext());
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getCigatetteAddictionTestMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+
+            if(data.getPersonId()!=null){
+                List<NicotineInfo> nicotineInfos = sfNicotineInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
+                for(NicotineInfo nicotineInfo :nicotineInfos){
+                    Log.d("smoker", "smoker infos:"+nicotineInfo);
+                    setNicotineInfo(nicotineInfo);
+                }
+            }
+        });
+    }
+    public void setNicotineInfo(NicotineInfo info) {
+        this.nicotineInfo = info;
+        updateUI();
+    }
+
+    private void updateUI() {
+        if (nicotineInfo == null) return;
+
+        // Set Question 1
+        if (!nicotineInfo.getNicotine1().equals("0")) {
+            int radioId = getResources().getIdentifier(
+                    "rdoNicotineQ1_" + nicotineInfo.getNicotine1(),
+                    "id", requireContext().getPackageName());
+            if (radioId != 0) {
+                rdoNicotineQ1.check(radioId);
+            }
+        }
+
+        // Set Question 2
+        if (!nicotineInfo.getNicotine2().equals("0")) {
+            int radioId = getResources().getIdentifier(
+                    "rdoNicotineQ2_" + nicotineInfo.getNicotine2(),
+                    "id", requireContext().getPackageName());
+            if (radioId != 0) {
+                rdoNicotineQ2.check(radioId);
+            }
+        }
+
+        // Set Question 3-6
+        setRadioGroupValue(rdoNicotineQ3, nicotineInfo.getNicotine3(), "rdoNicotineQ3_");
+        setRadioGroupValue(rdoNicotineQ4, nicotineInfo.getNicotine4(), "rdoNicotineQ4_");
+        setRadioGroupValue(rdoNicotineQ5, nicotineInfo.getNicotine5(), "rdoNicotineQ5_");
+        setRadioGroupValue(rdoNicotineQ6, nicotineInfo.getNicotine6(), "rdoNicotineQ6_");
+
+        calculatePoints();
+    }
+    private void setRadioGroupValue(RadioGroup group, String value, String idPrefix) {
+        if (!value.equals("0")) {
+            int radioId = getResources().getIdentifier(
+                    idPrefix + value,
+                    "id", requireContext().getPackageName());
+            if (radioId != 0) {
+                group.check(radioId);
+            }
+        }
+    }
+
+    public NicotineInfo getNicotineInfo() {
+        return nicotineInfo;
+    }
+    private void calculatePoints() {
+        ArrayList<Integer> points = new ArrayList<>();
+
+        // Question 1: How many cigarettes per day?
+        switch (nicotineInfo.getNicotine1()) {
+            case "1": points.add(0); break; // 10 or less
+            case "2": points.add(1); break; // 11-20
+            case "3": points.add(2); break; // 21-30
+            case "4": points.add(3); break; // 31 or more
+            default: points.add(0);
+        }
+
+        // Question 2: Time to first cigarette
+        switch (nicotineInfo.getNicotine2()) {
+            case "1": points.add(3); break; // Within 5 minutes
+            case "2": points.add(2); break; // 6-30 minutes
+            case "3": points.add(1); break; // 31-60 minutes
+            case "4": points.add(0); break; // After 60 minutes
+            default: points.add(0);
+        }
+
+        // Question 3: Smoke more in morning?
+        points.add(nicotineInfo.getNicotine3().equals("1") ? 1 : 0);
+
+        // Question 4: Which cigarette would you hate to give up?
+        points.add(nicotineInfo.getNicotine4().equals("1") ? 1 : 0);
+
+        // Question 5: Find it difficult to refrain?
+        points.add(nicotineInfo.getNicotine5().equals("1") ? 1 : 0);
+
+        // Question 6: Smoke when ill?
+        points.add(nicotineInfo.getNicotine6().equals("1") ? 1 : 0);
+
+        nicotineInfo.setPoints(points);
+
+        // Calculate total
+        int sum = 0;
+        for (Integer point : points) {
+            sum += point;
+        }
+        nicotineInfo.setSum(sum);
     }
 }

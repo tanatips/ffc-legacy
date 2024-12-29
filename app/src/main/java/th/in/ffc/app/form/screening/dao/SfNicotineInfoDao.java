@@ -7,8 +7,10 @@ import android.net.Uri;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import th.in.ffc.app.form.screening.model.NicotineInfo;
+import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
 
 public class SfNicotineInfoDao {
@@ -63,12 +65,22 @@ public class SfNicotineInfoDao {
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
+                data.setId(cursor.getString(cursor.getColumnIndex("id")));
+                data.setPersonId(cursor.getString(cursor.getColumnIndex("person_info_id")));
+                data.setIdcard(cursor.getString(cursor.getColumnIndex("idcard")));
+
                 data.setNicotine1(cursor.getString(cursor.getColumnIndex("nicotine1")));
                 data.setNicotine2(cursor.getString(cursor.getColumnIndex("nicotine2")));
                 data.setNicotine3(cursor.getString(cursor.getColumnIndex("nicotine3")));
                 data.setNicotine4(cursor.getString(cursor.getColumnIndex("nicotine4")));
                 data.setNicotine5(cursor.getString(cursor.getColumnIndex("nicotine5")));
                 data.setNicotine6(cursor.getString(cursor.getColumnIndex("nicotine6")));
+
+                data.setCreated_by(cursor.getString(cursor.getColumnIndex("created_by")));
+                data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
+                data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
+                data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setSum(cursor.getInt(cursor.getColumnIndex("sum")));
 
                 // แปลง String points กลับเป็น ArrayList<Integer>
                 String pointsStr = cursor.getString(cursor.getColumnIndex("points"));
@@ -80,11 +92,53 @@ public class SfNicotineInfoDao {
                     }
                 }
                 data.setPoints(points);
-                data.setSum(cursor.getInt(cursor.getColumnIndex("sum")));
                 cursor.close();
             }
         }
         return data;
+    }
+
+    public List<NicotineInfo> getByPersonId(Integer id) {
+        String select = "person_info_id = ?";
+        String[] selectionArgs = new String[]{id.toString()};
+        Cursor cursor = mContext.getContentResolver().query(getNicotineUriById(id), null, select, selectionArgs, null);
+
+        List<NicotineInfo> nicotineInfos = new ArrayList<>();
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                NicotineInfo data = new NicotineInfo();
+                data.setId(cursor.getString(cursor.getColumnIndex("id")));
+                data.setPersonId(cursor.getString(cursor.getColumnIndex("person_info_id")));
+                data.setIdcard(cursor.getString(cursor.getColumnIndex("idcard")));
+
+                data.setNicotine1(cursor.getString(cursor.getColumnIndex("nicotine1")));
+                data.setNicotine2(cursor.getString(cursor.getColumnIndex("nicotine2")));
+                data.setNicotine3(cursor.getString(cursor.getColumnIndex("nicotine3")));
+                data.setNicotine4(cursor.getString(cursor.getColumnIndex("nicotine4")));
+                data.setNicotine5(cursor.getString(cursor.getColumnIndex("nicotine5")));
+                data.setNicotine6(cursor.getString(cursor.getColumnIndex("nicotine6")));
+
+                data.setCreated_by(cursor.getString(cursor.getColumnIndex("created_by")));
+                data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
+                data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
+                data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setSum(cursor.getInt(cursor.getColumnIndex("sum")));
+                // แปลง String points กลับเป็น ArrayList<Integer>
+                String pointsStr = cursor.getString(cursor.getColumnIndex("points"));
+
+                ArrayList<Integer> points = new ArrayList<>();
+                if (pointsStr != null && !pointsStr.isEmpty()) {
+                    String[] pointArray = pointsStr.replaceAll("\\[|\\]", "").split(",");
+                    for (String point : pointArray) {
+                        points.add(Integer.parseInt(point.trim()));
+                    }
+                }
+                data.setPoints(points);
+                nicotineInfos.add(data);
+            }
+            cursor.close();
+        }
+        return nicotineInfos;
     }
 
     public int update(NicotineInfo nicotineInfo) {

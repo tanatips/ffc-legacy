@@ -80,7 +80,7 @@ public class SfSmokerInfoDao {
     public List<SmokerInfo> getByPersonId(Integer personId) {
         String select = "person_info_id = ?";
         String[] selectionArgs = new String[]{personId.toString()};
-        Cursor cursor = mContext.getContentResolver().query(getSmokerUri(), null, select, selectionArgs, null);
+        Cursor cursor = mContext.getContentResolver().query(getSmokerUriById(personId), null, select, selectionArgs, null);
         List<SmokerInfo> smokerInfos = new ArrayList<>();
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -90,7 +90,7 @@ public class SfSmokerInfoDao {
                 data.setSmokerAssist(cursor.getString(cursor.getColumnIndex("smoker_assist")));
                 data.setSmokerGroup(cursor.getString(cursor.getColumnIndex("smoker_group")));
                 data.setSmokerRegularly(cursor.getString(cursor.getColumnIndex("smoker_regularly")));
-                data.setIdcard(cursor.getString(cursor.getColumnIndex("id_card")));
+                data.setIdcard(cursor.getString(cursor.getColumnIndex("idcard")));
                 data.setCreated_by(cursor.getString(cursor.getColumnIndex("created_by")));
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));

@@ -6,17 +6,25 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import java.util.List;
+
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
+import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
+import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
+import th.in.ffc.util.Log;
 
 public class SuicideAssessment8qFragment extends Fragment {
 
@@ -25,6 +33,11 @@ public class SuicideAssessment8qFragment extends Fragment {
 
     private OnDataPass dataPasser;
     private SuicideAssessment8qInfo suicideAssessment8qInfo;
+
+//    private SuicideAssessment8qInfo suicideInfo;
+//    private RadioGroup[] mainQuestionGroups;
+//    private RadioGroup subQuestionGroup;
+    private static final int MAIN_QUESTION_COUNT = 8;
     public SuicideAssessment8qFragment() {
         // Required empty public constructor
     }
@@ -214,6 +227,90 @@ public class SuicideAssessment8qFragment extends Fragment {
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
             }
         });
+        loadData();
+    }
+    private void loadData(){
+        SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(getContext());
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getSuicideAssessment8qMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+
+            if(data.getPersonId()!=null){
+                List<SuicideAssessment8qInfo> suicideAssessment8qInfos = sfSuicideAssessment8qInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
+                for(SuicideAssessment8qInfo suicideAssessment8qInfo1 :suicideAssessment8qInfos){
+                    Log.d("suicideAssessment8qInfo1 ", "suicideAssessment8qInfo1 infos:"+suicideAssessment8qInfo1);
+//                    this.suicideAssessment8qInfo = stressDepression2qInfo;
+                    setSuicideAssessment8qInfo(suicideAssessment8qInfo1);
+                }
+            }
+        });
+    }
+    private void setQuestionValue(int questionNumber, String value) {
+        switch (questionNumber) {
+            case 1: suicideAssessment8qInfo.setQ1(value); break;
+            case 2: suicideAssessment8qInfo.setQ2(value); break;
+            case 3: suicideAssessment8qInfo.setQ3(value); break;
+            case 4: suicideAssessment8qInfo.setQ4(value); break;
+            case 5: suicideAssessment8qInfo.setQ5(value); break;
+            case 6: suicideAssessment8qInfo.setQ6(value); break;
+            case 7: suicideAssessment8qInfo.setQ7(value); break;
+            case 8: suicideAssessment8qInfo.setQ8(value); break;
+        }
+    }
+
+    public void setSuicideAssessment8qInfo(SuicideAssessment8qInfo info) {
+        this.suicideAssessment8qInfo = info;
+        loadExistingData();
+    }
+    private void loadExistingData() {
+        if (suicideAssessment8qInfo == null) return;
+
+        // Load main questions
+        for (int i = 0; i < MAIN_QUESTION_COUNT; i++) {
+            String value = getQuestionValue(i + 1);
+            if (!value.equals("0")) {
+                int radioButtonId = getResources().getIdentifier(
+                        "rdoSuicideQ" + (i + 1) + "_" + (Integer.parseInt(value)),
+                        "id",
+                        requireContext().getPackageName()
+                );
+                RadioButton radioButton = requireView().findViewById(radioButtonId);
+                if (radioButton != null) {
+                    radioButton.setChecked(true);
+                }
+            }
+        }
+
+        // Load Q3 sub-question if necessary
+        if (suicideAssessment8qInfo.getQ3().equals("1") || suicideAssessment8qInfo.getQ3().equals("2")) {
+//            handleQ3Visibility(true);
+            String subValue = suicideAssessment8qInfo.getQ3_2_1();
+            if (!subValue.equals("0")) {
+                RadioButton radioButton = requireView().findViewById(
+                        subValue.equals("0") ? R.id.rdoSuicideQ3_2_1_1 : R.id.rdoSuicideQ3_2_1_2
+                );
+                if (radioButton != null) {
+                    radioButton.setChecked(true);
+                }
+            }
+        }
+    }
+
+    private String getQuestionValue(int questionNumber) {
+        switch (questionNumber) {
+            case 1: return suicideAssessment8qInfo.getQ1();
+            case 2: return suicideAssessment8qInfo.getQ2();
+            case 3: return suicideAssessment8qInfo.getQ3();
+            case 4: return suicideAssessment8qInfo.getQ4();
+            case 5: return suicideAssessment8qInfo.getQ5();
+            case 6: return suicideAssessment8qInfo.getQ6();
+            case 7: return suicideAssessment8qInfo.getQ7();
+            case 8: return suicideAssessment8qInfo.getQ8();
+            default: return "0";
+        }
+    }
+
+    public SuicideAssessment8qInfo getSuicideAssessment8qInfo() {
+        return suicideAssessment8qInfo;
     }
     @Override
     public void onAttach(@NonNull Context context) {

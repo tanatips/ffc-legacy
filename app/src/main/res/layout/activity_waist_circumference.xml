@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TableLayout
+        android:id="@+id/waistTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*">
+
+        <!-- Header Row -->
+        <TableRow
+            android:background="@color/purple_500"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="เส้นรอบเอว"
+                android:textColor="@color/white"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="การแปลผล"
+                android:textColor="@color/white"
+                android:textStyle="bold"/>
+        </TableRow>
+
+        <!-- Normal Range Row -->
+        <TableRow
+            android:id="@+id/normalRow"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ชาย: &lt; 90 ซม.\nหญิง: &lt; 80 ซม."/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ปกติ"/>
+        </TableRow>
+
+        <!-- Obese Range Row -->
+        <TableRow
+            android:id="@+id/obeseRow"
+            android:background="#F5F5F5"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ชาย: ≥ 90 ซม.\nหญิง: ≥ 80 ซม."/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="อ้วน"/>
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>

@@ -20,7 +20,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_margin="10dp"
-                android:text="สุรา"
+                android:textStyle="bold"
+                android:text="คัดกรองความเสี่ยงจากการดื่มสุรา"
                 />
 
             <RadioGroup

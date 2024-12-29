@@ -11,16 +11,21 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
+import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
+import th.in.ffc.util.Log;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,6 +41,9 @@ public class StressDepression9qFragment extends Fragment {
     private StressDepression9qInfo stressDepression9qInfo;
 
     private ArrayList<Integer> points;
+
+    private RadioGroup[] radioGroups;
+    private static final int QUESTION_COUNT = 9;
     public StressDepression9qFragment() {
         // Required empty public constructor
     }
@@ -322,7 +330,7 @@ public class StressDepression9qFragment extends Fragment {
 
             }
         });
-
+        loadData();
     }
     @Override
     public void onAttach(@NonNull Context context) {
@@ -331,6 +339,68 @@ public class StressDepression9qFragment extends Fragment {
             dataPasser = (OnDataPass) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
+    }
+
+    private void  loadData(){
+        SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(getContext());
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getStressDepression9qLiveData().observe(getViewLifecycleOwner(), data -> {
+
+            if(data.getPersonId()!=null){
+                List<StressDepression9qInfo> stressDepression9qInfos = sfStressDepression9qInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
+                for(StressDepression9qInfo stressDepression9qInfo :stressDepression9qInfos){
+                    Log.d("Stress Depression 9q ", "stressDepression9qInfo infos:"+stressDepression9qInfo);
+                    this.stressDepression9qInfo = stressDepression9qInfo;
+                    loadExistingData();
+                }
+            }
+        });
+    }
+    private void loadExistingData() {
+        if (this.stressDepression9qInfo == null) return;
+
+        for (int i = 0; i < QUESTION_COUNT; i++) {
+            String value = getQuestionValue(i + 1);
+            if (!value.equals("0")) {
+                int radioButtonId = getResources().getIdentifier(
+                        "rdoStress9qQ" + (i + 1) + "_" + (Integer.parseInt(value)),
+                        "id",
+                        requireContext().getPackageName()
+                );
+                RadioButton radioButton = requireView().findViewById(radioButtonId);
+                if (radioButton != null) {
+                    radioButton.setChecked(true);
+                }
+            }
+        }
+    }
+    private void setQuestionValue(int questionNumber, String value) {
+        switch (questionNumber) {
+            case 1: stressDepression9qInfo.setQ1(value); break;
+            case 2: stressDepression9qInfo.setQ2(value); break;
+            case 3: stressDepression9qInfo.setQ3(value); break;
+            case 4: stressDepression9qInfo.setQ4(value); break;
+            case 5: stressDepression9qInfo.setQ5(value); break;
+            case 6: stressDepression9qInfo.setQ6(value); break;
+            case 7: stressDepression9qInfo.setQ7(value); break;
+            case 8: stressDepression9qInfo.setQ8(value); break;
+            case 9: stressDepression9qInfo.setQ9(value); break;
+        }
+    }
+
+    private String getQuestionValue(int questionNumber) {
+        switch (questionNumber) {
+            case 1: return stressDepression9qInfo.getQ1();
+            case 2: return stressDepression9qInfo.getQ2();
+            case 3: return stressDepression9qInfo.getQ3();
+            case 4: return stressDepression9qInfo.getQ4();
+            case 5: return stressDepression9qInfo.getQ5();
+            case 6: return stressDepression9qInfo.getQ6();
+            case 7: return stressDepression9qInfo.getQ7();
+            case 8: return stressDepression9qInfo.getQ8();
+            case 9: return stressDepression9qInfo.getQ9();
+            default: return "0";
         }
     }
     @Override

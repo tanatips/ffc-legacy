@@ -15,6 +15,7 @@ public class PersonInfo {
     private double height;
     private double waist_size;
     private String bp;
+    private String bmi;
     private double systolic_pressure;
     private double diastolic_pressure;
     private String created_by;
@@ -192,5 +193,12 @@ public class PersonInfo {
         this.send_to_claim = send_to_claim;
     }
 
+    public String getBmi() {
+        return bmi;
+    }
+
+    public void setBmi(String bmi) {
+        this.bmi = bmi;
+    }
 }
 

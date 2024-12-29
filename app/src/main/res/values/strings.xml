@@ -969,7 +969,8 @@
 เนื้อหา ข้อความ รูปแบบ ของบริการนี้เป็นลิขสิทธิ์ของผู้ให้บริการ การทำซ้ำ ลอกเลียนดัดแปลง คัดลอก กระจายหรือจำหน่ายจ่ายแจก บางส่วนหรือทั้งหมดจากทรัพย์สินทางปัญญานี้โดยมิได้รับอนุญาตจากเจ้าของลิขสิทธิ์เป็นลายลักษณ์อักษร ถือเป็นการกระทำอันผิดกฎหมายอันเป็นการละเมิด และผู้กระทำความผิดจะได้รับโทษตามที่กฎหมายได้กำหนดไว้"
 
     </string>
-    <string name="pp_fee_schedule_15_34">แบบคัดกรองและประเมิณปัจจัยเสี่ยงต่อสุขภาพกาย สุขภาพจิต ตามบริการ PP Fee schedule(กลุ่ม 15-34 ปี)</string>
+    <!--    <string name="pp_fee_schedule_15_34">แบบคัดกรองและประเมิณปัจจัยเสี่ยงต่อสุขภาพกาย สุขภาพจิต ตามบริการ PP Fee schedule(กลุ่ม 15-34 ปี)</string>-->
+    <string name="pp_fee_schedule_15_34">แบบคัดกรองและประเมิณปัจจัยเสี่ยงต่อสุขภาพกาย สุขภาพจิต ตามบริการ PP Fee schedule</string>
     <string name="idcard">เลขที่บัตรประชาชน</string>
     <string name="name">ชื่อ</string>
     <string name="lastname">สกุล</string>
@@ -985,7 +986,7 @@
     <string name="bmi_2">BMI(กก/ม2)</string>
     <string name="symptoms_pressure">ความดัน(ค่าบน)</string>
     <string name="diastolic_pressure">ความดัน(ค่าล่าง)</string>
-    <string name="cigarette_form">บุหรี่</string>
+    <string name="cigarette_form">คัดกรองความเสี่ยงจากการสูบบุหรี่</string>
     <string name="cigarette_1b52">ไม่สูบ ไม่เคยสูบบุหรี่ 1B52</string>
     <string name="cigarette_1b51">ไม่สูบ เคยสูบบุหรี่แต่เลิกแล้ว 1B51</string>
     <string name="cigarette_1b50">สูบ 1B50 (กรณีตอบสูบให้ทำแบบประเมิน Fagerstrom Test และ ASSIST)</string>
@@ -1027,4 +1028,6 @@
     <string name="SomeDays_1_7">เป็นบางวัน ( 1-7 วัน )</string>
     <string name="Frequent_7_days"><![CDATA[เป็นบ่อย ( > 7 วัน )]]></string>
     <string name="EveryDay">เป็นทุกวัน</string>
+    <string name="bmi_info">ข้อมูล BMI</string>
+
 </resources>

@@ -1,6 +1,7 @@
 package th.in.ffc.app.form.screening.datalive;
 
 public class StressDepression9qLiveData {
+    private String personId;
     private Integer selectedQ1;
     private Integer selectedQ2;
     private Integer selectedQ3;
@@ -83,5 +84,11 @@ public class StressDepression9qLiveData {
         this.selectedQ9 = selectedQ9;
     }
 
+    public String getPersonId() {
+        return personId;
+    }
 
+    public void setPersonId(String personId) {
+        this.personId = personId;
+    }
 }

@@ -25,6 +25,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.io.IOException;
@@ -50,8 +51,6 @@ public class BluetoothChatService {
     // Unique UUID for this application
     private static final UUID MY_UUID_INSECURE =
         UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-
-  //��������������ͨ�õ�UUID����Ҫ���
   	private static final UUID MY_UUID_SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     // Member fields
@@ -132,6 +131,12 @@ public class BluetoothChatService {
      */
     public synchronized void connect(BluetoothDevice device, boolean secure) {
         if (D) Log.d(TAG, "connect to: " + device);
+        ParcelUuid[] uuids = device.getUuids();
+        if(uuids!=null) {
+            for (ParcelUuid uuid : uuids) {
+                Log.d("UUID", uuid.toString());
+            }
+        }
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -361,6 +366,12 @@ public class BluetoothChatService {
         @SuppressLint("NewApi")
 		public ConnectThread(BluetoothDevice device, boolean secure) {
             mmDevice = device;
+//            ParcelUuid[] uuids = device.getUuids();
+//            if(uuids!=null) {
+//                for (ParcelUuid uuid : uuids) {
+//                    Log.d("UUID", uuid.toString());
+//                }
+//            }
             BluetoothSocket tmp = null;
             mSocketType = secure ? "Secure" : "Insecure";
 

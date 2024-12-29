@@ -12,32 +12,74 @@
         android:text="ใช้เครื่องอ่านบัตรประชาชน"
         android:id="@+id/smartcard_reader"
         />
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/idcard"
-        android:id="@+id/citizenId"
-        />
-    <EditText
+        android:layout_height="wrap_content"
+        android:hint="เลขบัตรประชาชน"
+        style="@style/CustomTextInputLayout">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/citizenId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="13" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
+        android:layout_height="wrap_content"
         android:hint="@string/name"
-        android:id="@+id/fname"
-        />
-    <EditText
+        style="@style/CustomTextInputLayout">
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:textColor="@color/black"
+            android:id="@+id/fname"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
+        android:layout_height="wrap_content"
         android:hint="@string/lastname"
-        android:id="@+id/lname"
-        />
-    <th.in.ffc.util.ThaiDatePicker
-        android:id="@id/birthday"
+        style="@style/CustomTextInputLayout"
+        >
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:id="@+id/lname" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </th.in.ffc.util.ThaiDatePicker>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutBirthDay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/CustomTextInputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/txtBirthDay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:hint="@string/birthday" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <ImageButton
+            android:id="@+id/selectDateButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="6"
+            android:layout_marginStart="8dp"
+            android:contentDescription="เลือกวันที่"
+            android:src="@android:drawable/ic_menu_my_calendar"
+            android:text="เลือกวันที่"/>
+    </LinearLayout>
+
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -74,82 +116,238 @@
             </RadioGroup>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-    <EditText
-        android:id="@+id/txtPhoneNo"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutPhoneNo"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/phone_no"
-        />
-    <EditText
-        android:id="@+id/txtHn"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtPhoneNo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/phone_no" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutHn"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/hn"
-        />
-    <EditText
-        android:id="@+id/txtAuthenDate"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtHn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/hn" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+<!--    <com.google.android.material.textfield.TextInputLayout-->
+<!--        android:id="@+id/layoutAuthenDate"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        style="@style/CustomTextInputLayout">-->
+
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/txtAuthenDate"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:hint="@string/date_authen" />-->
+<!--    </com.google.android.material.textfield.TextInputLayout>-->
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/date_authen"
-        />
-    <EditText
-        android:id="@+id/txtAuthenNo"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutAuthenDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/CustomTextInputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/txtAuthenDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:hint="@string/date_authen" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <ImageButton
+            android:id="@+id/selectAuthenDateButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="6"
+            android:layout_marginStart="8dp"
+            android:contentDescription="เลือกวันที่"
+            android:src="@android:drawable/ic_menu_my_calendar"
+            android:text="เลือกวันที่"/>
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutAuthenNo"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/no_authen"
-        />
-    <EditText
-        android:id="@+id/txtWeight"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtAuthenNo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/no_authen" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutWeight"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/weight_kg"
-        />
-    <EditText
-        android:id="@+id/txtHeight"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/weight_kg" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutHeight"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/height_cm"
-        />
-    <EditText
-        android:id="@+id/txtWaistCircumference"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/height_cm" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/waist_circumference"
-        />
-    <EditText
-        android:id="@+id/txtBp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutWaistCircumference"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/bp"
-        />
-    <EditText
-        android:id="@+id/txtBmi"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtWaistCircumference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/waist_circumference" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <ImageButton
+        android:id="@+id/btnWeightInfo"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/bmi_2"
-        />
-    <EditText
-        android:id="@+id/txySymptomsPressure"
+        android:layout_weight="6"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_dialog_info"
+        android:contentDescription="@string/WaistCircumferenceInterpretation" />
+</LinearLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutBp"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/symptoms_pressure"
-        />
-    <EditText
-        android:id="@+id/txyDiastolicPressure"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtBp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/bp" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:textColor="@color/black"
-        android:hint="@string/diastolic_pressure"
-        />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+       >
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutBmi"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtBmi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/bmi_2" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/btnBmiInfo"
+            android:layout_width="match_parent"
+            android:layout_weight="6"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_dialog_info"
+            android:contentDescription="@string/bmi_info" />
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutSymptomsPressure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtSymptomsPressure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/symptoms_pressure" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutDiastolicPressure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtDiastolicPressure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="@string/diastolic_pressure" />
+    </com.google.android.material.textfield.TextInputLayout>
+        <ImageButton
+            android:id="@+id/btnBloodPressure"
+            android:layout_width="match_parent"
+            android:layout_weight="6"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_dialog_info"
+            android:contentDescription="@string/BloodPressure" />
+    </LinearLayout>
 
 </LinearLayout>

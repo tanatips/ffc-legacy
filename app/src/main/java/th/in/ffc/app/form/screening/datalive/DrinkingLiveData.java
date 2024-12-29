@@ -2,6 +2,7 @@ package th.in.ffc.app.form.screening.datalive;
 
 public class DrinkingLiveData {
 
+    private String personId;
     private Integer selectedRdoDriking;
     private Integer selectedRdoDrikingFrequency;
     private Integer selectedRdoDrikingAlway;
@@ -28,5 +29,13 @@ public class DrinkingLiveData {
 
     public void setSelectedRdoDrikingAlway(Integer selectedRdoDrikingAlway) {
         this.selectedRdoDrikingAlway = selectedRdoDrikingAlway;
+    }
+
+    public String getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(String personId) {
+        this.personId = personId;
     }
 }

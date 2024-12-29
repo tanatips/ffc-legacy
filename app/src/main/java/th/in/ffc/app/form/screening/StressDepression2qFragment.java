@@ -6,19 +6,26 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
+import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
+import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
+import th.in.ffc.util.Log;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,13 +41,104 @@ public class StressDepression2qFragment extends Fragment {
     private StressDepression2qInfo stressDepression2qInfo;
 
     private ArrayList<Integer> points;
-
-
+    private RadioGroup rdoStress2qQ1;
+    private RadioGroup rdoStress2qQ2;
     public StressDepression2qFragment() {
         // Required empty public constructor
     }
+    private void initializeViews(View view) {
+        rdoStress2qQ1 = view.findViewById(R.id.rdoStress2qQ1);
+        rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
+    }
+    private void setupListeners(){
+        rdoStress2qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                String data="";
+                if (checkedId == R.id.rdoStress2qQ1_1) {
+                    data= "1";
+                    points.set(0,0);
+                } else if (checkedId == R.id.rdoStress2qQ1_2) {
+                    data= "2";
+                    points.set(0,1);
+                }
+                stressDepression2qLiveData.setSelectedQ1(checkedId);
+                shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
 
+                stressDepression2qInfo.setQ1(data);
+                stressDepression2qInfo.setPoints(points);
+                dataPasser.onStressDepression2q(stressDepression2qInfo);
+                updatePoints();
+            }
+        });
 
+        rdoStress2qQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                String data="";
+                if (checkedId == R.id.rdoStress2qQ2_1) {
+                    data= "1";
+                    points.set(1,0);
+                } else if (checkedId == R.id.rdoStress2qQ2_2) {
+                    data= "2";
+                    points.set(1,1);
+                }
+                stressDepression2qLiveData.setSelectedQ2(checkedId);
+                shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
+
+                stressDepression2qInfo.setQ2(data);
+                stressDepression2qInfo.setPoints(points);
+                dataPasser.onStressDepression2q(stressDepression2qInfo);
+                updatePoints();
+            }
+        });
+
+    }
+    private void updatePoints() {
+        ArrayList<Integer> points = new ArrayList<>();
+
+        // Add points for Q1
+        points.add(stressDepression2qInfo.getQ1().equals("1") ? 1 : 0);
+
+        // Add points for Q2
+        points.add(stressDepression2qInfo.getQ2().equals("1") ? 1 : 0);
+
+        // Update the points in the model
+        stressDepression2qInfo.setPoints(points);
+
+        // Analyze results
+        stressDepression2qInfo.analyze();
+    }
+    public void setStressInfo(StressDepression2qInfo info) {
+        this.stressDepression2qInfo = info;
+        loadExistingData();
+    }
+    private void loadExistingData() {
+        if (stressDepression2qInfo == null) return;
+
+        // Load Q1 data
+        switch (stressDepression2qInfo.getQ1()) {
+            case "1":
+                ((RadioButton)rdoStress2qQ1.findViewById(R.id.rdoStress2qQ1_1)).setChecked(true);
+                break;
+            case "2":
+                ((RadioButton)rdoStress2qQ1.findViewById(R.id.rdoStress2qQ1_2)).setChecked(true);
+                break;
+        }
+
+        // Load Q2 data
+        switch (stressDepression2qInfo.getQ2()) {
+            case "1":
+                ((RadioButton)rdoStress2qQ2.findViewById(R.id.rdoStress2qQ2_1)).setChecked(true);
+                break;
+            case "2":
+                ((RadioButton)rdoStress2qQ2.findViewById(R.id.rdoStress2qQ2_2)).setChecked(true);
+                break;
+        }
+    }
+    public StressDepression2qInfo getStressInfo() {
+        return stressDepression2qInfo;
+    }
     public static StressDepression2qFragment newInstance(String param1, String param2) {
         StressDepression2qFragment fragment = new StressDepression2qFragment();
         return fragment;
@@ -68,7 +166,6 @@ public class StressDepression2qFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        super.onViewCreated(view, savedInstanceState);
         View parentViewPager = (View) view.getParent();
         if (parentViewPager != null) {
             parentViewPager.post(() -> {
@@ -78,50 +175,25 @@ public class StressDepression2qFragment extends Fragment {
                 parentViewPager.setLayoutParams(layoutParams);
             });
         }
-        RadioGroup rdoStress2qQ1 = view.findViewById(R.id.rdoStress2qQ1);
-        RadioGroup rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
-        rdoStress2qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                String data="";
-                if (checkedId == R.id.rdoStress2qQ1_1) {
-                    data= "1";
-                    points.set(0,0);
-                } else if (checkedId == R.id.rdoStress2qQ1_2) {
-                    data= "2";
-                    points.set(0,1);
-                }
-                stressDepression2qLiveData.setSelectedQ1(checkedId);
-                shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
-
-                stressDepression2qInfo.setQ1(data);
-                stressDepression2qInfo.setPoints(points);
-                dataPasser.onStressDepression2q(stressDepression2qInfo);
-            }
-        });
-
-        rdoStress2qQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                String data="";
-                if (checkedId == R.id.rdoStress2qQ2_1) {
-                    data= "1";
-                    points.set(1,0);
-                } else if (checkedId == R.id.rdoStress2qQ2_2) {
-                    data= "2";
-                    points.set(1,1);
-                }
-                stressDepression2qLiveData.setSelectedQ2(checkedId);
-                shareViewModel.setStressDepression2qLiveData(stressDepression2qLiveData);
-
-                stressDepression2qInfo.setQ2(data);
-                stressDepression2qInfo.setPoints(points);
-                dataPasser.onStressDepression2q(stressDepression2qInfo);
-            }
-        });
-
+        initializeViews(view);
+        setupListeners();
+        loadData();
     }
+    private void loadData(){
+        SfStressDepression2qInfoDao sfStressDepression2qInfoDao = new SfStressDepression2qInfoDao(getContext());
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getStressDepression2qLiveData().observe(getViewLifecycleOwner(), data -> {
 
+            if(data.getPersonId()!=null){
+                List<StressDepression2qInfo> stressDepression2qInfos = sfStressDepression2qInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
+                for(StressDepression2qInfo stressDepression2qInfo :stressDepression2qInfos){
+                    Log.d("Stress Depression ", "stressDepression2qInfo infos:"+stressDepression2qInfo);
+                    this.stressDepression2qInfo = stressDepression2qInfo;
+                    loadExistingData();
+                }
+            }
+        });
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

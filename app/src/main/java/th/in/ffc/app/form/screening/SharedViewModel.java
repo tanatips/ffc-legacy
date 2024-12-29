@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
+import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
 import th.in.ffc.app.form.screening.datalive.DrinkingLiveData;
@@ -14,6 +15,10 @@ import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 
 public class SharedViewModel extends ViewModel {
+
+    private MutableLiveData<PersonInfoLiveData> personInfoLiveDataMutableLiveData = new MutableLiveData<>();
+
+    private MutableLiveData<StressDepressionLiveData> stressDepressionLiveDataMutableLiveData = new MutableLiveData<>();
     private MutableLiveData<StressDepression9qLiveData> stressDepression9qLiveDataModelMutableLiveData = new MutableLiveData<>();
     private MutableLiveData<StressDepression2qLiveData> stressDepression2qLiveDataModelMutableLiveData = new MutableLiveData<>();
 
@@ -97,5 +102,37 @@ public class SharedViewModel extends ViewModel {
 
     public void setHealthRiskAssessmentLiveDataMutableLiveData(HealthRiskAssessmentLiveData value) {
         this.healthRiskAssessmentLiveDataMutableLiveData.setValue(value);
+    }
+
+    public MutableLiveData<PersonInfoLiveData> getPersonInfoLiveDataMutableLiveData() {
+        return personInfoLiveDataMutableLiveData;
+    }
+
+    public void setPersonInfoLiveDataMutableLiveData(PersonInfoLiveData value) {
+        this.personInfoLiveDataMutableLiveData.setValue(value);
+    }
+
+    public MutableLiveData<StressDepressionLiveData> getStressDepressionLiveDataMutableLiveData() {
+        return stressDepressionLiveDataMutableLiveData;
+    }
+
+    public void setStressDepressionLiveDataMutableLiveData(StressDepressionLiveData value) {
+        this.stressDepressionLiveDataMutableLiveData.setValue(value);
+    }
+
+    public MutableLiveData<StressDepression2qLiveData> getStressDepression2qLiveDataModelMutableLiveData() {
+        return stressDepression2qLiveDataModelMutableLiveData;
+    }
+
+    public void setStressDepression2qLiveDataModelMutableLiveData(StressDepression2qLiveData value) {
+        this.stressDepression2qLiveDataModelMutableLiveData.setValue(value);
+    }
+
+    public MutableLiveData<StressDepression9qLiveData> getStressDepression9qLiveDataModelMutableLiveData() {
+        return stressDepression9qLiveDataModelMutableLiveData;
+    }
+
+    public void setStressDepression9qLiveDataModelMutableLiveData( StressDepression9qLiveData value) {
+        this.stressDepression9qLiveDataModelMutableLiveData.setValue(value);
     }
 }

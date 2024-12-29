@@ -11,14 +11,21 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import java.util.List;
+
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
+import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
+import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
+import th.in.ffc.util.Log;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -190,5 +197,117 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
             }
         });
+        loadData();
+    }
+    private void loadData(){
+        SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(getContext());
+
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getHealthRiskAssessmentLiveDataMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+
+            if(data.getPersonId()!=null){
+                List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos = sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
+                for(HealthRiskAssessmentInfo healthRiskAssessmentInfo1 :healthRiskAssessmentInfos){
+                    Log.d("healthRiskAssessmentInfo1 ", "healthRiskAssessmentInfo1 infos:"+healthRiskAssessmentInfo1);
+                    setHealthRiskInfo(healthRiskAssessmentInfo1);
+                }
+            }
+        });
+    }
+    public void setHealthRiskInfo(HealthRiskAssessmentInfo info) {
+        this.healthRiskAssessmentInfo = info;
+        loadExistingData();
+    }
+
+    private void loadExistingData() {
+        if (healthRiskAssessmentInfo == null) return;
+
+        // Load Q1 (Age)
+        String q1 = healthRiskAssessmentInfo.getHealthRiskQ1();
+        if (!q1.equals("0")) {
+            int radioButtonId = getResources().getIdentifier(
+                    "rdoHealthRiskQ1_" + q1,
+                    "id",
+                    requireContext().getPackageName()
+            );
+            RadioButton radioButton = requireView().findViewById(radioButtonId);
+            if (radioButton != null) {
+                radioButton.setChecked(true);
+            }
+        }
+
+        // Load Q2 (Gender)
+        String q2 = healthRiskAssessmentInfo.getHealthRiskQ2();
+        if (!q2.equals("0")) {
+            int radioButtonId = getResources().getIdentifier(
+                    "rdoHealthRiskQ2_" + q2,
+                    "id",
+                    requireContext().getPackageName()
+            );
+            RadioButton radioButton = requireView().findViewById(radioButtonId);
+            if (radioButton != null) {
+                radioButton.setChecked(true);
+            }
+        }
+
+        // Load Q3 (BMI)
+        String q3 = healthRiskAssessmentInfo.getHealthRiskQ3();
+        if (!q3.equals("0")) {
+            int radioButtonId = getResources().getIdentifier(
+                    "rdoHealthRiskQ3_" + q3,
+                    "id",
+                    requireContext().getPackageName()
+            );
+            RadioButton radioButton = requireView().findViewById(radioButtonId);
+            if (radioButton != null) {
+                radioButton.setChecked(true);
+            }
+        }
+
+        // Load Q4 (Waist)
+        String q4 = healthRiskAssessmentInfo.getHealthRiskQ4();
+        if (!q4.equals("0")) {
+            int radioButtonId = getResources().getIdentifier(
+                    "rdoHealthRiskQ4_" + q4,
+                    "id",
+                    requireContext().getPackageName()
+            );
+            RadioButton radioButton = requireView().findViewById(radioButtonId);
+            if (radioButton != null) {
+                radioButton.setChecked(true);
+            }
+        }
+
+        // Load Q5 (Blood pressure)
+        String q5 = healthRiskAssessmentInfo.getHealthRiskQ5();
+        if (!q5.equals("0")) {
+            int radioButtonId = getResources().getIdentifier(
+                    "rdoHealthRiskQ5_"+q5,
+                    "id",
+                    requireContext().getPackageName()
+            );
+            RadioButton radioButton = requireView().findViewById(radioButtonId);
+            if (radioButton != null) {
+                radioButton.setChecked(true);
+            }
+        }
+
+        // Load Q6 (Family history)
+        String q6 = healthRiskAssessmentInfo.getHealthRiskQ6();
+        if (!q6.equals("0")) {
+            int radioButtonId = getResources().getIdentifier(
+                    "rdoHealthRiskQ6_"+q6,
+                    "id",
+                    requireContext().getPackageName()
+            );
+            RadioButton radioButton = requireView().findViewById(radioButtonId);
+            if (radioButton != null) {
+                radioButton.setChecked(true);
+            }
+        }
+    }
+
+    public HealthRiskAssessmentInfo getHealthRiskAssessmentInfo() {
+        return healthRiskAssessmentInfo;
     }
 }
