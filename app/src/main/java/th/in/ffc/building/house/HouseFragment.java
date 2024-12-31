@@ -116,7 +116,7 @@ public abstract class HouseFragment extends ViewFormFragment {
              */
     public void onEditPressed() {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
         builder.setMessage(getResources().getString(R.string.dialog_neededit))
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.ok),

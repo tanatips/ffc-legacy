@@ -518,7 +518,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
     }
 
     private void settingGPS() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Map506DetailFragmentActivity.this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Map506DetailFragmentActivity.this,R.style.DialogTheme);
         alertDialog.setTitle("ตั้งค่า GPS");
         alertDialog.setMessage("คุณไม่ได้เปิดใช้ GPS ต้องการเปิดใช้หรือไม่ ?");
         alertDialog.setPositiveButton("ตั้งค่า", new DialogInterface.OnClickListener() {
@@ -722,7 +722,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
 
     private void searhPlace() {
         final CheckNetwork chk = new CheckNetwork(getApplicationContext());
-        Builder searchBuilder = new Builder(Map506DetailFragmentActivity.this);
+        Builder searchBuilder = new Builder(Map506DetailFragmentActivity.this,R.style.DialogTheme);
         View sv = LayoutInflater.from(this).inflate(R.layout.google_map_search_place, null);
 
         final EditText searchPlace = (EditText) sv.findViewById(R.id.searchP_et);
@@ -731,7 +731,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
         searchBuilder.setPositiveButton(R.string.search, new DialogInterface.OnClickListener() {
             @Override public void onClick(DialogInterface dialog, int which) {
                 if (!chk.isNetworkAvailable()) {
-                    Builder noNetworkDialog = new Builder(Map506DetailFragmentActivity.this);
+                    Builder noNetworkDialog = new Builder(Map506DetailFragmentActivity.this,R.style.DialogTheme);
                     noNetworkDialog.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
                     noNetworkDialog.setTitle(R.string.error);
                     noNetworkDialog.setMessage(R.string.please_connect_internet);
@@ -783,7 +783,7 @@ public class Map506DetailFragmentActivity extends FFCFragmentActivity implements
                             });
                             foundDialog.show();
                         } else {
-                            Builder notFound = new Builder(Map506DetailFragmentActivity.this);
+                            Builder notFound = new Builder(Map506DetailFragmentActivity.this,R.style.DialogTheme);
                             notFound.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
                             notFound.setTitle(R.string.error);
                             notFound.setMessage(R.string.place_not_found);

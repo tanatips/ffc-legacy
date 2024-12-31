@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import th.in.ffc.R;
 import th.in.ffc.map.FGActivity;
 import th.in.ffc.map.value.MARKER_TYPE;
 
@@ -309,7 +310,7 @@ public class PhotoTaker {
 
     public void doShowDialog() {
         final CharSequence[] items = {"Take from Camera", "Select from Gallery"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity, R.style.DialogTheme);
         builder.setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 switch (item) {

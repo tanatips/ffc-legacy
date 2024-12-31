@@ -170,7 +170,7 @@ public class LoginActivity extends FFCFragmentActivity implements
     @Override
     public void onBackPressed() {
         if (getIntent().getAction().equals(Action.RE_LOGIN)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
             builder.setMessage(R.string.sure_to_exit);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 

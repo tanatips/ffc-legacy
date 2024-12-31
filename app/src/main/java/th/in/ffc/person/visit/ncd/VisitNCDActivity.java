@@ -521,7 +521,7 @@ public class VisitNCDActivity extends FFCEditActivity implements
     }
 
     private void alert(String title, String msg) {
-        AlertDialog.Builder d = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder d = new AlertDialog.Builder(this, R.style.DialogTheme);
         d.setTitle(title);
         d.setMessage(msg);
         d.setCancelable(true);

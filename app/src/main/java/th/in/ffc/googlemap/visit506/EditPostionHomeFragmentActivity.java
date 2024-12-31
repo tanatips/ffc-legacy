@@ -203,7 +203,7 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
     private void searhPlace() {
         final CheckNetwork chk = new CheckNetwork(getApplicationContext());
         Builder searchBuilder = new Builder(
-                EditPostionHomeFragmentActivity.this);
+                EditPostionHomeFragmentActivity.this,R.style.DialogTheme);
         View sv = LayoutInflater.from(this).inflate(
                 R.layout.google_map_search_place, null);
 
@@ -214,7 +214,7 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!chk.isNetworkAvailable()) {
-                    Builder noNetworkDialog = new Builder(EditPostionHomeFragmentActivity.this);
+                    Builder noNetworkDialog = new Builder(EditPostionHomeFragmentActivity.this,R.style.DialogTheme);
                     noNetworkDialog.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
                     noNetworkDialog.setTitle(R.string.error);
                     noNetworkDialog.setMessage(R.string.please_connect_internet);
@@ -269,7 +269,7 @@ public class EditPostionHomeFragmentActivity extends FFCFragmentActivity {
                                     });
                             foundDialog.show();
                         } else {
-                            Builder notFound = new Builder(EditPostionHomeFragmentActivity.this);
+                            Builder notFound = new Builder(EditPostionHomeFragmentActivity.this,R.style.DialogTheme);
                             notFound.setIcon(getApplication().getResources().getDrawable(R.drawable.ic_action_add));
                             notFound.setTitle(R.string.error);
                             notFound.setMessage(R.string.place_not_found);

@@ -98,7 +98,7 @@ abstract public class FFCEditActivity extends FFCFragmentActivity {
      **/
 
     protected final void onDeletePressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
         builder.setMessage(getResources().getString(R.string.dialog_delete))
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.ok),
@@ -127,7 +127,7 @@ abstract public class FFCEditActivity extends FFCFragmentActivity {
      * METHOD Delete() FOR EACH FORM
      **/
     protected void onSavePressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
         builder.setMessage(getResources().getString(R.string.dialog_edit))
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.ok),

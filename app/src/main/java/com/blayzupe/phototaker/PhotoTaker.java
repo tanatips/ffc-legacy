@@ -33,6 +33,8 @@ import java.util.List;
 import android.content.Context;
 import android.widget.Toast;
 
+import th.in.ffc.R;
+
 public class PhotoTaker {
 
     public static final String CODE_VERSION = "1.0";
@@ -371,7 +373,7 @@ public class PhotoTaker {
     public void doShowDialog() {
         final CharSequence[] items = {"Take from Camera",
                 "Select from Gallery"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity, R.style.DialogTheme);
         builder.setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 switch (item) {

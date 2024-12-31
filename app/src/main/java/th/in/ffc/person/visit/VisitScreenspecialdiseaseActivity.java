@@ -48,7 +48,7 @@ public class VisitScreenspecialdiseaseActivity extends VisitActivity implements
 
     private void doDialogMsgBuilder() {
         // TODO Auto-generated method stub
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogTheme);
         builder.setMessage(getResources().getString(R.string.OverAge))
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.ok),

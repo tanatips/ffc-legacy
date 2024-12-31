@@ -319,7 +319,7 @@ public class VisitDiagActivity extends VisitActivity implements
     }
 
     private void dialogAskGoHouse(String title, final boolean viewHouse, final Cursor c) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogTheme);
         builder.setCancelable(true);
         builder.setTitle(title);
         builder.setInverseBackgroundForced(true);
@@ -526,7 +526,7 @@ public class VisitDiagActivity extends VisitActivity implements
                             .getVisitNo(), id)) {
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(
-                                getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+                                getActivity(), R.style.DialogTheme);
                         builder.setMessage(
                                 getResources().getString(R.string.dialog_isCon))
                                 .setCancelable(false)

@@ -316,7 +316,7 @@ public class EditDetailHouseFragmentActivity extends FFCFragmentActivity {
     }
 
     private void warningCommit() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
         builder.setTitle(getString(R.string.cancelcommit));
         builder.setMessage(getString(R.string.notcommit));
         builder.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -335,7 +335,7 @@ public class EditDetailHouseFragmentActivity extends FFCFragmentActivity {
     }
 
     private void askDelete() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
         builder.setTitle(getString(R.string.deleteposition));
         builder.setMessage(getString(R.string.wantdeleteposition));
         builder.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {

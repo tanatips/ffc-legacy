@@ -83,7 +83,7 @@ public class PersonInfoFragment extends Fragment {
     private TextInputEditText txtAuthenDate, txtAuthenNo, txtWeight, txtHeight;
     private TextInputEditText txtWaistCircumference, txtBp, txtBmi;
     private TextInputEditText txtSymptomsPressure, txtDiastolicPressure;
-    private Button smartcardReader;
+    private ImageButton smartcardReader;
     private TextInputEditText currentEditText;
 
     private Map<EditText, TextFieldUpdater> fieldUpdaters;

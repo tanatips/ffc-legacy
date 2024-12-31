@@ -6,24 +6,43 @@
     android:orientation="vertical"
     tools:context=".app.form.screening.PersonInfoFragment">
 
-    <Button
+<!--    <Button-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="ใช้เครื่องอ่านบัตรประชาชน"-->
+<!--        android:id="@+id/smartcard_reader"-->
+<!--        />-->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ใช้เครื่องอ่านบัตรประชาชน"
-        android:id="@+id/smartcard_reader"
-        />
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="เลขบัตรประชาชน"
-        style="@style/CustomTextInputLayout">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/citizenId"
+        android:orientation="horizontal">
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="13" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_weight="1"
+            android:hint="เลขบัตรประชาชน"
+            style="@style/CustomTextInputLayout">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/citizenId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="13" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <ImageButton
+            android:id="@+id/smartcard_reader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="7"
+            android:background="@color/white"
+            android:padding="5dp"
+            android:layout_gravity="center"
+            android:contentDescription="เลือกวันที่"
+            android:scaleType="fitCenter"
+            android:src="@drawable/smart_id"
+            />
+    </LinearLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -73,11 +92,14 @@
             android:id="@+id/selectDateButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="6"
-            android:layout_marginStart="8dp"
+            android:layout_weight="7"
+            android:background="@color/white"
+            android:padding="5dp"
+            android:layout_gravity="center"
             android:contentDescription="เลือกวันที่"
-            android:src="@android:drawable/ic_menu_my_calendar"
-            android:text="เลือกวันที่"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_calendar_blue"
+            />
     </LinearLayout>
 
 
@@ -181,11 +203,13 @@
             android:id="@+id/selectAuthenDateButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="6"
-            android:layout_marginStart="8dp"
+            android:layout_weight="7"
+            android:background="@color/white"
+            android:padding="5dp"
+            android:layout_gravity="center"
             android:contentDescription="เลือกวันที่"
-            android:src="@android:drawable/ic_menu_my_calendar"
-            android:text="เลือกวันที่"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_calendar_blue" />
     </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -251,16 +275,18 @@
             android:textColor="@color/black"
             android:hint="@string/waist_circumference" />
     </com.google.android.material.textfield.TextInputLayout>
-    <ImageButton
-        android:id="@+id/btnWeightInfo"
-        android:layout_width="match_parent"
-        android:layout_weight="6"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@android:drawable/ic_dialog_info"
-        android:contentDescription="@string/WaistCircumferenceInterpretation" />
-</LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnWeightInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="6"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/WaistCircumferenceInterpretation"
+            android:src="@drawable/ic_info_blue" />
+    </LinearLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutBp"
         android:layout_width="match_parent"
@@ -302,7 +328,8 @@
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_dialog_info"
+            android:src="@drawable/ic_info_blue"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/bmi_info" />
     </LinearLayout>
 
@@ -346,7 +373,8 @@
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_dialog_info"
+            android:src="@drawable/ic_info_blue"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/BloodPressure" />
     </LinearLayout>
 

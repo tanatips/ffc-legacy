@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -106,7 +107,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
 
     int newPid;
     String mHcode;
-    Button smartcard_reader;
+    ImageButton smartcard_reader;
 
     public ImageView imgPerson;
 
@@ -159,7 +160,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
         provcode = (SearchableButton) view.findViewById(R.id.provcode);
         postcode = (EditText) view.findViewById(R.id.postcode);
         imgPerson = (ImageView) view.findViewById(R.id.imgPerson);
-        smartcard_reader = (Button) view.findViewById(R.id.smartcard_reader);
+        smartcard_reader = (ImageButton) view.findViewById(R.id.smartcard_reader);
         smartcard_reader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

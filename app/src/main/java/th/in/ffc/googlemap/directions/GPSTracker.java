@@ -14,6 +14,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import th.in.ffc.R;
+
 
 // credit by http://www.androidhive.info/
 public class GPSTracker extends Service implements LocationListener {
@@ -165,7 +167,7 @@ public class GPSTracker extends Service implements LocationListener {
      * On pressing Settings button will lauch Settings Options
      */
     public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(GPSTracker.this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(GPSTracker.this, R.style.DialogTheme);
 
         // Setting Dialog Title
         alertDialog.setTitle("GPS is settings");

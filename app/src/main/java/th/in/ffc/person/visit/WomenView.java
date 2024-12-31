@@ -64,7 +64,7 @@ public class WomenView extends WomenFragment {
 
     protected void doDialogMsgBuilder() {
         // TODO Auto-generated method stub
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme);
         builder.setMessage(getResources().getString(R.string.women_dialog_null))
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.ok),

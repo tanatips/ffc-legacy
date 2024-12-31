@@ -376,7 +376,7 @@ public class VisitDrugActivity extends VisitActivity implements
                         .getAdapter(getActivity(), dose, 0);
                 mDose.setAdapter(adapter);
                 AlertDialog.Builder builder = new AlertDialog.Builder(
-                        getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+                        getActivity(), R.style.DialogTheme);
                 builder.setAdapter(adapter,
                         new DialogInterface.OnClickListener() {
 

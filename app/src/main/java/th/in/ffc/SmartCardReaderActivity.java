@@ -230,7 +230,7 @@ public class SmartCardReaderActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(SmartCardReaderActivity.this, new String[]{android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.BLUETOOTH_CONNECT}, MY_LOCATION_PERMISSION);
         } else {
             if (ActivityCompat.checkSelfPermission(SmartCardReaderActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-                AlertDialog dialog = new AlertDialog.Builder(SmartCardReaderActivity.this).create();
+                AlertDialog dialog = new AlertDialog.Builder(SmartCardReaderActivity.this,R.style.DialogTheme).create();
                 dialog.setTitle("Permission");
                 dialog.setMessage("Please allow Location permission if use Bluetooth reader.");
                 dialog.setCancelable(false);

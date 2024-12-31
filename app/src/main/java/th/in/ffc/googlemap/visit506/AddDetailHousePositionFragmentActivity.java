@@ -242,7 +242,7 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
     }
 
     private void warningCommit(final int whtcommit) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
         builder.setTitle(getString(R.string.cancelcommit));
         builder.setMessage(getString(R.string.notcommit));
         builder.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -292,7 +292,7 @@ public class AddDetailHousePositionFragmentActivity extends FFCFragmentActivity 
     }
 
     private void dialogAskCommit() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.DialogTheme);
         builder.setCancelable(true);
         builder.setTitle("คุณได้บันทึกข้อมูลเรียบร้อยแล้ว และต้องการไปดูแผนที่ต่อหรือไม่ ?");
         builder.setInverseBackgroundForced(true);

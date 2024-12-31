@@ -377,7 +377,7 @@ public class CreateBaseFragment extends FFCFragment implements OnClickListener,
     private void delete_marker_button_Click() {
         if (edit) {
             Resources res = this.getResources();
-            Builder builder = new Builder(getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+            Builder builder = new Builder(getActivity(),R.style.DialogTheme);
             builder.setTitle(res
                     .getString(R.string.STRING_CONFIRM_DELETE_HOUSE_MARKER_TITLE));
             builder.setMessage(res
@@ -695,7 +695,7 @@ public class CreateBaseFragment extends FFCFragment implements OnClickListener,
 
             if (location != null) {
                 Builder b = new Builder(
-                        this.getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+                        this.getActivity(),R.style.DialogTheme);
                 b.setTitle(res.getString(R.string.STRING_AUTO_GPS_TITLE));
                 b.setIcon(android.R.drawable.ic_input_add);
                 b.setCancelable(false);

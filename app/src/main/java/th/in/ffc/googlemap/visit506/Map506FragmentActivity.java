@@ -580,7 +580,7 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
     }
 
     private void settingGPS() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Map506FragmentActivity.this,android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Map506FragmentActivity.this,R.style.DialogTheme);
         alertDialog.setTitle("ตั้งค่า GPS");
         alertDialog.setMessage("คุณไม่ได้เปิดใช้ GPS ต้องการเปิดใช้หรือไม่ ?");
         alertDialog.setPositiveButton("ตั้งค่า", new DialogInterface.OnClickListener() {
@@ -794,7 +794,7 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
 
     private void searhPlace(){
         AlertDialog.Builder searchBuilder = new AlertDialog.Builder(
-                Map506FragmentActivity.this,android.R.style.Theme_Material_Light_Dialog_Alert);
+                Map506FragmentActivity.this,R.style.DialogTheme);
         View sv = LayoutInflater.from(this).inflate(
                 R.layout.google_map_search_place, null);
 
@@ -817,7 +817,7 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
                         final List<android.location.Address> addresses = geoCoder.getFromLocationName(searchStr, 10);
                         if (addresses.size() >  0) {
                             AlertDialog.Builder foundDialog = new AlertDialog.Builder(
-                                    Map506FragmentActivity.this,android.R.style.Theme_Material_Light_Dialog_Alert);
+                                    Map506FragmentActivity.this,R.style.DialogTheme);
                             foundDialog.setIcon(R.drawable.ic_launcher);
                             foundDialog.setTitle(String.format(getString(R.string.search_place_result_of), searchStr));
                             final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(

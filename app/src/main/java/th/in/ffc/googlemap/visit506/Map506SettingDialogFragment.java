@@ -86,7 +86,7 @@ public class Map506SettingDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),android.R.style.Theme_Material_Light_Dialog_Alert);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.DialogTheme);
         builder.setIcon(R.drawable.ic_launcher);
         builder.setTitle("การตั้งค่าการแสดงผล");
         builder.setView(getContentView());
