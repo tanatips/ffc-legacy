@@ -163,4 +163,16 @@
         <item name="android:buttonBarPositiveButtonStyle">@style/DialogButtonStyle</item>
         <item name="android:buttonBarNegativeButtonStyle">@style/DialogButtonStyle</item>
     </style>
+    <style name="TableHeader">
+        <item name="android:background">#EEEEEE</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TableCell">
+        <item name="android:background">#FFFFFF</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

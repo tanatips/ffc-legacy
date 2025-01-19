@@ -56,4 +56,9 @@
     <color name="orange_dark">#FFCC80</color>
     <color name="red_light">#FFCDD2</color>
 
+    <color name="header_purple">#800080</color>
+    <color name="light_blue">#E6F3FF</color>
+    <color name="light_gray">#F5F5F5</color>
+    <color name="highlight_yellow">#FFEB3B</color>
+
 </resources>

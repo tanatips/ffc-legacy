@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -230,442 +231,169 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <LinearLayout
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/resultFagerStromScore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                >
+
+                <TableLayout
+                    android:id="@+id/tbFagerstrome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <!-- หัวตาราง -->
+                    <TableRow
+                        android:background="@color/header_purple"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="ช่วงคะแนน"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="การแปลผล"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </TableRow>
+
+                    <!-- 0-3 คะแนน -->
+                    <TableRow
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="0 - 3"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="ไม่นับว่าคุณติดสารนิโคติน"
+                            android:textSize="16sp" />
+                    </TableRow>
+
+                    <!-- 4-5 คะแนน -->
+                    <TableRow
+                        android:background="#F5F5F5"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="4 - 5"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="คุณติดสารนิโคตินในระดับปานกลาง"
+                            android:textSize="16sp" />
+                    </TableRow>
+
+                    <!-- 6-7 คะแนน -->
+                    <TableRow
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="6 - 7"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง"
+                            android:textSize="16sp" />
+                    </TableRow>
+
+                    <!-- 8-9 คะแนน -->
+                    <TableRow
+                        android:background="#F5F5F5"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="8 - 9"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="คุณติดสารนิโคตินในระดับสูง"
+                            android:textSize="16sp" />
+                    </TableRow>
+
+                    <!-- 10 คะแนน -->
+                    <TableRow
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="10"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="คุณติดสารนิโคตินในระดับสูงมาก"
+                            android:textSize="16sp" />
+                    </TableRow>
+
+                </TableLayout>
+            </androidx.cardview.widget.CardView>
+
         </LinearLayout>
-<!--        <HorizontalScrollView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
 
-<!--            <TableLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:stretchColumns="1,2,3,4">-->
+        </LinearLayout>
 
-<!--                &lt;!&ndash; หัวตาราง &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="แบบทดสอบการติดบุหรี่ (Fagerstrom Test for Nicotine Dependence)"-->
-<!--                        android:layout_span="5"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:gravity="center"-->
-<!--                        android:background="#e0e0e0"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; หัวคอลัมน์ &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="คำถาม"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:background="#e0e0e0"-->
-<!--                        android:textStyle="bold" />-->
-<!--                    <TextView-->
-<!--                        android:text="คำตอบ"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:background="#e0e0e0"-->
-<!--                        android:textStyle="bold" />-->
-<!--                    <TextView-->
-<!--                        android:text="ระดับคะแนน"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:background="#e0e0e0"-->
-<!--                        android:textStyle="bold" />-->
-<!--                    <TextView-->
-<!--                        android:text="คะแนนที่ประเมินได้"-->
-<!--                        android:background="#e0e0e0"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:textStyle="bold" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp"-->
-<!--                        android:background="#e0e0e0"-->
-<!--                        android:textStyle="bold" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 1 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-
-<!--                        android:text="1.โดยปกติคุณ\nสูบบุหรี่วันละกี่มวน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="10 มวน หรือน้อยกว่า"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="0"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B501"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 2 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="11-20 มวน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B502"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 3 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="21-30 มวน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="2"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B503"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 4 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="มากกว่า 31 มวน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="3"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B504"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 5 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="2.หลังตื่นนอนคุณ\nสูบบุหรี่ภายในกี่นาที"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="ภายใน 5 นาทีหลังตื่นนอน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="3"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B505"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 6 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="6-30 นาทีหลังตื่นนอน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="2"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B506"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 7 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="31-60 นาทีหลังตื่นนอน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B507"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 8 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="มากกว่า 60 นาทีหลังตื่นนอน"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="0"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B508"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 9 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="3.คุณสูบบุหรี่ในช่วงแรก\nหลังตื่นนอนหรือไม่"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="ใช่"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B509"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 10 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="ไม่ใช่"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="0"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B510"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 11 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="4.บุหรี่มวนไหนที่คุณ\nไม่อยากเลิกมากที่สุด"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="มวนแรกตอนเช้า"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B511"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 12 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="มวนอื่นๆ"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="0"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B512"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 13 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="5.คุณรู้สึกอยากสูบบุหรี่\nอยู่ตลอดเวลาไหม\nเมื่อคุณไม่สามารถสูบบุหรี่ได้"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="รู้สึกมาก"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B513"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 14 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="ไม่รู้สึกมาก"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="0"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B514"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 15 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="6.คุณยังต้องสูบบุหรี่ \nแม้จะเป็นไข้นอนพักที่\nโรงพยาบาลหรือไม่"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="ใช่"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B515"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; Row 16 &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="0dp"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="ไม่ใช่"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="0"-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text=""-->
-<!--                        android:padding="8dp" />-->
-<!--                    <TextView-->
-<!--                        android:text="1B516"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; แถวสุดท้าย: รวมคะแนน &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="รวมคะแนน"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:textStyle="bold" />-->
-<!--                    <TextView-->
-<!--                        android:layout_span="2"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:gravity="right"-->
-<!--                        android:text="10" />-->
-<!--                </TableRow>-->
-
-<!--                &lt;!&ndash; ผลการประเมิน &ndash;&gt;-->
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="แปลผลคะแนน"-->
-<!--                        android:layout_span="4"-->
-<!--                        android:padding="8dp"-->
-<!--                        android:textStyle="bold" />-->
-<!--                </TableRow>-->
-
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="คะแนน 0 - 3 คะแนน แสดงว่า ไม่เป็นหรือมีการติดบุหรี่ในระดับต่ำ"-->
-<!--                        android:layout_span="4"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="คะแนน 4 - 5 คะแนน แสดงว่า มีการติดบุหรี่ในระดับปานกลาง"-->
-<!--                        android:layout_span="4"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="คะแนน 6 - 7 คะแนน แสดงว่า มีการติดบุหรี่ในระดับสูง"-->
-<!--                        android:layout_span="4"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="คะแนน 8 - 9 คะแนน แสดงว่า มีการติดบุหรี่ในระดับสูงมาก"-->
-<!--                        android:layout_span="4"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--                <TableRow>-->
-<!--                    <TextView-->
-<!--                        android:text="คะแนน 10 คะแนน แสดงว่า มีการติดบุหรี่ในระดับสูงมาก"-->
-<!--                        android:layout_span="4"-->
-<!--                        android:padding="8dp" />-->
-<!--                </TableRow>-->
-
-<!--            </TableLayout>-->
-<!--        </HorizontalScrollView>-->
     </ScrollView>
 
 

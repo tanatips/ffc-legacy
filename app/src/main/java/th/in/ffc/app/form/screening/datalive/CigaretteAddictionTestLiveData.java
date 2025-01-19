@@ -1,5 +1,7 @@
 package th.in.ffc.app.form.screening.datalive;
 
+import java.util.ArrayList;
+
 public class CigaretteAddictionTestLiveData {
     private String personId;
     private Integer selectedQ1;
@@ -8,6 +10,9 @@ public class CigaretteAddictionTestLiveData {
     private Integer selectedQ4;
     private Integer selectedQ5;
     private Integer selectedQ6;
+
+    private Integer score;
+    private ArrayList<Integer> points;
     public Integer getSelectedQ1() {
         return selectedQ1;
     }
@@ -58,5 +63,45 @@ public class CigaretteAddictionTestLiveData {
 
     public void setPersonId(String personId) {
         this.personId = personId;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setSelectedQ1(Integer selectedQ1) {
+        this.selectedQ1 = selectedQ1;
+    }
+
+    public void setSelectedQ2(Integer selectedQ2) {
+        this.selectedQ2 = selectedQ2;
+    }
+
+    public void setSelectedQ3(Integer selectedQ3) {
+        this.selectedQ3 = selectedQ3;
+    }
+
+    public void setSelectedQ4(Integer selectedQ4) {
+        this.selectedQ4 = selectedQ4;
+    }
+
+    public void setSelectedQ5(Integer selectedQ5) {
+        this.selectedQ5 = selectedQ5;
+    }
+
+    public void setSelectedQ6(Integer selectedQ6) {
+        this.selectedQ6 = selectedQ6;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    public ArrayList<Integer> getPoints() {
+        return points;
+    }
+
+    public void setPoints(ArrayList<Integer> points) {
+        this.points = points;
     }
 }

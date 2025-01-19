@@ -87,4 +87,65 @@
 
     </LinearLayout>
 
+    <TableLayout
+        android:id="@+id/depression2resultTable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:stretchColumns="*"
+        >
+
+        <TableRow
+            android:background="@color/header_purple"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ผลการคัดกรอง"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="การแปลผล"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
+        </TableRow>
+
+        <TableRow android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ตอบว่า 'ไม่มี' ทั้ง 2 คำถาม" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ปกติ" />
+        </TableRow>
+
+        <TableRow
+
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ตอบว่า 'มี' อย่างน้อย 1 คำถาม" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ผิดปกติ และส่งต่อเจ้าหน้าที่" />
+        </TableRow>
+    </TableLayout>
 </LinearLayout>

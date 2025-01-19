@@ -1,10 +1,12 @@
 package th.in.ffc.app.form.screening;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -13,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -92,6 +96,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ1(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+                updateScoreAndHighlight();
             }
         });
 
@@ -109,6 +114,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ2(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+                updateScoreAndHighlight();
             }
         });
         rdoSuicideQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -125,7 +131,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ3(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-
+                updateScoreAndHighlight();
             }
         });
 
@@ -143,6 +149,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ3_2_1(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+                updateScoreAndHighlight();
             }
         });
         rdoSuicideQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -159,6 +166,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ4(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+                updateScoreAndHighlight();
             }
         });
         rdoSuicideQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -175,6 +183,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ5(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+                updateScoreAndHighlight();
             }
         });
         rdoSuicideQ6.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -191,7 +200,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ6(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-
+                updateScoreAndHighlight();
             }
         });
         rdoSuicideQ7.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -208,7 +217,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ7(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-
+                updateScoreAndHighlight();
             }
         });
         rdoSuicideQ8.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -225,6 +234,7 @@ public class SuicideAssessment8qFragment extends Fragment {
 
                 suicideAssessment8qLiveData.setSelectedQ8(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+                updateScoreAndHighlight();
             }
         });
         loadData();
@@ -327,4 +337,74 @@ public class SuicideAssessment8qFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_suicide_assessment8q, container, false);
     }
+
+    private int calculateTotalScore() {
+        int totalScore = 0;
+
+        // คำนวณคะแนนตามตารางคะแนนที่กำหนด
+        if ("2".equals(suicideAssessment8qInfo.getQ1())) totalScore += 1;  // ถ้ามี = 1 คะแนน
+        if ("2".equals(suicideAssessment8qInfo.getQ2())) totalScore += 2;  // ถ้ามี = 2 คะแนน
+        if ("2".equals(suicideAssessment8qInfo.getQ3())) totalScore += 6;  // ถ้ามี = 6 คะแนน
+
+        // ถ้าตอบมีในข้อ 3 และตอบไม่ได้ในคำถามย่อย
+        if ("2".equals(suicideAssessment8qInfo.getQ3()) &&
+                "2".equals(suicideAssessment8qInfo.getQ3_2_1())) {
+            totalScore += 8;
+        }
+
+        if ("2".equals(suicideAssessment8qInfo.getQ4())) totalScore += 8;  // ถ้ามี = 8 คะแนน
+        if ("2".equals(suicideAssessment8qInfo.getQ5())) totalScore += 9;  // ถ้ามี = 9 คะแนน
+        if ("2".equals(suicideAssessment8qInfo.getQ6())) totalScore += 4;  // ถ้ามี = 4 คะแนน
+        if ("2".equals(suicideAssessment8qInfo.getQ7())) totalScore += 10; // ถ้ามี = 10 คะแนน
+        if ("2".equals(suicideAssessment8qInfo.getQ8())) totalScore += 4;  // ถ้ามี = 4 คะแนน
+
+        return totalScore;
+    }
+    private void highlightScoreRow(int totalScore) {
+        // หา reference ของแต่ละแถว
+        TableRow row0 = getView().findViewById(R.id.scoreRow0);
+        TableRow row1_8 = getView().findViewById(R.id.scoreRow1_8);
+        TableRow row9_16 = getView().findViewById(R.id.scoreRow9_16);
+        TableRow row17plus = getView().findViewById(R.id.scoreRow17plus);
+
+        // เก็บสีพื้นหลังเดิมไว้
+        int defaultWhite = ContextCompat.getColor(requireContext(), R.color.white);// Color.WHITE;
+        int lightGray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+        int highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow); // สีเหลืองสำหรับ highlight
+
+        // รีเซ็ตสีพื้นหลังเป็นค่าเริ่มต้น
+        row0.setBackgroundColor(defaultWhite);
+        row1_8.setBackgroundColor(lightGray);
+        row9_16.setBackgroundColor(defaultWhite);
+        row17plus.setBackgroundColor(lightGray);
+
+        // ไฮไลท์แถวตามช่วงคะแนนและเก็บรหัสที่เกี่ยวข้อง
+        String resultCode = "";
+        if (totalScore == 0) {
+            row0.setBackgroundColor(highlightColor);
+            resultCode = "1B0270";
+        } else if (totalScore >= 1 && totalScore <= 8) {
+            row1_8.setBackgroundColor(highlightColor);
+            resultCode = "1B0271";
+        } else if (totalScore >= 9 && totalScore <= 16) {
+            row9_16.setBackgroundColor(highlightColor);
+            resultCode = "1B0272";
+        } else if (totalScore >= 17) {
+            row17plus.setBackgroundColor(highlightColor);
+            resultCode = "1B0273";
+        }
+
+        // แสดงผลคะแนนและรหัส
+        TextView resultTextView = getView().findViewById(R.id.resultTextView);
+        if (resultTextView != null) {
+            resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน (%s)", totalScore, resultCode));
+        }
+    }
+
+    // เพิ่มฟังก์ชันอัพเดทคะแนนและไฮไลท์
+    private void updateScoreAndHighlight() {
+        int totalScore = calculateTotalScore();
+        highlightScoreRow(totalScore);
+    }
+
 }

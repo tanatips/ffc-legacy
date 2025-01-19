@@ -1,10 +1,12 @@
 package th.in.ffc.app.form.screening;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -13,6 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +48,10 @@ public class StressDepression9qFragment extends Fragment {
     private ArrayList<Integer> points;
 
     private RadioGroup[] radioGroups;
+
+    private TableLayout depression9resultTable;
     private static final int QUESTION_COUNT = 9;
+    private TextView depression9result;
     public StressDepression9qFragment() {
         // Required empty public constructor
     }
@@ -66,7 +74,26 @@ public class StressDepression9qFragment extends Fragment {
                 0,0,0,
                 0,0,0));
     }
+    private void displayPoints() {
+        int totalScore = sumPoints();
+//        depression9result.setText("คะแนน: "+String.valueOf(totalScore));
+    }
+    private int sumPoints() {
+        // ตรวจสอบว่า points ไม่เป็น null
+        if (points == null) {
+            return 0;
+        }
 
+        // คำนวณผลรวมของคะแนนทั้งหมด
+        int totalScore = 0;
+        for (Integer point : points) {
+            if (point != null) {
+                totalScore += point;
+            }
+        }
+
+        return totalScore;
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -88,6 +115,8 @@ public class StressDepression9qFragment extends Fragment {
         RadioGroup rdoStress9qQ7 = view.findViewById(R.id.rdoStress9qQ7);
         RadioGroup rdoStress9qQ8 = view.findViewById(R.id.rdoStress9qQ8);
         RadioGroup rdoStress9qQ9 = view.findViewById(R.id.rdoStress9qQ9);
+        depression9resultTable = view.findViewById(R.id.depression9resultTable);
+        depression9result = view.findViewById(R.id.depression9result);
         rdoStress9qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
@@ -112,6 +141,7 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qLiveData.setSelectedQ1(checkedId);
 
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
 
             }
         });
@@ -137,9 +167,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ2(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ2(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
             }
         });
 
@@ -164,9 +195,12 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ3(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ3(checkedId);
-                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData); }
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
+            }
+
         });
 
         rdoStress9qQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -190,9 +224,11 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ4(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ4(checkedId);
-                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData); }
+                shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
+            }
         });
 
         rdoStress9qQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -216,9 +252,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ5(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ5(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
             }
         });
 
@@ -243,9 +280,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ6(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ6(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
             }
         });
 
@@ -270,9 +308,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ7(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ7(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
             }
         });
 
@@ -297,9 +336,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ8(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ8(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
             }
         });
 
@@ -324,9 +364,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ9(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
+                updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ9(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
+                displayPoints();
 
             }
         });
@@ -374,6 +415,7 @@ public class StressDepression9qFragment extends Fragment {
                 }
             }
         }
+        displayPoints();
     }
     private void setQuestionValue(int questionNumber, String value) {
         switch (questionNumber) {
@@ -413,5 +455,44 @@ public class StressDepression9qFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
+    }
+    private void updateTableHighlight() {
+        // คำนวณคะแนนรวม
+        String resultCode = "";
+        int totalScore = 0;
+        for (Integer point : points) {
+            totalScore += point;
+        }
+        int defaultWhite = ContextCompat.getColor(requireContext(), R.color.white);// Color.WHITE;
+        int lightGray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+        int highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow); // สีเหลืองสำหรับ highlight
+
+        // ล้าง highlight เดิม
+        for (int i = 1; i < depression9resultTable.getChildCount(); i++) {
+            TableRow row = (TableRow) depression9resultTable.getChildAt(i);
+            row.setBackgroundColor(i % 2 == 0 ?
+                    lightGray : defaultWhite);
+        }
+
+        // กำหนด highlight ตามช่วงคะแนน
+        TableRow rowToHighlight = null;
+        if (totalScore < 7) {
+            rowToHighlight = (TableRow) depression9resultTable.getChildAt(1);
+            resultCode = "1B0260|1B0282";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            rowToHighlight = (TableRow) depression9resultTable.getChildAt(2);
+            resultCode = "1B0261:1B0283";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            rowToHighlight = (TableRow) depression9resultTable.getChildAt(3);
+            resultCode = "1B0262:1B0284";
+        } else if (totalScore >= 19) {
+            rowToHighlight = (TableRow) depression9resultTable.getChildAt(4);
+            resultCode = "1B0263:1B0285";
+        }
+
+        if (rowToHighlight != null) {
+            rowToHighlight.setBackgroundColor(highlightColor); // highlight แถวที่ตรงกับช่วงคะแนน
+        }
+        depression9result.setText(String.format("คะแนนที่ได้: %d คะแนน (%s)", totalScore, resultCode));
     }
 }

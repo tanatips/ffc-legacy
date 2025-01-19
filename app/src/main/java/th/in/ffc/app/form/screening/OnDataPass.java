@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.DataCenterInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
@@ -24,4 +25,6 @@ public interface OnDataPass {
     void onSuicideAssessment8q(SuicideAssessment8qInfo data);
 
     void onHealthRiskAssessmentInfo(HealthRiskAssessmentInfo data);
+
+    void onAssistScoreInfo(AssistScore data);
 }

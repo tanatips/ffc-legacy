@@ -1,18 +1,25 @@
 package th.in.ffc.app.form.screening;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -40,6 +47,9 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
     private OnDataPass dataPasser;
     private HealthRiskAssessmentInfo healthRiskAssessmentInfo;
+
+    private EditText editFcbg;
+    private EditText editFpg;
 
     public HealthRiskAssessmentFragment() {
         // Required empty public constructor
@@ -91,6 +101,8 @@ public class HealthRiskAssessmentFragment extends Fragment {
         RadioGroup rdoHealthRiskQ4 = view.findViewById(R.id.rdoHealthRiskQ4);
         RadioGroup rdoHealthRiskQ5 = view.findViewById(R.id.rdoHealthRiskQ5);
         RadioGroup rdoHealthRiskQ6 = view.findViewById(R.id.rdoHealthRiskQ6);
+        editFcbg = view.findViewById(R.id.edtFCBG);
+        editFpg = view.findViewById(R.id.edtFPG);
         rdoHealthRiskQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
@@ -109,6 +121,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 healthRiskAssessmentInfo.setHealthRiskQ1(data);
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
+                updateScoreAndHighlight();
             }
         });
         rdoHealthRiskQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -125,6 +138,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 healthRiskAssessmentInfo.setHealthRiskQ2(data);
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
+                updateScoreAndHighlight();
             }
         });
 
@@ -144,6 +158,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 healthRiskAssessmentInfo.setHealthRiskQ3(data);
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
+                updateScoreAndHighlight();
             }
         });
 
@@ -161,6 +176,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 healthRiskAssessmentInfo.setHealthRiskQ4(data);
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
+                updateScoreAndHighlight();
             }
         });
 
@@ -178,6 +194,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 healthRiskAssessmentInfo.setHealthRiskQ5(data);
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
+                updateScoreAndHighlight();
             }
         });
 
@@ -195,9 +212,12 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 healthRiskAssessmentInfo.setHealthRiskQ6(data);
                 dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
+                updateScoreAndHighlight();
             }
         });
+
         loadData();
+        setupGlucoseInputListeners();
     }
     private void loadData(){
         SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(getContext());
@@ -210,7 +230,9 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 for(HealthRiskAssessmentInfo healthRiskAssessmentInfo1 :healthRiskAssessmentInfos){
                     Log.d("healthRiskAssessmentInfo1 ", "healthRiskAssessmentInfo1 infos:"+healthRiskAssessmentInfo1);
                     setHealthRiskInfo(healthRiskAssessmentInfo1);
+
                 }
+
             }
         });
     }
@@ -305,9 +327,151 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 radioButton.setChecked(true);
             }
         }
+        editFcbg.setText(healthRiskAssessmentInfo.getFcbg());
+        editFpg.setText(healthRiskAssessmentInfo.getFpg());
+        updateScoreAndHighlight();
     }
 
     public HealthRiskAssessmentInfo getHealthRiskAssessmentInfo() {
         return healthRiskAssessmentInfo;
+    }
+    private int calculateTotalScore() {
+        int totalScore = 0;
+
+        // คะแนนอายุ
+        if ("1".equals(healthRiskAssessmentInfo.getHealthRiskQ1())) totalScore += 0;  // 34-39 ปี
+        if ("2".equals(healthRiskAssessmentInfo.getHealthRiskQ1())) totalScore += 0;  // 40-44 ปี
+        if ("3".equals(healthRiskAssessmentInfo.getHealthRiskQ1())) totalScore += 1;  // 45-49 ปี
+        if ("4".equals(healthRiskAssessmentInfo.getHealthRiskQ1())) totalScore += 2;  // 50 ปีขึ้นไป
+
+        // คะแนนเพศ
+        if ("1".equals(healthRiskAssessmentInfo.getHealthRiskQ2())) totalScore += 0;  // หญิง
+        if ("2".equals(healthRiskAssessmentInfo.getHealthRiskQ2())) totalScore += 2;  // ชาย
+
+        // คะแนน BMI
+        if ("1".equals(healthRiskAssessmentInfo.getHealthRiskQ3())) totalScore += 0;  // < 23
+        if ("2".equals(healthRiskAssessmentInfo.getHealthRiskQ3())) totalScore += 3;  // 23-27.5
+        if ("3".equals(healthRiskAssessmentInfo.getHealthRiskQ3())) totalScore += 5;  // >= 27.5
+
+        // คะแนนรอบเอว
+        if ("1".equals(healthRiskAssessmentInfo.getHealthRiskQ4())) totalScore += 0;  // ปกติ
+        if ("2".equals(healthRiskAssessmentInfo.getHealthRiskQ4())) totalScore += 2;  // เกิน
+
+        // คะแนนความดัน
+        if ("1".equals(healthRiskAssessmentInfo.getHealthRiskQ5())) totalScore += 0;  // ไม่มี
+        if ("2".equals(healthRiskAssessmentInfo.getHealthRiskQ5())) totalScore += 2;  // มี
+
+        // คะแนนประวัติครอบครัว
+        if ("1".equals(healthRiskAssessmentInfo.getHealthRiskQ6())) totalScore += 0;  // ไม่มี
+        if ("2".equals(healthRiskAssessmentInfo.getHealthRiskQ6())) totalScore += 4;  // มี
+
+        return totalScore;
+    }
+
+    private void highlightScoreRow(int totalScore) {
+
+        int white = ContextCompat.getColor(requireContext(), R.color.white);
+        int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+        int highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+
+        TableRow row1 = getView().findViewById(R.id.scoreRow1);
+        TableRow row2 = getView().findViewById(R.id.scoreRow2);
+        TableRow row3 = getView().findViewById(R.id.scoreRow3);
+        TableRow row4 = getView().findViewById(R.id.scoreRow4);
+
+        // รีเซ็ตสีพื้นหลัง
+        row1.setBackgroundColor(white);
+        row2.setBackgroundColor(light_gray);
+        row3.setBackgroundColor(white);
+        row4.setBackgroundColor(light_gray);
+
+        // ไฮไลท์แถวตามคะแนน
+        if (totalScore <= 2) {
+            row1.setBackgroundColor(highlightColor);
+        } else if (totalScore >= 3 && totalScore <= 5) {
+            row2.setBackgroundColor(highlightColor);
+        } else if (totalScore >= 6 && totalScore <= 8) {
+            row3.setBackgroundColor(highlightColor);
+        } else if (totalScore > 8) {
+            row4.setBackgroundColor(highlightColor);
+        }
+        TextView resultTextView = getView().findViewById(R.id.resultHealthRiskScrollView);
+        if (resultTextView != null) {
+            resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน", totalScore));
+        }
+    }
+    private void updateScoreAndHighlight() {
+        int totalScore = calculateTotalScore();
+        highlightScoreRow(totalScore);
+    }
+    private void highlightGlucoseRow(double glucoseValue) {
+        TableRow row1 = getView().findViewById(R.id.glucoseRow1);
+        TableRow row2 = getView().findViewById(R.id.glucoseRow2);
+        TableRow row3 = getView().findViewById(R.id.glucoseRow3);
+
+        // รีเซ็ตสีพื้นหลัง
+        int white = ContextCompat.getColor(requireContext(), R.color.white);
+        int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+        int highlight = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+        row1.setBackgroundColor(white);
+        row2.setBackgroundColor(light_gray);
+        row3.setBackgroundColor(white);
+
+        if (glucoseValue < 100) {
+            row1.setBackgroundColor(highlight);
+        } else if (glucoseValue >= 100 && glucoseValue <= 125) {
+            row2.setBackgroundColor(highlight);
+        } else if (glucoseValue >= 126) {
+            row3.setBackgroundColor(highlight);
+        }
+
+    }
+    private void setupGlucoseInputListeners() {
+        EditText edtFCBG = getView().findViewById(R.id.edtFCBG);
+        EditText edtFPG = getView().findViewById(R.id.edtFPG);
+
+        // Listener สำหรับ FCBG
+        edtFCBG.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    if (!s.toString().isEmpty()) {
+                        double fcbgValue = Double.parseDouble(s.toString());
+                        healthRiskAssessmentInfo.setFcbg(s.toString());
+                        highlightGlucoseRow(fcbgValue);
+                    }
+                } catch (NumberFormatException e) {
+                    // จัดการกรณีที่ข้อมูลไม่ใช่ตัวเลข
+                }
+            }
+        });
+
+        // Listener สำหรับ FPG
+        edtFPG.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    if (!s.toString().isEmpty()) {
+                        double fpgValue = Double.parseDouble(s.toString());
+                        healthRiskAssessmentInfo.setFpg(s.toString());
+                        highlightGlucoseRow(fpgValue);
+                    }
+                } catch (NumberFormatException e) {
+                    // จัดการกรณีที่ข้อมูลไม่ใช่ตัวเลข
+                }
+            }
+        });
     }
 }

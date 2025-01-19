@@ -38,6 +38,8 @@ public class SfHealthRiskAssessmentInfoDao {
             values.put("health_risk_q4", data.getHealthRiskQ4());
             values.put("health_risk_q5", data.getHealthRiskQ5());
             values.put("health_risk_q6", data.getHealthRiskQ6());
+            values.put("fcbg", data.getFcbg());
+            values.put("fpg", data.getFpg());
             values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             values.put("created_by", "");
             values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -70,6 +72,8 @@ public class SfHealthRiskAssessmentInfoDao {
                 data.setHealthRiskQ4(cursor.getString(cursor.getColumnIndex("health_risk_q4")));
                 data.setHealthRiskQ5(cursor.getString(cursor.getColumnIndex("health_risk_q5")));
                 data.setHealthRiskQ6(cursor.getString(cursor.getColumnIndex("health_risk_q6")));
+                data.setFcbg(cursor.getString(cursor.getColumnIndex("fcbg")));
+                data.setFpg(cursor.getString(cursor.getColumnIndex("fpg")));
                 data.setCreated_by(cursor.getString(cursor.getColumnIndex("created_by")));
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
@@ -98,6 +102,8 @@ public class SfHealthRiskAssessmentInfoDao {
                 data.setHealthRiskQ4(cursor.getString(cursor.getColumnIndex("health_risk_q4")));
                 data.setHealthRiskQ5(cursor.getString(cursor.getColumnIndex("health_risk_q5")));
                 data.setHealthRiskQ6(cursor.getString(cursor.getColumnIndex("health_risk_q6")));
+                data.setFcbg(cursor.getString(cursor.getColumnIndex("fcbg")));
+                data.setFpg(cursor.getString(cursor.getColumnIndex("fpg")));
                 data.setCreated_by(cursor.getString(cursor.getColumnIndex("created_by")));
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
@@ -121,6 +127,8 @@ public class SfHealthRiskAssessmentInfoDao {
         values.put("health_risk_q4", data.getHealthRiskQ4());
         values.put("health_risk_q5", data.getHealthRiskQ5());
         values.put("health_risk_q6", data.getHealthRiskQ6());
+        values.put("fcbg", data.getFcbg());
+        values.put("fpg", data.getFpg());
         values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         values.put("updated_by", "");
 

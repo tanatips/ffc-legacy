@@ -655,8 +655,10 @@ public class PersonInfoFragment extends Fragment {
                             Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 //                    imgPerson.setImageBitmap(bitmap);
                         }
-                        if(strIdcard!=null){
+                        if(strIdcard!=null && !strIdcard.equals("")){
+
                             String[] idcardInfo = strIdcard.split("#");
+                            if(idcardInfo.length>0){
                             citizenId.setText(idcardInfo[0].toString());
                             fname.setText(idcardInfo[2].toString());
                             lname.setText(idcardInfo[4].toString());
@@ -668,11 +670,11 @@ public class PersonInfoFragment extends Fragment {
                             txtBirthDay.setText(day+"/"+month+"/"+year);
 //                            birthday.updateDate(year , month, day);
 //                    f.hno.setText(idcardInfo[9].toString());
-                    if(idcardInfo[1].toString().equals("นาย")) {
-                        rdoMale.setChecked(true);
-                    } else {
-                        rdoMale.setChecked(true);
-                    }
+                            if(idcardInfo[1].toString().equals("นาย")) {
+                                rdoMale.setChecked(true);
+                            } else {
+                                rdoMale.setChecked(true);
+                            }
 //                    String[] prenameArray = getResources().getStringArray(R.array.prename);
 //                    String defaultValue = idcardInfo[1];
 //                    int defaultPosition = -1;
@@ -705,6 +707,7 @@ public class PersonInfoFragment extends Fragment {
 //                        }
 //                    }
                         }
+                            }
                     }
                 }
             }

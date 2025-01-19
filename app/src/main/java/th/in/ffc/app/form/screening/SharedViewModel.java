@@ -13,6 +13,7 @@ import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
+import th.in.ffc.app.form.screening.model.AssistScore;
 
 public class SharedViewModel extends ViewModel {
 
@@ -35,6 +36,8 @@ public class SharedViewModel extends ViewModel {
     private  MutableLiveData<SuicideAssessment8qLiveData>  suicideAssessment8qLiveDataMutableLiveData = new MutableLiveData<>();
 
     private  MutableLiveData<HealthRiskAssessmentLiveData>  healthRiskAssessmentLiveDataMutableLiveData = new MutableLiveData<>();
+
+    private MutableLiveData<AssistScore> assistScoreMutableLiveData = new MutableLiveData<>();
 
     public void setStressDepression9qLiveData(StressDepression9qLiveData value) {
         stressDepression9qLiveDataModelMutableLiveData.setValue(value);
@@ -134,5 +137,12 @@ public class SharedViewModel extends ViewModel {
 
     public void setStressDepression9qLiveDataModelMutableLiveData( StressDepression9qLiveData value) {
         this.stressDepression9qLiveDataModelMutableLiveData.setValue(value);
+    }
+
+    public MutableLiveData<AssistScore> getAssistScoreMutableLiveData() {
+        return assistScoreMutableLiveData;
+    }
+    public void setAssistScoreMutableLiveData ( AssistScore value) {
+        this.assistScoreMutableLiveData.setValue(value);
     }
 }

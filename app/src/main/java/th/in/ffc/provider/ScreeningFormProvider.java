@@ -877,6 +877,10 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String HEALTH_RISK_Q4 = "health_risk_q4";
         public static final String HEALTH_RISK_Q5 = "health_risk_q5";
         public static final String HEALTH_RISK_Q6 = "health_risk_q6";
+
+        public static final String FCBG = "fcbg";
+
+        public static final String FPG = "fpg";
         public static final String CREATED_BY = "created_by";
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
@@ -894,6 +898,8 @@ public class ScreeningFormProvider extends ContentProvider {
                 HEALTH_RISK_Q4 + " TEXT NOT NULL," +
                 HEALTH_RISK_Q5 + " TEXT NOT NULL," +
                 HEALTH_RISK_Q6 + " TEXT NOT NULL," +
+                FCBG + " TEXT NOT NULL," +
+                FPG + " TEXT NOT NULL," +
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
@@ -910,6 +916,8 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.HEALTH_RISK_Q4, "health_risk_q4 AS " + SfHealthRiskAssessmentInfo.HEALTH_RISK_Q4);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.HEALTH_RISK_Q5, "health_risk_q5 AS " + SfHealthRiskAssessmentInfo.HEALTH_RISK_Q5);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.HEALTH_RISK_Q6, "health_risk_q6 AS " + SfHealthRiskAssessmentInfo.HEALTH_RISK_Q6);
+            PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.FCBG, "fcbg AS " + SfHealthRiskAssessmentInfo.FCBG);
+            PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.FPG, "fpg AS " + SfHealthRiskAssessmentInfo.FPG);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.CREATED_BY, "created_by AS " + SfHealthRiskAssessmentInfo.CREATED_BY);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.CREATED_DATE, "created_date AS " + SfHealthRiskAssessmentInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.UPDATED_BY, "updated_by AS " + SfHealthRiskAssessmentInfo.UPDATED_BY);

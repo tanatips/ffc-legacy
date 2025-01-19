@@ -135,8 +135,11 @@ public class StressDepressionInfo {
         final int[] sum = {0};
         String result = "";
         // ต้องเป็น final array เพราะใช้ใน lambda
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            getPoints().forEach(num -> sum[0] += num);
+            if(getPoints()!=null) {
+                getPoints().forEach(num -> sum[0] += num);
+            }
         }
         setSum(sum[0]);
         return this.sum;

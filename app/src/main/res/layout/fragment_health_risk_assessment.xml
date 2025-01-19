@@ -250,5 +250,291 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+    <!-- ตารางแปลผล -->
+    <TextView
+        android:id="@+id/resultHealthRiskScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:stretchColumns="*">
+
+        <!-- Header Row -->
+        <TableRow
+            android:background="@color/header_purple"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="ผลรวมคะแนน"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:text="ความเสี่ยงเบาหวาน\nใน 12 ปี"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ระดับ\nความเสี่ยง"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textStyle="bold" />
+        </TableRow>
+
+        <!-- Score Row 1 -->
+        <TableRow
+            android:id="@+id/scoreRow1"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="น้อยกว่าหรือเท่ากับ 2"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="น้อยกว่าร้อยละ 5"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="เสี่ยงน้อย"/>
+        </TableRow>
+
+        <!-- Score Row 2 -->
+        <TableRow
+            android:id="@+id/scoreRow2"
+            android:background="#F0F0F0"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="3-5"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="ร้อยละ 5-10"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="เสี่ยงปานกลาง"/>
+        </TableRow>
+
+        <!-- Score Row 3 -->
+        <TableRow
+            android:id="@+id/scoreRow3"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="6-8"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="ร้อยละ 11-20"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="เสี่ยงสูง"/>
+        </TableRow>
+
+        <!-- Score Row 4 -->
+        <TableRow
+            android:id="@+id/scoreRow4"
+            android:background="#F0F0F0"
+            android:padding="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="มากกว่า 8"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="มากกว่าร้อยละ 20"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:text="เสี่ยงสูงมาก"/>
+        </TableRow>
+    </TableLayout>
+    <!-- ส่วนแสดงผลการตรวจ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ระดับน้ำตาลในเลือดโดยวิธีเจาะปลายนิ้ว (FCBG)"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/edtFCBG"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="มก/ดล"
+            android:inputType="numberDecimal"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ระดับพลาสมากลูโคส (FPG)"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/edtFPG"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="มก/ดล"
+            android:inputType="numberDecimal"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:layout_margin="16dp">
+
+            <!-- Header Row -->
+            <TableRow
+                android:background="#800080"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ระดับน้ำตาลในเลือด"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="การแปลผล"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+            </TableRow>
+
+            <!-- Data Row 1 -->
+            <TableRow
+                android:id="@+id/glucoseRow1"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="น้อยกว่า 100"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ปกติ"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+            </TableRow>
+
+            <!-- Data Row 2 -->
+            <TableRow
+                android:id="@+id/glucoseRow2"
+                android:background="#F0F0F0"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="100-125"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="เสี่ยงต่อการเป็นโรคเบาหวาน"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+            </TableRow>
+
+            <!-- Data Row 3 -->
+            <TableRow
+                android:id="@+id/glucoseRow3"
+                android:padding="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ตั้งแต่ 126 ขึ้นไป"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="เป็นโรคเบาหวาน"
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -13,6 +13,9 @@ public class HealthRiskAssessmentInfo {
     private String HealthRiskQ5="0";
     private String HealthRiskQ6="0";
 
+    private String fcbg="0";
+    private String fpg="0";
+
     private String created_by;
     private String created_date;
     private String updated_by;
@@ -88,6 +91,22 @@ public class HealthRiskAssessmentInfo {
 
     public void setIdcard(String idcard) {
         this.idcard = idcard;
+    }
+
+    public String getFcbg() {
+        return fcbg;
+    }
+
+    public void setFcbg(String fcbg) {
+        this.fcbg = fcbg;
+    }
+
+    public String getFpg() {
+        return fpg;
+    }
+
+    public void setFpg(String fpg) {
+        this.fpg = fpg;
     }
 
     public String getCreated_by() {

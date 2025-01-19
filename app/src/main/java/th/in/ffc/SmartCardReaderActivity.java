@@ -17,7 +17,10 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -191,14 +194,55 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                 /*================= Close Lib =================*/
                 NALibs.closeLibNA();
 
-                Bitmap bitmap = ((BitmapDrawable) iv_Photo.getDrawable()).getBitmap();
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                Intent intent = new Intent();
-                intent.putExtra("result",tv_Result.getText());
-                intent.putExtra("image",byteArray);
-                setResult(Activity.RESULT_OK, intent);
+
+//                Bitmap bitmap = ((BitmapDrawable) iv_Photo.getDrawable()).getBitmap();
+//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//                byte[] byteArray = stream.toByteArray();
+//                Intent intent = new Intent();
+//                intent.putExtra("result",tv_Result.getText());
+//                intent.putExtra("image",byteArray);
+//                setResult(Activity.RESULT_OK, intent);
+                try {
+                    Bitmap bitmap;
+                    Drawable drawable = iv_Photo.getDrawable();
+
+                    if (drawable instanceof VectorDrawable) {
+                        // สำหรับ VectorDrawable
+                        bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                                drawable.getIntrinsicHeight(),
+                                Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(bitmap);
+                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        drawable.draw(canvas);
+                    } else if (drawable instanceof BitmapDrawable) {
+                        // สำหรับ BitmapDrawable
+                        bitmap = ((BitmapDrawable) drawable).getBitmap();
+                    } else {
+                        // สำหรับ Drawable ประเภทอื่นๆ
+                        bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                                drawable.getIntrinsicHeight(),
+                                Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(bitmap);
+                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        drawable.draw(canvas);
+                    }
+
+                    // แปลง Bitmap เป็น byte array
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+
+                    // ส่งข้อมูลกลับ
+                    Intent intent = new Intent();
+                    intent.putExtra("result", tv_Result.getText());
+                    intent.putExtra("image", byteArray);
+                    setResult(Activity.RESULT_OK, intent);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    setResult(Activity.RESULT_CANCELED);
+                }
                 finish();
 //                System.exit(0);
             }

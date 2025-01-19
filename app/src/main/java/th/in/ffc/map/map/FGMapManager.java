@@ -233,10 +233,10 @@ public class FGMapManager implements OnClickListener {
     // Google satellite
     public static final OnlineTileSourceBase GoogleSat = new XYTileSource("Google-Sat",
             0, 19, 512, ".png", new String[]{
-            "http://mt0.google.com",
-            "http://mt1.google.com",
-            "http://mt2.google.com",
-            "http://mt3.google.com",
+            "https://mt0.google.com",
+            "https://mt1.google.com",
+            "https://mt2.google.com",
+            "https://mt3.google.com",
     }) {
         @Override
         public String getTileURLString(long pMapTileIndex) {
@@ -245,10 +245,10 @@ public class FGMapManager implements OnClickListener {
     };
     public static final OnlineTileSourceBase GoogleRoads = new XYTileSource("Google-Roads",
             0, 18, 512, ".png", new String[]{
-            "http://mt0.google.com",
-            "http://mt1.google.com",
-            "http://mt2.google.com",
-            "http://mt3.google.com",
+            "https://mt0.google.com",
+            "https://mt1.google.com",
+            "https://mt2.google.com",
+            "https://mt3.google.com",
     }) {
         @Override
         public String getTileURLString(long pMapTileIndex) {

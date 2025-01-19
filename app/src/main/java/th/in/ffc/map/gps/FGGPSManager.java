@@ -40,7 +40,7 @@ public class FGGPSManager {
         criteria.setPowerRequirement(Criteria.POWER_HIGH);
 
         this.regenerateProvider();
-        // this.stringProvider = LocationManager.GPS_PROVIDER;
+         this.stringProvider = LocationManager.GPS_PROVIDER;
 
     }
 

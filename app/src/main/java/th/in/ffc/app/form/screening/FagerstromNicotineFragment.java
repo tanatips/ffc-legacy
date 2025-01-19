@@ -1,10 +1,12 @@
 package th.in.ffc.app.form.screening;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -12,6 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +25,7 @@ import java.util.List;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.dao.SfNicotineInfoDao;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
+import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
@@ -46,6 +52,13 @@ public class FagerstromNicotineFragment extends Fragment {
     private RadioGroup rdoNicotineQ4;
     private RadioGroup rdoNicotineQ5;
     private RadioGroup rdoNicotineQ6;
+    private TableLayout tbFagerstrome;
+    private int currentHighlightedRow = -1;
+
+    private int white;
+    private int light_gray;
+    private int highlightColor;
+
 
 
     public FagerstromNicotineFragment() {
@@ -72,7 +85,7 @@ public class FagerstromNicotineFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         cigaretteAddictionTest = new CigaretteAddictionTestLiveData();
-        shareViewModel = new SharedViewModel();
+        shareViewModel =  new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
     }
 
@@ -85,6 +98,9 @@ public class FagerstromNicotineFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        white = ContextCompat.getColor(requireContext(), R.color.white);
+        light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+        highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
         View parentViewPager = (View) view.getParent();
         if (parentViewPager != null) {
             parentViewPager.post(() -> {
@@ -96,7 +112,7 @@ public class FagerstromNicotineFragment extends Fragment {
         }
         points = new ArrayList<>();
         points.addAll(Arrays.asList(0,0,0,0,0,0));
-
+        tbFagerstrome = view.findViewById(R.id.tbFagerstrome);
         nicotineInfo = new NicotineInfo();
         rdoNicotineQ1 = view.findViewById(R.id.rdoNicotineQ1);
         rdoNicotineQ2 = view.findViewById(R.id.rdoNicotineQ2);
@@ -129,6 +145,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 nicotineInfo.setNicotine1(data);
                 nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
+                calculatePoints();
             }
         });
 
@@ -157,6 +174,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 nicotineInfo.setNicotine2(data);
                 nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
+                calculatePoints();
             }
         });
 
@@ -177,6 +195,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 nicotineInfo.setNicotine3(data);
                 nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
+                calculatePoints();
             }
         });
 
@@ -198,6 +217,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 nicotineInfo.setNicotine4(data);
                 nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
+                calculatePoints();
             }
         });
 
@@ -218,6 +238,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 nicotineInfo.setNicotine5(data);
                 nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
+                calculatePoints();
             }
         });
 
@@ -235,27 +256,130 @@ public class FagerstromNicotineFragment extends Fragment {
                     data = "2";
                     points.set(5,0);
                 }
+                cigaretteAddictionTest.setPoints(points);
+
                 nicotineInfo.setNicotine6(data);
-                nicotineInfo.setPoints(points);
+//                nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
+                calculatePoints();
             }
         });
         loadData();
     }
 
+    private void highlightScore(int score) {
+        // ล้าง highlight เดิม (ถ้ามี)
+        if (currentHighlightedRow != -1) {
+            TableRow previousRow = (TableRow) tbFagerstrome.getChildAt(currentHighlightedRow);
+            if (previousRow != null) {
+                previousRow.setBackgroundColor(getRowDefaultColor(currentHighlightedRow));
+            }
+        }
+
+        // หาแถวที่ต้อง highlight
+        int rowToHighlight;
+        if (score >= 0 && score <= 3) {
+            rowToHighlight = 1;  // แถวแรกหลังหัวตาราง
+        } else if (score >= 4 && score <= 5) {
+            rowToHighlight = 2;
+        } else if (score >= 6 && score <= 7) {
+            rowToHighlight = 3;
+        } else if (score >= 8 && score <= 9) {
+            rowToHighlight = 4;
+        } else if (score == 10) {
+            rowToHighlight = 5;
+        } else {
+            return; // คะแนนไม่อยู่ในช่วงที่กำหนด
+        }
+
+        // ทำการ highlight แถวที่ตรงกับช่วงคะแนน
+        TableRow rowToChange = (TableRow) tbFagerstrome.getChildAt(rowToHighlight);
+        if (rowToChange != null) {
+//            rowToChange.setBackgroundColor(getHighlightColor(score));
+            rowToChange.setBackgroundColor(highlightColor);
+            currentHighlightedRow = rowToHighlight;
+        }
+        TextView resultTextView = requireView().findViewById(R.id.resultFagerStromScore);
+        if (resultTextView != null) {
+            resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน", score));
+        }
+
+    }
+    private int getRowDefaultColor(int rowIndex) {
+        if (rowIndex == 0) { // หัวตาราง
+            return getResources().getColor(R.color.purple_500);
+        } else if (rowIndex % 2 == 0) { // แถวคู่
+            return Color.parseColor("#F5F5F5");
+        } else { // แถวคี่
+            return Color.WHITE;
+        }
+    }
+
+    /**
+     * ฟังก์ชันกำหนดสี highlight ตามระดับคะแนน
+     */
+    private int getHighlightColor(int score) {
+        if (score >= 0 && score <= 3) {
+            return Color.parseColor("#E8F5E9"); // สีเขียวอ่อน
+        } else if (score >= 4 && score <= 5) {
+            return Color.parseColor("#FFF3E0"); // สีส้มอ่อน
+        } else if (score >= 6 && score <= 7) {
+            return Color.parseColor("#FFE0B2"); // สีส้ม
+        } else if (score >= 8 && score <= 9) {
+            return Color.parseColor("#FFCCBC"); // สีส้มแดง
+        } else {
+            return Color.parseColor("#FFCDD2"); // สีแดงอ่อน
+        }
+    }
+    private void updateScore(int newScore) {
+        highlightScore(newScore);
+
+        // อัพเดตข้อความแสดงผลเพิ่มเติม (ถ้ามี)
+        String interpretation = getScoreInterpretation(newScore);
+        // TODO: แสดงข้อความตีความผลคะแนนในส่วนอื่นๆ ของ UI
+    }
+
+    /**
+     * ฟังก์ชันสำหรับรับข้อความแปลผลคะแนน
+     */
+    private String getScoreInterpretation(int score) {
+        if (score >= 0 && score <= 3) {
+            return "ไม่มีบ่วงคุดติดสารนิโคติน";
+        } else if (score >= 4 && score <= 5) {
+            return "คุณติดสารนิโคตินในระดับปานกลาง";
+        } else if (score >= 6 && score <= 7) {
+            return "คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง";
+        } else if (score >= 8 && score <= 9) {
+            return "คุณติดสารนิโคตินในระดับสูง";
+        } else if (score == 10) {
+            return "คุณติดสารนิโคตินในระดับสูงมาก";
+        } else {
+            return "คะแนนไม่อยู่ในช่วงที่กำหนด";
+        }
+    }
+
     private void loadData(){
         SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(getContext());
-        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        viewModel.getCigatetteAddictionTestMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+//        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        shareViewModel.getCigatetteAddictionTestMutableLiveData().observe(getViewLifecycleOwner(), data -> {
 
             if(data.getPersonId()!=null){
                 List<NicotineInfo> nicotineInfos = sfNicotineInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
                 for(NicotineInfo nicotineInfo :nicotineInfos){
                     Log.d("smoker", "smoker infos:"+nicotineInfo);
                     setNicotineInfo(nicotineInfo);
+
+                    if(nicotineInfo.getSum()!=null) {
+                        AssistScore assistScore = new AssistScore();
+                        assistScore.setNicotineScore(nicotineInfo.getSum().toString());
+                        assistScore.setPersonId(nicotineInfo.getPersonId());
+                        shareViewModel.setAssistScoreMutableLiveData(assistScore);
+                    }
+                    dataPasser.onNicotineInfo(nicotineInfo);
                 }
             }
         });
+
     }
     public void setNicotineInfo(NicotineInfo info) {
         this.nicotineInfo = info;
@@ -348,5 +472,12 @@ public class FagerstromNicotineFragment extends Fragment {
             sum += point;
         }
         nicotineInfo.setSum(sum);
+        cigaretteAddictionTest.setScore(sum);
+        highlightScore(sum);
+        AssistScore assistScore = new AssistScore();
+        assistScore.setNicotineScore(nicotineInfo.getSum().toString());
+        assistScore.setPersonId(nicotineInfo.getPersonId());
+        shareViewModel.setAssistScoreMutableLiveData(assistScore);
+//        updateScore(sum);
     }
 }

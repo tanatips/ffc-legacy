@@ -55,6 +55,7 @@ import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
+import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
@@ -119,11 +120,13 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         fragmentTabInfos.add(new FragmentTabInfo(new FagerstromNicotineFragment(),"แบบทดสอบการติดบุหรี่"));
         fragmentTabInfos.add(new FragmentTabInfo(new AlcoholFragment(),"คัดกรองความเสี่ยงจากการดื่มสุรา"));
 //        fragmentTabInfos.add(new FragmentTabInfo(new SummaryOfAssistFragment(),"สรุปคะแนนแบบคัดกรอง ASSIST"));
-        fragmentTabInfos.add(new FragmentTabInfo(new StressDepressionFragment(),"ประเมินภาวะเครียด-ซึมเศร้า"));
+        fragmentTabInfos.add(new FragmentTabInfo(new StressDepressionFragment(),"ประเมินภาวะเครียด-ซึมเศร้า(ST 5)"));
         fragmentTabInfos.add(new FragmentTabInfo(new StressDepression2qFragment(),"คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)"));
         fragmentTabInfos.add(new FragmentTabInfo(new StressDepression9qFragment(),"คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)"));
         fragmentTabInfos.add(new FragmentTabInfo(new SuicideAssessment8qFragment(),"การประเมินการฆ่าตัวตายด้วย 8 คําถาม (8Q)"));
         fragmentTabInfos.add(new FragmentTabInfo(new HealthRiskAssessmentFragment(),"แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน"));
+        fragmentTabInfos.add(new FragmentTabInfo(new CardiovascularRiskFragment() ,"คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด"));
+        fragmentTabInfos.add(new FragmentTabInfo(new AssistScoreFragment(),"สรุปคะแนนแบบคัดกรอง ASSIST"));
         viewPagerAdapter = new ViewPagerAdapter(this,fragmentTabInfos);
 
         viewPager.setAdapter(viewPagerAdapter);
@@ -430,8 +433,6 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +" คะแนน: "+ sum[0]
                 ;
         System.out.println(msg);
-
-//       Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -528,6 +529,13 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         if(this.healthRiskAssessmentInfo==null){
             this.healthRiskAssessmentInfo = data;
         }
+        System.out.println(msg);
+        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAssistScoreInfo(AssistScore data) {
+        String msg = "====> "+data.getNicotineScore();
         System.out.println(msg);
         // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }

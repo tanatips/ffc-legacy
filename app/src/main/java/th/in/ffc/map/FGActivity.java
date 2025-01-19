@@ -493,6 +493,9 @@ public class FGActivity extends FFCFragmentActivity {
                 GeoPoint geoPointCurrent;
                 MyLocationNewOverlay mLocation = new MyLocationNewOverlay(new GpsMyLocationProvider(getApplicationContext()), mapView);
                 Log.d("Tag(menu)","menu_center");
+                mLocation.enableMyLocation();
+                mLocation.enableFollowLocation();
+                mapView.getOverlays().add(mLocation);
                 //TODO Change to Google Map
                 if (mLocation.getLastFix() != null){
                     fgsys.getFGMapManager().getMapController()
