@@ -88,6 +88,20 @@ public class SfPersonInfoDao {
                 personInfo.setBp(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.BP));
                 personInfo.setSystolic_pressure(getDoubleFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SYSTOLIC_PRESSURE));
                 personInfo.setDiastolic_pressure(getDoubleFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.DIASTOLIC_PRESSURE));
+
+                personInfo.setServiceCode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SERVICE_CODE));
+                personInfo.setTransId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.TRANS_ID));
+                personInfo.setSourceId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SOURCE_ID));
+                personInfo.setSubDistName(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SUB_DIST_NAME));
+                personInfo.setSubDistCode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SUB_DIST_CODE));
+                personInfo.setDistCode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.DIST_CODE));
+                personInfo.setDistName(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.DIST_NAME));
+                personInfo.setProvCode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PROV_CODE));
+                personInfo.setProvName(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PROV_NAME));
+                personInfo.setPostCode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.POST_CODE));
+                personInfo.setHomeNo(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.HOME_NO));
+                personInfo.setVillageNo(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VILLAGE_NO));
+
                 personInfo.setCreated_by(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CREATED_BY));
                 personInfo.setCreated_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CREATED_DATE));
                 personInfo.setUpdated_by(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.UPDATED_BY));
@@ -147,6 +161,20 @@ public class SfPersonInfoDao {
         putString(values, "BMI", personInfo.getBmi());
         putDouble(values, "SYSTOLIC_PRESSURE", personInfo.getSystolic_pressure());
         putDouble(values, "DIASTOLIC_PRESSURE", personInfo.getDiastolic_pressure());
+
+        putString(values, "SERVICECODE", personInfo.getServiceCode());
+        putString(values, "TRANSID", personInfo.getTransId());
+        putString(values, "SOURCEID", personInfo.getSourceId());
+        putString(values, "SUBDISTNAME", personInfo.getSubDistName());
+        putString(values, "SUBDISTCODE", personInfo.getSubDistCode());
+        putString(values, "DISTCODE", personInfo.getDistCode());
+        putString(values, "DISTNAME", personInfo.getDistName());
+        putString(values, "PROVCODE", personInfo.getProvCode());
+        putString(values, "PROVNAME", personInfo.getProvName());
+        putString(values, "POSTCODE", personInfo.getPostCode());
+        putString(values, "HOMENO", personInfo.getHomeNo());
+        putString(values, "VILLAGENO", personInfo.getVillageNo());
+
         putString(values, "CREATED_BY", personInfo.getCreated_by());
         putString(values, "CREATED_DATE", personInfo.getCreated_date());
         putString(values, "UPDATED_BY", personInfo.getUpdated_by());
@@ -213,6 +241,20 @@ public class SfPersonInfoDao {
                 person.setBp(cursor.getString(cursor.getColumnIndex("bp")));
                 person.setSystolic_pressure(cursor.getDouble(cursor.getColumnIndex("systolic_pressure")));
                 person.setDiastolic_pressure(cursor.getDouble(cursor.getColumnIndex("diastolic_pressure")));
+
+                person.setServiceCode(cursor.getString(cursor.getColumnIndex("serviceCode")));
+                person.setTransId(cursor.getString(cursor.getColumnIndex("transId")));
+                person.setSourceId(cursor.getString(cursor.getColumnIndex("sourceId")));
+                person.setSubDistName(cursor.getString(cursor.getColumnIndex("subDistName")));
+                person.setSubDistCode(cursor.getString(cursor.getColumnIndex("subDistCode")));
+                person.setDistCode(cursor.getString(cursor.getColumnIndex("distCode")));
+                person.setDistName(cursor.getString(cursor.getColumnIndex("distName")));
+                person.setProvCode(cursor.getString(cursor.getColumnIndex("provCode")));
+                person.setProvName(cursor.getString(cursor.getColumnIndex("provName")));
+                person.setPostCode(cursor.getString(cursor.getColumnIndex("postCode")));
+                person.setHomeNo(cursor.getString(cursor.getColumnIndex("homeNo")));
+                person.setVillageNo(cursor.getString(cursor.getColumnIndex("villageNo")));
+
                 person.setCreated_by(cursor.getString(cursor.getColumnIndex("created_by")));
                 person.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 person.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));

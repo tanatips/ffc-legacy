@@ -121,7 +121,10 @@ public class ScreeningFormProvider extends ContentProvider {
 //            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
 //            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
 //            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
-
+//            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
+//                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
+//            }
+//            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.ALTER_TABLE);
 
             mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
@@ -378,6 +381,20 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String BMI = "bmi";
         public static final String SYSTOLIC_PRESSURE = "systolic_pressure";
         public static final String DIASTOLIC_PRESSURE = "diastolic_pressure";
+
+        public static final String SERVICE_CODE = "serviceCode";
+        public static final String TRANS_ID = "transId";
+        public static final String SOURCE_ID = "sourceId";
+        public static final String SUB_DIST_NAME = "subDistName";
+        public static final String SUB_DIST_CODE = "subDistCode";
+        public static final String DIST_CODE = "distCode";
+        public static final String DIST_NAME = "distName";
+        public static final String PROV_CODE = "provCode";
+        public static final String PROV_NAME = "provName";
+        public static final String POST_CODE = "postCode";
+        public static final String HOME_NO = "homeNo";
+
+        public static final String VILLAGE_NO = "villageNo";
         public static final String CREATED_BY = "created_by";
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
@@ -407,34 +424,96 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfPersonInfo.UPDATED_BY, "updated_by AS " + SfPersonInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfPersonInfo.UPDATED_DATE, "updated_date AS " + SfPersonInfo.UPDATED_DATE);
             PROJECTION_MAP.put(SfPersonInfo.SEND_TO_CLAIM, "send_to_claim AS " + SfPersonInfo.SEND_TO_CLAIM);
+            PROJECTION_MAP.put(SfPersonInfo.SERVICE_CODE, "serviceCode AS " + SfPersonInfo.SERVICE_CODE);
+            PROJECTION_MAP.put(SfPersonInfo.TRANS_ID, "transId AS " + SfPersonInfo.TRANS_ID);
+            PROJECTION_MAP.put(SfPersonInfo.SOURCE_ID, "sourceId AS " + SfPersonInfo.SOURCE_ID);
+            PROJECTION_MAP.put(SfPersonInfo.SUB_DIST_NAME, "subDistName AS " + SfPersonInfo.SUB_DIST_NAME);
+            PROJECTION_MAP.put(SfPersonInfo.SUB_DIST_CODE, "subDistCode AS " + SfPersonInfo.SUB_DIST_CODE);
+            PROJECTION_MAP.put(SfPersonInfo.DIST_CODE, "distCode AS " + SfPersonInfo.DIST_CODE);
+            PROJECTION_MAP.put(SfPersonInfo.DIST_NAME, "distName AS " + SfPersonInfo.DIST_NAME);
+            PROJECTION_MAP.put(SfPersonInfo.PROV_CODE, "provCode AS " + SfPersonInfo.PROV_CODE);
+            PROJECTION_MAP.put(SfPersonInfo.PROV_NAME, "provName AS " + SfPersonInfo.PROV_NAME);
+            PROJECTION_MAP.put(SfPersonInfo.POST_CODE, "postCode AS " + SfPersonInfo.POST_CODE);
+            PROJECTION_MAP.put(SfPersonInfo.HOME_NO, "homeNo AS " + SfPersonInfo.HOME_NO);
+            PROJECTION_MAP.put(SfPersonInfo.VILLAGE_NO, "villageNo AS " + SfPersonInfo.VILLAGE_NO);
 
         }
-        public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
-                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                IDCARD +" TEXT NOT NULL," +
-                FNAME + " TEXT NOT NULL," +
-                LNAME +" TEXT NOT NULL," +
-                BIRTHDAY +"  TEXT, " +
-                GENDER +" TEXT," +
-                PHONE+ " TEXT," +
-                HN +" TEXT," +
-                AUTHEN_DATE +" DATE,  " +
-                AUTHEN_CODE +" AUTHEN_CODE,  " +
-                WEIGHT +" REAL," +
-                HEIGHT +" REAL," +
-                WAIST_SIZE +" REAL," +
-                BP +" TEXT, " +
-                BMI +" TEXT, " +
-                SYSTOLIC_PRESSURE +" REAL," +
-                DIASTOLIC_PRESSURE +" REAL," +
-                CREATED_BY +" TEXT," +
-                CREATED_DATE +" DATE," +
-                UPDATED_BY +" TEXT," +
-                UPDATED_DATE +" DATE," +
-                SEND_TO_CLAIM + " INTEGER "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
-                ")";
-          public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
+//        public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
+//                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//                IDCARD +" TEXT NOT NULL," +
+//                FNAME + " TEXT NOT NULL," +
+//                LNAME +" TEXT NOT NULL," +
+//                BIRTHDAY +"  TEXT, " +
+//                GENDER +" TEXT," +
+//                PHONE+ " TEXT," +
+//                HN +" TEXT," +
+//                AUTHEN_DATE +" DATE,  " +
+//                AUTHEN_CODE +" AUTHEN_CODE,  " +
+//                WEIGHT +" REAL," +
+//                HEIGHT +" REAL," +
+//                WAIST_SIZE +" REAL," +
+//                BP +" TEXT, " +
+//                BMI +" TEXT, " +
+//                SYSTOLIC_PRESSURE +" REAL," +
+//                DIASTOLIC_PRESSURE +" REAL," +
+//                CREATED_BY +" TEXT," +
+//                CREATED_DATE +" DATE," +
+//                UPDATED_BY +" TEXT," +
+//                UPDATED_DATE +" DATE," +
+//                SEND_TO_CLAIM + " INTEGER "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
+//                ")";
+public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
+        ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
+        IDCARD +" TEXT NOT NULL," +
+        FNAME + " TEXT NOT NULL," +
+        LNAME +" TEXT NOT NULL," +
+        BIRTHDAY +"  TEXT, " +
+        GENDER +" TEXT," +
+        PHONE+ " TEXT," +
+        HN +" TEXT," +
+        AUTHEN_DATE +" DATE,  " +
+        AUTHEN_CODE +" AUTHEN_CODE,  " +
+        WEIGHT +" REAL," +
+        HEIGHT +" REAL," +
+        WAIST_SIZE +" REAL," +
+        BP +" TEXT, " +
+        BMI +" TEXT, " +
+        SYSTOLIC_PRESSURE +" REAL," +
+        DIASTOLIC_PRESSURE +" REAL," +
+        SERVICE_CODE + " TEXT, " +
+        TRANS_ID + " TEXT, " +
+        SOURCE_ID + " TEXT, " +
+        SUB_DIST_NAME + " TEXT, " +
+        SUB_DIST_CODE + " TEXT, " +
+        DIST_CODE + " TEXT, " +
+        DIST_NAME + " TEXT, " +
+        PROV_CODE + " TEXT, " +
+        PROV_NAME + " TEXT, " +
+        POST_CODE + " TEXT, " +
+        HOME_NO + " TEXT, " +
+        VILLAGE_NO + " TEXT, " +
+        CREATED_BY +" TEXT," +
+        CREATED_DATE +" DATE," +
+        UPDATED_BY +" TEXT," +
+        UPDATED_DATE +" DATE," +
+        SEND_TO_CLAIM + " INTEGER "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
+        ")";
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
+        public static final String[] ALTER_TABLE = {
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN serviceCode TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN transId TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN sourceId TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN subDistName TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN subDistCode TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN distCode TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN distName TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN provCode TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN provName TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN postCode TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN homeNo TEXT;",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN villageNo TEXT;"
+        };
     }
 
     public static final  class SfDrinkingInfo implements  BaseColumns {

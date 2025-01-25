@@ -1,5 +1,9 @@
 package th.in.ffc.app.form.screening;
 
+
+import static th.in.ffc.util.DateConverter.convertToWesternDate;
+import static th.in.ffc.util.TransactionIdGenerator.generateTransId;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,9 +25,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -34,15 +42,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import th.in.ffc.R;
 import th.in.ffc.SmartCardReaderActivity;
+import th.in.ffc.api.nhso.ApiCaller;
+import th.in.ffc.api.nhso.ApiResponse;
+import th.in.ffc.api.nhso.AuthenCodeRequest;
+import th.in.ffc.app.form.screening.dao.DistrictDao;
+import th.in.ffc.app.form.screening.dao.ProvinceDao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
+import th.in.ffc.app.form.screening.dao.SubDistrictDao;
 import th.in.ffc.app.form.screening.model.DataCenterInfo;
+import th.in.ffc.app.form.screening.model.DistrictInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
+import th.in.ffc.app.form.screening.model.ProvinceInfo;
+import th.in.ffc.app.form.screening.model.SubDistrictInfo;
 import th.in.ffc.person.BmiInfoActivity;
 import th.in.ffc.person.BmiInfoDialogFragment;
 import th.in.ffc.util.BMICalculator;
@@ -58,6 +76,7 @@ import android.widget.EditText;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.HashMap;
 import java.util.Arrays;
@@ -83,13 +102,25 @@ public class PersonInfoFragment extends Fragment {
     private TextInputEditText txtAuthenDate, txtAuthenNo, txtWeight, txtHeight;
     private TextInputEditText txtWaistCircumference, txtBp, txtBmi;
     private TextInputEditText txtSymptomsPressure, txtDiastolicPressure;
+    private TextInputEditText txtHomeNo,txtVillageNo,txtPostalCode;
     private ImageButton smartcardReader;
     private TextInputEditText currentEditText;
 
     private Map<EditText, TextFieldUpdater> fieldUpdaters;
     private BMICalculator bmiCalculator;
 //    private TextView dateTextView;
-    private ImageButton selectDateButton, selectAuthenDateButton;
+    private ImageButton selectDateButton, selectAuthenDateButton, btnAuthenCode;
+    private AutoCompleteTextView spinnerProvince, spinnerDistrict, spinnerSubDistrict;
+
+    String provinceCode, districtCode, subDistrictCode;
+    String provinceName, districtName, subDistrictName;
+
+    List<ProvinceInfo> provinceInfos;
+
+    List<DistrictInfo> districtInfos;
+
+    List<SubDistrictInfo> subDistrictInfos;
+
     private interface TextFieldUpdater {
         void update(String value);
     }
@@ -111,8 +142,9 @@ public class PersonInfoFragment extends Fragment {
         fieldUpdaters.put(txtSymptomsPressure, value -> personInfo.setSystolic_pressure(Double.valueOf(value)));
         fieldUpdaters.put(txtDiastolicPressure, value -> personInfo.setDiastolic_pressure(Double.valueOf(value)));
         fieldUpdaters.put(txtBirthDay, value -> personInfo.setBirthday(value));
+        districtInfos  = new ArrayList<>();
+        subDistrictInfos = new ArrayList<>();
     }
-
     private void setupBmiInfoButton() {
         View view = getView();
         if (view != null) {
@@ -302,9 +334,6 @@ public class PersonInfoFragment extends Fragment {
         }
     }
 
-    private void setupDatePicker(){
-
-    }
     public void setCurrentEditText(TextInputEditText editText) {
         this.currentEditText = editText;
     }
@@ -325,6 +354,7 @@ public class PersonInfoFragment extends Fragment {
         setupWeightInfoButton();
         setupBmiInfoButton();
         setupBloodPressureButton();
+        setupDropdowns();
     }
 
     private void initializeViews(View view) {
@@ -350,7 +380,7 @@ public class PersonInfoFragment extends Fragment {
         txtSymptomsPressure = view.findViewById(R.id.txtSymptomsPressure);
         txtDiastolicPressure = view.findViewById(R.id.txtDiastolicPressure);
         bmiCalculator = new BMICalculator();
-
+        btnAuthenCode = view.findViewById(R.id.btnAuthenCode);
         view.findViewById(R.id.smartcard_reader);
 
 //        dateTextView = view.findViewById(R.id.dateTextView);
@@ -360,7 +390,197 @@ public class PersonInfoFragment extends Fragment {
         selectDateButton.setOnClickListener(v -> showDatePickerDialog(this.txtBirthDay,this.personInfo.getBirthday()));
         selectAuthenDateButton = view.findViewById(R.id.selectAuthenDateButton);
         selectAuthenDateButton.setOnClickListener(v -> showDatePickerDialog(this.txtAuthenDate,this.personInfo.getAuthen_date()));
+        btnAuthenCode.setOnClickListener(v -> {
+            AuthenCodeRequest request = new AuthenCodeRequest();
+            request.setPid(citizenId.getText().toString());
+            request.setFirstName(fname.getText().toString());
+            request.setLastName(lname.getText().toString());
+            request.setSex(rdoMale.isChecked() ? "1" : "2");
+            request.setBirthDay(convertToWesternDate(txtBirthDay.getText().toString()));
 
+            request.setHn(txtHn.getText().toString());
+            request.setHcode("11471");
+            request.setSourceId("BKKCC");
+            request.setTransId(generateTransId());
+            request.setServiceCode("PG0060001");
+            request.setSubDistrict(subDistrictName);
+            request.setDistrictCode(subDistrictCode);
+            request.setDistrict(districtName);
+            request.setDistrictCode(districtCode);
+            request.setProvince(provinceName);
+            request.setProvinceCode(provinceCode);
+            ApiCaller apiCaller = new ApiCaller();
+            apiCaller.getAuthenCode(request, new ApiCaller.ApiCallback() {
+                @Override
+                public void onSuccess(ApiResponse response) {
+                    txtAuthenNo.setText(response.getAuthenCode());
+                    txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(DateTime.getCurrentDate()));
+                    personInfo.setAuthen_code(response.getAuthenCode());
+                    personInfo.setAuthen_date(DateConverter.convertToWesternDate(txtAuthenDate.getText().toString()));
+//                    txtAuthenDate.setText(response.getAuthenDate());
+                }
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+        });
+        spinnerProvince = view.findViewById(R.id.spinnerProvince);
+        spinnerDistrict = view.findViewById(R.id.spinnerDistrict);
+        spinnerSubDistrict = view.findViewById(R.id.spinnerSubDistrict);
+        spinnerProvince.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                spinnerProvince.showDropDown();
+            }
+        });
+        spinnerDistrict.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                spinnerDistrict.showDropDown();
+            }
+        });
+        spinnerSubDistrict.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                spinnerSubDistrict.showDropDown();
+            }
+        });
+        spinnerProvince.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedProvince = parent.getItemAtPosition(position).toString();
+                provinceCode = getProvinceCodeByName(selectedProvince);
+                provinceName = selectedProvince;
+                personInfo.setProvCode(provinceCode);
+                personInfo.setProvName(selectedProvince);
+                dataPasser.onPersonInfo(personInfo);
+                provinceName = selectedProvince;
+                updateDistricts(selectedProvince);
+            }
+        });
+        spinnerDistrict.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedDistrict = parent.getItemAtPosition(position).toString();
+                String selectedProvince = spinnerProvince.getText().toString();
+                districtName = selectedDistrict;
+                districtCode = getDistrictCodeByNameAndProvinceCode(selectedDistrict, getProvinceCodeByName(selectedProvince));
+                personInfo.setDistName(districtName);
+                personInfo.setDistCode(districtCode);
+                dataPasser.onPersonInfo(personInfo);
+                updateSubDistricts(selectedProvince, selectedDistrict);
+            }
+        });
+        spinnerSubDistrict.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                subDistrictName = adapterView.getItemAtPosition(i).toString();
+                subDistrictCode = getSubDistrictCodeByNameAndDistrictCode(subDistrictName, districtCode);
+                personInfo.setSubDistCode(subDistrictCode);
+                personInfo.setSubDistName(subDistrictName);
+                dataPasser.onPersonInfo(personInfo);
+            }
+        });
+        txtHomeNo = view.findViewById(R.id.txtHouseNo);
+        txtVillageNo = view.findViewById(R.id.txtVillageNo);
+        txtPostalCode = view.findViewById(R.id.txtPostalCode);
+    }
+
+    private String getSubDistrictCodeByNameAndDistrictCode(String subDistrictName, String districtCode) {
+        for (SubDistrictInfo subDistrictInfo : subDistrictInfos) {
+            if (subDistrictInfo.getName().equals(subDistrictName) && subDistrictInfo.getDistCode().equals(districtCode)) {
+                return subDistrictInfo.getSubdistCode();
+            }
+        }
+        return null; // Return a default value if not found
+    }
+    private void updateDistricts(String provinceName) {
+        DistrictDao districtDao = new DistrictDao(getContext());
+        // ดึงข้อมูลอำเภอตามจังหวัดที่เลือก
+        String provinceCode = getProvinceCodeByName(provinceName);
+        districtInfos = districtDao.getDistrictsByProvinceCode(provinceCode);
+        List<String> districtNames = new ArrayList<>();
+        for (DistrictInfo district : districtInfos) {
+            districtNames.add(district.getName());
+        }
+
+        ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                districtNames
+        );
+        spinnerDistrict.setAdapter(districtAdapter);
+        spinnerDistrict.setText("", false);
+        spinnerSubDistrict.setText("", false);
+    }
+
+    private void updateSubDistricts(String provinceName, String districtName) {
+        SubDistrictDao subDistrictDao = new SubDistrictDao(getContext());
+        String provinceCode = getProvinceCodeByName(provinceName);
+        String districtCode = getDistrictCodeByNameAndProvinceCode(districtName, provinceCode);
+        // ดึงข้อมูลตำบลตามอำเภอที่เลือก
+        subDistrictInfos = subDistrictDao.getSubdistrictsByDistrictCode(districtCode, provinceCode);
+        List<String> subDistrictNames = new ArrayList<>();
+        for (SubDistrictInfo subDistrict : subDistrictInfos) {
+            subDistrictNames.add(subDistrict.getName());
+        }
+
+        ArrayAdapter<String> subDistrictAdapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                subDistrictNames
+        );
+        spinnerSubDistrict.setAdapter(subDistrictAdapter);
+        spinnerSubDistrict.setText("", false);
+    }
+    private void setupDropdowns() {
+        // Example data, replace with actual data from your database
+        String[] provinces = new String[0];
+        String[] districts = new String[0];
+        String[] subDistricts = new String[0];
+        ProvinceDao provinceDao = new ProvinceDao(getContext());
+        provinceInfos = provinceDao.getAllProvinces();
+        provinces = new String[provinceInfos.size()];
+        for (int i = 0; i < provinceInfos.size(); i++) {
+            provinces[i] = provinceInfos.get(i).getName();
+        }
+
+        ArrayAdapter<String> provinceAdapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1, provinces);
+        ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1, districts);
+        ArrayAdapter<String> subDistrictAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, subDistricts);
+        Log.d("Dropdown", "Province count: " + provinceAdapter.getCount());
+        Log.d("Dropdown", "District count: " + districtAdapter.getCount());
+        Log.d("Dropdown", "Sub-district count: " + subDistrictAdapter.getCount());
+        provinceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        districtAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        subDistrictAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerProvince.setAdapter(provinceAdapter);
+        spinnerDistrict.setAdapter(districtAdapter);
+        spinnerSubDistrict.setAdapter(subDistrictAdapter);
+        spinnerProvince.setThreshold(1);
+        spinnerDistrict.setThreshold(1);
+        spinnerSubDistrict.setThreshold(1);
+    }
+
+
+
+    private String getProvinceCodeByName(String provinceName) {
+        for (ProvinceInfo provinceInfo : provinceInfos) {
+            if (provinceInfo.getName().equals(provinceName)) {
+                return provinceInfo.getProvCode();
+            }
+        }
+        return null; // หรือค่าเริ่มต้นที่เหมาะสมถ้าไม่พบ
+    }
+    private String getDistrictCodeByNameAndProvinceCode(String districtName, String provinceCode) {
+        for (DistrictInfo districtInfo : districtInfos) {
+            if (districtInfo.getName().equals(districtName) && districtInfo.getProvCode().equals(provinceCode)) {
+                return districtInfo.getDistCode();
+            }
+        }
+        return null; // Return a default value if not found
     }
     private void showDatePickerDialog(TextInputEditText editText, String mydate) {
 
@@ -385,10 +605,10 @@ public class PersonInfoFragment extends Fragment {
                         Calendar selectedDate = Calendar.getInstance();
                         selectedDate.set(year, month, dayOfMonth);
                         if(editText == txtBirthDay) {
-                            this.personInfo.setBirthday(DateConverter.convertToWesternDate(editText.getText().toString()));
+                            this.personInfo.setBirthday(convertToWesternDate(editText.getText().toString()));
                         }
                         else if(editText == txtAuthenDate) {
-                            this.personInfo.setAuthen_date(DateConverter.convertToWesternDate(editText.getText().toString()));
+                            this.personInfo.setAuthen_date(convertToWesternDate(editText.getText().toString()));
                         }
                         dataPasser.onPersonInfo(this.personInfo);
                     })
@@ -426,7 +646,24 @@ public class PersonInfoFragment extends Fragment {
             txtBp.setText(person.getBp());
             txtSymptomsPressure.setText(String.valueOf(person.getSystolic_pressure()));
             txtDiastolicPressure.setText(String.valueOf(person.getDiastolic_pressure()));
-
+            txtHomeNo.setText(person.getHomeNo());
+            txtVillageNo.setText(person.getVillageNo());
+            txtPostalCode.setText(person.getPostCode());
+            if(person.getProvCode() != null) {
+                spinnerProvince.setText(person.getProvName(), false);
+                provinceCode = person.getProvCode();
+                provinceName = person.getProvName();
+            }
+            if(person.getDistCode() != null) {
+                spinnerDistrict.setText(person.getDistName(), false);
+                districtCode = person.getDistCode();
+                districtName = person.getDistName();
+            }
+            if(person.getSubDistCode() != null) {
+                spinnerSubDistrict.setText(person.getSubDistName(), false);
+                subDistrictCode = person.getSubDistCode();
+                subDistrictName = person.getSubDistName();
+            }
 
         }
     }
@@ -501,6 +738,57 @@ public class PersonInfoFragment extends Fragment {
                 }
             }
         });
+        txtHomeNo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                personInfo.setHomeNo(txtHomeNo.getText().toString());
+                dataPasser.onPersonInfo(personInfo);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        txtVillageNo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                personInfo.setVillageNo(txtVillageNo.getText().toString());
+                dataPasser.onPersonInfo(personInfo);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        txtPostalCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                personInfo.setPostCode(txtPostalCode.getText().toString());
+                dataPasser.onPersonInfo(personInfo);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
     }
     private void updatePersonInfo() {
@@ -516,12 +804,12 @@ public class PersonInfoFragment extends Fragment {
             } else if (rdoFemale.isChecked()) {
                 personInfo.setGender("F");
             }
-            personInfo.setBirthday(DateConverter.convertToWesternDate(getTextFromEditText(txtBirthDay)));
+            personInfo.setBirthday(convertToWesternDate(getTextFromEditText(txtBirthDay)));
 
             // Contact and Hospital Information
             personInfo.setPhone(getTextFromEditText(txtPhoneNo));
             personInfo.setHn(getTextFromEditText(txtHn));
-            personInfo.setAuthen_date(DateConverter.convertToWesternDate(getTextFromEditText(txtAuthenDate)));
+            personInfo.setAuthen_date(convertToWesternDate(getTextFromEditText(txtAuthenDate)));
             personInfo.setAuthen_code(getTextFromEditText(txtAuthenNo));
 
             // Physical Measurements
@@ -605,7 +893,8 @@ public class PersonInfoFragment extends Fragment {
         attachToFields(citizenId, fname, lname, txtPhoneNo, txtHn,
                 txtAuthenDate, txtAuthenNo, txtWeight, txtHeight,
                 txtWaistCircumference, txtBp, txtBmi,
-                txtSymptomsPressure, txtDiastolicPressure);
+                txtSymptomsPressure, txtDiastolicPressure,txtBirthDay,txtHomeNo,txtVillageNo,txtPostalCode);
+
         setupTextWatchers();
         loadData();
         return view;
@@ -668,46 +957,14 @@ public class PersonInfoFragment extends Fragment {
                             month = Integer.parseInt(idcardInfo[18].substring(4,6))-1;
                             day = Integer.parseInt(idcardInfo[18].substring(6,8));
                             txtBirthDay.setText(day+"/"+month+"/"+year);
-//                            birthday.updateDate(year , month, day);
-//                    f.hno.setText(idcardInfo[9].toString());
+
                             if(idcardInfo[1].toString().equals("นาย")) {
                                 rdoMale.setChecked(true);
                             } else {
                                 rdoMale.setChecked(true);
                             }
-//                    String[] prenameArray = getResources().getStringArray(R.array.prename);
-//                    String defaultValue = idcardInfo[1];
-//                    int defaultPosition = -1;
-//                    for (int i = 0; i < prenameArray.length; i++) {
-//                        if (prenameArray[i].contains(defaultValue)) {
-//                            defaultPosition = i;
-//                            break;
-//                        }
-//                    }
-//                    int day,month,year;
-//                    year = Integer.parseInt(idcardInfo[18].substring(0,4))-543;
-//                    month = Integer.parseInt(idcardInfo[18].substring(4,6))-1;
-//                    day = Integer.parseInt(idcardInfo[18].substring(6,8));
-//                    f.birthday.updateDate(year , month, day);
-//                    f.prename.setSelection(defaultPosition);
-
-//                    for(PersonDetailEditActivity.MyItem item: provinces){
-//                        if(item.nane.equals(idcardInfo[16])){
-//                            f.provcode.setSelectionById(item.id);
-//                            System.out.println("Province ID: " + item.id + ", Name: " + item.nane);
-//                            break;
-//                        }
-//                    }
-//
-//                    for(PersonDetailEditActivity.MyItem item: districts){
-//                        if(item.nane.equals(idcardInfo[16])){
-//                            f.distcode.setSelectionById(item.id);
-//                            System.out.println("District ID: " + item.id + ", Name: " + item.nane);
-//                            break;
-//                        }
-//                    }
                         }
-                            }
+                        }
                     }
                 }
             }

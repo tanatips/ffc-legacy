@@ -18,6 +18,20 @@ public class PersonInfo {
     private String bmi;
     private double systolic_pressure;
     private double diastolic_pressure;
+    private String serviceCode;
+    private String transId;
+    private String sourceId;
+
+    private String homeNo;
+    private String villageNo;
+    private String subDistName;
+    private String subDistCode;
+    private String distCode;
+    private String distName;
+    private String provCode;
+    private String provName;
+    private String postCode;
+
     private String created_by;
     private String created_date;
     private String updated_by;
@@ -199,6 +213,102 @@ public class PersonInfo {
 
     public void setBmi(String bmi) {
         this.bmi = bmi;
+    }
+
+    public String getServiceCode() {
+        return serviceCode;
+    }
+
+    public void setServiceCode(String serviceCode) {
+        this.serviceCode = serviceCode;
+    }
+
+    public String getTransId() {
+        return transId;
+    }
+
+    public void setTransId(String transId) {
+        this.transId = transId;
+    }
+
+    public String getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public String getSubDistName() {
+        return subDistName;
+    }
+
+    public void setSubDistName(String subDistName) {
+        this.subDistName = subDistName;
+    }
+
+    public String getSubDistCode() {
+        return subDistCode;
+    }
+
+    public void setSubDistCode(String subDistCode) {
+        this.subDistCode = subDistCode;
+    }
+
+    public String getDistCode() {
+        return distCode;
+    }
+
+    public void setDistCode(String distCode) {
+        this.distCode = distCode;
+    }
+
+    public String getDistName() {
+        return distName;
+    }
+
+    public void setDistName(String distName) {
+        this.distName = distName;
+    }
+
+    public String getProvCode() {
+        return provCode;
+    }
+
+    public void setProvCode(String provCode) {
+        this.provCode = provCode;
+    }
+
+    public String getProvName() {
+        return provName;
+    }
+
+    public void setProvName(String provName) {
+        this.provName = provName;
+    }
+
+    public String getPostCode() {
+        return postCode;
+    }
+
+    public void setPostCode(String postCode) {
+        this.postCode = postCode;
+    }
+
+    public String getHomeNo() {
+        return homeNo;
+    }
+
+    public void setHomeNo(String homeNo) {
+        this.homeNo = homeNo;
+    }
+
+    public String getVillageNo() {
+        return villageNo;
+    }
+
+    public void setVillageNo(String villageNo) {
+        this.villageNo = villageNo;
     }
 }
 
