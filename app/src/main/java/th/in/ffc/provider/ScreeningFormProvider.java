@@ -15,7 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
-
+import android.content.SharedPreferences;
+import android.content.Context;
 public class ScreeningFormProvider extends ContentProvider {
     public static String AUTHORITY = "th.in.ffc.provider.ScreeningFormProvider";
 
@@ -59,6 +60,10 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_HEALTH_RISK_ASSESSMENT_INFO = 24;
     private static final int SF_HEALTH_RISK_ASSESSMENT_INFO_ITEMS = 25;
     private static final int SF_HEALTH_RISK_ASSESSMENT_INFO_ID = 26;
+
+    private static final int SF_TOKEN = 27;
+    private static final int SF_TOKEN_ITEMS = 28;
+    private static final int SF_TOKEN_ITEM_ID = 29;
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
@@ -105,6 +110,10 @@ public class ScreeningFormProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "sf_health_risk_assessment_info/list", SF_HEALTH_RISK_ASSESSMENT_INFO_ITEMS);
         mUriMatcher.addURI(AUTHORITY, "sf_health_risk_assessment_info/#", SF_HEALTH_RISK_ASSESSMENT_INFO_ID);
 
+        mUriMatcher.addURI(AUTHORITY, "sf_token", SF_TOKEN);
+        mUriMatcher.addURI(AUTHORITY, "sf_token/list", SF_TOKEN_ITEMS);
+        mUriMatcher.addURI(AUTHORITY, "sf_token/#", SF_TOKEN_ITEM_ID);
+
     }
 
 
@@ -112,29 +121,32 @@ public class ScreeningFormProvider extends ContentProvider {
     public boolean onCreate() {
         try {
             mOpenHelper = new DbOpenHelper(this.getContext());
-//            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
+            // เพิ่มการตรวจสอบการใช้งานครั้งแรก
+//            SharedPreferences prefs = getContext().getSharedPreferences("DatabasePrefs", Context.MODE_PRIVATE);
+//            boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
+//            if(isFirstRun) {
+//                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+//            }
 //            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
-//            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.ALTER_TABLE);
-
-            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
             return true;
         }
         catch (Exception e) {
@@ -238,6 +250,14 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setTables(SfHealthRiskAssessmentInfo.TABLENAME);
                 builder.setProjectionMap(SfHealthRiskAssessmentInfo.PROJECTION_MAP);
                 break;
+            case ScreeningFormProvider.SF_TOKEN_ITEMS:
+                builder.setTables(SfToken.TABLENAME);
+                builder.setProjectionMap(SfToken.PROJECTION_MAP);
+                break;
+            case ScreeningFormProvider.SF_TOKEN_ITEM_ID:
+                builder.setTables(SfToken.TABLENAME);
+                builder.setProjectionMap(SfToken.PROJECTION_MAP);
+                break;
 
         }
         Cursor c = builder.query(db, projection, selection, selectionArgs,
@@ -293,6 +313,9 @@ public class ScreeningFormProvider extends ContentProvider {
             case SF_HEALTH_RISK_ASSESSMENT_INFO:
                 id = db.insert(SfHealthRiskAssessmentInfo.TABLENAME, null, values);
                 break;
+            case SF_TOKEN:
+                id = db.insert(SfToken.TABLENAME, null, values);
+                break;
 
         }
         if (id > 0) {
@@ -337,6 +360,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 break;
             case SF_HEALTH_RISK_ASSESSMENT_INFO_ID:
                 rowUpdated = db.update(SfHealthRiskAssessmentInfo.TABLENAME, contentValues, selection, selectionArgs);
+                break;
+            case SF_TOKEN_ITEM_ID:
+                rowUpdated = db.update(SfToken.TABLENAME, contentValues, selection, selectionArgs);
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
@@ -1001,6 +1027,43 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.CREATED_DATE, "created_date AS " + SfHealthRiskAssessmentInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.UPDATED_BY, "updated_by AS " + SfHealthRiskAssessmentInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.UPDATED_DATE, "updated_date AS " + SfHealthRiskAssessmentInfo.UPDATED_DATE);
+        }
+    }
+
+    public static final class SfToken implements BaseColumns {
+        public static final String TABLENAME = "ffc_sf_token";
+
+        public static HashMap<String, String> PROJECTION_MAP;
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScreeningFormProvider.AUTHORITY + "/sf_token");
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/vnd.ffc.sf_token";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/vnd.ffc.sf_token";
+
+        public static final String ID = "id";
+        public static final String TOKEN_AUTH = "token_auth";
+        public static final String TOKEN_CLAIM = "token_claim";
+        public static final String CREATED_DATE = "created_date";
+        public static final String UPDATED_DATE = "updated_date";
+
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS " + TABLENAME;
+
+        public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
+                ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                TOKEN_AUTH + " TEXT NOT NULL," +
+                TOKEN_CLAIM + " TEXT NOT NULL," +
+                CREATED_DATE + " NUMERIC," +
+                UPDATED_DATE + " NUMERIC" + ")";
+
+        static {
+            PROJECTION_MAP = new HashMap<String, String>();
+            PROJECTION_MAP.put(SfToken.ID, "id AS " + SfToken.ID);
+            PROJECTION_MAP.put(SfToken.TOKEN_AUTH, "token_auth AS " + SfToken.TOKEN_AUTH);
+            PROJECTION_MAP.put(SfToken.TOKEN_CLAIM, "token_claim AS " + SfToken.TOKEN_CLAIM);
+            PROJECTION_MAP.put(SfToken.CREATED_DATE, "created_date AS " + SfToken.CREATED_DATE);
+            PROJECTION_MAP.put(SfToken.UPDATED_DATE, "updated_date AS " + SfToken.UPDATED_DATE);
         }
     }
 }

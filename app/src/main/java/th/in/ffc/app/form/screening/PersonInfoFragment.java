@@ -5,6 +5,7 @@ import static th.in.ffc.util.DateConverter.convertToWesternDate;
 import static th.in.ffc.util.TransactionIdGenerator.generateTransId;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +35,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
@@ -120,6 +123,12 @@ public class PersonInfoFragment extends Fragment {
     List<DistrictInfo> districtInfos;
 
     List<SubDistrictInfo> subDistrictInfos;
+//    private ProgressDialog progressDialog;
+
+    private ProgressBar progressBar;
+
+    private FrameLayout progressBarContainer;
+    private TextView progressBarText;
 
     private interface TextFieldUpdater {
         void update(String value);
@@ -348,15 +357,33 @@ public class PersonInfoFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        view.post(() -> {
+            progressBarContainer = requireActivity().findViewById(R.id.progressBarContainer);
+            progressBarText = requireActivity().findViewById(R.id.progressBarText);
+        });
         setupWeightInfoButton();
         setupBmiInfoButton();
         setupBloodPressureButton();
         setupDropdowns();
     }
+    private void showProgressBar(String message) {
+        progressBarContainer = getActivity().findViewById(R.id.progressBarContainer);
+        progressBarText = getActivity().findViewById(R.id.progressBarText);
+        if (progressBarContainer != null && progressBarText != null) {
+            progressBarText.setText(message);
+            progressBarContainer.setVisibility(View.VISIBLE);
+        }
+    }
 
+    private void hideProgressBar() {
+        if (progressBarContainer != null) {
+            progressBarContainer.setVisibility(View.GONE);
+        }
+    }
     private void initializeViews(View view) {
         personInfo = new PersonInfo();
         smartcardReader = view.findViewById(R.id.smartcard_reader);
@@ -404,15 +431,20 @@ public class PersonInfoFragment extends Fragment {
             request.setTransId(generateTransId());
             request.setServiceCode("PG0060001");
             request.setSubDistrict(subDistrictName);
-            request.setDistrictCode(subDistrictCode);
+            request.setSubDistrictCode(subDistrictCode);
             request.setDistrict(districtName);
             request.setDistrictCode(districtCode);
             request.setProvince(provinceName);
             request.setProvinceCode(provinceCode);
-            ApiCaller apiCaller = new ApiCaller();
+            showProgressBar("Authenticating...");
+//            showProgressDialog();
+
+            ApiCaller apiCaller = new ApiCaller(getContext());
             apiCaller.getAuthenCode(request, new ApiCaller.ApiCallback() {
                 @Override
                 public void onSuccess(ApiResponse response) {
+//                    dismissProgressDialog();
+                    hideProgressBar();
                     txtAuthenNo.setText(response.getAuthenCode());
                     txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(DateTime.getCurrentDate()));
                     personInfo.setAuthen_code(response.getAuthenCode());
@@ -421,6 +453,8 @@ public class PersonInfoFragment extends Fragment {
                 }
                 @Override
                 public void onError(Exception e) {
+//                    dismissProgressDialog();
+                    hideProgressBar();
                     Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
@@ -496,6 +530,7 @@ public class PersonInfoFragment extends Fragment {
         }
         return null; // Return a default value if not found
     }
+
     private void updateDistricts(String provinceName) {
         DistrictDao districtDao = new DistrictDao(getContext());
         // ดึงข้อมูลอำเภอตามจังหวัดที่เลือก
@@ -582,14 +617,18 @@ public class PersonInfoFragment extends Fragment {
         }
         return null; // Return a default value if not found
     }
+
     private void showDatePickerDialog(TextInputEditText editText, String mydate) {
-
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-            Date date = sdf.parse(mydate);
-
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
+
+            // ถ้า mydate ไม่เป็น null ให้ใช้วันที่ที่ส่งมา
+            if (mydate != null && !mydate.isEmpty()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                Date date = sdf.parse(mydate);
+                calendar.setTime(date);
+            }
+            // ถ้า mydate เป็น null จะใช้วันที่ปัจจุบัน (calendar จะมีค่าเป็นวันที่ปัจจุบันอยู่แล้ว)
 
             ThaiDatePickerDialog dialog = new ThaiDatePickerDialog.Builder(getContext())
                     .setDate(calendar.get(Calendar.YEAR),
@@ -620,7 +659,7 @@ public class PersonInfoFragment extends Fragment {
             Toast.makeText(getContext(),ex.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
-    private void setDataToViews(PersonInfo person) {
+     private void setDataToViews(PersonInfo person) {
         if (person != null) {
             citizenId.setText(person.getIdcard());
             fname.setText(person.getFname());
@@ -679,8 +718,12 @@ public class PersonInfoFragment extends Fragment {
 //                    if (currentEditText != null) {
                         TextFieldUpdater updater = fieldUpdaters.get(currentEditText);
                         if (updater != null) {
-                            updater.update(s.toString());
-                            dataPasser.onPersonInfo(personInfo);
+                            if(s!=null) {
+                                if(!s.toString().isEmpty()) {
+                                    updater.update(s.toString());
+                                    dataPasser.onPersonInfo(personInfo);
+                                }
+                            }
                         }
                         if(editText == txtWeight || editText == txtHeight){
                             if(!txtWeight.getText().toString().equals("") && !txtHeight.getText().toString().equals("")) {

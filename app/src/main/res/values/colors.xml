@@ -60,5 +60,5 @@
     <color name="light_blue">#E6F3FF</color>
     <color name="light_gray">#F5F5F5</color>
     <color name="highlight_yellow">#FFEB3B</color>
-
+    <color name="semi_transparent_gray">#80BEBEBE</color>
 </resources>
