@@ -61,4 +61,8 @@
     <color name="light_gray">#F5F5F5</color>
     <color name="highlight_yellow">#FFEB3B</color>
     <color name="semi_transparent_gray">#80BEBEBE</color>
+
+    <color name="dark_blue">#1B3F8B</color>
+<!--    <color name="light_blue">#E6E9F0</color>-->
+    <color name="text_color">#000000</color>
 </resources>

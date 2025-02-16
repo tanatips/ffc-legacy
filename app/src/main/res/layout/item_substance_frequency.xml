@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@color/light_blue">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"/>
+
+    <TextView
+        android:id="@+id/descriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:layout_marginTop="4dp"/>
+
+    <!-- เพิ่ม TextInputLayout สำหรับสารเสพติดอื่นๆ -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/otherSubstanceLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/otherSubstanceEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ระบุสารเสพติดอื่นๆ"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <RadioGroup
+        android:id="@+id/frequencyGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="8dp">
+
+        <RadioButton
+            android:id="@+id/radioNever"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ไม่เคย"/>
+
+        <RadioButton
+            android:id="@+id/radio1to2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1-2 ครั้ง"/>
+
+        <RadioButton
+            android:id="@+id/radioMonthly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ทุกเดือน"/>
+
+        <RadioButton
+            android:id="@+id/radioWeekly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ทุกสัปดาห์"/>
+
+        <RadioButton
+            android:id="@+id/radioDaily"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="เกือบทุกวัน"/>
+    </RadioGroup>
+</LinearLayout>

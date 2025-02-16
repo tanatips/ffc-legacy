@@ -29,7 +29,9 @@ import java.util.List;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
+import th.in.ffc.app.form.screening.MainQuestionsFragment;
 import th.in.ffc.app.form.screening.PersonInfoFragment;
+import th.in.ffc.app.form.screening.QuestionOneFragment;
 import th.in.ffc.app.form.screening.SharedViewModel;
 import th.in.ffc.app.form.screening.StressDepressionFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
@@ -116,6 +118,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
 //        fragmentTabInfos.add(new FragmentTabInfo(new BmiFragment(),"ดัชนีมวลกาย(BMI)"));
 //        fragmentTabInfos.add(new FragmentTabInfo(new BloodPressureFragment(),"ตรวจวัดความดันโลหิต"));
+        fragmentTabInfos.add(new FragmentTabInfo(new MainQuestionsFragment(),"แบบคัดกรองการใช้สารเสพติด"));
+//        fragmentTabInfos.add(new FragmentTabInfo(new QuestionOneFragment(),"แบบคัดกรองการดึมสุรา สูบบุหรี่ และใช้สารเสพติด"));
         fragmentTabInfos.add(new FragmentTabInfo(new SmookingFragment(),"คัดกรองความเสี่ยงจากการสูบบุหรี่"));
         fragmentTabInfos.add(new FragmentTabInfo(new FagerstromNicotineFragment(),"แบบทดสอบการติดบุหรี่"));
         fragmentTabInfos.add(new FragmentTabInfo(new AlcoholFragment(),"คัดกรองความเสี่ยงจากการดื่มสุรา"));
