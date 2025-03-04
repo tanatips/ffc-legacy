@@ -41,6 +41,7 @@ import th.in.ffc.app.form.screening.SmookingFragment;
 import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
+import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
 import th.in.ffc.app.form.screening.dao.SfNicotineInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSmokerInfoDao;
@@ -50,6 +51,7 @@ import th.in.ffc.app.form.screening.dao.SfStressDepressionInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
+import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
@@ -59,10 +61,12 @@ import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
+import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
+import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
@@ -98,6 +102,16 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     SuicideAssessment8qInfo suicideAssessment8qInfo;
 
     HealthRiskAssessmentInfo healthRiskAssessmentInfo;
+    private List<DrugsInfo> drugsOneInfos;
+    private List<DrugsInfo> drugsTwoInfos;
+
+    private List<DrugsInfo> drugsThreeInfos;
+
+    private List<DrugsInfo> drugsFourInfos;
+    private List<DrugsInfo> drugsFiveInfos;
+    private List<DrugsInfo> drugsSixInfos;
+    private List<DrugsInfo> drugsSevenInfos;
+    private List<DrugsInfo> drugsEightInfos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,6 +173,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         saveStressDepression9q();
                         saveSuicideAssessment8q();
                         saveHealthRiskAssessment();
+                        saveDrugsOne();
+                        saveDrugsTwo();
+                        saveDrugsThree();
+                        saveDrugsFour();
                         Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -182,7 +200,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         if(personId!=null) {
             // ใน Activity
             SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-
+            QuestionsStateViewModel questionsStateViewModel =  new ViewModelProvider(this).get(QuestionsStateViewModel.class);
             PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
             personInfoLiveData.setId(personId);
             viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
@@ -216,6 +234,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
             healthRiskAssessmentLiveData.setPersonId(personId);
             viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+
+            DrugsLiveData drugsLiveData = new DrugsLiveData();
+            drugsLiveData.setPersonId(personId);
+            viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
         }
     }
     private String savePerson(){
@@ -382,6 +404,123 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
+    private void saveDrugsOne() {
+        if(this.drugsOneInfos != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            for (DrugsInfo drugsInfo : this.drugsOneInfos) {
+                // กำหนดค่าที่จำเป็น
+                drugsInfo.setIdcard(this.personInfo.getIdcard());
+                drugsInfo.setPersonInfoId(this.personInfo.getId());
+               if (drugsInfo.getId() == null) {
+                   drugsInfo.setCreatedBy("SYSTEM");
+                   drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                   // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                   String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
+                } else {
+                    // กำหนดค่าสำหรับการอัพเดต
+                    drugsInfo.setUpdatedBy("SYSTEM");
+                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    sfDrugsDao.update(drugsInfo);
+                }
+
+                // Debug log
+                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                if (drugs != null && !drugs.isEmpty()) {
+                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                }
+            }
+        }
+    }
+
+    private void saveDrugsTwo() {
+        if(this.drugsTwoInfos != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            for (DrugsInfo drugsInfo : this.drugsTwoInfos) {
+                // กำหนดค่าที่จำเป็น
+                drugsInfo.setIdcard(this.personInfo.getIdcard());
+                drugsInfo.setPersonInfoId(this.personInfo.getId());
+                if (drugsInfo.getId() == null) {
+                    drugsInfo.setCreatedBy("SYSTEM");
+                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                    String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
+                } else {
+                    // กำหนดค่าสำหรับการอัพเดต
+                    drugsInfo.setUpdatedBy("SYSTEM");
+                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    sfDrugsDao.update(drugsInfo);
+                }
+
+                // Debug log
+                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                if (drugs != null && !drugs.isEmpty()) {
+                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                }
+            }
+        }
+    }
+
+    private void saveDrugsThree() {
+        if(this.drugsThreeInfos != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            for (DrugsInfo drugsInfo : this.drugsThreeInfos) {
+                // กำหนดค่าที่จำเป็น
+                drugsInfo.setIdcard(this.personInfo.getIdcard());
+                drugsInfo.setPersonInfoId(this.personInfo.getId());
+                if (drugsInfo.getId() == null) {
+                    drugsInfo.setCreatedBy("SYSTEM");
+                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                    String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
+                } else {
+                    // กำหนดค่าสำหรับการอัพเดต
+                    drugsInfo.setUpdatedBy("SYSTEM");
+                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    sfDrugsDao.update(drugsInfo);
+                }
+
+                // Debug log
+                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                if (drugs != null && !drugs.isEmpty()) {
+                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                }
+            }
+        }
+    }
+
+    private void saveDrugsFour() {
+        if(this.drugsFourInfos != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            for (DrugsInfo drugsInfo : this.drugsFourInfos) {
+                // กำหนดค่าที่จำเป็น
+                drugsInfo.setIdcard(this.personInfo.getIdcard());
+                drugsInfo.setPersonInfoId(this.personInfo.getId());
+                if (drugsInfo.getId() == null) {
+                    drugsInfo.setCreatedBy("SYSTEM");
+                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                    String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
+                } else {
+                    // กำหนดค่าสำหรับการอัพเดต
+                    drugsInfo.setUpdatedBy("SYSTEM");
+                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    sfDrugsDao.update(drugsInfo);
+                }
+
+                // Debug log
+                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                if (drugs != null && !drugs.isEmpty()) {
+                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                }
+            }
+        }
+    }
+
+
     private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter){
         Fragment fragment = adapter.getFragmentAt(position);
         if(fragment != null && fragment.getView() != null){
@@ -535,6 +674,81 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
         System.out.println(msg);
         // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    private void displayData(List<DrugsInfo> data){
+        for (DrugsInfo drugsInfo : data) {
+            System.out.println("ID: " + drugsInfo.getId());
+            System.out.println("Person Info ID: " + drugsInfo.getPersonInfoId());
+            System.out.println("Question: " + drugsInfo.getQuestion());
+            System.out.println("Subquestion: " + drugsInfo.getSubquestion());
+            System.out.println("Other Drugs: " + drugsInfo.getOtherDrugs());
+            System.out.println("Answer: " + drugsInfo.getAnswer());
+            System.out.println("Created By: " + drugsInfo.getCreatedBy());
+            System.out.println("Created Date: " + drugsInfo.getCreatedDate());
+            System.out.println("Updated By: " + drugsInfo.getUpdatedBy());
+            System.out.println("Updated Date: " + drugsInfo.getUpdatedDate());
+            System.out.println("ID Card: " + drugsInfo.getIdcard());
+            System.out.println("===================================");
+        }
+    }
+    @Override
+    public void onDrugsOneInfo(List<DrugsInfo> data) {
+        this.drugsOneInfos = data;
+        displayData(data);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDrugsTwoInfo(List<DrugsInfo> data) {
+        this.drugsTwoInfos = data;
+        displayData(data);
+//        String msg = "====> "+data.size();
+//        System.out.println(msg);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDrugsThreeInfo(List<DrugsInfo> data) {
+        this.drugsThreeInfos = data;
+        displayData(data);
+    }
+
+    @Override
+    public void onDrugsFourInfo(List<DrugsInfo> data) {
+        this.drugsFourInfos = data;
+        displayData(data);
+    }
+
+    @Override
+    public void onDrugsFiveInfo(List<DrugsInfo> data) {
+        this.drugsFiveInfos = data;
+        String msg = "====> "+data.size();
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDrugsSixInfo(List<DrugsInfo> data) {
+        this.drugsSixInfos = data;
+        String msg = "====> "+data.size();
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDrugsSevenInfo(List<DrugsInfo> data) {
+        this.drugsSevenInfos = data;
+        String msg = "====> "+data.size();
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDrugsEightInfo(List<DrugsInfo> data) {
+        this.drugsEightInfos = data;
+        String msg = "====> "+data.size();
+        System.out.println(msg);
+        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -1,38 +1,36 @@
 package th.in.ffc.app.form.screening.adapter;
 
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import android.text.TextUtils;
-
-import android.widget.RadioGroup;
-import android.widget.TextView;
-
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import th.in.ffc.R;
-import th.in.ffc.app.form.screening.listener.OnConcernSelectedListener;
 import th.in.ffc.app.form.screening.listener.OnFrequencySelectedListener;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
-public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapter.ViewHolder> {
+
+public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAdapter.ViewHolder> {
     private ArrayList<SubstanceItem> substanceList;
     private OnFrequencySelectedListener listener;
 
 
     private boolean isUpdating = false;
 
-    public SubstanceSixAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
+    public SubstanceSevenAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
         this.substanceList = substanceList;
         this.listener = listener;
     }

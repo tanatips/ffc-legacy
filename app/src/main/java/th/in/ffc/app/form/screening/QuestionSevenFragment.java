@@ -23,24 +23,24 @@ import java.util.Map;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.adapter.SubstanceFiveAdapter;
-import th.in.ffc.app.form.screening.adapter.SubstanceSixAdapter;
+import th.in.ffc.app.form.screening.adapter.SubstanceSevenAdapter;
 import th.in.ffc.app.form.screening.listener.OnConcernSelectedListener;
 import th.in.ffc.app.form.screening.listener.OnFrequencySelectedListener;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 
-public class QuestionSixFragment extends Fragment implements OnFrequencySelectedListener {
+public class QuestionSevenFragment extends Fragment implements OnFrequencySelectedListener {
 
     private RecyclerView recyclerView;
-    private SubstanceSixAdapter adapter;
+    private SubstanceSevenAdapter adapter;
     private ArrayList<SubstanceItem> substanceList;
     private QuestionsStateViewModel viewModel;
     private Map<String, AnswerFrequencyData> selectedFrequencies = new HashMap<>();
 
     private Observer<Map<String, AnswerFrequencyData>> answersObserver;
 
-    public QuestionSixFragment() {
+    public QuestionSevenFragment() {
         // Required empty public constructor
     }
 
@@ -59,10 +59,10 @@ public class QuestionSixFragment extends Fragment implements OnFrequencySelected
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_question_six, container, false);
+        View view = inflater.inflate(R.layout.fragment_question_seven, container, false);
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new SubstanceSixAdapter(substanceList, this);
+        adapter = new SubstanceSevenAdapter(substanceList, this);
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -71,7 +71,7 @@ public class QuestionSixFragment extends Fragment implements OnFrequencySelected
         super.onViewCreated(view, savedInstanceState);
         // เริ่มต้นค่าเริ่มต้นสำหรับทุก item
         for (SubstanceItem item : substanceList) {
-            selectedFrequencies.put(item.getId(),  new AnswerFrequencyData(0,""));
+            selectedFrequencies.put(item.getId(), new AnswerFrequencyData(0,""));
         }
 
         if (savedInstanceState != null) {

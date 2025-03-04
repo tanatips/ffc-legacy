@@ -2,6 +2,8 @@ package th.in.ffc.app.form.screening;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -14,6 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
+import th.in.ffc.app.form.screening.model.AnswerData;
+import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 
@@ -24,13 +29,15 @@ import th.in.ffc.app.form.screening.model.SubstanceItem;
  */
 public class MainQuestionsFragment extends Fragment {
 
-    private ArrayList<SubstanceItem> substanceListOne;
-    private ArrayList<SubstanceItem> substanceListTwo;
-    private ArrayList<SubstanceItem> substanceListThree;
-    private ArrayList<SubstanceItem> substanceListFour;
-    private ArrayList<SubstanceItem> substanceListFive;
-    private ArrayList<SubstanceItem> substanceListSix;
-    private ArrayList<SubstanceItem> substanceListSeven;
+//    private ArrayList<SubstanceItem> substanceListOne;
+//    private ArrayList<SubstanceItem> substanceListTwo;
+//    private ArrayList<SubstanceItem> substanceListThree;
+//    private ArrayList<SubstanceItem> substanceListFour;
+//    private ArrayList<SubstanceItem> substanceListFive;
+//    private ArrayList<SubstanceItem> substanceListSix;
+//    private ArrayList<SubstanceItem> substanceListSeven;
+    private DrugsLiveData drugsLiveData;
+//    private SharedViewModel viewModel;
     private QuestionOneFragment questionOneFragment;
     private QuestionTwoFragment questionTwoFragment;
 
@@ -41,8 +48,11 @@ public class MainQuestionsFragment extends Fragment {
     private QuestionFiveFragment questionFiveFragment;
 
     private QuestionSixFragment questionSixFragment;
+    private QuestionSevenFragment questionSevenFragment;
 
-    private QuestionsStateViewModel viewModel;
+    private QuestionEightFragment questionEightFragment;
+
+    private QuestionsStateViewModel questionsStateViewModel;
 
     public MainQuestionsFragment() {
         // Required empty public constructor
@@ -58,7 +68,14 @@ public class MainQuestionsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(requireActivity()).get(QuestionsStateViewModel.class);
+//        questionsStateViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        questionsStateViewModel = new ViewModelProvider(requireActivity()).get(QuestionsStateViewModel.class);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
     }
 
     @Override
@@ -80,6 +97,8 @@ public class MainQuestionsFragment extends Fragment {
                     .add(R.id.question_four_container, questionFourFragment)
 //                    .add(R.id.question_five_container, questionFiveFragment)
 //                    .add(R.id.question_six_container, questionSixFragment)
+//                    .add(R.id.question_seven_container, questionSevenFragment)
+//                    .add(R.id.question_eight_container, questionEightFragment)
                     .commitNow();
         }
         return view;
@@ -104,16 +123,16 @@ public class MainQuestionsFragment extends Fragment {
     }
     private ArrayList<SubstanceItem> createSubstanceTemplateList() {
         ArrayList<SubstanceItem> templateList = new ArrayList<>();
-        templateList.add(new SubstanceItem("a", "ผลิตภัณฑ์ยาสูบ", "บุหรี่ ยาเส้นแบบเคี้ยว ซิการ์ ฯลฯ"));
-        templateList.add(new SubstanceItem("b", "เครื่องดื่มแอลกอฮอล์", "สุรา เบียร์ ไวน์"));
-        templateList.add(new SubstanceItem("c", "กัญชา", "กัญชาแห้ง ยางกัญชา น้ำกัญชา ฯลฯ"));
-        templateList.add(new SubstanceItem("d", "โคเคน", "โค้ก แครัก ฯลฯ"));
-        templateList.add(new SubstanceItem("e", "ยากระตุ้นประสาทกลุ่มแอมเฟตามีน", "ยาบ้า ยาอี ไอซ์ สปีด ยาลดความอ้วน ฯลฯ"));
-        templateList.add(new SubstanceItem("f", "สารระเหย", "กาว ทินเนอร์ เบนซิน ไนตรัส ฯลฯ"));
-        templateList.add(new SubstanceItem("g", "ยากล่อมประสาทหรือยานอนหลับ", "วาเลี่ยม โรฮิปนอล ดอมิกุม มาโน โซแลม ฯลฯ"));
-        templateList.add(new SubstanceItem("h", "ยาหลอนประสาท", "แอลเอสดี แอซิด เห็ดเมา พีซีพี ยาเค ฯลฯ"));
-        templateList.add(new SubstanceItem("i", "สารกลุ่มฝิ่น", "ฝิ่น เฮโรอีน มอร์ฟีน เมทาโดน บูพรีนอฟีน โคเดอีน ฯลฯ"));
-        templateList.add(new SubstanceItem("j", "สารเสพติดอื่น ๆ", ""));
+        templateList.add(new SubstanceItem("a", "a. ผลิตภัณฑ์ยาสูบ", "บุหรี่ ยาเส้นแบบเคี้ยว ซิการ์ ฯลฯ"));
+        templateList.add(new SubstanceItem("b", "b. เครื่องดื่มแอลกอฮอล์", "สุรา เบียร์ ไวน์"));
+        templateList.add(new SubstanceItem("c", "c. กัญชา", "กัญชาแห้ง ยางกัญชา น้ำกัญชา ฯลฯ"));
+        templateList.add(new SubstanceItem("d", "d. โคเคน", "โค้ก แครัก ฯลฯ"));
+        templateList.add(new SubstanceItem("e", "e. ยากระตุ้นประสาทกลุ่มแอมเฟตามีน", "ยาบ้า ยาอี ไอซ์ สปีด ยาลดความอ้วน ฯลฯ"));
+        templateList.add(new SubstanceItem("f", "f. สารระเหย", "กาว ทินเนอร์ เบนซิน ไนตรัส ฯลฯ"));
+        templateList.add(new SubstanceItem("g", "g. ยากล่อมประสาทหรือยานอนหลับ", "วาเลี่ยม โรฮิปนอล ดอมิกุม มาโน โซแลม ฯลฯ"));
+        templateList.add(new SubstanceItem("h", "h. ยาหลอนประสาท", "แอลเอสดี แอซิด เห็ดเมา พีซีพี ยาเค ฯลฯ"));
+        templateList.add(new SubstanceItem("i", "i. สารกลุ่มฝิ่น", "ฝิ่น เฮโรอีน มอร์ฟีน เมทาโดน บูพรีนอฟีน โคเดอีน ฯลฯ"));
+        templateList.add(new SubstanceItem("j", "j. สารเสพติดอื่น ๆ", ""));
         return templateList;
     }
     private ArrayList<SubstanceItem> copySubstanceList(ArrayList<SubstanceItem> templateList) {
@@ -131,6 +150,8 @@ public class MainQuestionsFragment extends Fragment {
         questionFourFragment = new QuestionFourFragment();
         questionFiveFragment = new QuestionFiveFragment();
         questionSixFragment = new QuestionSixFragment();
+        questionSevenFragment = new QuestionSevenFragment();
+        questionEightFragment = new QuestionEightFragment();
 
         // ตั้งค่า arguments สำหรับแต่ละ fragment
         questionOneFragment.setArguments(createBundle(fragmentLists.get("one")));
@@ -139,6 +160,7 @@ public class MainQuestionsFragment extends Fragment {
         questionFourFragment.setArguments(createBundle(fragmentLists.get("four")));
         questionFiveFragment.setArguments(createBundle(fragmentLists.get("five")));
         questionSixFragment.setArguments(createBundle(fragmentLists.get("six")));
+        questionSevenFragment.setArguments(createBundle(fragmentLists.get("seven")));
     }
     private Bundle createBundle(ArrayList<SubstanceItem> list) {
         Bundle bundle = new Bundle();
@@ -148,25 +170,41 @@ public class MainQuestionsFragment extends Fragment {
     private void initializeViewModel(ArrayList<SubstanceItem> templateList) {
 
         // สำหรับ Question One
-        if (viewModel.getQuestionOneAnswers().getValue() == null) {
-            Map<String, QuestionOneFragment.AnswerData> initialOneAnswers = new HashMap<>();
+        if (questionsStateViewModel.getQuestionOneAnswers().getValue() == null) {
+            Map<String, AnswerData> initialOneAnswers = new HashMap<>();
             for (SubstanceItem item : templateList) {
-                initialOneAnswers.put(item.getId(), new QuestionOneFragment.AnswerData(false, ""));
+                initialOneAnswers.put(item.getId(), new AnswerData(false, ""));
             }
-            viewModel.initQuestionOneAnswers(initialOneAnswers);
+            questionsStateViewModel.initQuestionOneAnswers(initialOneAnswers);
         }
 
         // สำหรับ Question Two และ Three (คงเดิม)
-        Map<String, Integer> initialAnswers = new HashMap<>();
+        Map<String, AnswerData> initialAnswers = new HashMap<>();
+        Map<String, AnswerFrequencyData> initialFrequencyAnswers = new HashMap<>();
         for (SubstanceItem item : templateList) {
-            initialAnswers.put(item.getId(), 0);
+            initialAnswers.put(item.getId(), new AnswerData(false, ""));
         }
 
-        if (viewModel.getQuestionTwoAnswers().getValue() == null) {
-            viewModel.initQuestionTwoAnswers(initialAnswers);
+        if (questionsStateViewModel.getQuestionTwoAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionTwoAnswers(initialFrequencyAnswers);
         }
-        if (viewModel.getQuestionThreeAnswers().getValue() == null) {
-            viewModel.initQuestionThreeAnswers(initialAnswers);
+        if (questionsStateViewModel.getQuestionThreeAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionThreeAnswers(initialFrequencyAnswers);
+        }
+        if (questionsStateViewModel.getQuestionFourAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionFourAnswers(initialFrequencyAnswers);
+        }
+        if (questionsStateViewModel.getQuestionFiveAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionFiveAnswers(initialFrequencyAnswers);
+        }
+        if (questionsStateViewModel.getQuestionSixAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionSixAnswers(initialFrequencyAnswers);
+        }
+        if (questionsStateViewModel.getQuestionSevenAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionSevenAnswers(initialFrequencyAnswers);
+        }
+        if (questionsStateViewModel.getQuestionEightAnswers().getValue() == null) {
+            questionsStateViewModel.initQuestionEightAnswers(initialFrequencyAnswers);
         }
     }
     private boolean isAllQuestionsAnswered(Map<String, Boolean> answers) {

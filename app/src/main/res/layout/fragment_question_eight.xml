@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Question Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="8. คุณเคยใช้สารเสพติดใดๆ โดยการฉีดหรือไม่\n(การใช้นอกเหนือจากแพทย์สั่ง)"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:background="@color/dark_blue"
+        android:padding="8dp"/>
+
+    <!-- Radio Group -->
+    <RadioGroup
+        android:id="@+id/radioGroupInjection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ไม่เคย Option -->
+        <RadioButton
+            android:id="@+id/radioNever"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ไม่เคย"
+            android:textSize="16sp"
+            android:padding="8dp"/>
+
+        <!-- เคย, ภายใน 3 เดือนนี้ Option -->
+        <RadioButton
+            android:id="@+id/radioWithinThreeMonths"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="เคย, ภายใน 3 เดือนนี้"
+            android:textSize="16sp"
+            android:padding="8dp"/>
+
+        <!-- เคย, ก่อน 3 เดือนนี้ Option -->
+        <RadioButton
+            android:id="@+id/radioBeforeThreeMonths"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="เคย, ก่อน 3 เดือนนี้"
+            android:textSize="16sp"
+            android:padding="8dp"/>
+    </RadioGroup>
+
+</LinearLayout>

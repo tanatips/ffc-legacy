@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +27,11 @@ import java.util.Objects;
 import th.in.ffc.R;
 
 import th.in.ffc.app.form.screening.adapter.SubstanceOneAdapter;
+import th.in.ffc.app.form.screening.dao.SfDrugsDao;
+import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
+import th.in.ffc.app.form.screening.listener.OnSubstanceSelectionListener;
+import th.in.ffc.app.form.screening.model.AnswerData;
+import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 
@@ -31,18 +40,36 @@ import th.in.ffc.app.form.screening.model.SubstanceItem;
  * Use the {@link QuestionOneFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class QuestionOneFragment extends Fragment implements OnSubstanceSelectionListener{
+public class QuestionOneFragment extends Fragment implements OnSubstanceSelectionListener {
 
-
+    private Map<String, DrugsInfo> drugsInfoMap = new HashMap<>();
+    private OnDataPass dataPasser;
+//    private SharedViewModel viewModel;
     private Map<String, AnswerData> selectedAnswers = new HashMap<>();
     private RecyclerView recyclerView;
     private SubstanceOneAdapter adapter;
     private List<SubstanceItem> substanceList;
-    private QuestionsStateViewModel viewModel;
+//    private QuestionsStateViewModel viewModel;
     private Observer<Map<String, AnswerData>> answersObserver;
+    private QuestionsStateViewModel questionsViewModel;
     final boolean[] isUpdating = {false};
+    private boolean isDataLoaded = false;
+
+    List<DrugsInfo> drugsInfos = new ArrayList<>();
+
+
     public QuestionOneFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
     }
 
     @Override
@@ -73,34 +100,47 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel = new ViewModelProvider(requireActivity()).get(QuestionsStateViewModel.class);
+        questionsViewModel = new ViewModelProvider(requireActivity()).get(QuestionsStateViewModel.class);
+//        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
         // สร้าง map สำหรับเก็บค่าเริ่มต้น
         for (SubstanceItem item : substanceList) {
-            selectedAnswers.put(item.getId(), new AnswerData(item.isHasUsed(), item.getOtherSubstance()));
+            selectedAnswers.put(item.getId(), new AnswerData(item.isHasUsed(), item.getOtherDrugs()));
+        }
+
+        // ตรวจสอบว่ามีข้อมูลใน ViewModel หรือไม่
+        Map<String, AnswerData> viewModelAnswers = questionsViewModel.getQuestionOneAnswers().getValue();
+        if (viewModelAnswers != null && !viewModelAnswers.isEmpty()) {
+            // ถ้ามีข้อมูลใน ViewModel ให้ใช้ข้อมูลนั้น
+            selectedAnswers = new HashMap<>(viewModelAnswers);
+            updateUI(selectedAnswers);
+            isDataLoaded = true;
         }
 
         answersObserver = answers -> {
             if (answers != null && isAdded() && !isUpdating[0]) {
                 isUpdating[0] = true;
                 try {
-                    selectedAnswers = new HashMap<>(answers);
+//                  // ไม่อัพเดต selectedAnswers จาก ViewModel แล้ว
+//                  // เพราะเราต้องการเก็บค่าที่ผู้ใช้เลือกไว้ระหว่างสลับแท็บ
                     updateUI(selectedAnswers);
                 } finally {
                     isUpdating[0] = false;
                 }
             }
         };
+        questionsViewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answersObserver);
 
-        viewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answersObserver);
-
+        if (!isDataLoaded) {
+            loadData();
+        }
     }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         // ยกเลิก observer เมื่อ view ถูกทำลาย
-        if (viewModel != null && answersObserver != null) {
-            viewModel.getQuestionOneAnswers().removeObserver(answersObserver);
+        if (questionsViewModel != null && answersObserver != null) {
+            questionsViewModel.getQuestionOneAnswers().removeObserver(answersObserver);
         }
         recyclerView = null;
         adapter = null;
@@ -109,10 +149,9 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         if (adapter != null) {
             recyclerView.post(() -> adapter.updateAnswers(answers));
         }
+
     }
-//    private void onAnswerSelected(String id, boolean value) {
-//        viewModel.updateQuestionOneAnswer(id, value);
-//    }
+
     public static QuestionOneFragment newInstance(String param1, String param2) {
         QuestionOneFragment fragment = new QuestionOneFragment();
         Bundle args = new Bundle();
@@ -127,7 +166,7 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                 .append(entry.getValue().isHasUsed());
         if (entry.getKey().equals("j")) {
             result.append(", otherSubstance=")
-                    .append(entry.getValue().getOtherSubstance());
+                    .append(entry.getValue().getOtherDrugs());
         }
         result.append("\n");
     }
@@ -148,46 +187,155 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
 
         isUpdating[0] = true;
         try {
-            // บันทึกลง local map
             AnswerData newAnswer = new AnswerData(hasUsed, otherSubstance);
             AnswerData currentAnswer = selectedAnswers.get(id);
 
             if (currentAnswer == null ||
                     currentAnswer.isHasUsed() != hasUsed ||
-                    !Objects.equals(currentAnswer.getOtherSubstance(), otherSubstance)) {
+                    !Objects.equals(currentAnswer.getOtherDrugs(), otherSubstance)) {
 
                 selectedAnswers.put(id, newAnswer);
-                viewModel.updateQuestionOneAnswer(id, hasUsed, otherSubstance);
+                questionsViewModel.updateQuestionOneAnswer(id, hasUsed, otherSubstance);
+                // อัพเดต SubstanceItem เพื่อเก็บสถานะ
+                for (SubstanceItem item : substanceList) {
+                    if (item.getId().equals(id)) {
+                        item.setHasUsed(hasUsed);
+                        if (id.equals("j")) {
+                            item.setOtherDrugs(otherSubstance);
+                        }
+                        break;
+                    }
+                }
+                List<DrugsInfo> drugsInfos = new ArrayList<>();
+
+                // ดึง PersonId จาก PersonInfoLiveData แทน
+                SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+                PersonInfoLiveData personInfoData = sharedViewModel.getPersonInfoLiveDataMutableLiveData().getValue();
+                String personInfoId = personInfoData != null ? personInfoData.getId() : null;
+
+                for (Map.Entry<String, AnswerData> entry : selectedAnswers.entrySet()) {
+                    DrugsInfo drugsInfo = new DrugsInfo();
+
+                    for(DrugsInfo drugsInfo1 : this.drugsInfos){
+                        if(drugsInfo1.getSubquestion().equals(entry.getKey())){
+                            drugsInfo.setId(drugsInfo1.getId());
+                            drugsInfo.setCreatedDate(drugsInfo1.getCreatedDate());
+                            drugsInfo.setCreatedBy(drugsInfo1.getCreatedBy());
+                            drugsInfo.setPersonInfoId(drugsInfo1.getPersonInfoId());
+                            drugsInfo.setIdcard(drugsInfo1.getIdcard());
+                            drugsInfo.setQuestion(drugsInfo1.getQuestion());
+                            drugsInfo.setSubquestion(drugsInfo1.getSubquestion());
+                            drugsInfo.setAnswer(drugsInfo1.getAnswer());
+                            drugsInfo.setOtherDrugs(drugsInfo1.getOtherDrugs());
+                            drugsInfo.setUpdatedBy(drugsInfo1.getUpdatedBy());
+                            drugsInfo.setUpdatedDate(drugsInfo1.getUpdatedDate());
+//                            break;
+                        }
+                    }
+                    // ค้นหาข้อมูลเดิมจาก drugsInfoMap
+                    DrugsInfo existingInfo = drugsInfoMap.get(entry.getKey());
+                    if (existingInfo != null) {
+                        drugsInfo.setId(existingInfo.getId());
+                        drugsInfo.setCreatedDate(existingInfo.getCreatedDate());
+                        drugsInfo.setCreatedBy(existingInfo.getCreatedBy());
+                    } else {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    }
+
+                    // กำหนดค่าใหม่
+                    if (drugsInfo.getPersonInfoId() == null) {
+                        drugsInfo.setPersonInfoId(personInfoId);
+                        drugsInfo.setIdcard(personInfoData != null ? personInfoData.getIdcard() : "");
+                        drugsInfo.setQuestion("Q1");
+                        drugsInfo.setSubquestion(entry.getKey());
+                    }
+                    drugsInfo.setAnswer(entry.getValue().isHasUsed() ? "1" : "0");
+                    drugsInfo.setOtherDrugs(entry.getValue().getOtherDrugs());
+                    drugsInfo.setUpdatedBy("SYSTEM");
+                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+
+                    drugsInfos.add(drugsInfo);
+                }
+
+                dataPasser.onDrugsOneInfo(drugsInfos);
             }
         } finally {
             isUpdating[0] = false;
         }
         printCurrentSelections();
     }
-    public static class AnswerData {
-        private boolean hasUsed;
-        private String otherSubstance;
+     private void loadData() {
+        SfDrugsDao sfDrugsDao = new SfDrugsDao(getContext());
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        public AnswerData(boolean hasUsed, String otherSubstance) {
-            this.hasUsed = hasUsed;
-            this.otherSubstance = otherSubstance;
-        }
+        viewModel.getDrugsLiveDataMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+            if (data != null && data.getPersonId() != null) {
+                List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(data.getPersonId()));
+                this.drugsInfos = drugsInfos;
+                Map<String, AnswerData> answers = new HashMap<>();
+                drugsInfoMap.clear();
+                for (DrugsInfo drug : drugsInfos) {
+                    if (drug.getQuestion().equals("Q1")) {
+                        // ใช้ subquestion เป็น key เพื่อจับคู่กับ substance
+                        drugsInfoMap.put(drug.getSubquestion(), drug);
+                    }
+                }
+                for (SubstanceItem item : substanceList) {
+                    // ค้นหา DrugsInfo ที่ตรงกับ substance id นี้
+                    DrugsInfo matchingDrug = null;
+                    for (DrugsInfo drug : drugsInfos) {
+                        if (drug.getQuestion().equals("Q1") &&
+                                drug.getSubquestion().equals(item.getId())) {
+                            matchingDrug = drug;
+                            break;
+                        }
+                    }
 
-        // Getters
-        public boolean isHasUsed() { return hasUsed; }
-        public String getOtherSubstance() { return otherSubstance; }
+                    if (matchingDrug != null) {
+                        // ถ้าพบข้อมูล ใช้ค่าจากฐานข้อมูล
+                        boolean hasUsed = "1".equals(matchingDrug.getAnswer());
+                        String otherDrugs = matchingDrug.getOtherDrugs();
+                        answers.put(item.getId(), new AnswerData(hasUsed, otherDrugs));
+
+                        // อัพเดต state ของ SubstanceItem ด้วย
+                        item.setHasUsed(hasUsed);
+                        if (item.getId().equals("j")) {
+                            item.setOtherDrugs(otherDrugs);
+                        }
+                    } else {
+                        // ถ้าไม่พบข้อมูล ใช้ค่าเริ่มต้น
+                        answers.put(item.getId(), new AnswerData(false, ""));
+                    }
+                }
+
+                if (!answers.isEmpty()) {
+                    selectedAnswers = answers;
+                    questionsViewModel.setQuestionOneAnswers(answers);
+                    adapter.updateAnswers(answers);
+                    dataPasser.onDrugsOneInfo(drugsInfos);
+                    isDataLoaded = true;
+                }
+
+                Log.d("QuestionOneFragment", "Loaded drugs info: " + drugsInfos.size() + " items");
+            }
+        });
     }
     @Override
     public void onResume() {
         super.onResume();
-        if (viewModel != null && !isUpdating[0]) {
+        if (questionsViewModel != null && !isUpdating[0]) {
             isUpdating[0] = true;
             try {
-                Map<String, AnswerData> currentAnswers = viewModel.getQuestionOneAnswers().getValue();
-                if (currentAnswers != null) {
-                    selectedAnswers = new HashMap<>(currentAnswers);
-                    updateUI(selectedAnswers);
+                // ตรวจสอบสถานะใน ViewModel
+                Map<String, AnswerData> viewModelAnswers = questionsViewModel.getQuestionOneAnswers().getValue();
+                if (viewModelAnswers != null && !viewModelAnswers.isEmpty()) {
+                    // เลือกใช้ข้อมูลจาก ViewModel ถ้าไม่ได้โหลดข้อมูลจาก DB มาแล้ว
+                    if (!isDataLoaded) {
+                        selectedAnswers = new HashMap<>(viewModelAnswers);
+                    }
                 }
+                updateUI(selectedAnswers);
             } finally {
                 isUpdating[0] = false;
             }

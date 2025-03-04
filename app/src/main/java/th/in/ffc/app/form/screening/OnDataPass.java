@@ -1,7 +1,10 @@
 package th.in.ffc.app.form.screening;
 
+import java.util.List;
+
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.DataCenterInfo;
+import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
@@ -25,6 +28,17 @@ public interface OnDataPass {
     void onSuicideAssessment8q(SuicideAssessment8qInfo data);
 
     void onHealthRiskAssessmentInfo(HealthRiskAssessmentInfo data);
+    void onDrugsOneInfo(List<DrugsInfo> data);
+
+    void onDrugsTwoInfo(List<DrugsInfo> data);
+
+    void onDrugsThreeInfo(List<DrugsInfo> data);
+    void onDrugsFourInfo(List<DrugsInfo> data);
+    void onDrugsFiveInfo(List<DrugsInfo> data);
+    void onDrugsSixInfo(List<DrugsInfo> data);
+    void onDrugsSevenInfo(List<DrugsInfo> data);
+    void onDrugsEightInfo(List<DrugsInfo> data);
+
 
     void onAssistScoreInfo(AssistScore data);
 }

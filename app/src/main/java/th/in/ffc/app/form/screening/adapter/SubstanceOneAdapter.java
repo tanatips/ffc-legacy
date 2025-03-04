@@ -16,11 +16,10 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import th.in.ffc.R;
-import th.in.ffc.app.form.screening.OnSubstanceSelectionListener;
-import th.in.ffc.app.form.screening.QuestionOneFragment;
+import th.in.ffc.app.form.screening.listener.OnSubstanceSelectionListener;
+import th.in.ffc.app.form.screening.model.AnswerData;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 
 public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapter.SubstanceViewHolder> {
@@ -33,17 +32,17 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
         this.listener = listener;
         this.substanceList = substanceList;
     }
-    public void updateAnswers(Map<String, QuestionOneFragment.AnswerData> answers) {
+    public void updateAnswers(Map<String, AnswerData> answers) {
         if (isUpdating) return;
         isUpdating = true;
 
         try {
             for (SubstanceItem item : substanceList) {
-                QuestionOneFragment.AnswerData answer = answers.get(item.getId());
+                AnswerData answer = answers.get(item.getId());
                 if (answer != null) {
                     // อัพเดต state ของ item โดยตรง
                     item.setHasUsed(answer.isHasUsed());
-                    item.setOtherSubstance(answer.getOtherSubstance());
+                    item.setOtherDrugs(answer.getOtherDrugs());
                 }
             }
             // แจ้ง adapter ให้ update ทุกครั้ง
@@ -108,14 +107,14 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
                     boolean isUsed = checkedId == R.id.radioUsed;
                     item.setHasUsed(isUsed);
                     if (listener != null) {
-                        listener.onAnswerChanged(item.getId(), isUsed, item.getOtherSubstance());
+                        listener.onAnswerChanged(item.getId(), isUsed, item.getOtherDrugs());
                     }
                 }
             });
 
             if (item.getId().equals("j")) {
                 otherSubstanceLayout.setVisibility(View.VISIBLE);
-                otherSubstanceEdit.setText(item.getOtherSubstance());
+                otherSubstanceEdit.setText(item.getOtherDrugs());
 
                 // ตั้งค่า TextWatcher สำหรับข้อความที่กรอก
                 otherSubstanceEdit.addTextChangedListener(new TextWatcher() {
@@ -128,7 +127,7 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
                     @Override
                     public void afterTextChanged(Editable s) {
                         String newText = s.toString();
-                        item.setOtherSubstance(newText);
+                        item.setOtherDrugs(newText);
                         // เพิ่มการเรียก listener เพื่อ update ViewModel
                         if (listener != null) {
                             listener.onAnswerChanged(item.getId(), item.isHasUsed(), newText);

@@ -65,6 +65,10 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_TOKEN_ITEMS = 28;
     private static final int SF_TOKEN_ITEM_ID = 29;
 
+    private static final int SF_DRUGS = 30;
+    private static final int SF_DRUGS_ITEMS = 31;
+    private static final int SF_DRUGS_ITEM_ID = 32;
+
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
@@ -114,6 +118,9 @@ public class ScreeningFormProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "sf_token/list", SF_TOKEN_ITEMS);
         mUriMatcher.addURI(AUTHORITY, "sf_token/#", SF_TOKEN_ITEM_ID);
 
+        mUriMatcher.addURI(AUTHORITY, "sf_drugs", SF_DRUGS);
+        mUriMatcher.addURI(AUTHORITY, "sf_drugs/list", SF_DRUGS_ITEMS);
+        mUriMatcher.addURI(AUTHORITY, "sf_drugs/#", SF_DRUGS_ITEM_ID);
     }
 
 
@@ -147,6 +154,8 @@ public class ScreeningFormProvider extends ContentProvider {
 //            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
+//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
             return true;
         }
         catch (Exception e) {
@@ -259,6 +268,14 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setProjectionMap(SfToken.PROJECTION_MAP);
                 break;
 
+            case ScreeningFormProvider.SF_DRUGS_ITEMS:
+                builder.setTables(SfDrugs.TABLENAME);
+                builder.setProjectionMap(SfDrugs.PROJECTION_MAP);
+                break;
+            case ScreeningFormProvider.SF_DRUGS_ITEM_ID:
+                builder.setTables(SfDrugs.TABLENAME);
+                builder.setProjectionMap(SfDrugs.PROJECTION_MAP);
+                break;
         }
         Cursor c = builder.query(db, projection, selection, selectionArgs,
                 groupby, having, sortOrder);
@@ -274,6 +291,10 @@ public class ScreeningFormProvider extends ContentProvider {
                 return CONTENT_DIR_TYPE;
             case ScreeningFormProvider.SF_PERSON_INFO_ITEM_ID:
                 return CONTENT_DIR_TYPE;
+            case SF_DRUGS_ITEMS:
+                return SfDrugs.CONTENT_DIR_TYPE;
+            case SF_DRUGS_ITEM_ID:
+                return SfDrugs.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -315,6 +336,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 break;
             case SF_TOKEN:
                 id = db.insert(SfToken.TABLENAME, null, values);
+                break;
+            case SF_DRUGS:
+                id = db.insert(SfDrugs.TABLENAME, null, values);
                 break;
 
         }
@@ -363,6 +387,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 break;
             case SF_TOKEN_ITEM_ID:
                 rowUpdated = db.update(SfToken.TABLENAME, contentValues, selection, selectionArgs);
+                break;
+            case SF_DRUGS_ITEM_ID:
+                rowUpdated = db.update(SfDrugs.TABLENAME, contentValues, selection, selectionArgs);
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
@@ -1029,6 +1056,62 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.UPDATED_DATE, "updated_date AS " + SfHealthRiskAssessmentInfo.UPDATED_DATE);
         }
     }
+
+    public static final class SfDrugs implements BaseColumns {
+        public static final String TABLENAME = "ffc_sf_drugs";
+
+        public static HashMap<String, String> PROJECTION_MAP;
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScreeningFormProvider.AUTHORITY + "/sf_drugs");
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/vnd.ffc.sf_drugs";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/vnd.ffc.sf_drugs";
+
+        public static final String ID = "id";
+        public static final String PERSON_INFO_ID = "person_info_id";
+        public static final String QUESTION = "question";
+        public static final String SUBQUESTION = "subquestion";
+        public static final String ANSWER = "answer";
+        public static final String OTHER_DRUGS = "other_drugs";
+        public static final String CREATED_BY = "created_by";
+        public static final String CREATED_DATE = "created_date";
+        public static final String UPDATED_BY = "updated_by";
+        public static final String UPDATED_DATE = "updated_date";
+        public static final String IDCARD = "idcard";
+
+        public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLENAME;
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
+                ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                PERSON_INFO_ID + " TEXT NOT NULL," +
+                QUESTION + " TEXT NOT NULL," +
+                SUBQUESTION + " TEXT," +
+                OTHER_DRUGS + " TEXT," +
+                ANSWER + " TEXT," +
+                CREATED_BY + " TEXT NOT NULL," +
+                CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                UPDATED_BY + " TEXT," +
+                UPDATED_DATE + " TIMESTAMP," +
+                IDCARD + " TEXT" + ")";
+
+        static {
+            PROJECTION_MAP = new HashMap<String, String>();
+            PROJECTION_MAP.put(SfDrugs.ID, "id AS " + SfDrugs.ID);
+            PROJECTION_MAP.put(SfDrugs.PERSON_INFO_ID, "person_info_id AS " + SfDrugs.PERSON_INFO_ID);
+            PROJECTION_MAP.put(SfDrugs.QUESTION, "question AS " + SfDrugs.QUESTION);
+            PROJECTION_MAP.put(SfDrugs.SUBQUESTION, "subquestion AS " + SfDrugs.SUBQUESTION);
+            PROJECTION_MAP.put(SfDrugs.ANSWER, "answer AS " + SfDrugs.ANSWER);
+            PROJECTION_MAP.put(SfDrugs.OTHER_DRUGS, "other_drugs AS " + SfDrugs.OTHER_DRUGS);
+            PROJECTION_MAP.put(SfDrugs.CREATED_BY, "created_by AS " + SfDrugs.CREATED_BY);
+            PROJECTION_MAP.put(SfDrugs.CREATED_DATE, "created_date AS " + SfDrugs.CREATED_DATE);
+            PROJECTION_MAP.put(SfDrugs.UPDATED_BY, "updated_by AS " + SfDrugs.UPDATED_BY);
+            PROJECTION_MAP.put(SfDrugs.UPDATED_DATE, "updated_date AS " + SfDrugs.UPDATED_DATE);
+            PROJECTION_MAP.put(SfDrugs.IDCARD, "idcard AS " + SfDrugs.IDCARD);
+        }
+    }
+
 
     public static final class SfToken implements BaseColumns {
         public static final String TABLENAME = "ffc_sf_token";

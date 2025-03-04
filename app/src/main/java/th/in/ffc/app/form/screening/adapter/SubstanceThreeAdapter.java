@@ -20,6 +20,7 @@ import java.util.Map;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.listener.OnFrequencySelectedListener;
+import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 import th.in.ffc.util.Log;
 
@@ -33,22 +34,49 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
         this.substanceList = substanceList;
         this.listener = listener;
     }
-    public void updateAnswers(Map<String, Integer> answers) {
+    public void updateAnswers(Map<String, AnswerFrequencyData> answers, String excludeId) {
         if (isUpdating) return;
         isUpdating = true;
+
         try {
-            if (this instanceof SubstanceThreeAdapter) {
-                for (SubstanceItem item : substanceList) {
-                    Integer frequency = answers.get(item.getId());
-                    if (frequency != null) {
-                        item.setFrequency(frequency);
+            for (int i = 0; i < substanceList.size(); i++) {
+                SubstanceItem item = substanceList.get(i);
+
+                // ข้ามการอัปเดตสำหรับ item ที่ระบุใน excludeId
+                if (excludeId != null && item.getId().equals(excludeId)) {
+                    continue;
+                }
+
+                AnswerFrequencyData answer = answers.get(item.getId());
+                if (answer != null) {
+                    boolean needUpdate = false;
+
+                    // ตรวจสอบว่าค่าเปลี่ยนแปลงหรือไม่
+                    if (item.getFrequency() != answer.getFrequency()) {
+                        item.setFrequency(answer.getFrequency());
+                        needUpdate = true;
+                    }
+
+                    // อัปเดต otherDrugs ยกเว้นช่องกรอกข้อความ
+                    if (!item.getId().equals("j") && !item.getOtherDrugs().equals(answer.getOtherDrugs())) {
+                        item.setOtherDrugs(answer.getOtherDrugs());
+                        needUpdate = true;
+                    }
+
+                    // อัปเดตเฉพาะ item ที่มีการเปลี่ยนแปลง
+                    if (needUpdate) {
+                        notifyItemChanged(i);
                     }
                 }
-                notifyDataSetChanged();
             }
         } finally {
             isUpdating = false;
         }
+    }
+
+    // เมธอด overload สำหรับการเรียกใช้แบบเดิม
+    public void updateAnswers(Map<String, AnswerFrequencyData> answers) {
+        updateAnswers(answers, null);
     }
     @NonNull
     @Override
@@ -72,6 +100,9 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
         private TextView titleText;
         private TextView descriptionText;
         private RadioGroup frequencyGroup;
+        private TextInputLayout otherSubstanceLayout;
+        private TextInputEditText otherSubstanceEdit;
+        private TextWatcher textWatcher;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,16 +139,26 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
                 if (newFrequency != item.getFrequency()) {
                     item.setFrequency(newFrequency);
                     if (listener != null) {
-                        listener.onFrequencySelected(item.getId(), newFrequency);
+                        listener.onFrequencySelected(item.getId(), newFrequency, item.getOtherDrugs());
                     }
                 }
             });
             // จัดการ TextInput สำหรับข้อ j
             if (item.getId().equals("j")) {
                 otherSubstanceLayout.setVisibility(View.VISIBLE);
-                otherSubstanceEdit.setText(item.getOtherSubstance());
+                // ถอด TextWatcher เดิมก่อนตั้งค่าข้อความใหม่
+                if (textWatcher != null) {
+                    otherSubstanceEdit.removeTextChangedListener(textWatcher);
+                }
 
-                otherSubstanceEdit.addTextChangedListener(new TextWatcher() {
+                // ตรวจสอบและตั้งค่าข้อความโดยไม่กระทบ cursor position
+                String currentText = otherSubstanceEdit.getText() != null ? otherSubstanceEdit.getText().toString() : "";
+                String newText = item.getOtherDrugs() != null ? item.getOtherDrugs() : "";
+
+                if (!currentText.equals(newText)) {
+                    otherSubstanceEdit.setText(newText);
+                }
+                textWatcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -126,9 +167,21 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
 
                     @Override
                     public void afterTextChanged(Editable s) {
-                        item.setOtherSubstance(s.toString());
+                        String updatedText = s.toString();
+                        // กันกรณี null
+                        if (updatedText == null) {
+                            updatedText = "";
+                        }
+                        item.setOtherDrugs(updatedText);
+
+                        // เรียก listener เพื่อ update ViewModel
+                        if (listener != null) {
+                            listener.onFrequencySelected(item.getId(), item.getFrequency(), updatedText);
+                        }
                     }
-                });
+                };
+                // เพิ่ม TextWatcher ใหม่
+                otherSubstanceEdit.addTextChangedListener(textWatcher);
             } else {
                 otherSubstanceLayout.setVisibility(View.GONE);
             }

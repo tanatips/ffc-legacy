@@ -10,7 +10,7 @@ public class SubstanceItem implements Parcelable {
     private String name;
     private String description;
     private boolean hasUsed;
-    private String otherSubstance; // เพิ่มฟิลด์ใหม่
+    private String otherDrugs; // เพิ่มฟิลด์ใหม่
     private int frequency;
     private int concern;
 
@@ -21,7 +21,7 @@ public class SubstanceItem implements Parcelable {
         this.hasUsed = false;
         this.frequency = 0;
         this.concern = 0;
-        this.otherSubstance = "";
+        this.otherDrugs = "";
     }
 
     public SubstanceItem(Parcel in) {
@@ -29,7 +29,7 @@ public class SubstanceItem implements Parcelable {
         name = in.readString();
         description = in.readString();
         hasUsed = in.readByte() != 0;
-        otherSubstance = in.readString();
+        otherDrugs = in.readString();
         frequency = in.readInt(); // เพิ่มบรรทัดนี้
     }
 
@@ -41,8 +41,8 @@ public class SubstanceItem implements Parcelable {
     public String getDescription() { return description; }
     public boolean isHasUsed() { return hasUsed; }
     public void setHasUsed(boolean hasUsed) { this.hasUsed = hasUsed; }
-    public String getOtherSubstance() { return otherSubstance; }
-    public void setOtherSubstance(String otherSubstance) { this.otherSubstance = otherSubstance; }
+    public String getOtherDrugs() { return otherDrugs; }
+    public void setOtherDrugs(String otherDrugs) { this.otherDrugs = otherDrugs; }
 
     @Override
     public int describeContents() {
@@ -55,7 +55,7 @@ public class SubstanceItem implements Parcelable {
         dest.writeString(name);
         dest.writeString(description);
         dest.writeByte((byte) (hasUsed ? 1 : 0));
-        dest.writeString(otherSubstance);
+        dest.writeString(otherDrugs);
         dest.writeInt(frequency); // เพิ่มบรรทัดนี้
     }
     public static final Creator<SubstanceItem> CREATOR = new Creator<SubstanceItem>() {

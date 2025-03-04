@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
@@ -14,6 +15,7 @@ import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.AssistScore;
+import th.in.ffc.app.form.screening.model.DrugsInfo;
 
 public class SharedViewModel extends ViewModel {
 
@@ -38,6 +40,9 @@ public class SharedViewModel extends ViewModel {
     private  MutableLiveData<HealthRiskAssessmentLiveData>  healthRiskAssessmentLiveDataMutableLiveData = new MutableLiveData<>();
 
     private MutableLiveData<AssistScore> assistScoreMutableLiveData = new MutableLiveData<>();
+
+    private MutableLiveData<DrugsLiveData> drugsLiveDataMutableLiveData = new MutableLiveData<>();
+
 
     public void setStressDepression9qLiveData(StressDepression9qLiveData value) {
         stressDepression9qLiveDataModelMutableLiveData.setValue(value);
@@ -145,4 +150,29 @@ public class SharedViewModel extends ViewModel {
     public void setAssistScoreMutableLiveData ( AssistScore value) {
         this.assistScoreMutableLiveData.setValue(value);
     }
+    public MutableLiveData<DrugsLiveData> getDrugsLiveDataMutableLiveData() {
+        return drugsLiveDataMutableLiveData;
+    }
+    public void setDrugsLiveDataMutableLiveData(DrugsLiveData value) {
+        this.drugsLiveDataMutableLiveData.setValue(value);
+    }
+
+
+
+//    public void updateDrugsInfo(DrugsInfo drugsInfo) {
+//        DrugsLiveData currentValue = drugsLiveDataMutableLiveData.getValue();
+//        if (currentValue != null) {
+//            currentValue.setDrugsInfo(drugsInfo);
+//            drugsLiveDataMutableLiveData.setValue(currentValue);
+//        } else {
+//            DrugsLiveData newValue = new DrugsLiveData();
+//            newValue.setDrugsInfo(drugsInfo);
+//            drugsLiveDataMutableLiveData.setValue(newValue);
+//        }
+//    }
+//    public DrugsInfo getCurrentDrugsInfo() {
+//        DrugsLiveData currentValue = drugsLiveDataMutableLiveData.getValue();
+//        return currentValue != null ? currentValue.getDrugsInfo() : null;
+//    }
+
 }

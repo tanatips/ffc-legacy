@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:background="@color/dark_blue"
         android:padding="16dp"
-        android:text="6. เพื่อนฝูง ญาติ หรือคนอื่นเคยแสดงความกังวลหรือตักเตือนคุณเกี่ยวกับการใช้สาร... ของคุณหรือไม่"
+        android:text="7. คุณเคยพยายามหยุดหรือใช้สาร... (สารชนิดที่หนึ่ง สารชนิดที่สอง ฯลฯ) ให้น้อยลงแต่ทำไม่สำเร็จ หรือไม่"
         android:textColor="@android:color/white"
         android:textSize="16sp" />
 

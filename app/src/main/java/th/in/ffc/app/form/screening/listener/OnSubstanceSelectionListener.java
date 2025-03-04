@@ -1,4 +1,4 @@
-package th.in.ffc.app.form.screening;
+package th.in.ffc.app.form.screening.listener;
 
 public interface OnSubstanceSelectionListener {
 //    void onSubstanceSelectionChanged(String id, boolean hasUsed);
