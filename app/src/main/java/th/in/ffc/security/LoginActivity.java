@@ -241,11 +241,18 @@ public class LoginActivity extends FFCFragmentActivity implements
         return "LoginActivity [mRegistedEncrypter=" + mRegistedEncrypter
                 + ", mRegistedDecrypter=" + mRegistedDecrypter + "]";
     }
-
+    public static final String PREFS_FILE = "FFCPreferences";
+    public static final String EXTRA_USER = "username";
     @Override
     public void onLoginSuccess(String pcuCode, String user) {
 
         super.logIn(pcuCode, user);
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(EXTRA_USER, user);
+        editor.apply();
+
         Answers.getInstance().logLogin(new LoginEvent()
             .putMethod("basic")
             .putSuccess(true)

@@ -169,6 +169,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
 
             }
         });
+
         return view;
     }
 

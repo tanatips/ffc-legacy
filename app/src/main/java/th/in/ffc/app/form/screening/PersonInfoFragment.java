@@ -50,19 +50,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import th.in.ffc.MainActivity;
 import th.in.ffc.R;
 import th.in.ffc.SmartCardReaderActivity;
 import th.in.ffc.api.nhso.ApiCaller;
 import th.in.ffc.api.nhso.ApiResponse;
 import th.in.ffc.api.nhso.AuthenCodeRequest;
+import th.in.ffc.api.nhso.NhsoApiCaller;
 import th.in.ffc.app.form.screening.dao.DistrictDao;
 import th.in.ffc.app.form.screening.dao.ProvinceDao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
+import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.app.form.screening.dao.SubDistrictDao;
 import th.in.ffc.app.form.screening.model.DataCenterInfo;
 import th.in.ffc.app.form.screening.model.DistrictInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.ProvinceInfo;
+import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.app.form.screening.model.SubDistrictInfo;
 import th.in.ffc.person.BmiInfoActivity;
 import th.in.ffc.person.BmiInfoDialogFragment;
@@ -88,6 +92,9 @@ import java.util.Map;
 import java.util.Objects;
 import androidx.appcompat.app.AlertDialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class PersonInfoFragment extends Fragment {
 
     int SMART_CARD_READER_CODE = 0;
@@ -106,7 +113,7 @@ public class PersonInfoFragment extends Fragment {
     private TextInputEditText txtWaistCircumference, txtBp, txtBmi;
     private TextInputEditText txtSymptomsPressure, txtDiastolicPressure;
     private TextInputEditText txtHomeNo,txtVillageNo,txtPostalCode;
-    private ImageButton smartcardReader;
+    private ImageButton smartcardReader,imgPermission;
     private TextInputEditText currentEditText;
 
     private Map<EditText, TextFieldUpdater> fieldUpdaters;
@@ -387,6 +394,7 @@ public class PersonInfoFragment extends Fragment {
     private void initializeViews(View view) {
         personInfo = new PersonInfo();
         smartcardReader = view.findViewById(R.id.smartcard_reader);
+        imgPermission = view.findViewById(R.id.imgPermission);
         citizenId = view.findViewById(R.id.citizenId);
         fname = view.findViewById(R.id.fname);
         lname = view.findViewById(R.id.lname);
@@ -439,8 +447,8 @@ public class PersonInfoFragment extends Fragment {
             showProgressBar("Authenticating...");
 //            showProgressDialog();
 
-            ApiCaller apiCaller = new ApiCaller(getContext());
-            apiCaller.getAuthenCode(request, new ApiCaller.ApiCallback() {
+            NhsoApiCaller apiCaller = new NhsoApiCaller(getContext());
+            apiCaller.getAuthenCode(request, new NhsoApiCaller.AuthenCodeCallback() {
                 @Override
                 public void onSuccess(ApiResponse response) {
 //                    dismissProgressDialog();
@@ -459,6 +467,142 @@ public class PersonInfoFragment extends Fragment {
                 }
             });
 
+        });
+
+        imgPermission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                SfTokenDao sfTokenDao = new SfTokenDao(getContext());
+                List<SfToken> tokens = sfTokenDao.getAllTokens();
+
+                String tokenAuth = ""; // Default empty string
+                if (!tokens.isEmpty()) {
+                    // Get the most recent token (last token in the list)
+                    SfToken latestToken = tokens.get(tokens.size() - 1);
+                    tokenAuth = latestToken.getTokenAuth();
+                }
+                NhsoApiCaller apiCaller = new NhsoApiCaller(getContext());
+                String citizenIdString = citizenId.getText().toString().trim();
+                apiCaller.testRealPersonApi(citizenIdString, tokenAuth, new NhsoApiCaller.RealPersonApiCallback() {
+                    @Override
+                    public void onSuccess(String response) {
+//                        String formattedResponse = formatResponseData(response);
+                        // สร้าง custom view สำหรับแสดงข้อมูล
+                        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_permission_info, null);
+                        TextView tvPermissionInfo = dialogView.findViewById(R.id.tvPermissionInfo);
+                        tvPermissionInfo.setText(response);
+
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext(), R.style.AlertDialog_AppCompat)
+                                .setTitle("ตรวจสอบสิทธิ์")
+                                .setView(dialogView)
+                                .setIcon(R.drawable.permission)
+                                .setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+                        // แสดง dialog บน UI thread
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // สร้าง dialog สำหรับแสดงข้อผิดพลาด
+                        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_error, null);
+                        TextView tvErrorMessage = dialogView.findViewById(R.id.tvErrorMessage);
+                        tvErrorMessage.setText(errorMessage);
+
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                                .setTitle("เกิดข้อผิดพลาด")
+                                .setView(dialogView)
+                                .setIcon(R.drawable.error)
+                                .setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+                        // แสดง dialog บน UI thread
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> builder.show());
+                        }
+                    }
+                    // ฟังก์ชันสำหรับจัดรูปแบบข้อมูลที่ได้จาก API ให้อ่านง่ายขึ้น
+                    private String formatResponseData(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            StringBuilder formattedData = new StringBuilder();
+
+                            // ข้อมูลส่วนบุคคล
+                            formattedData.append("ข้อมูลส่วนตัว\n");
+                            formattedData.append("-----------------------------------------\n");
+
+                            if (jsonObject.has("pid")) {
+                                formattedData.append("เลขประจำตัวประชาชน: ").append(jsonObject.getString("pid")).append("\n");
+                            }
+
+                            if (jsonObject.has("fullName")) {
+                                formattedData.append("ชื่อ-นามสกุล: ").append(jsonObject.getString("fullName")).append("\n");
+                            }
+
+                            if (jsonObject.has("sex")) {
+                                formattedData.append("เพศ: ").append(jsonObject.getString("sex")).append("\n");
+                            }
+
+                            if (jsonObject.has("age")) {
+                                formattedData.append("อายุ: ").append(jsonObject.getString("age")).append("\n");
+                            }
+
+                            if (jsonObject.has("birthDate")) {
+                                formattedData.append("วันเกิด: ").append(jsonObject.getString("birthDate")).append("\n");
+                            }
+
+                            if (jsonObject.has("nationDescription")) {
+                                formattedData.append("สัญชาติ: ").append(jsonObject.getString("nationDescription")).append("\n");
+                            }
+
+                            if (jsonObject.has("provinceName")) {
+                                formattedData.append("จังหวัด: ").append(jsonObject.getString("provinceName")).append("\n");
+                            }
+
+                            // ข้อมูลสิทธิ์การรักษา
+                            formattedData.append("ข้อมูลสิทธิ์การรักษา\n");
+                            formattedData.append("-----------------------------------------\n");
+
+                            if (jsonObject.has("mainInscl")) {
+                                formattedData.append("สิทธิหลัก: ").append(jsonObject.getString("mainInscl")).append("\n");
+                            }
+
+                            if (jsonObject.has("subInscl")) {
+                                formattedData.append("สิทธิย่อย: ").append(jsonObject.getString("subInscl")).append("\n");
+                            }
+
+                            // ข้อมูลสถานพยาบาล
+                            formattedData.append("ข้อมูลสถานพยาบาล\n");
+                            formattedData.append("-----------------------------------------\n");
+
+                            if (jsonObject.has("hospMain")) {
+                                formattedData.append("สถานพยาบาลหลัก: ").append(jsonObject.getString("hospMain")).append("\n");
+                            }
+
+                            if (jsonObject.has("hospSub")) {
+                                formattedData.append("สถานพยาบาลรอง: ").append(jsonObject.getString("hospSub")).append("\n");
+                            }
+
+                            if (jsonObject.has("hospMainOp")) {
+                                formattedData.append("สถานพยาบาลประจำ: ").append(jsonObject.getString("hospMainOp")).append("\n");
+                            }
+
+                            return formattedData.toString();
+                        } catch (JSONException e) {
+                            // กรณีไม่สามารถแปลงเป็น JSON ได้ ให้แสดงข้อมูลเดิม
+                            Log.e("API_FORMAT", "Error formatting JSON: " + e.getMessage());
+                            return response;
+                        }
+                    }
+                });
+
+            }
         });
         spinnerProvince = view.findViewById(R.id.spinnerProvince);
         spinnerDistrict = view.findViewById(R.id.spinnerDistrict);

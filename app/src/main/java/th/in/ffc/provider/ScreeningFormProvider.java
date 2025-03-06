@@ -69,6 +69,10 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_DRUGS_ITEMS = 31;
     private static final int SF_DRUGS_ITEM_ID = 32;
 
+    private static final int SF_CARD_READING_HISTORY = 33;
+    private static final int SF_CARD_READING_HISTORY_ITEMS = 34;
+    private static final int SF_CARD_READING_HISTORY_ITEM_ID = 35;
+
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
@@ -121,6 +125,10 @@ public class ScreeningFormProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "sf_drugs", SF_DRUGS);
         mUriMatcher.addURI(AUTHORITY, "sf_drugs/list", SF_DRUGS_ITEMS);
         mUriMatcher.addURI(AUTHORITY, "sf_drugs/#", SF_DRUGS_ITEM_ID);
+
+        mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history", SF_CARD_READING_HISTORY);
+        mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history/list", SF_CARD_READING_HISTORY_ITEMS);
+        mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history/#", SF_CARD_READING_HISTORY_ITEM_ID);
     }
 
 
@@ -141,21 +149,25 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+
 //            }
 //            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
-//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+
+            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
             return true;
         }
         catch (Exception e) {
@@ -276,6 +288,14 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setTables(SfDrugs.TABLENAME);
                 builder.setProjectionMap(SfDrugs.PROJECTION_MAP);
                 break;
+            case ScreeningFormProvider.SF_CARD_READING_HISTORY_ITEMS:
+                builder.setTables(SfCardReadingHistory.TABLENAME);
+                builder.setProjectionMap(SfCardReadingHistory.PROJECTION_MAP);
+                break;
+            case ScreeningFormProvider.SF_CARD_READING_HISTORY_ITEM_ID:
+                builder.setTables(SfCardReadingHistory.TABLENAME);
+                builder.setProjectionMap(SfCardReadingHistory.PROJECTION_MAP);
+                break;
         }
         Cursor c = builder.query(db, projection, selection, selectionArgs,
                 groupby, having, sortOrder);
@@ -295,6 +315,10 @@ public class ScreeningFormProvider extends ContentProvider {
                 return SfDrugs.CONTENT_DIR_TYPE;
             case SF_DRUGS_ITEM_ID:
                 return SfDrugs.CONTENT_ITEM_TYPE;
+            case SF_CARD_READING_HISTORY_ITEMS:
+                return SfCardReadingHistory.CONTENT_DIR_TYPE;
+            case SF_CARD_READING_HISTORY_ITEM_ID:
+                return SfCardReadingHistory.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -339,6 +363,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 break;
             case SF_DRUGS:
                 id = db.insert(SfDrugs.TABLENAME, null, values);
+                break;
+            case SF_CARD_READING_HISTORY:
+                id = db.insert(SfCardReadingHistory.TABLENAME, null, values);
                 break;
 
         }
@@ -390,6 +417,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 break;
             case SF_DRUGS_ITEM_ID:
                 rowUpdated = db.update(SfDrugs.TABLENAME, contentValues, selection, selectionArgs);
+                break;
+            case SF_CARD_READING_HISTORY_ITEM_ID:
+                rowUpdated = db.update(SfCardReadingHistory.TABLENAME, contentValues, selection, selectionArgs);
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
@@ -1147,6 +1177,65 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfToken.TOKEN_CLAIM, "token_claim AS " + SfToken.TOKEN_CLAIM);
             PROJECTION_MAP.put(SfToken.CREATED_DATE, "created_date AS " + SfToken.CREATED_DATE);
             PROJECTION_MAP.put(SfToken.UPDATED_DATE, "updated_date AS " + SfToken.UPDATED_DATE);
+        }
+    }
+
+    public static final class SfCardReadingHistory implements BaseColumns {
+        public static final String TABLENAME = "ffc_sf_card_reading_history";
+
+        public static HashMap<String, String> PROJECTION_MAP;
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScreeningFormProvider.AUTHORITY + "/sf_card_reading_history");
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/vnd.ffc.sf_card_reading_history";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/vnd.ffc.sf_card_reading_history";
+
+        public static final String ID = "id";
+        public static final String READ_TIMESTAMP = "read_timestamp";
+        public static final String USERNAME = "username";
+        public static final String CITIZEN_ID = "citizen_id";
+        public static final String CITIZEN_NAME = "citizen_name";
+        public static final String DEVICE_MODEL = "device_model";
+        public static final String DEVICE_BRAND = "device_brand";
+        public static final String CARD_READER_MODEL = "card_reader_model";
+        public static final String APP_VERSION = "app_version";
+        public static final String READ_STATUS = "read_status";
+        public static final String NOTES = "notes";
+        public static final String CREATED_AT = "created_at";
+
+        public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLENAME;
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
+                ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                READ_TIMESTAMP + " DATETIME NOT NULL," +
+                USERNAME + " TEXT NOT NULL," +
+                CITIZEN_ID + " TEXT NOT NULL," +
+                CITIZEN_NAME + " TEXT NOT NULL," +
+                DEVICE_MODEL + " TEXT NOT NULL," +
+                DEVICE_BRAND + " TEXT NOT NULL," +
+                CARD_READER_MODEL + " TEXT NOT NULL," +
+                APP_VERSION + " TEXT," +
+                READ_STATUS + " TEXT," +
+                NOTES + " TEXT," +
+                CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+
+        static {
+            PROJECTION_MAP = new HashMap<String, String>();
+            PROJECTION_MAP.put(SfCardReadingHistory.ID, "id AS " + SfCardReadingHistory.ID);
+            PROJECTION_MAP.put(SfCardReadingHistory.READ_TIMESTAMP, "read_timestamp AS " + SfCardReadingHistory.READ_TIMESTAMP);
+            PROJECTION_MAP.put(SfCardReadingHistory.USERNAME, "username AS " + SfCardReadingHistory.USERNAME);
+            PROJECTION_MAP.put(SfCardReadingHistory.CITIZEN_ID, "citizen_id AS " + SfCardReadingHistory.CITIZEN_ID);
+            PROJECTION_MAP.put(SfCardReadingHistory.CITIZEN_NAME, "citizen_name AS " + SfCardReadingHistory.CITIZEN_NAME);
+            PROJECTION_MAP.put(SfCardReadingHistory.DEVICE_MODEL, "device_model AS " + SfCardReadingHistory.DEVICE_MODEL);
+            PROJECTION_MAP.put(SfCardReadingHistory.DEVICE_BRAND, "device_brand AS " + SfCardReadingHistory.DEVICE_BRAND);
+            PROJECTION_MAP.put(SfCardReadingHistory.CARD_READER_MODEL, "card_reader_model AS " + SfCardReadingHistory.CARD_READER_MODEL);
+            PROJECTION_MAP.put(SfCardReadingHistory.APP_VERSION, "app_version AS " + SfCardReadingHistory.APP_VERSION);
+            PROJECTION_MAP.put(SfCardReadingHistory.READ_STATUS, "read_status AS " + SfCardReadingHistory.READ_STATUS);
+            PROJECTION_MAP.put(SfCardReadingHistory.NOTES, "notes AS " + SfCardReadingHistory.NOTES);
+            PROJECTION_MAP.put(SfCardReadingHistory.CREATED_AT, "created_at AS " + SfCardReadingHistory.CREATED_AT);
         }
     }
 }

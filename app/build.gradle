@@ -64,6 +64,12 @@ android {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
             manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
+            // เพิ่ม configuration สำหรับ API
+            buildConfigField "String", "API_BASE_URL", "\"https://test.nhso.go.th/nhsoendpoint/api/\""
+            buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
+            buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""
+            buildConfigField "int", "API_TIMEOUT", "15000"
+            buildConfigField "String", "API_AUTHENCODE_URL", "\"https://test.nhso.go.th/authencodeapi/api/AuthenCode\""
         }
 
         release {
@@ -71,6 +77,15 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
+
+            // เพิ่ม configuration สำหรับ API สำหรับ production environment
+//            buildConfigField "String", "API_BASE_URL", "\"https://nhso.go.th/nhsoendpoint/api/\""
+//            buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
+            buildConfigField "String", "API_BASE_URL", "\"https://test.nhso.go.th/nhsoendpoint/api/\""
+            buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
+            buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""
+            buildConfigField "int", "API_TIMEOUT", "15000"
+            buildConfigField "String", "API_AUTHENCODE_URL", "\"https://test.nhso.go.th/authencodeapi/api/AuthenCode\""
         }
     }
 

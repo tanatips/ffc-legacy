@@ -11,8 +11,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -35,6 +37,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,6 +51,11 @@ import java.util.ArrayList;
 import rd.nalib.ExceptionNA;
 import rd.nalib.NA;
 import rd.nalib.ResponseListener;
+import th.in.ffc.app.FFCFragmentActivity;
+import th.in.ffc.app.form.screening.dao.SfCardReadingHistoryDao;
+import th.in.ffc.app.form.screening.model.SfCardReadingHistory;
+import th.in.ffc.security.LoginActivity;
+import th.in.ffc.security.LoginFragment;
 
 public class SmartCardReaderActivity extends AppCompatActivity {
 
@@ -594,6 +603,11 @@ public class SmartCardReaderActivity extends AppCompatActivity {
 
 
     class MyHandler extends Handler {
+
+        private String getCurrentUsername() {
+            SharedPreferences prefs = getSharedPreferences(LoginActivity.PREFS_FILE, Context.MODE_PRIVATE);
+            return prefs.getString(LoginActivity.EXTRA_USER, "");
+        }
         MyHandler(Looper myLooper) {
             super(myLooper);
         }
@@ -698,7 +712,6 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                         //setText(tv_Result, "Card connection error.");
                         break;
                     }
-
                     /*================= Get NID Text =================*/
                     bReturnResponseFinish = false;
                     clearReturnResponse();
@@ -716,7 +729,61 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                     }
 
                     setText(tv_Result, sRes);
+// บันทึกประวัติการอ่านบัตร
+                    try {
+                        // แยกข้อมูลจาก sRes (ข้อความที่อ่านได้จากบัตร)
+                        String[] lines = sRes.split("\n");
+                        String citizenId = "";
+                        String citizenName = "";
 
+                        // หาเลขบัตรประชาชนและชื่อจากข้อความที่อ่านได้
+                        for (String line : lines) {
+                            if (line.contains("#")) {
+                                String[] parts = line.split("#");
+                                if (parts.length > 1) {
+                                    citizenId = parts[0].trim();
+                                    citizenName = parts[1].trim() + " " + parts[2].trim()+ " " + parts[4].trim();
+                                }
+                            }
+//                            if (line.contains("TH") && line.contains("ชื่อตัว")) {
+//                                String[] parts = line.split("ชื่อตัว");
+//                                if (parts.length > 1) {
+//                                    String[] nameParts = parts[2].split("ชื่อสกุล");
+//                                    if (nameParts.length > 1) {
+//                                        citizenName = nameParts[0].trim() + " " + nameParts[1].trim();
+//                                    }
+//                                }
+//                            }
+                        }
+
+                        // สร้าง model และบันทึกข้อมูล
+                        SfCardReadingHistory history = new SfCardReadingHistory();
+                        history.setReadTimestamp(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
+                        history.setUsername(getCurrentUsername()); // หรือใช้ชื่อผู้ใช้จริงๆ ถ้ามี
+                        history.setCitizenId(citizenId);
+                        history.setCitizenName(citizenName);
+
+                        // ข้อมูลอุปกรณ์
+                        history.setDeviceModel(Build.MODEL);
+                        history.setDeviceBrand(Build.MANUFACTURER);
+
+                        // ข้อมูลเครื่องอ่านบัตร (ถ้ามี)
+                        String readerInfo = tv_Reader.getText().toString();
+                        history.setCardReaderModel(readerInfo.replace("Reader: ", ""));
+
+                        // ข้อมูลเพิ่มเติม
+                        history.setAppVersion(NAVersion);
+                        history.setReadStatus(iRes == 0 ? "SUCCESS" : "FAILED");
+                        history.setNotes("");
+
+                        // บันทึกข้อมูลลงฐานข้อมูล
+                        SfCardReadingHistoryDao dao = new SfCardReadingHistoryDao(SmartCardReaderActivity.this);
+                        dao.insert(history);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // บันทึกล้มเหลว แต่ไม่ควรหยุดการทำงานของแอพ
+                    }
                     final long difference = System.currentTimeMillis() - startTime;
                     final BigDecimal bd = new BigDecimal(difference / 1000.0);
                     handler.post(() -> {

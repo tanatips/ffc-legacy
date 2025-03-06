@@ -116,6 +116,8 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
     private Handler mTimerHandler = new Handler();
     private StopWatch mStopWatch;
 
+//    public static final String PREFS_FILE = "FFCPreferences";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
