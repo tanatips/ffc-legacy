@@ -157,17 +157,18 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
 
-            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
+
             return true;
         }
         catch (Exception e) {
@@ -483,6 +484,12 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
         public static final String SEND_TO_CLAIM = "send_to_claim";
+
+        public static final String TEMPERATURE = "temperature";
+
+        public static final String HCODE = "hcode";
+
+
         static {
             PROJECTION_MAP = new HashMap<String, String>();
             PROJECTION_MAP.put(SfPersonInfo.ID, "id AS " + SfPersonInfo.ID);
@@ -519,7 +526,8 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfPersonInfo.POST_CODE, "postCode AS " + SfPersonInfo.POST_CODE);
             PROJECTION_MAP.put(SfPersonInfo.HOME_NO, "homeNo AS " + SfPersonInfo.HOME_NO);
             PROJECTION_MAP.put(SfPersonInfo.VILLAGE_NO, "villageNo AS " + SfPersonInfo.VILLAGE_NO);
-
+            PROJECTION_MAP.put(SfPersonInfo.TEMPERATURE, "temperature AS " + SfPersonInfo.TEMPERATURE);
+            PROJECTION_MAP.put(SfPersonInfo.HCODE, "hcode AS " + SfPersonInfo.HCODE);
         }
 //        public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
 //                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -579,23 +587,27 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         CREATED_DATE +" DATE," +
         UPDATED_BY +" TEXT," +
         UPDATED_DATE +" DATE," +
-        SEND_TO_CLAIM + " INTEGER "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
+        SEND_TO_CLAIM + " INTEGER, "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
+        TEMPERATURE + " REAL, " +
+        HCODE + " TEXT " +
         ")";
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
         public static final String[] ALTER_TABLE = {
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN serviceCode TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN transId TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN sourceId TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN subDistName TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN subDistCode TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN distCode TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN distName TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN provCode TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN provName TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN postCode TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN homeNo TEXT;",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN villageNo TEXT;"
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN transId TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN sourceId TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN subDistName TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN subDistCode TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN distCode TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN distName TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN provCode TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN provName TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN postCode TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN homeNo TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN villageNo TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN temperature REAL;"
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN hcode TEXT;"
         };
     }
 

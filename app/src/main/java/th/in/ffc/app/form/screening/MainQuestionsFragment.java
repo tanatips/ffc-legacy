@@ -94,11 +94,11 @@ public class MainQuestionsFragment extends Fragment {
 //                    .add(R.id.question_one_container, questionOneFragment)
 //                    .add(R.id.question_two_container, questionTwoFragment)
 //                    .add(R.id.question_three_container, questionThreeFragment)
-                    .add(R.id.question_four_container, questionFourFragment)
+//                    .add(R.id.question_four_container, questionFourFragment)
 //                    .add(R.id.question_five_container, questionFiveFragment)
 //                    .add(R.id.question_six_container, questionSixFragment)
 //                    .add(R.id.question_seven_container, questionSevenFragment)
-//                    .add(R.id.question_eight_container, questionEightFragment)
+                    .add(R.id.question_eight_container, questionEightFragment)
                     .commitNow();
         }
         return view;

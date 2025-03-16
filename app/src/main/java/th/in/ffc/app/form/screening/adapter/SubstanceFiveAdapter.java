@@ -27,8 +27,6 @@ import th.in.ffc.app.form.screening.model.SubstanceItem;
 public class SubstanceFiveAdapter extends RecyclerView.Adapter<SubstanceFiveAdapter.ViewHolder> {
     private ArrayList<SubstanceItem> substanceList;
     private OnFrequencySelectedListener listener;
-    private TextInputLayout otherSubstanceLayout; // เพิ่ม
-    private TextInputEditText otherSubstanceEdit; // เพิ่ม
 
     private boolean isUpdating = false;
 
@@ -55,21 +53,49 @@ public class SubstanceFiveAdapter extends RecyclerView.Adapter<SubstanceFiveAdap
         return substanceList.size();
     }
 
-    public void updateAnswers(Map<String, AnswerFrequencyData> answers) {
+    public void updateAnswers(Map<String, AnswerFrequencyData> answers, String excludeId) {
         if (isUpdating) return;
         isUpdating = true;
+
         try {
-            for (SubstanceItem item : substanceList) {
-                AnswerFrequencyData frequency = answers.get(item.getId());
-                if (frequency != null) {
-                    item.setFrequency(frequency.getFrequency());
+            for (int i = 0; i < substanceList.size(); i++) {
+                SubstanceItem item = substanceList.get(i);
+
+                // ข้ามการอัปเดตสำหรับ item ที่ระบุใน excludeId
+                if (excludeId != null && item.getId().equals(excludeId)) {
+                    continue;
+                }
+
+                AnswerFrequencyData answer = answers.get(item.getId());
+                if (answer != null) {
+                    boolean needUpdate = false;
+
+                    // ตรวจสอบว่าค่าเปลี่ยนแปลงหรือไม่
+                    if (item.getFrequency() != answer.getFrequency()) {
+                        item.setFrequency(answer.getFrequency());
+                        needUpdate = true;
+                    }
+
+                    // อัปเดต otherDrugs ยกเว้นช่องกรอกข้อความ
+                    if (!item.getId().equals("j") && !item.getOtherDrugs().equals(answer.getOtherDrugs())) {
+                        item.setOtherDrugs(answer.getOtherDrugs());
+                        needUpdate = true;
+                    }
+
+                    // อัปเดตเฉพาะ item ที่มีการเปลี่ยนแปลง
+                    if (needUpdate) {
+                        notifyItemChanged(i);
+                    }
                 }
             }
-            notifyDataSetChanged();
         } finally {
             isUpdating = false;
         }
     }
+    public void updateAnswers(Map<String, AnswerFrequencyData> answers) {
+        updateAnswers(answers, null);
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView titleText;
         private TextView descriptionText;
@@ -77,6 +103,8 @@ public class SubstanceFiveAdapter extends RecyclerView.Adapter<SubstanceFiveAdap
 
         private TextInputLayout otherSubstanceLayout; // เพิ่ม
         private TextInputEditText otherSubstanceEdit; // เพิ่ม
+
+        private TextWatcher textWatcher;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -120,10 +148,22 @@ public class SubstanceFiveAdapter extends RecyclerView.Adapter<SubstanceFiveAdap
             // จัดการ TextInput สำหรับข้อ j
             if (item.getId().equals("j")) {
                 otherSubstanceLayout.setVisibility(View.VISIBLE);
-                otherSubstanceEdit.setText(item.getOtherDrugs());
 
-                // ตั้งค่า TextWatcher สำหรับข้อความที่กรอก
-                otherSubstanceEdit.addTextChangedListener(new TextWatcher() {
+                // ถอด TextWatcher เดิมก่อนตั้งค่าข้อความใหม่
+                if (textWatcher != null) {
+                    otherSubstanceEdit.removeTextChangedListener(textWatcher);
+                }
+
+                // ตรวจสอบและตั้งค่าข้อความโดยไม่กระทบ cursor position
+                String currentText = otherSubstanceEdit.getText() != null ? otherSubstanceEdit.getText().toString() : "";
+                String newText = item.getOtherDrugs() != null ? item.getOtherDrugs() : "";
+
+                if (!currentText.equals(newText)) {
+                    otherSubstanceEdit.setText(newText);
+                }
+
+                // สร้าง TextWatcher ใหม่
+                textWatcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -132,10 +172,21 @@ public class SubstanceFiveAdapter extends RecyclerView.Adapter<SubstanceFiveAdap
 
                     @Override
                     public void afterTextChanged(Editable s) {
-                        String newText = s.toString();
-                        item.setOtherDrugs(newText);
+                        String updatedText = s.toString();
+                        // กันกรณี null
+                        if (updatedText == null) {
+                            updatedText = "";
+                        }
+                        item.setOtherDrugs(updatedText);
+
+                        // เรียก listener เพื่อ update ViewModel
+                        if (listener != null) {
+                            listener.onFrequencySelected(item.getId(), item.getFrequency(), updatedText);
+                        }
                     }
-                });
+                };
+                // เพิ่ม TextWatcher ใหม่
+                otherSubstanceEdit.addTextChangedListener(textWatcher);
             } else {
                 otherSubstanceLayout.setVisibility(View.GONE);
             }

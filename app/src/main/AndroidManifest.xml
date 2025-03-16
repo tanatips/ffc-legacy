@@ -151,6 +151,25 @@
             android:enabled="true"
             android:exported="true" />
 
+        <provider
+            android:name=".provider.NHSOPatientProvider"
+            android:authorities="th.in.ffc.provider.NHSOPatientProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <provider
+            android:name=".provider.NHSOPractitionerProvider"
+            android:authorities="th.in.ffc.provider.NHSOPractitionerProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <provider
+            android:name=".provider.NHSOHospitalProvider"
+            android:authorities="th.in.ffc.provider.NHSOHospitalProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+
         <service
             android:name=".security.CryptographerService"
             android:exported="true">

@@ -56,6 +56,7 @@ public class SfPersonInfoDao {
                 personInfo.setUpdated_by(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.UPDATED_BY));
                 personInfo.setUpdated_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.UPDATED_DATE));
                 personInfo.setSend_to_claim(getIntegerFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEND_TO_CLAIM));
+                personInfo.setTemperature(getDoubleFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.TEMPERATURE));
                 personInfos.add(personInfo);
             }
             cursor.close();
@@ -107,6 +108,9 @@ public class SfPersonInfoDao {
                 personInfo.setUpdated_by(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.UPDATED_BY));
                 personInfo.setUpdated_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.UPDATED_DATE));
                 personInfo.setSend_to_claim(getIntegerFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEND_TO_CLAIM));
+                personInfo.setTemperature(getDoubleFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.TEMPERATURE));
+                personInfo.setHn(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.HN));
+                personInfo.setHcode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.HCODE));
                 personInfos.add(personInfo);
             }
             cursor.close();
@@ -180,6 +184,8 @@ public class SfPersonInfoDao {
         putString(values, "UPDATED_BY", personInfo.getUpdated_by());
         putString(values, "UPDATED_DATE", personInfo.getUpdated_date());
         putInt(values, "SEND_TO_CLAIM", personInfo.getSend_to_claim());
+        putDouble(values, "TEMPERATURE", personInfo.getTemperature());
+        putString(values,"HCODE",personInfo.getHcode());
         return values;
     }
     public static List<PersonInfo> searchPerson(String idcard, String firstName, String lastName) {
@@ -260,6 +266,7 @@ public class SfPersonInfoDao {
                 person.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 person.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
                 person.setSend_to_claim(cursor.getInt(cursor.getColumnIndex("send_to_claim")));
+                person.setTemperature(cursor.getDouble(cursor.getColumnIndex("temperature")));
 
                 results.add(person);
             }

@@ -19,6 +19,7 @@ import th.in.ffc.app.FFCFragment;
 import th.in.ffc.godmode.godMain;
 import th.in.ffc.provider.UserProvider.User;
 import th.in.ffc.provider.UserProvider.UserDatabaseOpenHelper;
+import th.in.ffc.session.UserSessionManager;
 
 /**
  * Fragment Class that hanlder Login Process, provide UserName Password of EditText
@@ -118,10 +119,14 @@ public class LoginFragment extends FFCFragment implements
             userDb.close();
             this.setEnable(true);
 
-            if (success)
+            if (success) {
                 this.mListener.onLoginSuccess(pcuCode, user);
-            else
+                UserSessionManager sessionManager = new UserSessionManager(getContext());
+                sessionManager.createLoginSession(user, user, pcuCode);
+            }
+            else {
                 this.mListener.onLoginFailre(getString(R.string.incorrect_user_pass));
+            }
 
         }
     }

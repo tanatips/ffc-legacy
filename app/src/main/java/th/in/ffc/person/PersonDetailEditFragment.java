@@ -160,15 +160,15 @@ public class PersonDetailEditFragment extends PersonFragment implements
         provcode = (SearchableButton) view.findViewById(R.id.provcode);
         postcode = (EditText) view.findViewById(R.id.postcode);
         imgPerson = (ImageView) view.findViewById(R.id.imgPerson);
-        smartcard_reader = (ImageButton) view.findViewById(R.id.smartcard_reader);
-        smartcard_reader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), SmartCardReaderActivity.class);
-                startActivityForResult(intent,SMART_CARD_READER_CODE);
-
-            }
-        });
+//        smartcard_reader = (ImageButton) view.findViewById(R.id.smartcard_reader);
+//        smartcard_reader.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(getContext(), SmartCardReaderActivity.class);
+//                startActivityForResult(intent,SMART_CARD_READER_CODE);
+//
+//            }
+//        });
 
         return view;
     }

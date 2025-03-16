@@ -143,6 +143,23 @@ public class QuestionsStateViewModel extends ViewModel {
             questionSixAnswers.setValue(newAnswers);
         }
     }
+    public void updateQuestionSevenAnswer(String id,int frequency, String otherDrugs) {
+        Map<String, AnswerFrequencyData> currentAnswers = questionSevenAnswers.getValue();
+        if (currentAnswers == null) {
+            currentAnswers = new HashMap<>();
+        }
+
+        // ตรวจสอบว่าค่าเปลี่ยนแปลงจริงๆ หรือไม่
+        AnswerFrequencyData currentAnswer = currentAnswers.get(id);
+        if (currentAnswer == null ||
+                currentAnswer.getFrequency() != frequency ||
+                !Objects.equals(currentAnswer.getOtherDrugs(), otherDrugs)) {
+
+            Map<String, AnswerFrequencyData> newAnswers = new HashMap<>(currentAnswers);
+            newAnswers.put(id, new AnswerFrequencyData(frequency, otherDrugs));
+            questionSevenAnswers.setValue(newAnswers);
+        }
+    }
     public void updateQuestionEightAnswer(String id,int frequency, String otherDrugs) {
         Map<String, AnswerFrequencyData> currentAnswers = questionEightAnswers.getValue();
         if (currentAnswers == null) {

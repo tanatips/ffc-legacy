@@ -68,6 +68,7 @@ import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.ProvinceInfo;
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.app.form.screening.model.SubDistrictInfo;
+import th.in.ffc.code.HouseListDialog;
 import th.in.ffc.person.BmiInfoActivity;
 import th.in.ffc.person.BmiInfoDialogFragment;
 import th.in.ffc.util.BMICalculator;
@@ -76,6 +77,7 @@ import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.util.ThaiDatePickerDialog;
+import th.in.ffc.widget.SearchableSpinner;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -112,7 +114,7 @@ public class PersonInfoFragment extends Fragment {
     private TextInputEditText txtAuthenDate, txtAuthenNo, txtWeight, txtHeight;
     private TextInputEditText txtWaistCircumference, txtBp, txtBmi;
     private TextInputEditText txtSymptomsPressure, txtDiastolicPressure;
-    private TextInputEditText txtHomeNo,txtVillageNo,txtPostalCode;
+    private TextInputEditText txtHomeNo,txtVillageNo,txtPostalCode,txtTemperature;
     private ImageButton smartcardReader,imgPermission;
     private TextInputEditText currentEditText;
 
@@ -137,6 +139,9 @@ public class PersonInfoFragment extends Fragment {
     private FrameLayout progressBarContainer;
     private TextView progressBarText;
 
+    private SearchableSpinner house;
+
+
     private interface TextFieldUpdater {
         void update(String value);
     }
@@ -158,6 +163,9 @@ public class PersonInfoFragment extends Fragment {
         fieldUpdaters.put(txtSymptomsPressure, value -> personInfo.setSystolic_pressure(Double.valueOf(value)));
         fieldUpdaters.put(txtDiastolicPressure, value -> personInfo.setDiastolic_pressure(Double.valueOf(value)));
         fieldUpdaters.put(txtBirthDay, value -> personInfo.setBirthday(value));
+        fieldUpdaters.put(txtHomeNo, value -> personInfo.setHomeNo(value));
+        fieldUpdaters.put(txtVillageNo, value -> personInfo.setVillageNo(value));
+
         districtInfos  = new ArrayList<>();
         subDistrictInfos = new ArrayList<>();
     }
@@ -416,11 +424,31 @@ public class PersonInfoFragment extends Fragment {
         txtDiastolicPressure = view.findViewById(R.id.txtDiastolicPressure);
         bmiCalculator = new BMICalculator();
         btnAuthenCode = view.findViewById(R.id.btnAuthenCode);
+
         view.findViewById(R.id.smartcard_reader);
 
 //        dateTextView = view.findViewById(R.id.dateTextView);
         selectDateButton = view.findViewById(R.id.selectDateButton);
         txtBirthDay = view.findViewById(R.id.txtBirthDay);
+        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
+        house.setDialog(getActivity().getSupportFragmentManager(),
+                HouseListDialog.class, "house");
+
+        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
+                dataPasser.onPersonInfo(personInfo);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+
 
         selectDateButton.setOnClickListener(v -> showDatePickerDialog(this.txtBirthDay,this.personInfo.getBirthday()));
         selectAuthenDateButton = view.findViewById(R.id.selectAuthenDateButton);
@@ -664,6 +692,7 @@ public class PersonInfoFragment extends Fragment {
         txtHomeNo = view.findViewById(R.id.txtHouseNo);
         txtVillageNo = view.findViewById(R.id.txtVillageNo);
         txtPostalCode = view.findViewById(R.id.txtPostalCode);
+        txtTemperature = view.findViewById(R.id.txtTemperature);
     }
 
     private String getSubDistrictCodeByNameAndDistrictCode(String subDistrictName, String districtCode) {
@@ -832,6 +861,10 @@ public class PersonInfoFragment extends Fragment {
             txtHomeNo.setText(person.getHomeNo());
             txtVillageNo.setText(person.getVillageNo());
             txtPostalCode.setText(person.getPostCode());
+            txtTemperature.setText(String.valueOf(person.getTemperature()));
+            if(person.getHcode() != null) {
+                house.setSelectionById(Long.valueOf(person.getHcode()));
+            }
             if(person.getProvCode() != null) {
                 spinnerProvince.setText(person.getProvName(), false);
                 provinceCode = person.getProvCode();
@@ -976,6 +1009,28 @@ public class PersonInfoFragment extends Fragment {
 
             }
         });
+        txtTemperature.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(txtTemperature.getText().toString().equals("")) {
+                    personInfo.setTemperature(0);
+                }
+                else {
+                    personInfo.setTemperature(Float.parseFloat(txtTemperature.getText().toString()));
+                }
+                dataPasser.onPersonInfo(personInfo);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
     }
     private void updatePersonInfo() {
@@ -1080,7 +1135,7 @@ public class PersonInfoFragment extends Fragment {
         attachToFields(citizenId, fname, lname, txtPhoneNo, txtHn,
                 txtAuthenDate, txtAuthenNo, txtWeight, txtHeight,
                 txtWaistCircumference, txtBp, txtBmi,
-                txtSymptomsPressure, txtDiastolicPressure,txtBirthDay,txtHomeNo,txtVillageNo,txtPostalCode);
+                txtSymptomsPressure, txtDiastolicPressure,txtBirthDay,txtHomeNo,txtVillageNo,txtPostalCode,txtTemperature);
 
         setupTextWatchers();
         loadData();

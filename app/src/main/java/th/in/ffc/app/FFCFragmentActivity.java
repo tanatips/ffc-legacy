@@ -48,6 +48,7 @@ import th.in.ffc.intent.Action;
 import th.in.ffc.provider.PersonProvider.Visit;
 import th.in.ffc.security.CryptographerService;
 import th.in.ffc.security.TrackingFragmentActivity;
+import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.DateTime.Date;
 import th.in.ffc.util.Log;
@@ -101,6 +102,8 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
 
     private static final String STATE_RELOGIN = "relogin";
 
+    public static final String USER_SESSION = "userSession";
+
     private String extra_pcucode;
     private String extra_user;
 
@@ -115,6 +118,11 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
 
     private Handler mTimerHandler = new Handler();
     private StopWatch mStopWatch;
+
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+
+    private String KEY_USER_NAME= "USERNAME";
 
 //    public static final String PREFS_FILE = "FFCPreferences";
 
@@ -133,6 +141,8 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
             editPreferences(reLogin);
         }
         MyService();
+        pref = getApplicationContext().getSharedPreferences(USER_SESSION, Context.MODE_PRIVATE);
+        editor = pref.edit();
     }
 
     @Override

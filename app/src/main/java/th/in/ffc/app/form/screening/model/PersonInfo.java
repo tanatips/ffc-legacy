@@ -37,6 +37,8 @@ public class PersonInfo {
     private String updated_by;
     private String updated_date;
     private Integer send_to_claim;
+    private double temperature;
+    private String hcode;
 
     public String getId() {
         return id;
@@ -309,6 +311,20 @@ public class PersonInfo {
 
     public void setVillageNo(String villageNo) {
         this.villageNo = villageNo;
+    }
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
+    }
+    public String getHcode() {
+        return hcode;
+    }
+    public void setHcode(String hcode) {
+        this.hcode = hcode;
     }
 }
 
