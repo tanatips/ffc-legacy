@@ -345,4 +345,25 @@ public class NhsoApiCaller {
             return response;
         }
     }
+    public String extractInsuranceCode(String data) {
+        String insuranceCode = null;
+
+        // ค้นหาบรรทัดที่มีคำว่า "สิทธิหลัก:"
+        String[] lines = data.split("\n");
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("สิทธิหลัก:")) {
+                // แยกข้อความในวงเล็บ (UCS)
+                int startIndex = line.indexOf("(") + 1;
+                int endIndex = line.indexOf(")");
+
+                if (startIndex > 0 && endIndex > startIndex) {
+                    insuranceCode = line.substring(startIndex, endIndex);
+                }
+                break;
+            }
+        }
+
+        return insuranceCode; // จะได้ค่า "UCS"
+    }
 }

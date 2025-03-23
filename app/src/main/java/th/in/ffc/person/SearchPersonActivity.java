@@ -2,6 +2,7 @@ package th.in.ffc.person;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -25,6 +26,7 @@ public class SearchPersonActivity extends AppCompatActivity {
     private PersonAdapter adapter;
     private List<PersonInfo> personList;
     private SfPersonInfoDao personInfoDao;
+    private List<PersonInfo> results;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +52,15 @@ public class SearchPersonActivity extends AppCompatActivity {
         findViewById(R.id.btnSearch).setOnClickListener(v -> performSearch());
 
         // Setup item click
-        adapter.setOnItemClickListener(person -> {
-            Intent intent = new Intent(this, PersonScreeningForm15Activity.class);
-            intent.putExtra("person_id", person.getId());
-            startActivity(intent);
+        adapter.setOnItemClickListener((person, isButtonClicked)-> {
+            if(!isButtonClicked) {
+                Intent intent = new Intent(this, PersonScreeningForm15Activity.class);
+                intent.putExtra("person_id", person.getId());
+                startActivity(intent);
+            }
+            else {
+                performSearch();
+            }
         });
     }
 
@@ -63,11 +70,14 @@ public class SearchPersonActivity extends AppCompatActivity {
         String lastName = edtLastName.getText().toString().trim();
 
         // ทำการค้นหาข้อมูลจาก DAO
-        List<PersonInfo> results = personInfoDao.searchPerson(idcard, firstName, lastName);
+        results = personInfoDao.searchPerson(idcard, firstName, lastName);
 
         // อัพเดทข้อมูลใน RecyclerView
         personList.clear();
-        personList.addAll(results);
+        if (results != null) {
+            personList.addAll(results);
+        }
         adapter.notifyDataSetChanged();
     }
+
 }

@@ -169,6 +169,30 @@
             android:enabled="true"
             android:exported="true" />
 
+        <provider
+            android:name=".provider.NHSOOPDProvider"
+            android:authorities="th.in.ffc.provider.NHSOOPDProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <provider
+            android:name=".provider.NHSODiagnosisProvider"
+            android:authorities="th.in.ffc.provider.NHSODiagnosisProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <provider
+            android:name=".provider.NHSOCHADProvider"
+            android:authorities="th.in.ffc.provider.NHSOCHADProvider"
+            android:enabled="true"
+            android:exported="true" />
+
+        <provider
+            android:name=".provider.NHSOCHAProvider"
+            android:authorities="th.in.ffc.provider.NHSOCHAProvider"
+            android:enabled="true"
+            android:exported="true" />
+
 
         <service
             android:name=".security.CryptographerService"
