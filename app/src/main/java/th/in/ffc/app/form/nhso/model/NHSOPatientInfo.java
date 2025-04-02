@@ -1,6 +1,6 @@
 package th.in.ffc.app.form.nhso.model;
 /**
- * โมเดลข้อมูลผู้ป่วย NHSO
+ * โมเดลข้อมูลผู้ป่วย NHSO แฟ้ม 1
  */
 public class NHSOPatientInfo {
     private long id;

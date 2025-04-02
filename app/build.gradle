@@ -70,6 +70,7 @@ android {
             buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""
             buildConfigField "int", "API_TIMEOUT", "15000"
             buildConfigField "String", "API_AUTHENCODE_URL", "\"https://test.nhso.go.th/authencodeapi/api/AuthenCode\""
+            buildConfigField "String", "API_DEFAULT_TOKEN", "\"34913796-e515-4b33-9656-6a2eb64ef569\""
         }
 
         release {
@@ -86,6 +87,7 @@ android {
             buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""
             buildConfigField "int", "API_TIMEOUT", "15000"
             buildConfigField "String", "API_AUTHENCODE_URL", "\"https://test.nhso.go.th/authencodeapi/api/AuthenCode\""
+            buildConfigField "String", "API_DEFAULT_TOKEN", "\"34913796-e515-4b33-9656-6a2eb64ef569\""
         }
     }
 
