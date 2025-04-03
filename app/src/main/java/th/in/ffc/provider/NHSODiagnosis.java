@@ -42,7 +42,7 @@ public class NHSODiagnosis implements BaseColumns {
     public static final String UPDATE = "update_status";       // สถานะการอัพเดท
 
     // ตาราง NHSO Diagnosis
-    public static final String CREATE_TABLE = "CREATE TABLE " + TABLENAME + " ("
+    public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + SEQ + " TEXT NOT NULL, "
             + DATEDX + " DATETIME, "

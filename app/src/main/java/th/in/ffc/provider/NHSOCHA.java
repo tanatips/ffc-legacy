@@ -37,7 +37,7 @@ public class NHSOCHA implements BaseColumns {
     public static final String DATEUPDATE = "dateupdate";      // วันเวลาที่อัพเดท
 
     // ตาราง NHSO CHA
-    public static final String CREATE_TABLE = "CREATE TABLE " + TABLENAME + " ("
+    public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS  " + TABLENAME + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + SEQ + " TEXT NOT NULL, "
             + DATE + " DATETIME NOT NULL, "
