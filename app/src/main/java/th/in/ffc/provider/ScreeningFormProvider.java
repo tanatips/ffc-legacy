@@ -15,8 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+import th.in.ffc.provider.HouseProvider.Village;
 import android.content.SharedPreferences;
 import android.content.Context;
+import android.text.TextUtils;
+
 public class ScreeningFormProvider extends ContentProvider {
     public static String AUTHORITY = "th.in.ffc.provider.ScreeningFormProvider";
 
@@ -72,6 +75,7 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_CARD_READING_HISTORY = 33;
     private static final int SF_CARD_READING_HISTORY_ITEMS = 34;
     private static final int SF_CARD_READING_HISTORY_ITEM_ID = 35;
+    private static final int SF_PERSON_SUMMARY_BY_VILLAGE = 100;
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
@@ -129,6 +133,9 @@ public class ScreeningFormProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history", SF_CARD_READING_HISTORY);
         mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history/list", SF_CARD_READING_HISTORY_ITEMS);
         mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history/#", SF_CARD_READING_HISTORY_ITEM_ID);
+
+        mUriMatcher.addURI(AUTHORITY, "sf_person_info/summary/village", SF_PERSON_SUMMARY_BY_VILLAGE);
+
     }
 
 
@@ -157,17 +164,17 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
 
-//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
 
             return true;
         }
@@ -296,6 +303,28 @@ public class ScreeningFormProvider extends ContentProvider {
             case ScreeningFormProvider.SF_CARD_READING_HISTORY_ITEM_ID:
                 builder.setTables(SfCardReadingHistory.TABLENAME);
                 builder.setProjectionMap(SfCardReadingHistory.PROJECTION_MAP);
+                break;
+            case SF_PERSON_SUMMARY_BY_VILLAGE:
+                builder.setTables(SfPersonInfo.TABLENAME +
+                        " INNER JOIN house ON "+SfPersonInfo.TABLENAME +"."+ SfPersonInfo.HCODE + " = house.hcode" +
+                        " INNER JOIN village ON house.villcode = village.villcode");
+
+                // สร้าง projection map สำหรับการ query
+                HashMap<String, String> summaryMap = new HashMap<String, String>();
+                summaryMap.put(Village.VILLCODE, "village.villcode AS " + Village.VILLCODE);
+                summaryMap.put(Village.VILLNO, "village.villno AS " + Village.VILLNO);
+                summaryMap.put(Village.VILLNAME, "village.villname AS " + Village.VILLNAME);
+                summaryMap.put("person_count", "COUNT(" + SfPersonInfo.TABLENAME + "." + SfPersonInfo.ID + ") AS person_count");
+
+                builder.setProjectionMap(summaryMap);
+
+                // กำหนด group by ตาม villcode
+                groupby = "village.villcode, village.villno, village.villname";
+
+                // กำหนดการเรียงลำดับผลลัพธ์
+                if (TextUtils.isEmpty(sortOrder))
+                    sortOrder = "village.villno ASC";
+
                 break;
         }
         Cursor c = builder.query(db, projection, selection, selectionArgs,

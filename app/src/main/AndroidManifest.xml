@@ -51,6 +51,12 @@
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@style/FFC.Theme.Light">
+<!--        <activity-->
+<!--            android:name=".app.form.screening.VillageComparisonActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".person.VillageSummaryActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".person.BloodPressureTableActivity"
             android:exported="false" />
@@ -80,6 +86,20 @@
             android:label="@string/form_15"
             android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/ic_check_list">
+                <action android:name="ffc.intent.action.MAIN" />
+
+                <category android:name="ffc.intent.category.TAB" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.form.screening.VillageComparisonActivity"
+            android:exported="true"
+            android:label="ร้อยละ"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:icon="@drawable/analytics">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -150,49 +170,41 @@
             android:authorities="th.in.ffc.provider.ScreeningFormProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSOPatientProvider"
             android:authorities="th.in.ffc.provider.NHSOPatientProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSOPractitionerProvider"
             android:authorities="th.in.ffc.provider.NHSOPractitionerProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSOHospitalProvider"
             android:authorities="th.in.ffc.provider.NHSOHospitalProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSOOPDProvider"
             android:authorities="th.in.ffc.provider.NHSOOPDProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSODiagnosisProvider"
             android:authorities="th.in.ffc.provider.NHSODiagnosisProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSOCHADProvider"
             android:authorities="th.in.ffc.provider.NHSOCHADProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.NHSOCHAProvider"
             android:authorities="th.in.ffc.provider.NHSOCHAProvider"
             android:enabled="true"
             android:exported="true" />
-
 
         <service
             android:name=".security.CryptographerService"

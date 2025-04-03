@@ -188,6 +188,8 @@ public class PersonProvider extends ContentProvider {
     private static final int PERSON_NCD_BALL = 796;
     private static final int PERSON_NCD_BALL_ITEM = 797;
 
+    private static final int PERSON_SUMMARY_BY_VILLAGE = 800;
+
     private DbOpenHelper mOpenHelper;
     private static UriMatcher mUriMatcher;
 
@@ -304,7 +306,7 @@ public class PersonProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "person/personncdball", PERSON_NCD_BALL);
         mUriMatcher.addURI(AUTHORITY, "person/personncdball/#", PERSON_NCD_BALL_ITEM);
 
-
+        mUriMatcher.addURI(AUTHORITY, "person/summary/village", PERSON_SUMMARY_BY_VILLAGE);
     }
 
     @Override
@@ -545,7 +547,8 @@ public class PersonProvider extends ContentProvider {
                 return VisitDrug.CONTENT_DIR_TYPE;
             case VISIT_DRUG_ID:
                 return VisitDrug.CONTENT_ITEM_TYPE;
-
+            case PERSON_SUMMARY_BY_VILLAGE:
+                return PersonSummaryByVillage.CONTENT_DIR_TYPE;
             default:
                 return null;
         }
@@ -1265,6 +1268,30 @@ public class PersonProvider extends ContentProvider {
                 builder.setProjectionMap(PersonNCDBall.PROJECTION_MAP);
                 builder.appendWhere("hcode ="
                         + uri.getLastPathSegment());
+                break;
+            case PERSON_SUMMARY_BY_VILLAGE:
+                builder.setTables(Person.TABLENAME +
+                        " INNER JOIN " + House.TABLENAME +
+                        " ON person.hcode = house.hcode" +
+                        " INNER JOIN " + Village.TABLENAME +
+                        " ON house.villcode = village.villcode");
+
+                // สร้าง projection map สำหรับการ query
+                HashMap<String, String> summaryMap = new HashMap<String, String>();
+                summaryMap.put(Village.VILLCODE, "village.villcode AS " + Village.VILLCODE);
+                summaryMap.put(Village.VILLNO, "village.villno AS " + Village.VILLNO);
+                summaryMap.put(Village.VILLNAME, "village.villname AS " + Village.VILLNAME);
+                summaryMap.put("person_count", "COUNT(person.pid) AS person_count");
+
+                builder.setProjectionMap(summaryMap);
+
+                // กำหนด group by ตาม villcode
+                groupby = "village.villcode, village.villno, village.villname";
+
+                // กำหนดการเรียงลำดับผลลัพธ์
+                if (TextUtils.isEmpty(sortOrder))
+                    sortOrder = "village.villno ASC";
+
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI : "
@@ -4397,4 +4424,35 @@ public class PersonProvider extends ContentProvider {
         }
     }
 
+    public static class PersonSummaryByVillage implements BaseColumns {
+        public static final String TABLENAME = Person.TABLENAME +
+                " INNER JOIN " + House.TABLENAME +
+                " ON person.hcode = house.hcode" +
+                " INNER JOIN " + Village.TABLENAME +
+                " ON house.villcode = village.villcode";
+
+        public static final Uri CONTENT_URI = Uri.parse("content://" +
+                PersonProvider.AUTHORITY +
+                "/person/summary/village");
+
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE +
+                "/vnd.ffc.person.summary.village";
+
+        public static final String DEFAULT_SORTING = "village.villno ASC";
+
+        public static final String VILLCODE = Village.VILLCODE;
+        public static final String VILLNO = Village.VILLNO;
+        public static final String VILLNAME = Village.VILLNAME;
+        public static final String PERSON_COUNT = "person_count";
+
+        protected static final HashMap<String, String> PROJECTION_MAP;
+
+        static {
+            PROJECTION_MAP = new HashMap<String, String>();
+            PROJECTION_MAP.put(VILLCODE, "village.villcode AS " + VILLCODE);
+            PROJECTION_MAP.put(VILLNO, "village.villno AS " + VILLNO);
+            PROJECTION_MAP.put(VILLNAME, "village.villname AS " + VILLNAME);
+            PROJECTION_MAP.put(PERSON_COUNT, "COUNT(person.pid) AS " + PERSON_COUNT);
+        }
+    }
 }
