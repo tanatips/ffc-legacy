@@ -5,7 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
+
 import th.in.ffc.map.system.FGSystemManager;
 import th.in.ffc.map.value.FILTER_GROUP;
 import th.in.ffc.map.value.FinalValue;
@@ -13,13 +17,14 @@ import th.in.ffc.map.value.MARKER_TYPE;
 import th.in.ffc.map.village.spot.Spot;
 import th.in.ffc.util.DateTime;
 
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class FGDatabaseManager {
 
-    // private FGSystemManager fgSystemManager;
+     private FGSystemManager fgSystemManager;
 
     private DatabaseManager databaseManager;
 
@@ -35,7 +40,7 @@ public class FGDatabaseManager {
     // private ArrayList<House> rawHouseNoMark;
 
     public FGDatabaseManager(FGSystemManager fgSystemManager) {
-        // this.fgSystemManager = fgSystemManager;
+        this.fgSystemManager = fgSystemManager;
 
         this.databaseManager = new DatabaseManager();
 
@@ -55,7 +60,7 @@ public class FGDatabaseManager {
         this.initializeSpot();
     }
 
-    private void initializeSpot() {
+    public void initializeSpot() {
         this.marked = new TreeMap<String, Spot>();
         this.available = new TreeMap<String, Spot>();
         this.village_name = new TreeMap<String, String>();
@@ -437,6 +442,147 @@ public class FGDatabaseManager {
         // ----
 
         this.databaseManager.closeDatabase();
+    }
+    // เพิ่มตัวแปรสำหรับกรองตามช่วงอายุ
+    private int minAge = 0;
+    private int maxAge = 100;
+    private boolean isAgeFilterActive = false;
+    private int currentAgeRangeSelection = 0;
+    public int getCurrentAgeRangeSelection() {
+        return currentAgeRangeSelection;
+    }
+    private void restoreAllMarkers() {
+        // ล้าง markers ทั้งหมดบนแผนที่ก่อน
+        fgSystemManager.getFGOverlayManager().removeAllMarkers();
+
+        // แสดง markers ทั้งหมดจาก marked
+        for (Entry<String, Spot> entry : marked.entrySet()) {
+            Spot spot = entry.getValue();
+            fgSystemManager.getFGOverlayManager().markMarkerOnMap(spot);
+        }
+    }
+    // เพิ่มฟังก์ชันสำหรับกรองบ้านตามช่วงอายุ
+    public void filterHousesByAgeRange(int minAge, int maxAge, boolean isActive,int selectionIndex) {
+        this.minAge = minAge;
+        this.maxAge = maxAge;
+        this.isAgeFilterActive = isActive;
+        this.currentAgeRangeSelection = selectionIndex;
+
+        // ลบ markers ทั้งหมดออกจากแผนที่ (ทำผ่าน FGMapManager หรือ FGOverlayManager)
+        fgSystemManager.getFGOverlayManager().removeAllMarkers();
+
+        if (!isActive) {
+            // แสดงข้อมูลทั้งหมดโดยใช้ข้อมูลที่มีอยู่แล้ว
+            restoreAllMarkers();
+
+            // แสดงข้อความแจ้งผู้ใช้
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(fgSystemManager.getFGActivity(),
+                            "แสดงข้อมูลทั้งหมด", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
+
+        if (!isAgeFilterActive) {
+            // แสดงบ้านทั้งหมดที่มีอยู่ใน marked
+            fgSystemManager.getFGOverlayManager().showAllMarkedHouses();
+
+            // แสดงข้อความ
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(fgSystemManager.getFGActivity(),
+                            "แสดงบ้านทั้งหมด", Toast.LENGTH_SHORT).show();
+                }
+            });
+            return;
+        }
+
+        // เริ่มการ query ข้อมูลบ้านตามช่วงอายุ
+        DatabaseManager db = this.getDatabaseManager();
+        final ArrayList<Spot> filteredHouses = new ArrayList<>();
+
+        if (db.openDatabase()) {
+            // สร้าง query เพื่อดึงบ้านที่มีคนในช่วงอายุที่ต้องการ
+            String query = "SELECT DISTINCT h.hcode, h.villcode, h.hno, h.xgis, h.ygis " +
+                    "FROM house h " +
+                    "JOIN person p ON h.hcode = p.hcode " +
+                    "WHERE " +
+                    "((strftime('%Y', 'now') - strftime('%Y', p.birth)) - " +
+                    "(strftime('%m-%d', 'now') < strftime('%m-%d', p.birth))) " +
+                    "BETWEEN " + minAge + " AND " + maxAge + " " +
+                    "AND h.xgis IS NOT NULL AND h.xgis != '0' AND h.xgis != '0.0' " +
+                    "AND h.ygis IS NOT NULL AND h.ygis != '0' AND h.ygis != '0.0'";
+
+            Cursor cursor = db.getCursor(query);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    int hcode = cursor.getInt(0);
+                    String villcode = cursor.getString(1);
+                    String hno = cursor.getString(2);
+                    String xgis = cursor.getString(3);
+                    String ygis = cursor.getString(4);
+
+                    if (xgis != null && !xgis.isEmpty() && ygis != null && !ygis.isEmpty()) {
+                        double x, y;
+                        try {
+                            x = Double.parseDouble(xgis);
+                            y = Double.parseDouble(ygis);
+
+                            // ตรวจสอบว่าค่าอยู่ในช่วงที่ถูกต้อง
+                            if (x >= -85.05 && x <= 85.05) {
+                                // สร้าง Bundle สำหรับข้อมูลเพิ่มเติม
+                                Bundle addition = setHouseBundle(hno, FinalValue.STRING_GREEN, false, "");
+
+                                // สร้าง Spot สำหรับบ้านที่กรอง
+                                Spot spot = new Spot(fgSystemManager.getFGActivity().getPcuCode(),
+                                        MARKER_TYPE.HOUSE, villcode, hcode, x, y, addition);
+
+                                filteredHouses.add(spot);
+                            }
+                        } catch (NumberFormatException e) {
+                            Log.e("FGDatabaseManager", "Error parsing coordinates: " + e.getMessage());
+                        }
+                    }
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+            db.closeDatabase();
+
+            // แสดงบ้านที่กรองแล้วบนแผนที่
+            for (Spot spot : filteredHouses) {
+                fgSystemManager.getFGOverlayManager().markMarkerOnMap(spot);
+            }
+
+            // แสดงข้อความผลลัพธ์
+            final int count = filteredHouses.size();
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(fgSystemManager.getFGActivity(),
+                            "พบบ้านที่มีคนอายุ " + minAge + "-" + maxAge + " ปี จำนวน " + count + " หลัง",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // แจ้งเตือนกรณีเปิดฐานข้อมูลไม่สำเร็จ
+            Handler uiHandler = new Handler(Looper.getMainLooper());
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(fgSystemManager.getFGActivity(),
+                            "ไม่สามารถเชื่อมต่อฐานข้อมูลได้", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private boolean isPointExist(String stringXgis, String stringYgis) {

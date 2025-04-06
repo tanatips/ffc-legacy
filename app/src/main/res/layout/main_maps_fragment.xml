@@ -12,7 +12,7 @@
 <!--            android:clickable="true"-->
 <!--            android:state_enabled="true"/>-->
 
-    <org.osmdroid.views.MapView
+   <org.osmdroid.views.MapView
         android:id="@+id/mapview"
         tilesource="Mapnik"
         android:layout_width="match_parent"
@@ -32,6 +32,22 @@
     <!-- android:layout_alignParentBottom="true" -->
     <!-- android:layout_alignParentRight="true" -->
     <!-- /> -->
+    <ImageButton
+
+        android:id="@+id/filter_group_button"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+
+        android:layout_marginTop="10dp"
+        android:layout_alignRight="@id/mapview"
+        android:layout_marginBottom="10dip"
+        android:layout_marginRight="10dip"
+        android:scaleType="fitCenter"
+        android:src="@drawable/filter2"
+        android:background="@android:color/transparent"
+        android:contentDescription="เลือกกลุ่ม" />
+    <!-- เพิ่มปุ่มกรองตามช่วงอายุ -->
+
     <LinearLayout
             android:id="@+id/linearlayout_zoomcontrols"
             android:layout_width="wrap_content"
@@ -39,6 +55,15 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:padding="5dip" >
+<!--        <ImageButton-->
+<!--            android:id="@+id/filter_group_button"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:layout_margin="2dip"-->
+<!--            android:src="@drawable/filter"-->
+<!--            android:background="@null"-->
+<!--            android:contentDescription="เลือกกลุ่ม" />-->
+
 
         <ImageButton
                 android:id="@+id/imagebutton_zoomout"

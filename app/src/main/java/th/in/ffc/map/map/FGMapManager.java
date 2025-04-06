@@ -1,19 +1,30 @@
 package th.in.ffc.map.map;
 
+import static android.app.PendingIntent.getActivity;
+
+//import static androidx.appcompat.graphics.drawable.DrawableContainer.Api21Impl.getResources;
+import static th.in.ffc.map.FGActivity.fgsys;
+
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -48,6 +59,7 @@ import th.in.ffc.map.FGActivity;
 import th.in.ffc.map.MapFragment;
 import th.in.ffc.map.ResourceProxyImpl;
 import th.in.ffc.map.UserResourceProxyImpl;
+import th.in.ffc.map.database.DatabaseManager;
 import th.in.ffc.map.overlay.FGOverlay;
 import th.in.ffc.map.overlay.ItemGestureListener;
 import th.in.ffc.map.system.FGSystemManager;
@@ -91,6 +103,10 @@ public class FGMapManager implements OnClickListener {
 
     private static boolean[] group_check;
     private final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
+    private int minAge = 0;
+    private int maxAge = 100;
+    private boolean isAgeFilterActive = false;
+    private Handler uiHandler = new Handler(Looper.getMainLooper());
 
     public FGMapManager(FGSystemManager fgSystemManager) {
         this.fgSystemManager = fgSystemManager;
@@ -452,6 +468,9 @@ public class FGMapManager implements OnClickListener {
 
         ImageButton imageButtonZoomin = (ImageButton) mf.getView().findViewById(R.id.imagebutton_zoomin);
         imageButtonZoomin.setOnClickListener(this);
+
+        ImageButton filterGroup = (ImageButton) mf.getView().findViewById(R.id.filter_group_button);
+        filterGroup.setOnClickListener(this);
     }
 
     public MapView getMapView() {
@@ -508,6 +527,9 @@ public class FGMapManager implements OnClickListener {
             case R.id.imagebutton_zoomin:
                 this.mapController.zoomIn();
                 break;
+            case R.id.filter_group_button:
+                showAgeFilterDialog();
+                break;
             // case R.id.wifi_status:
             // this.fgSystemManager.getFGActivity().startActivity(new
             // Intent(Settings.ACTION_WIFI_SETTINGS));
@@ -521,6 +543,197 @@ public class FGMapManager implements OnClickListener {
             // FGMapManager.this.fgSystemManager.getFGDialogManager().getDialogMapStyle();
             // dialogMapStyle.show();
             // break;
+        }
+    }
+    private void showAgeFilterDialog() {
+        // สร้างรายการกลุ่มที่ต้องการให้เลือก
+        final String[] ageRanges = {"ทั้งหมด", "15-34 ปี", "35-50 ปี", "51-60 ปี", "มากกว่า 60 ปี"};
+
+        // กำหนดค่าที่เลือกอยู่ปัจจุบัน (0 หมายถึงตัวแรก)
+        int currentSelection = 0; // ค่าเริ่มต้น
+        if (fgsys != null) {
+            currentSelection = fgsys.getFGDatabaseManager().getCurrentAgeRangeSelection();
+        }
+
+        // สร้าง dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(fgSystemManager.getFGActivity());
+        builder.setTitle("กรองตามช่วงอายุ")
+                .setSingleChoiceItems(ageRanges, currentSelection, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int minAge = 0;
+                        int maxAge = 100;
+                        boolean isActive = false;
+
+                        switch (which) {
+                            case 0: // ทั้งหมด
+                                isActive = false;
+                                break;
+                            case 1: // 15-34 ปี
+                                isActive = true;
+                                minAge = 15;
+                                maxAge = 34;
+                                break;
+                            case 2: // 35-50 ปี
+                                isActive = true;
+                                minAge = 35;
+                                maxAge = 50;
+                                break;
+                            case 3: // 51-60 ปี
+                                isActive = true;
+                                minAge = 51;
+                                maxAge = 60;
+                                break;
+                            case 4: // มากกว่า 60 ปี
+                                isActive = true;
+                                minAge = 61;
+                                maxAge = 200;
+                                break;
+                        }
+
+                        // เรียกใช้ฟังก์ชันกรองข้อมูลจาก FGDatabaseManager
+                        if (fgsys != null) {
+//                            if(isActive) {
+                                fgsys.getFGDatabaseManager().filterHousesByAgeRange(minAge, maxAge, isActive,which);
+//                            } else {
+//                                fgsys.getFGDatabaseManager().initializeSpot();
+//                            }
+
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("ยกเลิก", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void filterHousesByAgeRange() {
+        if (fgsys == null) return;
+
+        // แสดง progress
+        //setSupportProgressBarIndeterminateVisibility(true);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // ลบ markers เดิมบนแผนที่
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // ลบ markers เดิม (ส่วนนี้ขึ้นอยู่กับว่าคุณเก็บ markers ไว้ที่ไหน)
+//                        fgsys.getFGMapManager().clearMarkers();
+                    }
+                });
+
+                // ถ้าไม่ได้กรอง แสดงทั้งหมด
+                if (!isAgeFilterActive) {
+                    // แสดงบ้านทั้งหมด
+//                    showAllHouses();
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+//                            setSupportProgressBarIndeterminateVisibility(false);
+                            Toast.makeText(getMapView().getContext(), "แสดงบ้านทั้งหมด", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                // เริ่มการ query ข้อมูลบ้านตามช่วงอายุ
+                DatabaseManager db = fgsys.getFGDatabaseManager().getDatabaseManager();
+
+                if (db.openDatabase()) {
+                    // สร้าง query เพื่อดึงบ้านที่มีคนในช่วงอายุที่ต้องการ
+                    String query = "SELECT DISTINCT h.hcode, h.xgis, h.ygis " +
+                            "FROM house h " +
+                            "JOIN person p ON h.hcode = p.hcode " +
+                            "WHERE " +
+                            "((strftime('%Y', 'now') - strftime('%Y', p.birth)) - " +
+                            "(strftime('%m-%d', 'now') < strftime('%m-%d', p.birth))) " +
+                            "BETWEEN " + minAge + " AND " + maxAge + " " +
+                            "AND h.xgis IS NOT NULL AND h.xgis != '0' AND h.xgis != '0.0' " +
+                            "AND h.ygis IS NOT NULL AND h.ygis != '0' AND h.ygis != '0.0'";
+
+                    Cursor cursor = db.getCursor(query);
+
+                    final ArrayList<GeoPoint> filteredHouses = new ArrayList<>();
+
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String hcode = cursor.getString(0);
+                            double x = cursor.getDouble(1);
+                            double y = cursor.getDouble(2);
+
+                            if (x > 0 && y > 0) {
+                                filteredHouses.add(new GeoPoint(x, y));
+                            }
+                        } while (cursor.moveToNext());
+                    }
+
+                    cursor.close();
+                    db.closeDatabase();
+
+                    // แสดงบ้านที่กรองแล้วบนแผนที่
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (GeoPoint point : filteredHouses) {
+
+                                // ตรวจสอบค่าพิกัดก่อนสร้าง Marker
+                                double lat = point.getLatitude();
+                                double lon = point.getLongitude();
+
+                                // ตรวจสอบความถูกต้องของค่าละติจูด
+                                if (lat < -85.05 || lat > 85.05) {
+                                    Log.e("MAP", "Invalid latitude: " + lat + " for point, skipping...");
+                                    continue; // ข้ามจุดที่ไม่ถูกต้อง
+                                }
+                                // เพิ่ม marker ของบ้านที่กรองแล้ว
+                                Marker marker = new Marker(mapView);
+                                marker.setPosition(new GeoPoint(lat, lon));
+                                marker.setIcon(mapView.getResources().getDrawable(R.drawable.house_green));
+                                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                                mapView.getOverlays().add(marker);
+                            }
+
+                            mapView.invalidate();
+//                            setSupportProgressBarIndeterminateVisibility(false);
+                            Toast.makeText(getMapView().getContext(),
+                                    "พบบ้านที่มีคนอายุ " + minAge + "-" + maxAge + " ปี จำนวน " +
+                                            filteredHouses.size() + " หลัง",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+//                            setSupportProgressBarIndeterminateVisibility(false);
+                            Toast.makeText(getMapView().getContext(),
+                                    "ไม่สามารถเชื่อมต่อฐานข้อมูลได้",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+    private void filterByGroup(String group) {
+        // จัดการกับการกรองตามกลุ่มที่เลือก
+        // ตัวอย่างเช่น ส่งข้อมูลไปที่ Activity หลักเพื่อกรองข้อมูล
+        if (getMapView().getContext() instanceof FGActivity) {
+            FGActivity activity = (FGActivity) getMapView().getContext();
+            // เรียกเมธอดที่เกี่ยวข้องกับการกรองข้อมูล
+            // activity.filterMarkersByGroup(group);
+
+            // หรือถ้ายังไม่มีเมธอดอยู่ คุณสามารถแสดง Toast เพื่อทดสอบก่อนได้
+            Toast.makeText(getMapView().getContext(), "เลือกกลุ่ม: " + group, Toast.LENGTH_SHORT).show();
         }
     }
 

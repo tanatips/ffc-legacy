@@ -163,6 +163,17 @@ public class FGSystemManager {
     public PhotoTaker getPhotoTaker() {
         return pt;
     }
+    public void removeAllMarkers() {
+        // ลบ markers ทั้งหมดจากแผนที่
+        // ทำความสะอาด overlays หรือการแสดงผลอื่นๆ ตามที่จำเป็น
+        fgOverlayManager.removeAllMarkers();
+    }
+
+    public void showAllMarkedHouses() {
+        // แสดงบ้านทั้งหมดที่มีอยู่ใน marked map
+
+        fgOverlayManager.showAllMarkedHouses();
+    }
 
     public void close() {
         fgActivity = null;

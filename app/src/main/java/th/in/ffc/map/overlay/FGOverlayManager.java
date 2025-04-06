@@ -12,6 +12,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
+
+import java.util.TreeMap;
+
 import th.in.ffc.R;
 import th.in.ffc.map.database.FGDatabaseManager;
 import th.in.ffc.map.system.FGSystemManager;
@@ -299,4 +302,26 @@ public class FGOverlayManager {
     public ItemizedIconOverlay<Spot> getMarker() {
         return markers;
     }
+
+    public void removeAllMarkers() {
+        markers.removeAllItems();
+    }
+    public void showAllMarkedHouses() {
+        // ลบ markers ทั้งหมดบนแผนที่ก่อน (เพื่อป้องกันการซ้ำซ้อน)
+        this.removeAllMarkers();
+
+        // ดึงข้อมูลทั้งหมดจาก marked ใน FGDatabaseManager
+        FGDatabaseManager dbManager = this.fgSystemManager.getFGDatabaseManager();
+        TreeMap<String, Spot> markedSpots = dbManager.getMarked();
+
+        // วนลูปเพื่อเพิ่ม marker แต่ละตัวลงในแผนที่
+        for (Spot spot : markedSpots.values()) {
+            this.markMarkerOnMap(spot);
+        }
+
+        // บังคับให้แผนที่วาดใหม่ (refresh)
+        this.fgSystemManager.getFGMapManager().getMapView().invalidate();
+    }
+
+
 }

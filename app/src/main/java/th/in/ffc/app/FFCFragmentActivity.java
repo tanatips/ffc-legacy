@@ -265,15 +265,24 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
                 if (c.moveToFirst()) {
                     Date system = Date.newInstance(DateTime.getCurrentDate());
                     Date data = Date.newInstance(c.getString(0));
+                    if(data!=null) {
+                        Log.d(TAG, "system date: " + system.toString() + " data date: " + data.toString());
 
-                    if (system.compareTo(data) == Date.LESS_THAN) {
-                        Intent state = new Intent(Action.STATE_DATE_NOT_UPDATE);
-                        state.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        if (mDateListener == null)
-                            startActivity(state);
-                        result = false;
+                        if (system.compareTo(data) == Date.LESS_THAN && data != null) {
+                            Intent state = new Intent(Action.STATE_DATE_NOT_UPDATE);
+                            state.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            if (mDateListener == null)
+                                startActivity(state);
+                            result = false;
+                        } else {
+                            result = true;
+                        }
                     } else {
-                        result = true;
+//                        Intent state = new Intent(Action.STATE_DATE_NOT_UPDATE);
+//                        state.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                        if (mDateListener == null)
+//                            startActivity(state);
+//                        result = false;
                     }
                 }
 

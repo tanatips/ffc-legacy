@@ -40,7 +40,7 @@
   </item>
   <item
       android:id="@+id/menu_filter"
-      android:icon="@drawable/filter"
+      android:icon="@drawable/filter2"
       android:orderInCategory="5"
       android:title="@string/filter_text"
       app:showAsAction="ifRoom"/>
