@@ -70,7 +70,7 @@
             android:exported="true"
             android:label="@string/search"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/quantum_ic_search_grey600_24">
+            <intent-filter android:icon="@drawable/ic_search">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -84,7 +84,7 @@
             android:exported="true"
             android:label="@string/form_15"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/ic_check_list">
+            <intent-filter android:icon="@drawable/health_screening">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -262,7 +262,7 @@
             android:exported="true"
             android:label="@string/house"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/ic_launcher_house">
+            <intent-filter android:icon="@drawable/ic_house">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -922,7 +922,7 @@
             android:exported="true"
             android:label="@string/map">
             <intent-filter
-                android:icon="@drawable/ic_launcher_map"
+                android:icon="@drawable/ic_map"
                 android:label="@string/map">
                 <action android:name="ffc.intent.action.MAIN" />
 
