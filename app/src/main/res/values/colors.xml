@@ -65,4 +65,7 @@
     <color name="dark_blue">#1B3F8B</color>
 <!--    <color name="light_blue">#E6E9F0</color>-->
     <color name="text_color">#000000</color>
+    <color name="list_item_even">#FFFFFF</color>
+    <color name="list_item_odd">#F5F5F5</color>
+
 </resources>

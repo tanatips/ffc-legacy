@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import th.in.ffc.app.form.screening.datalive.CardiovascularRiskLiveData;
 import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
@@ -42,6 +43,7 @@ public class SharedViewModel extends ViewModel {
     private MutableLiveData<AssistScore> assistScoreMutableLiveData = new MutableLiveData<>();
 
     private MutableLiveData<DrugsLiveData> drugsLiveDataMutableLiveData = new MutableLiveData<>();
+    private MutableLiveData<CardiovascularRiskLiveData> cardiovascularRiskLiveDataMutableLiveData = new MutableLiveData<>();
 
 
     public void setStressDepression9qLiveData(StressDepression9qLiveData value) {
@@ -156,7 +158,13 @@ public class SharedViewModel extends ViewModel {
     public void setDrugsLiveDataMutableLiveData(DrugsLiveData value) {
         this.drugsLiveDataMutableLiveData.setValue(value);
     }
+    public MutableLiveData<CardiovascularRiskLiveData> getCardiovascularRiskLiveDataMutableLiveData() {
+        return cardiovascularRiskLiveDataMutableLiveData;
+    }
 
+    public void setCardiovascularRiskLiveDataMutableLiveData(CardiovascularRiskLiveData value) {
+        this.cardiovascularRiskLiveDataMutableLiveData.setValue(value);
+    }
 
 
 //    public void updateDrugsInfo(DrugsInfo drugsInfo) {

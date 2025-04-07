@@ -50,12 +50,31 @@
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@style/FFC.Theme.Light">
-<!--        <activity-->
-<!--            android:name=".app.form.screening.VillageComparisonActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".person.VillageSummaryActivity"-->
-<!--            android:exported="false" />-->
+        <activity
+            android:name=".app.form.screening.report.FiscalYearSummaryActivity"
+            android:exported="false"
+            android:label="ยอดรายปี"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:icon="@drawable/analytics">
+                <action android:name="ffc.intent.action.MAIN" />
+
+                <category android:name="ffc.intent.category.TAB" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.form.screening.report.MonthlySummaryChartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.form.screening.report.MonthDetailActivity"
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".app.form.screening.VillageComparisonActivity" -->
+        <!-- android:exported="false" /> -->
+        <!-- <activity -->
+        <!-- android:name=".person.VillageSummaryActivity" -->
+        <!-- android:exported="false" /> -->
         <activity
             android:name=".person.BloodPressureTableActivity"
             android:exported="false" />
@@ -96,7 +115,21 @@
         <activity
             android:name=".app.form.screening.VillageComparisonActivity"
             android:exported="true"
-            android:label="ร้อยละ"
+            android:label="ผู้รับบริการ"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:icon="@drawable/analytics">
+                <action android:name="ffc.intent.action.MAIN" />
+
+                <category android:name="ffc.intent.category.TAB" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.form.screening.report.MonthlySummaryActivity"
+            android:exported="true"
+            android:label="ยอดรายเดือน"
             android:windowSoftInputMode="stateHidden">
             <intent-filter android:icon="@drawable/analytics">
                 <action android:name="ffc.intent.action.MAIN" />

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/text_charge_item"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="C1 (OP Visit)"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/text_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="150"
+        android:textSize="14sp"
+        android:gravity="end" />
+
+    <TextView
+        android:id="@+id/text_amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="350,000.00"
+        android:textSize="14sp"
+        android:gravity="end" />
+
+    <TextView
+        android:id="@+id/text_percentage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:text="45%"
+        android:textSize="14sp"
+        android:gravity="end" />
+</TableRow>

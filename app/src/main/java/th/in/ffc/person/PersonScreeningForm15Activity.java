@@ -3,17 +3,13 @@ package th.in.ffc.person;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,10 +24,9 @@ import java.util.List;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.AlcoholFragment;
+import th.in.ffc.app.form.screening.CardiovascularRiskFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
 import th.in.ffc.app.form.screening.MainQuestionsFragment;
-import th.in.ffc.app.form.screening.PersonInfoFragment;
-import th.in.ffc.app.form.screening.QuestionOneFragment;
 import th.in.ffc.app.form.screening.SharedViewModel;
 import th.in.ffc.app.form.screening.StressDepressionFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
@@ -41,6 +36,7 @@ import th.in.ffc.app.form.screening.SmookingFragment;
 import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
+import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
 import th.in.ffc.app.form.screening.dao.SfNicotineInfoDao;
@@ -50,6 +46,7 @@ import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepressionInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
+import th.in.ffc.app.form.screening.datalive.CardiovascularRiskLiveData;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
 import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
@@ -60,6 +57,7 @@ import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.AssistScore;
+import th.in.ffc.app.form.screening.model.CardiovascularRiskInfo;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
@@ -72,7 +70,6 @@ import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
-import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.ViewPagerAdapter;
 
@@ -112,6 +109,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private List<DrugsInfo> drugsSixInfos;
     private List<DrugsInfo> drugsSevenInfos;
     private List<DrugsInfo> drugsEightInfos;
+    CardiovascularRiskInfo  cardiovascularRiskInfo;
+
+    private AssistScore assistScoreInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +173,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         saveStressDepression9q();
                         saveSuicideAssessment8q();
                         saveHealthRiskAssessment();
+                        saveCardiovascularRisk();
                         saveDrugsOne();
                         saveDrugsTwo();
                         saveDrugsThree();
@@ -238,6 +239,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
             healthRiskAssessmentLiveData.setPersonId(personId);
             viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+
+            CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
+            cardiovascularRiskLiveData.setPersonId(personId);
+            viewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
 
             DrugsLiveData drugsLiveData = new DrugsLiveData();
             drugsLiveData.setPersonId(personId);
@@ -639,7 +644,34 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
+    private void saveCardiovascularRisk() {
+        if (this.cardiovascularRiskInfo != null) {
+            // เพิ่ม import สำหรับ SfCardiovascularRiskInfoDao
+            // import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
 
+            SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(mContext);
+            this.cardiovascularRiskInfo.setPersonId(this.personInfo.getId());
+            this.cardiovascularRiskInfo.setIdcard(this.personInfo.getIdcard());
+            this.cardiovascularRiskInfo.setCreated_by("SYSTEM");
+            this.cardiovascularRiskInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+
+            if (this.cardiovascularRiskInfo.getId() == null) {
+                // กรณีบันทึกใหม่
+                String id = sfCardiovascularRiskInfoDao.insert(this.cardiovascularRiskInfo);
+                this.cardiovascularRiskInfo.setId(id);
+            } else {
+                // กรณีอัพเดต
+                this.cardiovascularRiskInfo.setUpdated_by("SYSTEM");
+                this.cardiovascularRiskInfo.setUpdated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                sfCardiovascularRiskInfoDao.update(this.cardiovascularRiskInfo);
+            }
+
+            CardiovascularRiskInfo savedInfo = sfCardiovascularRiskInfoDao.getById(Integer.parseInt(this.cardiovascularRiskInfo.getId()));
+            if (savedInfo != null) {
+                System.out.println("Cardiovascular Risk: " + savedInfo.getId() + " " + savedInfo.getPersonId());
+            }
+        }
+    }
     private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter){
         Fragment fragment = adapter.getFragmentAt(position);
         if(fragment != null && fragment.getView() != null){
@@ -813,14 +845,14 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsOneInfo(List<DrugsInfo> data) {
         this.drugsOneInfos = data;
-        displayData(data);
+//        displayData(data);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDrugsTwoInfo(List<DrugsInfo> data) {
         this.drugsTwoInfos = data;
-        displayData(data);
+//        displayData(data);
 //        String msg = "====> "+data.size();
 //        System.out.println(msg);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
@@ -829,51 +861,60 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsThreeInfo(List<DrugsInfo> data) {
         this.drugsThreeInfos = data;
-        displayData(data);
+//        displayData(data);
     }
 
     @Override
     public void onDrugsFourInfo(List<DrugsInfo> data) {
         this.drugsFourInfos = data;
-        displayData(data);
+//        displayData(data);
     }
 
     @Override
     public void onDrugsFiveInfo(List<DrugsInfo> data) {
         this.drugsFiveInfos = data;
-        String msg = "====> "+data.size();
-        System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+//        String msg = "====> "+data.size();
+//        System.out.println(msg);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDrugsSixInfo(List<DrugsInfo> data) {
         this.drugsSixInfos = data;
-        String msg = "====> "+data.size();
-        System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+//        String msg = "====> "+data.size();
+//        System.out.println(msg);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDrugsSevenInfo(List<DrugsInfo> data) {
         this.drugsSevenInfos = data;
-        String msg = "====> "+data.size();
-        System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+//        String msg = "====> "+data.size();
+//        System.out.println(msg);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onDrugsEightInfo(List<DrugsInfo> data) {
         this.drugsEightInfos = data;
-        String msg = "====> "+data.size();
+//        String msg = "====> "+data.size();
+//        System.out.println(msg);
+//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onCardiovascularRiskInfo(CardiovascularRiskInfo data) {
+        this.cardiovascularRiskInfo = data;
+        String msg = "====> "+data;
         System.out.println(msg);
-        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onAssistScoreInfo(AssistScore data) {
-        String msg = "====> "+data.getNicotineScore();
-        System.out.println(msg);
+         this.assistScoreInfo = data;
+
+//        System.out.println(msg);
         // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 

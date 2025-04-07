@@ -49,12 +49,17 @@ import th.in.ffc.app.form.nhso.service.NHSOOPDService;
 import th.in.ffc.app.form.nhso.service.NHSOPatientService;
 import th.in.ffc.app.form.nhso.service.NHSOPractitionerService;
 import th.in.ffc.app.form.nhso.util.NHSOJsonConverter;
+import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
+import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
+import th.in.ffc.app.form.screening.model.CardiovascularRiskInfo;
+import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.dao.VisitDao;
 import th.in.ffc.session.UserSessionManager;
+import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.InvoiceNumberGenerator;
 import th.in.ffc.util.Log;
@@ -259,8 +264,27 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             nhsochadInfo.setCodesys("002");      // ระบบรหัสที่ใช้ (TMLT)
                             nhsochadInfo.setBillgrcs("04");      // หมวดค่าใช้จ่าย
                             nhsochadInfo.setQty(1);              // จำนวนที่ใช้
-                            nhsochadInfo.setUnitprice(300.0);    // ราคาต่อหน่วย
-                            nhsochadInfo.setChargeamt(300.0);    // จำนวนเงินเรียกเก็บ
+
+                            SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(itemView.getContext());
+                            List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos =  sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+                            SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(itemView.getContext());
+                            List<CardiovascularRiskInfo> cardiovascularRiskInfos = sfCardiovascularRiskInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+                            double fpg= 0.0;
+                            double choresteral = 0.0;
+                            if(!healthRiskAssessmentInfos.isEmpty())
+                            {
+                                fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+                            }
+                            if(!cardiovascularRiskInfos.isEmpty())
+                            {
+                                choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol());
+                            }
+                            double cost13 = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,0);
+                            double costFpg = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),fpg,0);
+                            double costChoresteral = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,choresteral);
+                            double costTotal = cost13+costFpg+costChoresteral;
+                            nhsochadInfo.setUnitprice(costTotal);    // ราคาต่อหน่วย
+                            nhsochadInfo.setChargeamt(costTotal);    // จำนวนเงินเรียกเก็บ
 
                             nhsochadInfos.add(nhsochadInfo);
                             chadService.createCHAD(nhsochadInfo, userSessionManager.getUser());
@@ -275,7 +299,9 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
                             }
-                            Double amount = 0.0,total=0.0 ,memo = 0.0;
+                            double amount = 0.0,total=0.0 ,memo = 0.0;
+                            amount = costTotal;
+                            total = costTotal;
                             chaInfo.setChrgitem("C1");
                             chaInfo.setInvoiceNo(invoiceNumber);
                             chaInfo.setAmount(amount);
@@ -332,10 +358,6 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                                     showMessage("เกิดข้อผิดพลาด: " + errorMessage);
                                 }
                             });
-//                            Toast.makeText(itemView.getContext(), "บันทึกข้อมูลเรียบร้อย", Toast.LENGTH_LONG).show();
-
-//                            Toast.makeText(itemView.getContext(), "บันทึกข้อมูลเรียบร้อย", Toast.LENGTH_LONG).show();
-
                         }
 
                         @Override

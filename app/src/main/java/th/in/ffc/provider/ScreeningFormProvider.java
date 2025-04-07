@@ -77,6 +77,10 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_CARD_READING_HISTORY_ITEM_ID = 35;
     private static final int SF_PERSON_SUMMARY_BY_VILLAGE = 100;
 
+    private static final int SF_CARDIOVASCULAR_RISK_INFO = 36;
+    private static final int SF_CARDIOVASCULAR_RISK_INFO_ITEMS = 37;
+    private static final int SF_CARDIOVASCULAR_RISK_INFO_ID = 38;
+
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
@@ -136,6 +140,10 @@ public class ScreeningFormProvider extends ContentProvider {
 
         mUriMatcher.addURI(AUTHORITY, "sf_person_info/summary/village", SF_PERSON_SUMMARY_BY_VILLAGE);
 
+        mUriMatcher.addURI(AUTHORITY, "sf_cardiovascular_risk_info", SF_CARDIOVASCULAR_RISK_INFO);
+        mUriMatcher.addURI(AUTHORITY, "sf_cardiovascular_risk_info/list", SF_CARDIOVASCULAR_RISK_INFO_ITEMS);
+        mUriMatcher.addURI(AUTHORITY, "sf_cardiovascular_risk_info/#", SF_CARDIOVASCULAR_RISK_INFO_ID);
+
     }
 
 
@@ -164,6 +172,7 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
 
+//            mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
@@ -175,6 +184,7 @@ public class ScreeningFormProvider extends ContentProvider {
             mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
+            mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
 
             return true;
         }
@@ -304,6 +314,14 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setTables(SfCardReadingHistory.TABLENAME);
                 builder.setProjectionMap(SfCardReadingHistory.PROJECTION_MAP);
                 break;
+            case ScreeningFormProvider.SF_CARDIOVASCULAR_RISK_INFO_ITEMS:
+                builder.setTables(SfCardiovascularRiskInfo.TABLENAME);
+                builder.setProjectionMap(SfCardiovascularRiskInfo.PROJECTION_MAP);
+                break;
+            case ScreeningFormProvider.SF_CARDIOVASCULAR_RISK_INFO_ID:
+                builder.setTables(SfCardiovascularRiskInfo.TABLENAME);
+                builder.setProjectionMap(SfCardiovascularRiskInfo.PROJECTION_MAP);
+                break;
             case SF_PERSON_SUMMARY_BY_VILLAGE:
                 builder.setTables(SfPersonInfo.TABLENAME +
                         " INNER JOIN house ON "+SfPersonInfo.TABLENAME +"."+ SfPersonInfo.HCODE + " = house.hcode" +
@@ -397,6 +415,9 @@ public class ScreeningFormProvider extends ContentProvider {
             case SF_CARD_READING_HISTORY:
                 id = db.insert(SfCardReadingHistory.TABLENAME, null, values);
                 break;
+            case SF_CARDIOVASCULAR_RISK_INFO:
+                id = db.insert(SfCardiovascularRiskInfo.TABLENAME, null, values);
+                break;
 
         }
         if (id > 0) {
@@ -450,6 +471,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 break;
             case SF_CARD_READING_HISTORY_ITEM_ID:
                 rowUpdated = db.update(SfCardReadingHistory.TABLENAME, contentValues, selection, selectionArgs);
+                break;
+            case SF_CARDIOVASCULAR_RISK_INFO_ID:
+                rowUpdated = db.update(SfCardiovascularRiskInfo.TABLENAME, contentValues, selection, selectionArgs);
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
@@ -1277,6 +1301,82 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfCardReadingHistory.READ_STATUS, "read_status AS " + SfCardReadingHistory.READ_STATUS);
             PROJECTION_MAP.put(SfCardReadingHistory.NOTES, "notes AS " + SfCardReadingHistory.NOTES);
             PROJECTION_MAP.put(SfCardReadingHistory.CREATED_AT, "created_at AS " + SfCardReadingHistory.CREATED_AT);
+        }
+    }
+
+    public static final class SfCardiovascularRiskInfo implements BaseColumns {
+        public static final String TABLENAME = "ffc_sf_cardiovascular_risk_info";
+
+        public static HashMap<String, String> PROJECTION_MAP;
+
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + ScreeningFormProvider.AUTHORITY + "/sf_cardiovascular_risk_info");
+        public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+                + "/vnd.ffc.sf_cardiovascular_risk_info";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+                + "/vnd.ffc.sf_cardiovascular_risk_info";
+
+        public static final String ID = "id";
+        public static final String IDCARD = "idcard";
+        public static final String PERSON_INFO_ID = "person_info_id";
+        public static final String AGE = "age";
+        public static final String GENDER = "gender";
+        public static final String BLOOD_PRESSURE = "blood_pressure";
+        public static final String WAIST_SIZE = "waist_size";
+        public static final String HEIGHT = "height";
+        public static final String CHOLESTEROL = "cholesterol";
+        public static final String IS_SMOKING = "is_smoking";
+        public static final String HAS_DIABETES = "has_diabetes";
+        public static final String RISK_LEVEL = "risk_level";
+        public static final String RISK_PERCENTAGE = "risk_percentage";
+        public static final String RECOMMENDATION = "recommendation";
+        public static final String CREATED_BY = "created_by";
+        public static final String CREATED_DATE = "created_date";
+        public static final String UPDATED_BY = "updated_by";
+        public static final String UPDATED_DATE = "updated_date";
+
+        public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
+
+        public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
+                ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                PERSON_INFO_ID + " TEXT NOT NULL," +
+                IDCARD + " TEXT NOT NULL," +
+                AGE + " TEXT," +
+                GENDER + " TEXT," +
+                BLOOD_PRESSURE + " TEXT," +
+                WAIST_SIZE + " TEXT," +
+                HEIGHT + " TEXT," +
+                CHOLESTEROL + " TEXT," +
+                IS_SMOKING + " TEXT," +
+                HAS_DIABETES + " TEXT," +
+                RISK_LEVEL + " TEXT," +
+                RISK_PERCENTAGE + " TEXT," +
+                RECOMMENDATION + " TEXT," +
+                CREATED_BY + " TEXT," +
+                CREATED_DATE + " DATE," +
+                UPDATED_BY + " TEXT," +
+                UPDATED_DATE + " DATE " + ")";
+
+        static {
+            PROJECTION_MAP = new HashMap<String, String>();
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.ID, "id AS " + SfCardiovascularRiskInfo.ID);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.IDCARD, "idcard AS " + SfCardiovascularRiskInfo.IDCARD);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.PERSON_INFO_ID, "person_info_id AS " + SfCardiovascularRiskInfo.PERSON_INFO_ID);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.AGE, "age AS " + SfCardiovascularRiskInfo.AGE);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.GENDER, "gender AS " + SfCardiovascularRiskInfo.GENDER);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.BLOOD_PRESSURE, "blood_pressure AS " + SfCardiovascularRiskInfo.BLOOD_PRESSURE);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.WAIST_SIZE, "waist_size AS " + SfCardiovascularRiskInfo.WAIST_SIZE);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.HEIGHT, "height AS " + SfCardiovascularRiskInfo.HEIGHT);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.CHOLESTEROL, "cholesterol AS " + SfCardiovascularRiskInfo.CHOLESTEROL);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.IS_SMOKING, "is_smoking AS " + SfCardiovascularRiskInfo.IS_SMOKING);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.HAS_DIABETES, "has_diabetes AS " + SfCardiovascularRiskInfo.HAS_DIABETES);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.RISK_LEVEL, "risk_level AS " + SfCardiovascularRiskInfo.RISK_LEVEL);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.RISK_PERCENTAGE, "risk_percentage AS " + SfCardiovascularRiskInfo.RISK_PERCENTAGE);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.RECOMMENDATION, "recommendation AS " + SfCardiovascularRiskInfo.RECOMMENDATION);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.CREATED_BY, "created_by AS " + SfCardiovascularRiskInfo.CREATED_BY);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.CREATED_DATE, "created_date AS " + SfCardiovascularRiskInfo.CREATED_DATE);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.UPDATED_BY, "updated_by AS " + SfCardiovascularRiskInfo.UPDATED_BY);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.UPDATED_DATE, "updated_date AS " + SfCardiovascularRiskInfo.UPDATED_DATE);
         }
     }
 }

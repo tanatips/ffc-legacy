@@ -10,9 +10,12 @@ import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import th.in.ffc.app.form.nhso.model.NHSOCHAInfo;
 import th.in.ffc.provider.NHSOCHA;
@@ -218,6 +221,7 @@ public class NHSOCHADao {
         List<NHSOCHAInfo> chas = new ArrayList<>();
 
         try {
+            Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "list");
             Cursor cursor = mResolver.query(NHSOCHA.CONTENT_URI, null, null, null, null);
 
             if (cursor != null) {
@@ -519,5 +523,437 @@ public class NHSOCHADao {
         }
 
         return total;
+    }
+    public List<Map<String, Object>> getMonthlySummaryByFiscalYear(String fiscalYear) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try {
+            // วันที่เริ่มต้นและสิ้นสุดของปีงบประมาณ
+            Date startDate = getFiscalYearStartDate(fiscalYear);
+            Date endDate = getFiscalYearEndDate(fiscalYear);
+
+            String startDateStr = dateFormat.format(startDate);
+            String endDateStr = dateFormat.format(endDate);
+
+            // สร้างรายการเปล่าสำหรับทั้ง 12 เดือน
+            for (int month = 1; month <= 12; month++) {
+                Map<String, Object> monthData = new HashMap<>();
+                monthData.put("fiscalMonth", month);
+                monthData.put("monthName", getFiscalMonthName(month));
+                monthData.put("totalAmount", 0.0);
+                monthData.put("totalCount", 0);
+                result.add(monthData);
+            }
+
+            // Query ข้อมูลสรุปรายเดือน
+            Uri uri = Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "summary/monthly/" + fiscalYear);
+            Cursor cursor = mResolver.query(uri, null, null, null, null);
+
+            if (cursor != null) {
+                try {
+                    // ดูชื่อคอลัมน์ที่มีใน cursor
+                    String[] columnNames = cursor.getColumnNames();
+                    Log.d(TAG, "Column names in cursor: " + String.join(", ", columnNames));
+
+                    while (cursor.moveToNext()) {
+                        // กำหนดชื่อคอลัมน์ให้ตรงกับที่ Provider ส่งกลับมา
+                        int fiscalMonthIndex = cursor.getColumnIndex("fiscal_month");
+                        int totalCountIndex = cursor.getColumnIndex("total_count");
+                        int totalAmountIndex = cursor.getColumnIndex("total_amount");
+
+                        // ตรวจสอบว่าพบคอลัมน์หรือไม่
+                        if (fiscalMonthIndex != -1 && totalCountIndex != -1 && totalAmountIndex != -1) {
+                            String fiscalMonthStr = cursor.getString(fiscalMonthIndex);
+                            int totalCount = cursor.getInt(totalCountIndex);
+                            double totalAmount = cursor.getDouble(totalAmountIndex);
+
+                            // แปลง fiscal_month เป็นตัวเลข
+                            int month = Integer.parseInt(fiscalMonthStr);
+
+                            // อัปเดตข้อมูลในผลลัพธ์
+                            if (month >= 1 && month <= 12) {
+                                Map<String, Object> monthData = result.get(month - 1);
+                                monthData.put("totalAmount", totalAmount);
+                                monthData.put("totalCount", totalCount);
+                            }
+                        } else {
+                            Log.e(TAG, "One or more required columns not found in cursor.");
+                        }
+                    }
+                } finally {
+                    cursor.close();
+                }
+            } else {
+                Log.e(TAG, "Cursor is null from uri: " + uri);
+
+                // กรณีไม่สามารถใช้ Provider ได้ ให้ใช้วิธีการคำนวณแบบเดิม
+                String selection = NHSOCHA.DATE + " BETWEEN ? AND ?";
+                String[] selectionArgs = {startDateStr, endDateStr};
+                Cursor dataCursor = mResolver.query(
+                        NHSOCHA.CONTENT_URI,
+                        null,
+                        selection,
+                        selectionArgs,
+                        NHSOCHA.DATE + " ASC"
+                );
+
+                if (dataCursor != null) {
+                    try {
+                        while (dataCursor.moveToNext()) {
+                            double amount = 0.0;
+                            int totalIndex = dataCursor.getColumnIndex(NHSOCHA.TOTAL);
+                            if (totalIndex != -1 && !dataCursor.isNull(totalIndex)) {
+                                amount = dataCursor.getDouble(totalIndex);
+                            }
+
+                            Date date = null;
+                            int dateIndex = dataCursor.getColumnIndex(NHSOCHA.DATE);
+                            if (dateIndex != -1 && !dataCursor.isNull(dateIndex)) {
+                                String dateStr = dataCursor.getString(dateIndex);
+                                try {
+                                    date = dateFormat.parse(dateStr);
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error parsing date: " + dateStr, e);
+                                    continue;
+                                }
+                            }
+
+                            if (date != null) {
+                                int fiscalMonth = calculateFiscalMonth(date);
+                                Map<String, Object> monthData = result.get(fiscalMonth - 1);
+
+                                double currentAmount = (double) monthData.get("totalAmount");
+                                monthData.put("totalAmount", currentAmount + amount);
+
+                                int currentCount = (int) monthData.get("totalCount");
+                                monthData.put("totalCount", currentCount + 1);
+                            }
+                        }
+                    } finally {
+                        dataCursor.close();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting monthly summary", e);
+        }
+
+        return result;
+    }
+    /**
+     * คำนวณวันที่เริ่มต้นของปีงบประมาณ
+     * @param fiscalYear ปีงบประมาณ
+     * @return วันที่เริ่มต้นของปีงบประมาณ (1 ตุลาคม)
+     */
+    private Date getFiscalYearStartDate(String fiscalYear) {
+        int year = Integer.parseInt(fiscalYear) - 1; // ปีก่อนหน้าปีงบประมาณ
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, Calendar.OCTOBER, 1, 0, 0, 0); // 1 ตุลาคมของปีก่อนหน้า เวลา 00:00:00
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    /**
+     * คำนวณวันที่สิ้นสุดของปีงบประมาณ
+     * @param fiscalYear ปีงบประมาณ
+     * @return วันที่สิ้นสุดของปีงบประมาณ (30 กันยายน)
+     */
+    private Date getFiscalYearEndDate(String fiscalYear) {
+        int year = Integer.parseInt(fiscalYear); // ปีงบประมาณ
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, Calendar.SEPTEMBER, 30, 23, 59, 59); // 30 กันยายนของปีงบประมาณ เวลา 23:59:59
+        cal.set(Calendar.MILLISECOND, 999);
+        return cal.getTime();
+    }
+    private int calculateFiscalMonth(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        int month = cal.get(Calendar.MONTH); // 0-11
+
+        // แปลงเดือนปฏิทินเป็นเดือนงบประมาณ
+        if (month >= 9) { // ตุลาคม-ธันวาคม
+            return month - 8; // ตุลาคม=1, พฤศจิกายน=2, ธันวาคม=3
+        } else {
+            return month + 4; // มกราคม=4, ..., กันยายน=12
+        }
+    }
+    /**
+     * แปลงเดือนงบประมาณเป็นชื่อเดือนภาษาไทย
+     * @param fiscalMonth เดือนงบประมาณ (1-12)
+     * @return ชื่อเดือนภาษาไทย
+     */
+    private String getFiscalMonthName(int fiscalMonth) {
+        switch (fiscalMonth) {
+            case 1: return "ตุลาคม";
+            case 2: return "พฤศจิกายน";
+            case 3: return "ธันวาคม";
+            case 4: return "มกราคม";
+            case 5: return "กุมภาพันธ์";
+            case 6: return "มีนาคม";
+            case 7: return "เมษายน";
+            case 8: return "พฤษภาคม";
+            case 9: return "มิถุนายน";
+            case 10: return "กรกฎาคม";
+            case 11: return "สิงหาคม";
+            case 12: return "กันยายน";
+            default: return "";
+        }
+    }
+    /**
+     * สรุปข้อมูลการเบิกจ่ายตามปีงบประมาณ
+     * @param fiscalYear ปีงบประมาณที่ต้องการสรุป
+     * @return ข้อมูลสรุปของปีงบประมาณ
+     */
+    public Map<String, Object> getYearlySummaryByFiscalYear(String fiscalYear) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("fiscalYear", fiscalYear);
+        result.put("totalAmount", 0.0);
+        result.put("totalCount", 0);
+
+        try {
+            // วันที่เริ่มต้นและสิ้นสุดของปีงบประมาณ
+            Date startDate = getFiscalYearStartDate(fiscalYear);
+            Date endDate = getFiscalYearEndDate(fiscalYear);
+
+            String startDateStr = dateFormat.format(startDate);
+            String endDateStr = dateFormat.format(endDate);
+
+            // เพิ่มข้อมูลช่วงวันที่ในผลลัพธ์
+            SimpleDateFormat thaiDateFormat = new SimpleDateFormat("d MMMM yyyy", new Locale("th", "TH"));
+            result.put("startDate", thaiDateFormat.format(startDate));
+            result.put("endDate", thaiDateFormat.format(endDate));
+
+            // Query ข้อมูลสรุปรายปี
+            Uri uri = Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "summary/yearly/" + fiscalYear);
+            Cursor cursor = mResolver.query(uri, null, null, null, null);
+
+            if (cursor != null) {
+                try {
+                    // ดูชื่อคอลัมน์ที่มีใน cursor
+                    String[] columnNames = cursor.getColumnNames();
+                    Log.d(TAG, "Column names in yearly summary cursor: " + String.join(", ", columnNames));
+
+                    if (cursor.moveToFirst()) {
+                        int totalCountIndex = cursor.getColumnIndex("total_count");
+                        int totalAmountIndex = cursor.getColumnIndex("total_amount");
+
+                        if (totalCountIndex != -1 && totalAmountIndex != -1) {
+                            int totalCount = cursor.getInt(totalCountIndex);
+                            double totalAmount = cursor.getDouble(totalAmountIndex);
+
+                            result.put("totalCount", totalCount);
+                            result.put("totalAmount", totalAmount);
+                        } else {
+                            Log.e(TAG, "Required columns not found in yearly summary cursor.");
+                        }
+                    }
+                } finally {
+                    cursor.close();
+                }
+            } else {
+                Log.e(TAG, "Yearly summary cursor is null from uri: " + uri);
+
+                // กรณีไม่สามารถใช้ Provider ได้ ให้ใช้วิธีการคำนวณจากข้อมูลดิบ
+                String selection = NHSOCHA.DATE + " BETWEEN ? AND ?";
+                String[] selectionArgs = {startDateStr, endDateStr};
+
+                Cursor dataCursor = mResolver.query(
+                        NHSOCHA.CONTENT_URI,
+                        new String[]{"COUNT(*) AS count", "SUM(" + NHSOCHA.TOTAL + ") AS amount"},
+                        selection,
+                        selectionArgs,
+                        null
+                );
+
+                if (dataCursor != null) {
+                    try {
+                        if (dataCursor.moveToFirst()) {
+                            int count = dataCursor.getInt(dataCursor.getColumnIndex("count"));
+                            double amount = dataCursor.getDouble(dataCursor.getColumnIndex("amount"));
+
+                            result.put("totalCount", count);
+                            result.put("totalAmount", amount);
+                        }
+                    } finally {
+                        dataCursor.close();
+                    }
+                }
+            }
+
+            // ดึงข้อมูลสรุปตามประเภทรายการ (chrgitem)
+            List<Map<String, Object>> chargeItemSummary = getSummaryByChargeItemAndFiscalYear(fiscalYear);
+            result.put("chargeItemSummary", chargeItemSummary);
+
+            // คำนวณสัดส่วนร้อยละของแต่ละประเภทรายการ
+            if (!chargeItemSummary.isEmpty()) {
+                double totalAmount = (double) result.get("totalAmount");
+                if (totalAmount > 0) {
+                    for (Map<String, Object> item : chargeItemSummary) {
+                        double itemAmount = (double) item.get("amount");
+                        double percentage = (itemAmount / totalAmount) * 100;
+                        item.put("percentage", percentage);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting yearly summary", e);
+        }
+
+        return result;
+    }
+
+    /**
+     * สรุปข้อมูลการเบิกจ่ายตามประเภทรายการในปีงบประมาณ
+     * @param fiscalYear ปีงบประมาณที่ต้องการสรุป
+     * @return รายการสรุปตามประเภทรายการ
+     */
+    public List<Map<String, Object>> getSummaryByChargeItemAndFiscalYear(String fiscalYear) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        try {
+            // วันที่เริ่มต้นและสิ้นสุดของปีงบประมาณ
+            Date startDate = getFiscalYearStartDate(fiscalYear);
+            Date endDate = getFiscalYearEndDate(fiscalYear);
+
+            String startDateStr = dateFormat.format(startDate);
+            String endDateStr = dateFormat.format(endDate);
+
+            // Query ข้อมูลสรุปตามประเภทรายการ
+            Uri uri = Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "summary/by_charge/" + fiscalYear);
+            Cursor cursor = mResolver.query(uri, null, null, null, null);
+
+            if (cursor != null) {
+                try {
+                    // ดูชื่อคอลัมน์ที่มีใน cursor
+                    String[] columnNames = cursor.getColumnNames();
+                    Log.d(TAG, "Column names in charge item summary cursor: " + String.join(", ", columnNames));
+
+                    while (cursor.moveToNext()) {
+                        int chrgitemIndex = cursor.getColumnIndex("chrgitem");
+                        int itemCountIndex = cursor.getColumnIndex("item_count");
+                        int itemAmountIndex = cursor.getColumnIndex("item_amount");
+
+                        if (chrgitemIndex != -1 && itemCountIndex != -1 && itemAmountIndex != -1) {
+                            String chrgitem = cursor.getString(chrgitemIndex);
+                            int count = cursor.getInt(itemCountIndex);
+                            double amount = cursor.getDouble(itemAmountIndex);
+
+                            Map<String, Object> itemData = new HashMap<>();
+                            itemData.put("chrgitem", chrgitem);
+                            itemData.put("count", count);
+                            itemData.put("amount", amount);
+
+                            results.add(itemData);
+                        } else {
+                            Log.e(TAG, "Required columns not found in charge item summary cursor.");
+                        }
+                    }
+                } finally {
+                    cursor.close();
+                }
+            } else {
+                Log.e(TAG, "Charge item summary cursor is null from uri: " + uri);
+
+                // กรณีไม่สามารถใช้ Provider ได้ ให้ใช้วิธีการคำนวณจากข้อมูลดิบ
+                String selection = NHSOCHA.DATE + " BETWEEN ? AND ?";
+                String[] selectionArgs = {startDateStr, endDateStr};
+
+                Cursor dataCursor = mResolver.query(
+                        NHSOCHA.CONTENT_URI,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+
+                if (dataCursor != null) {
+                    try {
+                        // สร้าง Map สำหรับเก็บข้อมูลรวมตาม chrgitem
+                        Map<String, Map<String, Object>> chargeItemMap = new HashMap<>();
+
+                        while (dataCursor.moveToNext()) {
+                            String chrgitem = dataCursor.getString(dataCursor.getColumnIndex(NHSOCHA.CHRGITEM));
+                            double amount = dataCursor.getDouble(dataCursor.getColumnIndex(NHSOCHA.TOTAL));
+
+                            // ดึงหรือสร้างข้อมูลสำหรับ chrgitem นี้
+                            Map<String, Object> itemData = chargeItemMap.get(chrgitem);
+                            if (itemData == null) {
+                                itemData = new HashMap<>();
+                                itemData.put("chrgitem", chrgitem);
+                                itemData.put("count", 0);
+                                itemData.put("amount", 0.0);
+                                chargeItemMap.put(chrgitem, itemData);
+                            }
+
+                            // อัปเดตข้อมูล
+                            int count = (int) itemData.get("count");
+                            double totalAmount = (double) itemData.get("amount");
+
+                            itemData.put("count", count + 1);
+                            itemData.put("amount", totalAmount + amount);
+                        }
+
+                        // เพิ่มข้อมูลสรุปลงในผลลัพธ์
+                        results.addAll(chargeItemMap.values());
+                    } finally {
+                        dataCursor.close();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting summary by charge item", e);
+        }
+
+        return results;
+    }
+
+    public Map<String, Object> getMonthSummary(String fiscalYear, int fiscalMonth) {
+        Map<String, Object> monthSummary = new HashMap<>();
+
+        Calendar calStart = Calendar.getInstance();
+        int year = Integer.parseInt(fiscalYear) - 1;
+
+        calStart.set(year, Calendar.OCTOBER, 1);
+        calStart.add(Calendar.MONTH, fiscalMonth - 1);
+
+        Calendar calEnd = (Calendar) calStart.clone();
+        calEnd.add(Calendar.MONTH, 1);
+        calEnd.add(Calendar.DAY_OF_MONTH, -1);
+
+        SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd/MM/yyyy", new Locale("th", "TH"));
+
+        monthSummary.put("startDate", displayDateFormat.format(calStart.getTime()));
+        monthSummary.put("endDate", displayDateFormat.format(calEnd.getTime()));
+
+        // เพิ่ม URI สำหรับดึงรายละเอียดรายเดือน
+        Uri uri = Uri.withAppendedPath(
+                NHSOCHA.CONTENT_URI,
+                "monthly_details/" + fiscalYear + "/" + String.format("%02d", fiscalMonth)
+        );
+
+        Cursor cursor = mResolver.query(uri, null, null, null, null);
+
+        List<NHSOCHAInfo> monthDetails = new ArrayList<>();
+        double totalAmount = 0.0;
+
+        if (cursor != null) {
+            try {
+                while (cursor.moveToNext()) {
+                    NHSOCHAInfo claim = cursorToCHA(cursor);
+                    monthDetails.add(claim);
+                    totalAmount += claim.getAmount() != null ? claim.getAmount() : 0.0;
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+
+        monthSummary.put("totalAmount", totalAmount);
+        monthSummary.put("totalCount", monthDetails.size());
+        monthSummary.put("details", monthDetails);
+
+        return monthSummary;
     }
 }

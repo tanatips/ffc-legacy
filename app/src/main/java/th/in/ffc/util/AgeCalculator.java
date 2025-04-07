@@ -29,6 +29,7 @@ package th.in.ffc.util;
 
 import android.content.Context;
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.util.DateTime.Date;
 
 import java.text.SimpleDateFormat;
@@ -159,4 +160,24 @@ public class AgeCalculator {
         }
     }
 
+    /**
+     * Calculate service cost based on age and service type
+     *
+     * @param age Person's age
+      * @return Service cost in Thai Baht
+     */
+    public static double calculateServiceCost(int age,double fpg, double cholesterol) {
+        // Service costs based on the images provided
+        if (fpg == 0 && cholesterol ==0 && age >= 15 && age <= 34) {
+            return 100.0; // ค่าบริการเหมาจ่าย 100 บาท สำหรับการคัดกรองฯ อายุ 15-34 ปี
+        } else if (fpg == 0 && cholesterol ==0 && age >= 35 && age <= 59) {
+            return 150.0; // ค่าบริการเหมาจ่าย 150 บาท สำหรับการคัดกรองฯ อายุ 35-59 ปี
+        } else if (fpg>0 && cholesterol == 0 && age >= 35 && age <= 59) {
+            return 40.0; // ค่าบริการเหมาจ่าย 40 บาท สำหรับตรวจ FPG อายุ 35-59 ปี
+        } else if (fpg == 0 && cholesterol>0 && age >= 45 && age <= 59) {
+            return 160.0; // ค่าบริการเหมาจ่าย 160 บาท สำหรับตรวจ Cholesterol อายุ 45-59 ปี
+        } else {
+            return 0.0; // Service not applicable for the given age
+        }
+    }
 }
