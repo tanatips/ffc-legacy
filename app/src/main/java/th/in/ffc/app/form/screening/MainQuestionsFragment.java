@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import th.in.ffc.app.form.screening.model.AnswerData;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
+import th.in.ffc.person.PersonScreeningForm15Activity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -225,6 +227,149 @@ public class MainQuestionsFragment extends Fragment {
     private boolean hasAnySubstanceUse(Map<String, Boolean> answers) {
         return answers.containsValue(true);
     }
+    /**
+     * คำนวณความสูงทั้งหมดของ Fragment รวมถึง Fragment ย่อยทั้งหมดภายใน
+     * ใช้สำหรับการปรับ ViewPager2 height ให้ถูกต้อง
+     *
+     * @return ความสูงรวมทั้งหมดเป็นพิกเซล
+     */
+    public int calculateTotalHeight() {
+        int totalHeight = 0;
+        View view = getView();
 
+        if (view == null) return totalHeight;
 
+        // เพิ่มค่า padding ของตัว Fragment หลัก
+        totalHeight += view.getPaddingTop() + view.getPaddingBottom();
+
+        // หาความสูงของแต่ละ Fragment container
+        int[] fragmentContainerIds = new int[] {
+                R.id.question_one_container,
+                R.id.question_two_container,
+                R.id.question_three_container,
+                R.id.question_four_container,
+                R.id.question_five_container,
+                R.id.question_six_container,
+                R.id.question_seven_container,
+                R.id.question_eight_container
+        };
+
+        for (int containerId : fragmentContainerIds) {
+            View containerView = view.findViewById(containerId);
+            if (containerView != null) {
+                // คำนวณขนาดของ container
+                containerView.measure(
+                        View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                );
+
+                // เข้าถึง Fragment ที่อยู่ภายใน container
+                Fragment childFragment = getChildFragmentManager().findFragmentById(containerId);
+                if (childFragment != null && childFragment.getView() != null) {
+                    View fragmentView = childFragment.getView();
+
+                    // ตรวจสอบความสูงของ content ที่อาจถูก expand/collapse
+                    ViewGroup contentLayout = null;
+
+                    // ค้นหา content layout ตามรูปแบบที่ใช้ใน Fragment ย่อย
+                    if (childFragment instanceof QuestionOneFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutOne);
+                    } else if (childFragment instanceof QuestionTwoFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutTwo);
+                    } else if (childFragment instanceof QuestionThreeFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutThree);
+                    } else if (childFragment instanceof QuestionFourFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutFour);
+                    } else if (childFragment instanceof QuestionFiveFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutFive);
+                    } else if (childFragment instanceof QuestionSixFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutSix);
+                    } else if (childFragment instanceof QuestionSevenFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutSeven);
+                    } else if (childFragment instanceof QuestionEightFragment) {
+                        contentLayout = fragmentView.findViewById(R.id.contentLayoutEight);
+                    }
+
+                    // ถ้าเจอ content layout และมันกำลังแสดงอยู่
+                    if (contentLayout != null && contentLayout.getVisibility() == View.VISIBLE) {
+                        // คำนวณความสูงของ content
+                        contentLayout.measure(
+                                View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                        );
+
+                        int contentHeight = contentLayout.getMeasuredHeight();
+
+                        // เพิ่มความสูงของส่วนหัว (header) ของแต่ละ Fragment ย่อย
+                        View headerLayout = null;
+                        if (childFragment instanceof QuestionOneFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutOne);
+                        } else if (childFragment instanceof QuestionTwoFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutTwo);
+                        } else if (childFragment instanceof QuestionThreeFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutThree);
+                        } else if (childFragment instanceof QuestionFourFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutFour);
+                        } else if (childFragment instanceof QuestionFiveFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutFive);
+                        } else if (childFragment instanceof QuestionSixFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutSix);
+                        } else if (childFragment instanceof QuestionSevenFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutSeven);
+                        } else if (childFragment instanceof QuestionEightFragment) {
+                            headerLayout = fragmentView.findViewById(R.id.headerLayoutEight);
+                        }
+                        // ทำแบบเดียวกันสำหรับ Fragment อื่นๆ
+
+                        int headerHeight = 0;
+                        if (headerLayout != null) {
+                            headerLayout.measure(
+                                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                            );
+                            headerHeight = headerLayout.getMeasuredHeight();
+                        }
+
+                        // รวมความสูงทั้งหมดของ Fragment นี้
+                        totalHeight += headerHeight + contentHeight;
+                    } else {
+                        // ถ้า content ถูก collapse ให้ใช้ความสูงของ Fragment ทั้งหมด
+                        fragmentView.measure(
+                                View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                        );
+                        totalHeight += fragmentView.getMeasuredHeight();
+                    }
+                } else {
+                    // ถ้าไม่มี child fragment ให้ใช้ความสูงของ container
+                    totalHeight += containerView.getMeasuredHeight();
+                }
+
+                // เพิ่ม margin ระหว่าง containers
+                ViewGroup.MarginLayoutParams params =
+                        (ViewGroup.MarginLayoutParams) containerView.getLayoutParams();
+                if (params != null) {
+                    totalHeight += params.topMargin + params.bottomMargin;
+                }
+            }
+        }
+
+        // เพิ่มความสูงขั้นต่ำเพื่อป้องกันความผิดพลาด
+        int minHeight = 1500; // ปรับตามความเหมาะสม
+        return Math.max(totalHeight, minHeight);
+    }
+    public void notifyChildFragmentStateChanged() {
+        // บังคับให้ Fragment คำนวณขนาดใหม่
+        View view = getView();
+        if (view != null) {
+            view.requestLayout();
+        }
+
+        // แจ้ง Activity ให้ปรับขนาด ViewPager
+        if (getActivity() instanceof PersonScreeningForm15Activity) {
+            new Handler().postDelayed(() -> {
+                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+            }, 200); // delay เล็กน้อยเพื่อให้ Fragment ย่อยได้คำนวณขนาดก่อน
+        }
+    }
 }

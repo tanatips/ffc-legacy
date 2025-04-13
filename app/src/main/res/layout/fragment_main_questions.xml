@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    android:fillViewport="true">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <FrameLayout
+            android:id="@+id/question_one_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginBottom="8dp" />
 
-            <!-- Container สำหรับคำถามที่ 1 -->
-            <FrameLayout
-                android:id="@+id/question_one_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@+id/question_two_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
 
-            <!-- Container สำหรับคำถามที่ 2 -->
-            <FrameLayout
-                android:id="@+id/question_two_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@+id/question_three_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
 
-            <FrameLayout
-                android:id="@+id/question_three_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@+id/question_four_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
 
-            <FrameLayout
-                android:id="@+id/question_four_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@+id/question_five_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
 
-            <FrameLayout
-                android:id="@+id/question_five_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@+id/question_six_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
 
+        <FrameLayout
+            android:id="@+id/question_seven_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
 
-            <FrameLayout
-                android:id="@+id/question_six_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@+id/question_eight_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-            <FrameLayout
-                android:id="@+id/question_seven_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <FrameLayout
-                android:id="@+id/question_eight_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-    </ScrollView>
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

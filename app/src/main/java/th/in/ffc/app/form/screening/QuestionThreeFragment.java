@@ -11,10 +11,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
+import th.in.ffc.person.PersonScreeningForm15Activity;
 
 
 public class QuestionThreeFragment extends Fragment implements OnFrequencySelectedListener {
@@ -77,14 +81,58 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         View view = inflater.inflate(R.layout.fragment_question_three, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewThree);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayout headerLayout = view.findViewById(R.id.headerLayoutThree);
+        final LinearLayout contentLayout = view.findViewById(R.id.contentLayoutThree);
+        final ImageView expandIcon = view.findViewById(R.id.expandIconThree);
 
+        // ตั้งค่า RecyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new SubstanceThreeAdapter(substanceList, this);
         recyclerView.setAdapter(adapter);
 
+        // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
+        contentLayout.setVisibility(View.VISIBLE);
+        expandIcon.setImageResource(R.drawable.ic_expand_less);
+        headerLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Toggle visibility
+                if (contentLayout.getVisibility() == View.VISIBLE) {
+                    contentLayout.setVisibility(View.GONE);
+                    expandIcon.setImageResource(R.drawable.ic_expand_more);
+                    notifyParentOfChange();
+                } else {
+                    contentLayout.setVisibility(View.VISIBLE);
+                    expandIcon.setImageResource(R.drawable.ic_expand_less);
+                    notifyParentOfChange();
+                }
+            }
+        });
+
+//        recyclerView = view.findViewById(R.id.recyclerViewThree);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//
+//        adapter = new SubstanceThreeAdapter(substanceList, this);
+//        recyclerView.setAdapter(adapter);
+
         return view;
     }
+    private void notifyParentOfChange() {
+        // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof MainQuestionsFragment) {
+            ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
+        }
 
+        // วิธีที่ 2: ถ้าไม่มี notifyChildFragmentStateChanged() ใน MainQuestionsFragment
+        // หรือไม่สามารถเข้าถึง MainQuestionsFragment ได้ ให้แจ้ง activity โดยตรง
+//        if (getActivity() instanceof PersonScreeningForm15Activity) {
+//            // หน่วงเวลาเล็กน้อยเพื่อให้ layout ได้อัปเดตก่อน
+//            new Handler().postDelayed(() -> {
+//                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+//            }, 200);
+//        }
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

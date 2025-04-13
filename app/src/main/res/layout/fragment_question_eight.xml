@@ -1,55 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
-    <!-- Question Title -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="8. คุณเคยใช้สารเสพติดใดๆ โดยการฉีดหรือไม่\n(การใช้นอกเหนือจากแพทย์สั่ง)"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:background="@color/dark_blue"
-        android:padding="8dp"/>
-
-    <!-- Radio Group -->
-    <RadioGroup
-        android:id="@+id/radioGroupInjection"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ไม่เคย Option -->
-        <RadioButton
-            android:id="@+id/radioNever"
+        <!-- Header แบบ Clickable -->
+        <LinearLayout
+            android:id="@+id/headerLayoutEight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ไม่เคย"
-            android:textSize="16sp"
-            android:padding="8dp"/>
+            android:background="@color/dark_blue"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-        <!-- เคย, ภายใน 3 เดือนนี้ Option -->
-        <RadioButton
-            android:id="@+id/radioWithinThreeMonths"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="8. คุณเคยใช้สารเสพติดใดๆ โดยการฉีดหรือไม่\n(การใช้นอกเหนือจากแพทย์สั่ง)"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/expandIconEight"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                android:tint="@android:color/white" />
+        </LinearLayout>
+
+        <!-- Content - จะถูกซ่อนหรือแสดงตาม expand/collapse -->
+        <LinearLayout
+            android:id="@+id/contentLayoutEight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="เคย, ภายใน 3 เดือนนี้"
-            android:textSize="16sp"
-            android:padding="8dp"/>
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- เคย, ก่อน 3 เดือนนี้ Option -->
-        <RadioButton
-            android:id="@+id/radioBeforeThreeMonths"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="เคย, ก่อน 3 เดือนนี้"
-            android:textSize="16sp"
-            android:padding="8dp"/>
-    </RadioGroup>
+            <!-- Radio Group -->
+            <RadioGroup
+                android:id="@+id/radioGroupInjection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-</LinearLayout>
+                <!-- ไม่เคย Option -->
+                <RadioButton
+                    android:id="@+id/radioNever"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ไม่เคย"
+                    android:textSize="16sp"
+                    android:padding="8dp"/>
+
+                <!-- เคย, ภายใน 3 เดือนนี้ Option -->
+                <RadioButton
+                    android:id="@+id/radioWithinThreeMonths"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="เคย, ภายใน 3 เดือนนี้"
+                    android:textSize="16sp"
+                    android:padding="8dp"/>
+
+                <!-- เคย, ก่อน 3 เดือนนี้ Option -->
+                <RadioButton
+                    android:id="@+id/radioBeforeThreeMonths"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="เคย, ก่อน 3 เดือนนี้"
+                    android:textSize="16sp"
+                    android:padding="8dp"/>
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -5,6 +5,7 @@ package th.in.ffc.person;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -673,22 +674,49 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
-    private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter){
+//    private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter){
+//        Fragment fragment = adapter.getFragmentAt(position);
+//        if(fragment != null && fragment.getView() != null){
+//            fragment.getView().post(() -> {
+//                int width = View.MeasureSpec.makeMeasureSpec(viewPager.getWidth(), View.MeasureSpec.EXACTLY);
+//                int height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+//
+//                fragment.getView().measure(width, height);
+//                int measuredHeight = fragment.getView().getMeasuredHeight();
+//                ViewGroup.LayoutParams layoutParams = viewPager.getLayoutParams();
+//                layoutParams.height = measuredHeight;
+//                viewPager.setLayoutParams(layoutParams);
+//
+//            });
+//        }
+//    }
+    private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter) {
         Fragment fragment = adapter.getFragmentAt(position);
-        if(fragment != null && fragment.getView() != null){
-            fragment.getView().post(() -> {
-                int width = View.MeasureSpec.makeMeasureSpec(viewPager.getWidth(), View.MeasureSpec.EXACTLY);
-                int height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        if (fragment != null && fragment.getView() != null) {
+            // ต้องใช้ Handler และ delay เล็กน้อยเพื่อให้แน่ใจว่า View ได้ถูกวาดแล้ว
+            new Handler().postDelayed(() -> {
+                if (fragment.isAdded()) {
+                    View view = fragment.getView();
+                    if (view != null) {
+                        view.measure(
+                                View.MeasureSpec.makeMeasureSpec(viewPager.getWidth(), View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                        );
 
-                fragment.getView().measure(width, height);
-                int measuredHeight = fragment.getView().getMeasuredHeight();
-                ViewGroup.LayoutParams layoutParams = viewPager.getLayoutParams();
-                layoutParams.height = measuredHeight;
-                viewPager.setLayoutParams(layoutParams);
+                        // กำหนดความสูงขั้นต่ำเพื่อป้องกันการคำนวณที่ผิดพลาด
+                        int minimumHeight = 1000; // ปรับตามความเหมาะสม
+                        int measuredHeight = Math.max(view.getMeasuredHeight(), minimumHeight);
 
-            });
+                        ViewGroup.LayoutParams layoutParams = viewPager.getLayoutParams();
+                        layoutParams.height = measuredHeight;
+                        viewPager.setLayoutParams(layoutParams);
+                        viewPager.requestLayout();
+                    }
+                }
+            }, 300); // delay 300ms เพื่อให้ View ได้ render
         }
     }
+
 
     @Override
     public void onPersonInfo(PersonInfo data) {
@@ -923,5 +951,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
+    }
+    public void refreshViewPager() {
+        if (viewPager != null) {
+            viewPager.post(() -> adjustViewPagerHeight(viewPager.getCurrentItem(), viewPager, viewPagerAdapter));
+        }
     }
 }

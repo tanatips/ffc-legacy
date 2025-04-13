@@ -11,10 +11,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
+import th.in.ffc.person.PersonScreeningForm15Activity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,7 +58,10 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
 
     private boolean isDataLoaded = false;
     private boolean isFirstLoad = true;
+    private boolean isExpanded = false; // เก็บสถานะปัจจุบัน
 
+    LinearLayout contentLayout;
+    ImageView expandIcon;
 
     public QuestionTwoFragment() {
         // Required empty public constructor
@@ -91,6 +98,44 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_question_two, container, false);
 
+        // ค้นหา Views
+        recyclerView = view.findViewById(R.id.recyclerViewTwo);
+        LinearLayout headerLayout = view.findViewById(R.id.headerLayoutTwo);
+        contentLayout = view.findViewById(R.id.contentLayoutTwo);
+        expandIcon = view.findViewById(R.id.expandIconOne);
+
+        // ตั้งค่า RecyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new SubstanceTwoAdapter(substanceList, this);
+        recyclerView.setAdapter(adapter);
+
+        // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
+        contentLayout.setVisibility(View.VISIBLE);
+        expandIcon.setImageResource(R.drawable.ic_expand_less);
+
+// ตั้งค่า Click Listener สำหรับ Header เพื่อ Toggle การแสดงเนื้อหา
+        headerLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Toggle visibility
+                if (contentLayout.getVisibility() == View.VISIBLE) {
+                    contentLayout.setVisibility(View.GONE);
+                    expandIcon.setImageResource(R.drawable.ic_expand_more);
+                    notifyParentOfChange();
+                } else {
+                    contentLayout.setVisibility(View.VISIBLE);
+                    expandIcon.setImageResource(R.drawable.ic_expand_less);
+                    notifyParentOfChange();
+                }
+            }
+        });
+
+        // ตั้งค่าเริ่มต้นสำหรับทุก item
+//        for (SubstanceItem item : substanceList) {
+//            selectedAnswers.put(item.getId(), new AnswerData(false, ""));
+//        }
+//
+
         recyclerView = view.findViewById(R.id.recyclerViewTwo);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -99,7 +144,22 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
 
         return view;
     }
+    private void notifyParentOfChange() {
+        // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof MainQuestionsFragment) {
+            ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
+        }
 
+        // วิธีที่ 2: ถ้าไม่มี notifyChildFragmentStateChanged() ใน MainQuestionsFragment
+        // หรือไม่สามารถเข้าถึง MainQuestionsFragment ได้ ให้แจ้ง activity โดยตรง
+//        if (getActivity() instanceof PersonScreeningForm15Activity) {
+//            // หน่วงเวลาเล็กน้อยเพื่อให้ layout ได้อัปเดตก่อน
+//            new Handler().postDelayed(() -> {
+//                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+//            }, 200);
+//        }
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -128,6 +188,10 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                 updateSubstanceItems(selectedFrequencies);
                 updateUI(selectedFrequencies);
                 isDataLoaded = true;
+                isExpanded = savedInstanceState.getBoolean("isExpanded", true);
+                // กำหนดสถานะ expand/collapse ตามที่บันทึกไว้
+                contentLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+                expandIcon.setImageResource(isExpanded ? R.drawable.ic_expand_less : R.drawable.ic_expand_more);
             }
         }
 
@@ -359,6 +423,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable("selectedFrequencies", new HashMap<>(selectedFrequencies));
+        outState.putBoolean("isExpanded", isExpanded);
     }
 
     // เมธอดสำหรับเรียกดูข้อมูลที่เลือก
@@ -449,4 +514,19 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             isUpdating[0] = false;
         }
     }
+    public void notifyChildFragmentStateChanged() {
+        // บังคับให้ Fragment คำนวณขนาดใหม่
+        View view = getView();
+        if (view != null) {
+            view.requestLayout();
+        }
+
+        // แจ้ง Activity ให้ปรับขนาด ViewPager
+        if (getActivity() instanceof PersonScreeningForm15Activity) {
+            new Handler().postDelayed(() -> {
+                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+            }, 200); // delay เล็กน้อยเพื่อให้ Fragment ย่อยได้คำนวณขนาดก่อน
+        }
+    }
+
 }

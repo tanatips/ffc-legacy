@@ -2,10 +2,13 @@ package th.in.ffc.app.form.screening;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
@@ -13,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,11 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.adapter.SubstanceSevenAdapter;
 import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
+import th.in.ffc.person.PersonScreeningForm15Activity;
 
 public class QuestionEightFragment extends Fragment {
 
@@ -63,9 +69,48 @@ public class QuestionEightFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_question_eight, container, false);
         radioGroupInjection = view.findViewById(R.id.radioGroupInjection);
+        LinearLayout headerLayout = view.findViewById(R.id.headerLayoutEight);
+        final LinearLayout contentLayout = view.findViewById(R.id.contentLayoutEight);
+        final ImageView expandIcon = view.findViewById(R.id.expandIconEight);
+
+        // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
+        contentLayout.setVisibility(View.VISIBLE);
+        expandIcon.setImageResource(R.drawable.ic_expand_less);
+
+        // ตั้งค่า Click Listener สำหรับ Header เพื่อ Toggle การแสดงเนื้อหา
+        headerLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Toggle visibility
+                if (contentLayout.getVisibility() == View.VISIBLE) {
+                    contentLayout.setVisibility(View.GONE);
+                    expandIcon.setImageResource(R.drawable.ic_expand_more);
+                    notifyParentOfChange();
+                } else {
+                    contentLayout.setVisibility(View.VISIBLE);
+                    expandIcon.setImageResource(R.drawable.ic_expand_less);
+                    notifyParentOfChange();
+                }
+            }
+        });
         return view;
     }
+    private void notifyParentOfChange() {
+        // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof MainQuestionsFragment) {
+            ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
+        }
 
+        // วิธีที่ 2: ถ้าไม่มี notifyChildFragmentStateChanged() ใน MainQuestionsFragment
+        // หรือไม่สามารถเข้าถึง MainQuestionsFragment ได้ ให้แจ้ง activity โดยตรง
+//        if (getActivity() instanceof PersonScreeningForm15Activity) {
+//            // หน่วงเวลาเล็กน้อยเพื่อให้ layout ได้อัปเดตก่อน
+//            new Handler().postDelayed(() -> {
+//                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+//            }, 200);
+//        }
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
