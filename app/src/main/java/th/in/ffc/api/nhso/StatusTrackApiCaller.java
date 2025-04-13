@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,36 +22,40 @@ import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.app.form.screening.model.SfToken;
 
 /**
- * API Caller สำหรับส่งข้อมูล FS Data ไปยัง NHSO
+ * API Caller สำหรับส่งข้อมูล Status Track ไปยัง NHSO
  */
-public class NHSOFSDataApiCaller {
+public class StatusTrackApiCaller {
 
-    private static final String TAG = "NHSOFSDataApiCaller";
+    private static final String TAG = "StatusTrackApiCaller";
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
     private Context mContext;
+
+    // API endpoint URL สำหรับ status-tracks
+    private static final String STATUS_TRACK_ENDPOINT = BuildConfig.API_ฺBASE_STD_DATASET+"status-tracks";
 
     /**
      * Constructor รับ context
      * @param context Context ของแอปพลิเคชัน
      */
-    public NHSOFSDataApiCaller(Context context) {
+    public StatusTrackApiCaller(Context context) {
         this.mContext = context;
     }
 
     /**
      * Interface สำหรับรับ callback จากการเรียก API
      */
-    public interface FSDataApiCallback {
+    public interface StatusTrackApiCallback {
         void onSuccess(String response);
+        void onSuccess(List<StatusTrackResponse> responses);
         void onError(String errorMessage, Exception e);
     }
 
     /**
-     * ส่งข้อมูล FS Data ไปยัง NHSO
-     * @param jsonData JSONObject ที่มีข้อมูลตามโครงสร้าง fsDatas
+     * ส่งข้อมูล Status Track ไปยัง NHSO
+     * @param jsonData JSONObject ที่มีข้อมูลตามโครงสร้าง fsTrackDatas
      * @param callback Callback เพื่อรับผลการทำงาน
      */
-    public void sendFSData(JSONObject jsonData, FSDataApiCallback callback) {
+    public void sendStatusTrackData(JSONObject jsonData, StatusTrackApiCallback callback) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -72,8 +77,9 @@ public class NHSOFSDataApiCaller {
                         authToken = "34913796-e515-4b33-9656-6a2eb64ef569"; // default fallback
                     }
                 }
+
                 // สร้าง connection
-                conn = (HttpURLConnection) new URL(BuildConfig.API_CREATE_FS_DATA).openConnection();
+                conn = (HttpURLConnection) new URL(STATUS_TRACK_ENDPOINT).openConnection();
                 // กำหนดค่าต่างๆ ทั้งหมดก่อนเขียนข้อมูล
                 conn.setRequestMethod("POST");
                 conn.setDoInput(true);
@@ -81,7 +87,7 @@ public class NHSOFSDataApiCaller {
                 conn.setUseCaches(false);
 
                 // กำหนด headers ทั้งหมดในคราวเดียว
-                conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestProperty("Accept", "*/*");
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Authorization", "Bearer " + authToken);
 
@@ -95,10 +101,9 @@ public class NHSOFSDataApiCaller {
                     conn.setReadTimeout(30000);
                 }
 
-
                 // เตรียมข้อมูลก่อนเขียน
                 String jsonInputString = jsonData.toString();
-                Log.d(TAG, "Sending JSON data: " + jsonInputString);
+                Log.d(TAG, "Sending Status Track data: " + jsonInputString);
                 byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 conn.setFixedLengthStreamingMode(input.length);
 
@@ -117,7 +122,18 @@ public class NHSOFSDataApiCaller {
                     try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                         String response = in.lines().collect(Collectors.joining());
                         Log.d(TAG, "API Response: " + response);
-                        mainHandler.post(() -> callback.onSuccess(response));
+                        try {
+                            // แปลงผลลัพธ์เป็น List<StatusTrackResponse>
+                            List<StatusTrackResponse> responseObjects = StatusTrackResponse.fromJsonArray(response);
+                            mainHandler.post(() -> {
+                                callback.onSuccess(response); // ส่งกลับ raw response string
+                                callback.onSuccess(responseObjects); // ส่งกลับ Object
+                            });
+                        } catch (Exception parseException) {
+                            Log.e(TAG, "Error parsing response", parseException);
+                            // กรณีแปลงข้อมูลไม่ได้ ส่งกลับเป็น raw string อย่างเดียว
+                            mainHandler.post(() -> callback.onSuccess(response));
+                        }
                     }
                 } else {
                     // กรณีเกิดข้อผิดพลาด
@@ -133,7 +149,7 @@ public class NHSOFSDataApiCaller {
                     mainHandler.post(() -> callback.onError(errorMessage, exception));
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error sending FS Data", e);
+                Log.e(TAG, "Error sending Status Track data", e);
                 final String errorMsg = "เกิดข้อผิดพลาด: " + e.getMessage();
                 mainHandler.post(() -> callback.onError(errorMsg, e));
             } finally {
@@ -145,17 +161,39 @@ public class NHSOFSDataApiCaller {
     }
 
     /**
-     * ส่งข้อมูล FS Data จาก String JSON ไปยัง NHSO
-     * @param jsonString JSON String ที่มีข้อมูลตามโครงสร้าง fsDatas
+     * ส่งข้อมูล Status Track จาก String JSON ไปยัง NHSO
+     * @param jsonString JSON String ที่มีข้อมูลตามโครงสร้าง fsTrackDatas
      * @param callback Callback เพื่อรับผลการทำงาน
      */
-    public void sendFSDataFromString(String jsonString, FSDataApiCallback callback) {
+    public void sendStatusTrackDataFromString(String jsonString, StatusTrackApiCallback callback) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
-            sendFSData(jsonObject, callback);
+            sendStatusTrackData(jsonObject, callback);
         } catch (Exception e) {
             Log.e(TAG, "Error parsing JSON string", e);
             callback.onError("รูปแบบ JSON ไม่ถูกต้อง: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * สร้าง JSON Object สำหรับข้อมูล Status Track
+     * @param id ID ของข้อมูล
+     * @param seq Sequence หรือ reference ID
+     * @return JSONObject ที่มีโครงสร้างตามที่ API ต้องการ
+     */
+    public static JSONObject createStatusTrackData(String id, String seq) {
+        try {
+            JSONObject trackData = new JSONObject();
+            trackData.put("id", id);
+            trackData.put("seq", seq);
+
+            JSONObject jsonData = new JSONObject();
+            jsonData.put("fsTrackDatas", new org.json.JSONArray().put(trackData));
+
+            return jsonData;
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating status track JSON", e);
+            return null;
         }
     }
 }

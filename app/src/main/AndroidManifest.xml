@@ -51,19 +51,10 @@
         android:supportsRtl="true"
         android:theme="@style/FFC.Theme.Light">
         <activity
-            android:name=".app.form.screening.report.FiscalYearSummaryActivity"
-            android:exported="false"
-            android:label="ยอดรายปี"
-            android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/analytics">
-                <action android:name="ffc.intent.action.MAIN" />
+            android:name=".app.form.screening.ClaimDetailActivity"
+            android:exported="false" />
 
-                <category android:name="ffc.intent.category.TAB" />
-                <!-- <action android:name="android.intent.action.MAIN" /> -->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".app.form.screening.report.MonthlySummaryChartActivity"
             android:exported="false" />
@@ -87,9 +78,9 @@
         <activity
             android:name=".person.SearchPersonActivity"
             android:exported="true"
-            android:label="@string/search"
+            android:label="ข้อมูลคัดกรอง"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/ic_search">
+            <intent-filter android:icon="@drawable/ic_search_2">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -113,11 +104,24 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".app.form.screening.ClaimListActivity"
+            android:exported="false" android:label="รายการเบิก"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:icon="@drawable/withdraw">
+                <action android:name="ffc.intent.action.MAIN" />
+
+                <category android:name="ffc.intent.category.TAB" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".app.form.screening.VillageComparisonActivity"
             android:exported="true"
             android:label="ผู้รับบริการ"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/analytics">
+            <intent-filter android:icon="@drawable/consultant">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -139,7 +143,22 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- <activity -->
+        </activity>
+        <activity
+            android:name=".app.form.screening.report.FiscalYearSummaryActivity"
+            android:exported="false"
+            android:label="ยอดรายปี"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:icon="@drawable/analytics">
+                <action android:name="ffc.intent.action.MAIN" />
+
+                <category android:name="ffc.intent.category.TAB" />
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- <activity -->
         <!-- android:name=".person.PersonScreeningForm35Activity" -->
         <!-- android:exported="true" -->
         <!-- android:label="@string/form_35" -->

@@ -82,7 +82,7 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:id="@+id/tvAssistScore" />
+                    android:id="@+id/tvScoreA" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
@@ -112,6 +112,7 @@
                     android:layout_weight="2"
                     android:text="b. แอลกอฮอล์" />
                 <TextView
+                    android:id="@+id/tvScoreB"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -142,6 +143,7 @@
                     android:layout_weight="2"
                     android:text="c. กัญชา" />
                 <TextView
+                    android:id="@+id/tvScoreC"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -174,6 +176,7 @@
                     android:layout_weight="2"
                     android:text="d. โคเคน" />
                 <TextView
+                    android:id="@+id/tvScoreD"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -204,6 +207,7 @@
                     android:layout_weight="2"
                     android:text="e. แอมเฟตามีน" />
                 <TextView
+                    android:id="@+id/tvScoreE"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -236,6 +240,7 @@
                     android:layout_weight="2"
                     android:text="f. สารระเหย" />
                 <TextView
+                    android:id="@+id/tvScoreF"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -266,6 +271,7 @@
                     android:layout_weight="2"
                     android:text="g. ยากล่อมประสาท" />
                 <TextView
+                    android:id="@+id/tvScoreG"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -298,6 +304,7 @@
                     android:layout_weight="2"
                     android:text="h. ยาหลอนประสาท" />
                 <TextView
+                    android:id="@+id/tvScoreH"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -328,6 +335,7 @@
                     android:layout_weight="2"
                     android:text="i. สารกลุ่มฝิ่น" />
                 <TextView
+                    android:id="@+id/tvScoreI"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -360,6 +368,7 @@
                     android:layout_weight="2"
                     android:text="j. ใบกระท่อม" />
                 <TextView
+                    android:id="@+id/tvScoreJ"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -390,6 +399,7 @@
                     android:layout_weight="2"
                     android:text="k. สารผสมนำในกระท่อม" />
                 <TextView
+                    android:id="@+id/tvScoreK"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
@@ -422,6 +432,7 @@
                     android:layout_weight="2"
                     android:text="l. สารอื่น ๆ ระบุ........" />
                 <TextView
+                    android:id="@+id/tvScoreL"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>

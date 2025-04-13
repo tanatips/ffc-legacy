@@ -91,13 +91,13 @@ public class MainQuestionsFragment extends Fragment {
             // เพิ่ม fragment ลงใน container
             getChildFragmentManager()
                     .beginTransaction()
-//                    .add(R.id.question_one_container, questionOneFragment)
-//                    .add(R.id.question_two_container, questionTwoFragment)
-//                    .add(R.id.question_three_container, questionThreeFragment)
-//                    .add(R.id.question_four_container, questionFourFragment)
-//                    .add(R.id.question_five_container, questionFiveFragment)
-//                    .add(R.id.question_six_container, questionSixFragment)
-//                    .add(R.id.question_seven_container, questionSevenFragment)
+                    .add(R.id.question_one_container, questionOneFragment)
+                    .add(R.id.question_two_container, questionTwoFragment)
+                    .add(R.id.question_three_container, questionThreeFragment)
+                    .add(R.id.question_four_container, questionFourFragment)
+                    .add(R.id.question_five_container, questionFiveFragment)
+                    .add(R.id.question_six_container, questionSixFragment)
+                    .add(R.id.question_seven_container, questionSevenFragment)
                     .add(R.id.question_eight_container, questionEightFragment)
                     .commitNow();
         }
@@ -158,7 +158,18 @@ public class MainQuestionsFragment extends Fragment {
         questionTwoFragment.setArguments(createBundle(fragmentLists.get("two")));
         questionThreeFragment.setArguments(createBundle(fragmentLists.get("three")));
         questionFourFragment.setArguments(createBundle(fragmentLists.get("four")));
-        questionFiveFragment.setArguments(createBundle(fragmentLists.get("five")));
+        // ตัดคำถาม a ออกจาก substanceList สำหรับ questionFiveFragment
+        ArrayList<SubstanceItem> fiveList = fragmentLists.get("five");
+        // สร้าง list ใหม่ที่ไม่มีคำถาม a
+        ArrayList<SubstanceItem> modifiedFiveList = new ArrayList<>();
+        for (SubstanceItem item : fiveList) {
+            if (!item.getId().equals("a")) {
+                modifiedFiveList.add(item);
+            }
+        }
+        questionFiveFragment.setArguments(createBundle(modifiedFiveList));
+
+//        questionFiveFragment.setArguments(createBundle(fragmentLists.get("five")));
         questionSixFragment.setArguments(createBundle(fragmentLists.get("six")));
         questionSevenFragment.setArguments(createBundle(fragmentLists.get("seven")));
     }

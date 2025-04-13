@@ -42,6 +42,9 @@ public class NHSOCHAProvider extends ContentProvider {
     private static final int NHSO_CHA_SUMMARY_BY_CHARGE = 5;
     private static final int NHSO_CHA_SUMMARY_BY_STATUS = 6;
     private static final int NHSO_CHA_MONTHLY_DETAILS = 7;
+    // เพิ่มสำหรับการคำนวณผลรวม
+    private static final int NHSO_CHA_SUM_AMOUNT = 8;
+    private static final int NHSO_CHA_SUM_TOTAL = 9;
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.nhsocha";
@@ -65,8 +68,11 @@ public class NHSOCHAProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "nhso_cha/summary/yearly/*", NHSO_CHA_SUMMARY_YEARLY);
         mUriMatcher.addURI(AUTHORITY, "nhso_cha/summary/by_charge/*", NHSO_CHA_SUMMARY_BY_CHARGE);
         mUriMatcher.addURI(AUTHORITY, "nhso_cha/summary/by_status/*", NHSO_CHA_SUMMARY_BY_STATUS);
-
         mUriMatcher.addURI(AUTHORITY, "nhso_cha/monthly_details/*/*", NHSO_CHA_MONTHLY_DETAILS);
+
+        // เพิ่ม URI สำหรับการคำนวณผลรวม
+        mUriMatcher.addURI(AUTHORITY, "nhso_cha/sum_amount", NHSO_CHA_SUM_AMOUNT);
+        mUriMatcher.addURI(AUTHORITY, "nhso_cha/sum_total", NHSO_CHA_SUM_TOTAL);
     }
 
     // SimpleDateFormat สำหรับเปลี่ยนรูปแบบวันที่
@@ -101,7 +107,10 @@ public class NHSOCHAProvider extends ContentProvider {
         String fiscalMonth = null;
 
         int match = mUriMatcher.match(uri);
+        Log.d(TAG, "Query URI: " + uri + ", match: " + match);
+
         switch (match) {
+            case NHSOCHAProvider.NHSO_CHA:
             case NHSOCHAProvider.NHSO_CHA_ITEMS:
                 builder.setTables(NHSOCHA.TABLENAME);
                 builder.setProjectionMap(NHSOCHA.PROJECTION_MAP);
@@ -133,10 +142,32 @@ public class NHSOCHAProvider extends ContentProvider {
                 // เนื่องจากไม่มีคอลัมน์สถานะ เราจะใช้ข้อมูลอื่นแทน เช่น แบ่งตาม chrgitem
                 fiscalYear = uri.getLastPathSegment();
                 return getSummaryByChargeItem(db, fiscalYear); // ใช้ประเภทรายการแทนสถานะ
+
             case NHSO_CHA_MONTHLY_DETAILS:
                 fiscalYear = uri.getPathSegments().get(2);
                 fiscalMonth = uri.getPathSegments().get(3);
                 return getMonthlyDetails(db, fiscalYear, fiscalMonth);
+
+            case NHSO_CHA_SUM_AMOUNT:
+                // แก้ไขเพื่อสนับสนุนการสรุปผลรวมของ AMOUNT โดยตรง
+                builder.setTables(NHSOCHA.TABLENAME);
+
+                // ตรวจสอบว่ามีการกำหนด projection หรือไม่
+                if (projection == null || projection.length == 0) {
+                    projection = new String[]{"SUM(" + NHSOCHA.AMOUNT + ") AS total"};
+                }
+                break;
+
+            case NHSO_CHA_SUM_TOTAL:
+                // แก้ไขเพื่อสนับสนุนการสรุปผลรวมของ TOTAL โดยตรง
+                builder.setTables(NHSOCHA.TABLENAME);
+
+                // ตรวจสอบว่ามีการกำหนด projection หรือไม่
+                if (projection == null || projection.length == 0) {
+                    projection = new String[]{"SUM(" + NHSOCHA.TOTAL + ") AS total"};
+                }
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -469,6 +500,8 @@ public class NHSOCHAProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
         switch (mUriMatcher.match(uri)) {
             case NHSOCHAProvider.NHSO_CHA_ITEMS:
+            case NHSOCHAProvider.NHSO_CHA_SUM_AMOUNT:
+            case NHSOCHAProvider.NHSO_CHA_SUM_TOTAL:
                 return NHSOCHA.CONTENT_DIR_TYPE;
             case NHSOCHAProvider.NHSO_CHA_ITEM_ID:
                 return NHSOCHA.CONTENT_ITEM_TYPE;

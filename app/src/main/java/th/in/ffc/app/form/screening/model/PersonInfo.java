@@ -40,6 +40,13 @@ public class PersonInfo {
     private double temperature;
     private String hcode;
 
+    private String claim_id;
+    private String claim_status;
+    private String claim_message;
+    private String claim_date;
+
+    private String visitId;
+
     public String getId() {
         return id;
     }
@@ -325,6 +332,46 @@ public class PersonInfo {
     }
     public void setHcode(String hcode) {
         this.hcode = hcode;
+    }
+
+    public String getClaim_id() {
+        return claim_id;
+    }
+
+    public void setClaim_id(String claim_id) {
+        this.claim_id = claim_id;
+    }
+
+    public String getClaim_status() {
+        return claim_status;
+    }
+
+    public void setClaim_status(String claim_status) {
+        this.claim_status = claim_status;
+    }
+
+    public String getClaim_message() {
+        return claim_message;
+    }
+
+    public void setClaim_message(String claim_message) {
+        this.claim_message = claim_message;
+    }
+
+    public String getClaim_date() {
+        return claim_date;
+    }
+
+    public void setClaim_date(String claim_date) {
+        this.claim_date = claim_date;
+    }
+
+    public String getVisitId() {
+        return visitId;
+    }
+
+    public void setVisitId(String visitId) {
+        this.visitId = visitId;
     }
 }
 

@@ -9,7 +9,9 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
@@ -185,5 +187,131 @@ public class SfDrugsDao {
         if (value != null) {
             values.put(key, value);
         }
+    }
+    /**
+     * ฟังก์ชั่นสำหรับดึงข้อมูลสรุปของยาเสพติด โดยจัดกลุ่มตาม subquestion
+     *
+     * @param personInfoId รหัสของบุคคลที่ต้องการดึงข้อมูล
+     * @param question คำถามที่ต้องการ filter (เช่น "Q5") หากเป็น null จะไม่มีการ filter
+     * @return List ของ Map โดยแต่ละ Map มี key คือ "subquestion" และ "total"
+     */
+    public static List<Map<String, Object>> getSummaryBySubquestion(Integer personInfoId, String question) {
+        List<Map<String, Object>> resultList = new ArrayList<>();
+
+        // สร้าง URI สำหรับ summary
+        Uri uri = Uri.withAppendedPath(ScreeningFormProvider.SfDrugs.CONTENT_URI, "summary");
+
+        // สร้างเงื่อนไขสำหรับ query
+        StringBuilder selection = new StringBuilder("person_info_id = ?");
+        List<String> selectionArgsList = new ArrayList<>();
+        selectionArgsList.add(personInfoId.toString());
+
+        if (question != null && !question.isEmpty()) {
+            selection.append(" AND question = ?");
+            selectionArgsList.add(question);
+        }
+
+        String[] selectionArgs = selectionArgsList.toArray(new String[0]);
+
+        // ทำการ query
+        Cursor cursor = mContext.getContentResolver().query(
+                uri,
+                new String[]{"subquestion", "total"},
+                selection.toString(),
+                selectionArgs,
+                "subquestion ASC"
+        );
+
+        if (cursor != null) {
+            try {
+                while (cursor.moveToNext()) {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("subquestion", cursor.getString(cursor.getColumnIndex("subquestion")));
+                    item.put("total", cursor.getInt(cursor.getColumnIndex("total")));
+                    resultList.add(item);
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+
+        return resultList;
+    }
+
+    /**
+     * ฟังก์ชั่นสำหรับดึงข้อมูลสรุปของยาเสพติด และแปลงเป็น Map ของ subquestion และผลรวม
+     *
+     * @param personInfoId รหัสของบุคคลที่ต้องการดึงข้อมูล
+     * @param question คำถามที่ต้องการ filter (เช่น "Q5") หากเป็น null จะไม่มีการ filter
+     * @return Map โดยมี key เป็น subquestion และ value เป็นผลรวมของคำตอบ
+     */
+    public static Map<String, Integer> getSummaryMapBySubquestion(Integer personInfoId, String question) {
+        Map<String, Integer> resultMap = new HashMap<>();
+
+        List<Map<String, Object>> summaryList = getSummaryBySubquestion(personInfoId, question);
+        for (Map<String, Object> item : summaryList) {
+            String subquestion = (String) item.get("subquestion");
+            Integer total = (Integer) item.get("total");
+            resultMap.put(subquestion, total);
+        }
+
+        return resultMap;
+    }
+
+    /**
+     * ฟังก์ชั่นที่ใช้วิธีการดึงข้อมูลทั้งหมดแล้วทำการรวมเอง (alternative approach)
+     * เหมาะสำหรับกรณีที่ไม่สามารถใช้ GROUP BY ผ่าน ContentProvider ได้
+     *
+     * @param personInfoId รหัสของบุคคลที่ต้องการดึงข้อมูล
+     * @param question คำถามที่ต้องการ filter (เช่น "Q5") หากเป็น null จะไม่มีการ filter
+     * @return Map โดยมี key เป็น subquestion และ value เป็นผลรวมของคำตอบ
+     */
+    public static Map<String, Integer> calculateSummaryManually(Integer personInfoId, String question) {
+        Map<String, Integer> summaryMap = new HashMap<>();
+
+        StringBuilder whereClause = new StringBuilder("person_info_id = ?");
+        List<String> whereArgs = new ArrayList<>();
+        whereArgs.add(personInfoId.toString());
+
+        if (question != null && !question.isEmpty()) {
+            whereClause.append(" AND question = ?");
+            whereArgs.add(question);
+        }
+
+        Cursor cursor = mContext.getContentResolver().query(
+                ScreeningFormProvider.SfDrugs.CONTENT_URI,
+                null,
+                whereClause.toString(),
+                whereArgs.toArray(new String[0]),
+                null
+        );
+
+        if (cursor != null) {
+            try {
+                while (cursor.moveToNext()) {
+                    String subquestion = cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfDrugs.SUBQUESTION));
+                    String answerStr = cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfDrugs.ANSWER));
+
+                    if (subquestion != null && answerStr != null && !answerStr.isEmpty()) {
+                        try {
+                            int answer = Integer.parseInt(answerStr);
+
+                            // เพิ่มค่าไปยัง summaryMap
+                            if (summaryMap.containsKey(subquestion)) {
+                                summaryMap.put(subquestion, summaryMap.get(subquestion) + answer);
+                            } else {
+                                summaryMap.put(subquestion, answer);
+                            }
+                        } catch (NumberFormatException e) {
+                            // ข้ามกรณีที่ answer ไม่ใช่ตัวเลข
+                        }
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+
+        return summaryMap;
     }
 }

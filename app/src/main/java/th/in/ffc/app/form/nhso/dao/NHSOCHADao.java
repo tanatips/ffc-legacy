@@ -483,7 +483,10 @@ public class NHSOCHADao {
             String selection = NHSOCHA.SEQ + "=?";
             String[] selectionArgs = {seq};
 
-            Cursor cursor = mResolver.query(NHSOCHA.CONTENT_URI,
+            // แก้ไขเพื่อใช้ URI ที่ถูกต้อง
+            Uri uri = Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "sum_amount");
+
+            Cursor cursor = mResolver.query(uri,
                     new String[]{"SUM(" + NHSOCHA.AMOUNT + ") AS total"},
                     selection, selectionArgs, null);
 
@@ -492,7 +495,7 @@ public class NHSOCHADao {
                 cursor.close();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error calculating total amount by SEQ", e);
+            Log.e(TAG, "Error calculating total amount by SEQ: " + e.getMessage(), e);
         }
 
         return total;
@@ -510,7 +513,10 @@ public class NHSOCHADao {
             String selection = NHSOCHA.SEQ + "=?";
             String[] selectionArgs = {seq};
 
-            Cursor cursor = mResolver.query(NHSOCHA.CONTENT_URI,
+            // แก้ไขเพื่อใช้ URI ที่ถูกต้อง
+            Uri uri = Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "sum_total");
+
+            Cursor cursor = mResolver.query(uri,
                     new String[]{"SUM(" + NHSOCHA.TOTAL + ") AS total"},
                     selection, selectionArgs, null);
 
@@ -519,7 +525,7 @@ public class NHSOCHADao {
                 cursor.close();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error calculating total sum by SEQ", e);
+            Log.e(TAG, "Error calculating total sum by SEQ: " + e.getMessage(), e);
         }
 
         return total;

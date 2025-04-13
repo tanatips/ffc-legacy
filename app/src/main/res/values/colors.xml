@@ -68,4 +68,9 @@
     <color name="list_item_even">#FFFFFF</color>
     <color name="list_item_odd">#F5F5F5</color>
 
+    <!-- เพิ่มสีสำหรับการไฮไลต์คะแนน -->
+    <color name="light_green">#CCFFCC</color>
+    <color name="light_yellow">#FFFFCC</color>
+    <color name="light_red">#FFCCCC</color>
+
 </resources>

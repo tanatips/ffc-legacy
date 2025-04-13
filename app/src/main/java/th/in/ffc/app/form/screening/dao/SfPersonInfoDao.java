@@ -57,6 +57,14 @@ public class SfPersonInfoDao {
                 personInfo.setUpdated_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.UPDATED_DATE));
                 personInfo.setSend_to_claim(getIntegerFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEND_TO_CLAIM));
                 personInfo.setTemperature(getDoubleFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.TEMPERATURE));
+
+                // Add claim information retrieval
+                personInfo.setClaim_id(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_ID));
+                personInfo.setClaim_status(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_STATUS));
+                personInfo.setClaim_message(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_MESSAGE));
+                personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
+                personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
+
                 personInfos.add(personInfo);
             }
             cursor.close();
@@ -111,6 +119,14 @@ public class SfPersonInfoDao {
                 personInfo.setTemperature(getDoubleFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.TEMPERATURE));
                 personInfo.setHn(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.HN));
                 personInfo.setHcode(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.HCODE));
+
+                // Add claim information retrieval
+                personInfo.setClaim_id(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_ID));
+                personInfo.setClaim_status(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_STATUS));
+                personInfo.setClaim_message(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_MESSAGE));
+                personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
+                personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
+
                 personInfos.add(personInfo);
             }
             cursor.close();
@@ -129,6 +145,40 @@ public class SfPersonInfoDao {
             return 1;
         }
         catch (Exception e){
+            return 0;
+        }
+    }
+
+    /**
+     * Updates claim information for a person by ID
+     * @param personId The ID of the person to update
+     * @param claimId The claim ID
+     * @param claimStatus The status of the claim
+     * @param claimMessage Any message associated with the claim
+     * @param claimDate The date of the claim
+     * @return 1 if successful, 0 if failed
+     */
+    public static long updateClaimInfo(String personId, String claimId, String claimStatus, String claimMessage, String claimDate,String visitId) {
+        try {
+            String select = "ID=?";
+            String[] selectionArgs = {personId};
+            ContentValues values = new ContentValues();
+
+            // Add claim information to values
+            putString(values, "CLAIM_ID", claimId);
+            putString(values, "CLAIM_STATUS", claimStatus);
+            putString(values, "CLAIM_MESSAGE", claimMessage);
+            putString(values, "CLAIM_DATE", claimDate);
+            putString(values, "VISIT_ID", visitId);
+
+            // Set send_to_claim status to 1 (sent)
+            values.put("SEND_TO_CLAIM", 1);
+
+            // Update the person
+            mContext.getContentResolver().update(getPersonInfoUriById(Integer.valueOf(personId)), values, select, selectionArgs);
+
+            return 1;
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -186,6 +236,14 @@ public class SfPersonInfoDao {
         putInt(values, "SEND_TO_CLAIM", personInfo.getSend_to_claim());
         putDouble(values, "TEMPERATURE", personInfo.getTemperature());
         putString(values,"HCODE",personInfo.getHcode());
+
+        // Add claim information to values
+        putString(values, "CLAIM_ID", personInfo.getClaim_id());
+        putString(values, "CLAIM_STATUS", personInfo.getClaim_status());
+        putString(values, "CLAIM_MESSAGE", personInfo.getClaim_message());
+        putString(values, "CLAIM_DATE", personInfo.getClaim_date());
+        putString(values, "VISIT_ID", personInfo.getVisitId());
+
         return values;
     }
     public static List<PersonInfo> searchPerson(String idcard, String firstName, String lastName) {
@@ -267,6 +325,14 @@ public class SfPersonInfoDao {
                 person.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
                 person.setSend_to_claim(cursor.getInt(cursor.getColumnIndex("send_to_claim")));
                 person.setTemperature(cursor.getDouble(cursor.getColumnIndex("temperature")));
+
+                // Add claim information retrieval
+
+                person.setClaim_id(cursor.getString(cursor.getColumnIndex("claim_id")));
+                person.setClaim_status(cursor.getString(cursor.getColumnIndex("claim_status")));
+                person.setClaim_message(cursor.getString(cursor.getColumnIndex("claim_message")));
+                person.setClaim_date(cursor.getString(cursor.getColumnIndex("claim_date")));
+                person.setVisitId(cursor.getString(cursor.getColumnIndex("visit_id")));
 
                 results.add(person);
             }

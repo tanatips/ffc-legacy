@@ -133,6 +133,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 //        fragmentTabInfos.add(new FragmentTabInfo(new BmiFragment(),"ดัชนีมวลกาย(BMI)"));
 //        fragmentTabInfos.add(new FragmentTabInfo(new BloodPressureFragment(),"ตรวจวัดความดันโลหิต"));
         fragmentTabInfos.add(new FragmentTabInfo(new MainQuestionsFragment(),"แบบคัดกรองการใช้สารเสพติด"));
+        fragmentTabInfos.add(new FragmentTabInfo(new AssistScoreFragment(),"สรุปคะแนนแบบคัดกรอง ASSIST"));
 //        fragmentTabInfos.add(new FragmentTabInfo(new QuestionOneFragment(),"แบบคัดกรองการดึมสุรา สูบบุหรี่ และใช้สารเสพติด"));
         fragmentTabInfos.add(new FragmentTabInfo(new SmookingFragment(),"คัดกรองความเสี่ยงจากการสูบบุหรี่"));
         fragmentTabInfos.add(new FragmentTabInfo(new FagerstromNicotineFragment(),"แบบทดสอบการติดบุหรี่"));
@@ -144,7 +145,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         fragmentTabInfos.add(new FragmentTabInfo(new SuicideAssessment8qFragment(),"การประเมินการฆ่าตัวตายด้วย 8 คําถาม (8Q)"));
         fragmentTabInfos.add(new FragmentTabInfo(new HealthRiskAssessmentFragment(),"แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน"));
         fragmentTabInfos.add(new FragmentTabInfo(new CardiovascularRiskFragment() ,"คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด"));
-        fragmentTabInfos.add(new FragmentTabInfo(new AssistScoreFragment(),"สรุปคะแนนแบบคัดกรอง ASSIST"));
+
         viewPagerAdapter = new ViewPagerAdapter(this,fragmentTabInfos);
 
         viewPager.setAdapter(viewPagerAdapter);
@@ -845,7 +846,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsOneInfo(List<DrugsInfo> data) {
         this.drugsOneInfos = data;
-//        displayData(data);
+        displayData(data);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 

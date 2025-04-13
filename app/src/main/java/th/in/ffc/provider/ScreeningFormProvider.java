@@ -80,6 +80,7 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_CARDIOVASCULAR_RISK_INFO = 36;
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ITEMS = 37;
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ID = 38;
+    private static final int SF_DRUGS_SUMMARY = 39;
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
@@ -133,6 +134,7 @@ public class ScreeningFormProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "sf_drugs", SF_DRUGS);
         mUriMatcher.addURI(AUTHORITY, "sf_drugs/list", SF_DRUGS_ITEMS);
         mUriMatcher.addURI(AUTHORITY, "sf_drugs/#", SF_DRUGS_ITEM_ID);
+        mUriMatcher.addURI(AUTHORITY, "sf_drugs/summary", SF_DRUGS_SUMMARY);
 
         mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history", SF_CARD_READING_HISTORY);
         mUriMatcher.addURI(AUTHORITY, "sf_card_reading_history/list", SF_CARD_READING_HISTORY_ITEMS);
@@ -173,6 +175,7 @@ public class ScreeningFormProvider extends ContentProvider {
 //            }
 
 //            mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
+//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
@@ -322,6 +325,27 @@ public class ScreeningFormProvider extends ContentProvider {
                 builder.setTables(SfCardiovascularRiskInfo.TABLENAME);
                 builder.setProjectionMap(SfCardiovascularRiskInfo.PROJECTION_MAP);
                 break;
+            case ScreeningFormProvider.SF_DRUGS_SUMMARY:
+                // สำหรับการทำ summary ที่ต้องใช้ GROUP BY และ aggregate functions
+                if (uri.getQueryParameter("raw") != null) {
+                    // กรณีเป็น raw query
+                    return db.rawQuery(selection, selectionArgs);
+                } else {
+                    // กรณี query ปกติที่ต้องการ group by
+                    builder.setTables(SfDrugs.TABLENAME);
+
+                    // กำหนด projection map สำหรับ summary
+                    HashMap<String, String> summaryMap = new HashMap<>();
+                    summaryMap.put("subquestion", "subquestion");
+                    summaryMap.put("total", "SUM(CAST(answer AS INTEGER)) AS total");
+
+                    builder.setProjectionMap(summaryMap);
+
+                    // กำหนด group by
+                    groupby = "subquestion";
+                }
+                break;
+
             case SF_PERSON_SUMMARY_BY_VILLAGE:
                 builder.setTables(SfPersonInfo.TABLENAME +
                         " INNER JOIN house ON "+SfPersonInfo.TABLENAME +"."+ SfPersonInfo.HCODE + " = house.hcode" +
@@ -542,6 +566,14 @@ public class ScreeningFormProvider extends ContentProvider {
 
         public static final String HCODE = "hcode";
 
+        // New claim information fields
+        public static final String CLAIM_ID = "claim_id";
+        public static final String CLAIM_STATUS = "claim_status";
+        public static final String CLAIM_MESSAGE = "claim_message";
+        public static final String CLAIM_DATE = "claim_date";
+
+        public static final String VISIT_ID = "visit_id";
+
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -581,6 +613,13 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfPersonInfo.VILLAGE_NO, "villageNo AS " + SfPersonInfo.VILLAGE_NO);
             PROJECTION_MAP.put(SfPersonInfo.TEMPERATURE, "temperature AS " + SfPersonInfo.TEMPERATURE);
             PROJECTION_MAP.put(SfPersonInfo.HCODE, "hcode AS " + SfPersonInfo.HCODE);
+
+            // Add new claim fields to projection map
+            PROJECTION_MAP.put(SfPersonInfo.CLAIM_ID, "claim_id AS " + SfPersonInfo.CLAIM_ID);
+            PROJECTION_MAP.put(SfPersonInfo.CLAIM_STATUS, "claim_status AS " + SfPersonInfo.CLAIM_STATUS);
+            PROJECTION_MAP.put(SfPersonInfo.CLAIM_MESSAGE, "claim_message AS " + SfPersonInfo.CLAIM_MESSAGE);
+            PROJECTION_MAP.put(SfPersonInfo.CLAIM_DATE, "claim_date AS " + SfPersonInfo.CLAIM_DATE);
+            PROJECTION_MAP.put(SfPersonInfo.VISIT_ID, "visit_id AS " + SfPersonInfo.VISIT_ID);
         }
 //        public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
 //                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -642,7 +681,12 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         UPDATED_DATE +" DATE," +
         SEND_TO_CLAIM + " INTEGER, "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
         TEMPERATURE + " REAL, " +
-        HCODE + " TEXT " +
+        HCODE + " TEXT ," +
+        CLAIM_ID + " TEXT, " +
+        CLAIM_STATUS + " TEXT, " +
+        CLAIM_MESSAGE + " TEXT, " +
+        CLAIM_DATE + " TEXT, " +
+        VISIT_ID + " TEXT " +
         ")";
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
@@ -660,7 +704,12 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN homeNo TEXT;",
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN villageNo TEXT;",
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN temperature REAL;"
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN hcode TEXT;"
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN hcode TEXT;"
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_id TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_status TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_message TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_date TEXT;",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN visit_id TEXT;"
         };
     }
 

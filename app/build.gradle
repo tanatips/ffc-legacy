@@ -71,6 +71,10 @@ android {
             buildConfigField "int", "API_TIMEOUT", "15000"
             buildConfigField "String", "API_AUTHENCODE_URL", "\"https://test.nhso.go.th/authencodeapi/api/AuthenCode\""
             buildConfigField "String", "API_DEFAULT_TOKEN", "\"34913796-e515-4b33-9656-6a2eb64ef569\""
+            buildConfigField "String", "API_ฺBASE_STD_DATASET", "\"https://testgdcc.nhso.go.th/stddataset/api/\""
+            buildConfigField "String", "API_CREATE_FS_DATA", "\"https://testgdcc.nhso.go.th/stddataset/api/create-fs-data\""
+            buildConfigField "String", "API_STATUS_TRACKS", "\"https://testgdcc.nhso.go.th/stddataset/api/status-tracks\""
+
         }
 
         release {
@@ -79,15 +83,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
 
-            // เพิ่ม configuration สำหรับ API สำหรับ production environment
-//            buildConfigField "String", "API_BASE_URL", "\"https://nhso.go.th/nhsoendpoint/api/\""
-//            buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
             buildConfigField "String", "API_BASE_URL", "\"https://test.nhso.go.th/nhsoendpoint/api/\""
             buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
             buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""
             buildConfigField "int", "API_TIMEOUT", "15000"
             buildConfigField "String", "API_AUTHENCODE_URL", "\"https://test.nhso.go.th/authencodeapi/api/AuthenCode\""
             buildConfigField "String", "API_DEFAULT_TOKEN", "\"34913796-e515-4b33-9656-6a2eb64ef569\""
+            buildConfigField "String", "API_ฺBASE_STD_DATASET", "\"https://testgdcc.nhso.go.th/stddataset/api/\""
+            buildConfigField "String", "API_CREATE_FS_DATA", "\"https://testgdcc.nhso.go.th/stddataset/api/create-fs-data\""
+            buildConfigField "String", "API_STATUS_TRACKS", "\"https://testgdcc.nhso.go.th/stddataset/api/status-tracks\""
         }
     }
 
@@ -126,7 +130,6 @@ dependencies {
     implementation ('androidx.viewpager2:viewpager2:1.0.0')
     implementation('com.google.android.material:material:1.9.0')
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-//    implementation 'androidx.activity:activity:1.10.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 }

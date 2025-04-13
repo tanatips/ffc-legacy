@@ -343,6 +343,17 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
 
                                             // อัพเดทสถานะการส่งข้อมูลในฐานข้อมูล
                                             updateSyncStatus(String.valueOf(visitId), true);
+                                            // อัพเดทข้อมูล claim ในตาราง ffc_sf_person_info
+                                            String currentDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new java.util.Date());
+                                            SfPersonInfoDao.updateClaimInfo(
+                                                    person.getId(),        // ID ของผู้ป่วย
+                                                    fsResponse.getId(),         // ID การเคลม
+                                                    "",                      // สถานะการเคลม
+                                                    "",              // ข้อความ
+                                                    currentDateTime,
+                                                    String.valueOf(visitId)
+                                            );
+                                            Log.d(TAG, "Updated claim information for person ID: " + personInfo.getId());
                                         } else {
                                             // กรณีไม่สำเร็จ
                                             showMessage("ส่งข้อมูลไม่สำเร็จ: " + fsResponse.getErrorSummary());

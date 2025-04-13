@@ -166,9 +166,9 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            textDate = itemView.findViewById(R.id.text_date);
+//            textDate = itemView.findViewById(R.id.text_date);
             textChargeItem = itemView.findViewById(R.id.text_charge_item);
-            textInvoiceNo = itemView.findViewById(R.id.text_invoice_no);
+//            textInvoiceNo = itemView.findViewById(R.id.txt_invoice_no);
             textAmount = itemView.findViewById(R.id.text_amount);
         }
     }
