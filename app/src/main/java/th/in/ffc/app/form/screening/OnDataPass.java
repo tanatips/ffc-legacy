@@ -42,4 +42,6 @@ public interface OnDataPass {
     void onCardiovascularRiskInfo(CardiovascularRiskInfo info);
 
     void onAssistScoreInfo(AssistScore data);
+
+    void onFormSaved(String formName, Object formData);
 }

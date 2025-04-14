@@ -42,209 +42,124 @@
             android:src="@drawable/img_qr_code"
             android:layout_marginBottom="16dp"/>
 
-        <!-- ข้อมูลส่วนตัว -->
-        <LinearLayout
+        <!-- ข้อมูลส่วนตัว - อายุ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="อายุ"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/edtAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ระบุอายุ"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- ข้อมูลส่วนตัว - เพศ -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="เพศ"
+            android:textStyle="bold"/>
+
+        <RadioGroup
+            android:id="@+id/rgGender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="12dp">
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <RadioButton
+                android:id="@+id/rbMale"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginEnd="8dp">
+                android:text="ชาย"
+                android:layout_marginEnd="16dp"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="อายุ"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/edtAge"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="ระบุอายุ"
-                    android:inputType="number"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <RadioButton
+                android:id="@+id/rbFemale"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp">
+                android:text="หญิง"/>
+        </RadioGroup>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="เพศ"
-                    android:textStyle="bold"/>
-
-
-                <RadioGroup
-                    android:id="@+id/rgGender"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rbMale"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ชาย"
-                        android:layout_marginEnd="16dp"/>
-
-                    <RadioButton
-                        android:id="@+id/rbFemale"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="หญิง"/>
-                </RadioGroup>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- CheckBox สำหรับปัจจัยเสี่ยง -->
-        <LinearLayout
+        <!-- ปัจจัยเสี่ยง - สูบบุหรี่ -->
+        <CheckBox
+            android:id="@+id/cbSmoking"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:text="สูบบุหรี่"
+            android:layout_marginBottom="8dp"/>
 
-            <CheckBox
-                android:id="@+id/cbSmoking"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="สูบบุหรี่"/>
-
-            <CheckBox
-                android:id="@+id/cbDiabetes"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="เป็นโรคเบาหวาน"/>
-        </LinearLayout>
-
-        <!-- ข้อมูลสุขภาพ -->
-        <LinearLayout
+        <!-- ปัจจัยเสี่ยง - เป็นโรคเบาหวาน -->
+        <CheckBox
+            android:id="@+id/cbDiabetes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="8dp">
+            android:text="เป็นโรคเบาหวาน"
+            android:layout_marginBottom="16dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+        <!-- ข้อมูลสุขภาพ - ความดันโลหิต -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ความดันโลหิตตัวบน"
+            android:textStyle="bold"/>
 
-                android:orientation="vertical"
-                android:layout_marginEnd="4dp">
+        <EditText
+            android:id="@+id/edtBP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="มม.ปรอท"
+            android:inputType="number"
+            android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="ความดันโลหิตตัวบน"
-                    android:textStyle="bold"/>
+        <!-- ข้อมูลสุขภาพ - รอบเอว -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="รอบเอว"
+            android:textStyle="bold"/>
 
-                <EditText
-                    android:id="@+id/edtBP"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="มม.ปรอท"
-                    android:inputType="number"/>
-            </LinearLayout>
+        <EditText
+            android:id="@+id/edtWaist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ซม."
+            android:inputType="number"
+            android:layout_marginBottom="8dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp">
+        <!-- ข้อมูลสุขภาพ - ส่วนสูง -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ส่วนสูง"
+            android:textStyle="bold"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="รอบเอว"
-                    android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/edtHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ซม."
+            android:inputType="number"
+            android:layout_marginBottom="8dp"/>
 
-                <EditText
-                    android:id="@+id/edtWaist"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="ซม."
-                    android:inputType="number"/>
-            </LinearLayout>
+        <!-- ข้อมูลสุขภาพ - Cholesterol -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cholesterol"
+            android:textStyle="bold"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="ส่วนสูง"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/edtHeight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="ส่วนสูง"
-                    android:inputType="number"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="4dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Cholesterol"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/edtCholesterol"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="มก./ดล."
-                    android:inputType="number"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- คะแนนรวม -->
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:gravity="center"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            android:layout_marginBottom="16dp"-->
-<!--            android:padding="8dp"-->
-<!--            android:background="#F5F5F5">-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="คะแนนรวม: "-->
-<!--                android:textStyle="bold"/>-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/tvTotalScore"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="0"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textSize="18sp"-->
-<!--                android:textColor="#FF0000"/>-->
-<!--        </LinearLayout>-->
+        <EditText
+            android:id="@+id/edtCholesterol"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="มก./ดล."
+            android:inputType="number"
+            android:layout_marginBottom="16dp"/>
 
         <!-- ผลการประเมิน -->
         <LinearLayout
@@ -253,7 +168,8 @@
             android:orientation="vertical"
             android:padding="8dp"
             android:background="#F5F5F5"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -268,81 +184,66 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ความเสี่ยงต่อการเกิดโรคเส้นเลือดหัวใจและหลอดเลือดในระยะเวลา 10 ปี:"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                        <TextView
-                        android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp">
+
+                    <EditText
+                        android:id="@+id/edtRiskPercentage"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="ความเสี่ยงต่อการเกิดโรคเส้นเลือดหัวใจและหลอดเลือดในระยะเวลา 10 ปี:"/>
+                        android:layout_weight="2"
+                        android:layout_marginEnd="4dp"
+                        android:inputType="numberDecimal"
+                        android:gravity="center"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            >
-                        <EditText
-                            android:id="@+id/edtRiskPercentage"
-                            android:layout_width="0px"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:layout_marginHorizontal="4dp"
-                            android:inputType="numberDecimal"
-                            android:gravity="center"/>
-                        <TextView
-                            android:layout_width="0px"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="%"/>
-
-                        </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="ระดับความเสี่ยงของท่านสูงเป็น"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        >
-                        <EditText
-                            android:id="@+id/editRickLevel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:gravity="center"/>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-
-                            android:text="เท่าของคนไทยเพศเดียวกัน อายุ เท่ากัน และปราศจากปัจจัยเสี่ยง"/>
-
-                    </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="%"/>
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ระดับความเสี่ยงของท่านสูงเป็น"/>
+
+                <EditText
+                    android:id="@+id/editRickLevel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:gravity="center"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="เท่าของคนไทยเพศเดียวกัน อายุ เท่ากัน และปราศจากปัจจัยเสี่ยง"/>
             </LinearLayout>
         </LinearLayout>
 
         <!-- ระดับความเสี่ยง -->
-
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:stretchColumns="*">
+            android:stretchColumns="*"
+            android:layout_marginBottom="16dp">
 
             <!-- Header Row -->
             <TableRow
                 android:background="#800080"
-                android:padding="8dp"
-
-                >
+                android:padding="8dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -367,8 +268,7 @@
             <TableRow
                 android:background="#FFFFFF"
                 android:padding="8dp"
-                android:id="@+id/headerRow"
-                >
+                android:id="@+id/headerRow">
 
                 <TextView
                     android:layout_width="0dp"
@@ -424,7 +324,6 @@
                     android:text="กลุ่มเสี่ยงสูง"
                     android:gravity="center"/>
             </TableRow>
-
         </TableLayout>
 
         <!-- ข้อแนะนำ -->
@@ -443,6 +342,5 @@
             android:background="@android:color/white"
             android:padding="8dp"
             android:layout_marginTop="8dp"/>
-
     </LinearLayout>
 </ScrollView>
