@@ -135,7 +135,7 @@
             android:exported="true"
             android:label="ยอดรายเดือน"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/analytics">
+            <intent-filter android:icon="@drawable/monthly">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
@@ -303,7 +303,7 @@
             android:icon="@drawable/ic_launcher"
             android:label="@string/person"
             android:windowSoftInputMode="stateHidden">
-            <intent-filter android:icon="@drawable/ic_launcher_person">
+            <intent-filter android:icon="@drawable/user">
                 <action android:name="ffc.intent.action.MAIN" />
 
                 <category android:name="ffc.intent.category.TAB" />
