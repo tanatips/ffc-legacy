@@ -36,6 +36,7 @@ import java.util.Set;
 import th.in.ffc.app.form.nhso.dao.NHSOCHADao;
 import th.in.ffc.app.form.nhso.model.NHSOCHAInfo;
 import th.in.ffc.app.form.screening.adapter.ClaimAdapter;
+import java.util.Collections;
 import android.widget.Filter; // สำหรับคลาส Filter ทั่วไป
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
@@ -124,18 +125,24 @@ public class MonthDetailActivity extends AppCompatActivity {
         });
 
         // ตั้งค่า Spinner Filter
-//        spinnerFilter.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
-//                String filterType = position == 0 ? "all" : parent.getItemAtPosition(position).toString();
-//                adapter.setFilterType(filterType);
-//            }
-//
-//            @Override
-//            public void onNothingSelected(android.widget.AdapterView<?> parent) {
-//                // ไม่ต้องทำอะไร
-//            }
-//        });
+        spinnerFilter.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedFilter = parent.getItemAtPosition(position).toString();
+                String currentSearchText = searchView.getQuery().toString();
+
+                // ปรับปรุงการเรียกใช้ setFilterType
+                adapter.setFilterType(selectedFilter);
+
+                // ใช้ currentSearchText เพื่อให้การค้นหายังคงทำงานร่วมกับตัวกรอง
+                adapter.getFilter().filter(currentSearchText);
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                // ไม่ต้องทำอะไร
+            }
+        });
 
         // ตั้งค่าปุ่ม
         buttonExport.setOnClickListener(v -> {
@@ -193,20 +200,22 @@ public class MonthDetailActivity extends AppCompatActivity {
         List<String> filterList = new ArrayList<>();
         filterList.add("ทั้งหมด");
 
-        // สร้าง Set เพื่อเก็บค่าที่ไม่ซ้ำกัน
-        Set<String> uniqueFilters = new HashSet<>();
+        // สร้าง Set เพื่อเก็บค่า invoice numbers ที่ไม่ซ้ำกัน
+        Set<String> uniqueInvoices = new HashSet<>();
 
         for (NHSOCHAInfo claim : claims) {
-            if (claim.getChrgitem() != null && !claim.getChrgitem().isEmpty()) {
-                uniqueFilters.add(claim.getChrgitem());
-            }
+            // เก็บเฉพาะ invoice numbers
             if (claim.getInvoiceNo() != null && !claim.getInvoiceNo().isEmpty()) {
-                uniqueFilters.add(claim.getInvoiceNo());
+                uniqueInvoices.add(claim.getInvoiceNo());
             }
         }
 
-        // เพิ่มค่าจาก Set ลงในลิสต์
-        filterList.addAll(uniqueFilters);
+        // เพิ่มค่าจาก Set ลงในลิสต์และเรียงลำดับ
+        List<String> sortedInvoices = new ArrayList<>(uniqueInvoices);
+        Collections.sort(sortedInvoices); // เรียงลำดับแบบธรรมดา
+
+        // เพิ่มลงในตัวกรอง
+        filterList.addAll(sortedInvoices);
 
         // สร้าง adapter สำหรับ spinner
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
@@ -259,7 +268,6 @@ public class MonthDetailActivity extends AppCompatActivity {
             }
         });
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

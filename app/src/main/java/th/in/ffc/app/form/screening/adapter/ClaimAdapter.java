@@ -67,7 +67,7 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_claim, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_monthly_detail, parent, false);
         return new ViewHolder(view);
     }
 
@@ -82,11 +82,11 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
             holder.textDate.setText("-");
         }
 
-        // ตั้งค่าประเภทรายการ
-        holder.textChargeItem.setText(claim.getChrgitem());
+        // ตั้งค่ารายการ
+        holder.textChargeItem.setText(claim.getChrgitem() != null ? claim.getChrgitem() : "-");
 
         // ตั้งค่าเลขที่ใบแจ้งหนี้
-        holder.textInvoiceNo.setText(claim.getInvoiceNo());
+        holder.textInvoiceNo.setText(claim.getInvoiceNo() != null ? claim.getInvoiceNo() : "-");
 
         // ตั้งค่าจำนวนเงิน
         double amount = claim.getAmount() != null ? claim.getAmount() : 0.0;
@@ -106,7 +106,6 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.list_item_odd));
         }
     }
-
     @Override
     public int getItemCount() {
         return filteredClaimList.size();
@@ -119,6 +118,7 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
 
     public void setFilterType(String filterType) {
         this.currentFilterType = filterType;
+        // เมื่อเปลี่ยนประเภท ให้กรองด้วยข้อความค้นหาปัจจุบัน
         getFilter().filter(currentFilterText);
     }
     @Override
@@ -132,15 +132,24 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
                 List<NHSOCHAInfo> filteredList = new ArrayList<>();
 
                 for (NHSOCHAInfo claim : originalClaimList) {
+                    // ตรวจสอบว่าตรงกับข้อความค้นหาหรือไม่
                     boolean matchesText = filterText.isEmpty() ||
                             (claim.getChrgitem() != null && claim.getChrgitem().toLowerCase().contains(filterText)) ||
                             (claim.getInvoiceNo() != null && claim.getInvoiceNo().toLowerCase().contains(filterText));
 
-                    boolean matchesType = "ทั้งหมด".equals(filterType) ||
-                            (claim.getChrgitem() != null && filterType.equals(claim.getChrgitem())) ||
-                            (claim.getInvoiceNo() != null && filterType.equals(claim.getInvoiceNo()));
+                    // ตรวจสอบว่าตรงกับประเภทที่เลือกหรือไม่
+                    boolean matchesType;
 
-                    if (matchesType && matchesText) {
+                    // ถ้าเลือก "ทั้งหมด" ให้แสดงทุกรายการ
+                    if ("ทั้งหมด".equals(filterType)) {
+                        matchesType = true;
+                    } else {
+                        // กรองเฉพาะตาม invoice number เท่านั้น ไม่ใช้ chrgitem
+                        matchesType = (claim.getInvoiceNo() != null && filterType.equals(claim.getInvoiceNo()));
+                    }
+
+                    // เพิ่มรายการที่ตรงกับเงื่อนไขทั้งหมดลงในลิสต์ผลลัพธ์
+                    if (matchesText && matchesType) {
                         filteredList.add(claim);
                     }
                 }
@@ -159,16 +168,16 @@ public class ClaimAdapter extends RecyclerView.Adapter<ClaimAdapter.ViewHolder> 
         };
     }
   static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textDate;
-        TextView textChargeItem;
-        TextView textInvoiceNo;
-        TextView textAmount;
+      TextView textDate;
+      TextView textChargeItem;
+      TextView textInvoiceNo;
+      TextView textAmount;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-//            textDate = itemView.findViewById(R.id.text_date);
+            textDate = itemView.findViewById(R.id.text_date);
             textChargeItem = itemView.findViewById(R.id.text_charge_item);
-//            textInvoiceNo = itemView.findViewById(R.id.txt_invoice_no);
+            textInvoiceNo = itemView.findViewById(R.id.text_invoice_no);
             textAmount = itemView.findViewById(R.id.text_amount);
         }
     }

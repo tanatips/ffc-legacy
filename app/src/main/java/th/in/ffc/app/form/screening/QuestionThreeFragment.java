@@ -91,8 +91,8 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         recyclerView.setAdapter(adapter);
 
         // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
-        contentLayout.setVisibility(View.VISIBLE);
-        expandIcon.setImageResource(R.drawable.ic_expand_less);
+        contentLayout.setVisibility(View.GONE);
+        expandIcon.setImageResource(R.drawable.ic_expand_more);
         headerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

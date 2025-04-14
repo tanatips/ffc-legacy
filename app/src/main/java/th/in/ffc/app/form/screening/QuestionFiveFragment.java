@@ -98,8 +98,8 @@ public class QuestionFiveFragment extends Fragment implements OnFrequencySelecte
         recyclerView.setAdapter(adapter);
 
         // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
-        contentLayout.setVisibility(View.VISIBLE);
-        expandIcon.setImageResource(R.drawable.ic_expand_less);
+        contentLayout.setVisibility(View.GONE);
+        expandIcon.setImageResource(R.drawable.ic_expand_more);
 
         // ตั้งค่า Click Listener สำหรับ Header เพื่อ Toggle การแสดงเนื้อหา
         headerLayout.setOnClickListener(new View.OnClickListener() {
