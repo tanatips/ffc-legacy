@@ -44,7 +44,7 @@ import th.in.ffc.person.PersonScreeningForm15Activity;
  * Use the {@link QuestionOneFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class QuestionOneFragment extends Fragment implements OnSubstanceSelectionListener {
+public class QuestionOneFragment extends Fragment implements OnSubstanceSelectionListener,SubstanceOneAdapter.RecyclerViewLayoutChangeListener {
 
     private Map<String, DrugsInfo> drugsInfoMap = new HashMap<>();
     private OnDataPass dataPasser;
@@ -58,9 +58,11 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     private QuestionsStateViewModel questionsViewModel;
     final boolean[] isUpdating = {false};
     private boolean isDataLoaded = false;
-    private boolean isExpanded = false; // เก็บสถานะปัจจุบัน
 
     List<DrugsInfo> drugsInfos = new ArrayList<>();
+    LinearLayout headerLayout;
+    LinearLayout contentLayout;
+    ImageView expandIcon;
 
 
     public QuestionOneFragment() {
@@ -91,8 +93,8 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
 
         recyclerView = view.findViewById(R.id.recyclerViewOne);
         LinearLayout headerLayout = view.findViewById(R.id.headerLayoutOne);
-        final LinearLayout contentLayout = view.findViewById(R.id.contentLayoutOne);
-        final ImageView expandIcon = view.findViewById(R.id.expandIconOne);
+        contentLayout = view.findViewById(R.id.contentLayoutOne);
+        expandIcon = view.findViewById(R.id.expandIconOne);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new SubstanceOneAdapter(substanceList, this);
@@ -110,51 +112,83 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                 if (contentLayout.getVisibility() == View.VISIBLE) {
                     contentLayout.setVisibility(View.GONE);
                     expandIcon.setImageResource(R.drawable.ic_expand_more);
-                    contentLayout.requestLayout();
-                    recyclerView.requestLayout();
-                    isExpanded = true;
                     notifyParentOfChange();
 
                 } else {
                     contentLayout.setVisibility(View.VISIBLE);
                     expandIcon.setImageResource(R.drawable.ic_expand_less);
-                    contentLayout.requestLayout();
-                    recyclerView.requestLayout();
-                    isExpanded = false;
                     notifyParentOfChange();
+                    calculateAndSetContentHeight();
                 }
             }
-
-
         });
-        // ตั้งค่าเริ่มต้นสำหรับทุก item
-//        for (SubstanceItem item : substanceList) {
-//            selectedAnswers.put(item.getId(), new AnswerData(false, ""));
-//        }
-
-//        initializeData();
-//        adapter = new SubstanceOneAdapter(substanceList,this);
-//        for (SubstanceItem item : substanceList) {
-//            selectedAnswers.put(item.getId(), new AnswerData(false, ""));
-//        }
-//        recyclerView.setAdapter(adapter);
 
         return view;
     }
+//
+//@Override
+//public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//    View view = inflater.inflate(R.layout.fragment_question_one, container, false);
+//
+//    recyclerView = view.findViewById(R.id.recyclerViewOne);
+//    headerLayout = view.findViewById(R.id.headerLayoutOne);
+//    contentLayout = view.findViewById(R.id.contentLayoutOne);
+//    expandIcon = view.findViewById(R.id.expandIconOne);
+//
+//    // ตั้งค่า RecyclerView
+//    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+//    adapter = new SubstanceOneAdapter(substanceList, this);
+//    recyclerView.setAdapter(adapter);
+//
+//    // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
+//    contentLayout.setVisibility(View.GONE);
+//    expandIcon.setImageResource(R.drawable.ic_expand_more);
+//    calculateAndSetContentHeight();
+//    // ตั้งค่า Click Listener สำหรับ Header
+//    headerLayout.setOnClickListener(v -> {
+//        boolean isVisible = contentLayout.getVisibility() == View.VISIBLE;
+////        if (!isVisible) {
+////            calculateAndSetContentHeight();
+////        }
+//        // Toggle visibility
+//        contentLayout.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+//        expandIcon.setImageResource(isVisible ? R.drawable.ic_expand_more : R.drawable.ic_expand_less);
+//
+//        // จำเป็นต้อง post เพื่อให้การเปลี่ยนแปลงการแสดงผลทำงานก่อนที่จะแจ้ง parent
+//        view.post(() -> notifyParentOfChange());
+//    });
+////    ViewGroup.LayoutParams layoutParams = recyclerView.getLayoutParams();
+////    layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+////    recyclerView.setLayoutParams(layoutParams);
+//
+//    return view;
+//}
     private void notifyParentOfChange() {
-        // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
+        // เพิ่ม Log เพื่อตรวจสอบ
+//        Log.d("QuestionOneFragment", "notifyParentOfChange called");
+//
+//        // วัดขนาดของ RecyclerView (สำคัญ!)
+//        if (recyclerView != null && recyclerView.getAdapter() != null) {
+//            recyclerView.post(() -> {
+//                recyclerView.measure(
+//                        View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
+//                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+//                );
+//                Log.d("QuestionOneFragment", "RecyclerView measured height: " + recyclerView.getMeasuredHeight());
+//            });
+//        }
+
+        // แจ้ง parent fragment
         Fragment parentFragment = getParentFragment();
         if (parentFragment instanceof MainQuestionsFragment) {
             ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
         }
 
-        // วิธีที่ 2: ถ้าไม่มี notifyChildFragmentStateChanged() ใน MainQuestionsFragment
-        // หรือไม่สามารถเข้าถึง MainQuestionsFragment ได้ ให้แจ้ง activity โดยตรง
+        // เพิ่มหน่วงเวลาการรีเฟรชให้นานขึ้น (ถ้าจำเป็น)
 //        if (getActivity() instanceof PersonScreeningForm15Activity) {
-//            // หน่วงเวลาเล็กน้อยเพื่อให้ layout ได้อัปเดตก่อน
 //            new Handler().postDelayed(() -> {
 //                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
-//            }, 200);
+//            }, 350); // เพิ่มเวลาหน่วงเป็น 350ms
 //        }
     }
     @Override
@@ -192,9 +226,9 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         };
         questionsViewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answersObserver);
 
-        if (!isDataLoaded) {
+//        if (!isDataLoaded) {
             loadData();
-        }
+//        }
     }
     @Override
     public void onDestroyView() {
@@ -208,9 +242,19 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     }
     private void updateUI(Map<String, AnswerData> answers) {
         if (adapter != null) {
-            recyclerView.post(() -> adapter.updateAnswers(answers));
-        }
+            recyclerView.post(() -> {
+                adapter.updateAnswers(answers);
 
+                // สำคัญ: บังคับให้ปรับขนาดหลังจากอัปเดตข้อมูล
+                recyclerView.post(() -> {
+                    View view = getView();
+                    if (view != null) {
+                        view.requestLayout();
+                    }
+                    notifyParentOfChange();
+                });
+            });
+        }
     }
 
     public static QuestionOneFragment newInstance(String param1, String param2) {
@@ -267,7 +311,7 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                         break;
                     }
                 }
-                List<DrugsInfo> drugsInfos = new ArrayList<>();
+                List<DrugsInfo> newDrugsInfos = new ArrayList<>();
 
                 // ดึง PersonId จาก PersonInfoLiveData แทน
                 SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -277,6 +321,9 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                 for (Map.Entry<String, AnswerData> entry : selectedAnswers.entrySet()) {
                     DrugsInfo drugsInfo = new DrugsInfo();
 
+                    if (this.drugsInfos.isEmpty()){
+                        Log.d("QuestionOneFragment", "drugsInfos is empty");
+                    }
                     for(DrugsInfo drugsInfo1 : this.drugsInfos){
                         if(drugsInfo1.getSubquestion().equals(entry.getKey())){
                             drugsInfo.setId(drugsInfo1.getId());
@@ -290,7 +337,7 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                             drugsInfo.setOtherDrugs(drugsInfo1.getOtherDrugs());
                             drugsInfo.setUpdatedBy(drugsInfo1.getUpdatedBy());
                             drugsInfo.setUpdatedDate(drugsInfo1.getUpdatedDate());
-//                            break;
+                            break;
                         }
                     }
                     // ค้นหาข้อมูลเดิมจาก drugsInfoMap
@@ -315,11 +362,13 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                     drugsInfo.setOtherDrugs(entry.getValue().getOtherDrugs());
                     drugsInfo.setUpdatedBy("SYSTEM");
                     drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-
-                    drugsInfos.add(drugsInfo);
+                    if(drugsInfo.getId() == null){
+                        Log.d("QuestionOneFragment", "drugsInfo.getId() is null");
+                    }
+                    newDrugsInfos.add(drugsInfo);
                 }
 
-                dataPasser.onDrugsOneInfo(drugsInfos);
+                dataPasser.onDrugsOneInfo(newDrugsInfos);
             }
         } finally {
             isUpdating[0] = false;
@@ -406,7 +455,62 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 //        outState.putSerializable("selectedFrequencies", new HashMap<>(selectedFrequencies));
-        outState.putBoolean("isExpanded", isExpanded);
+//        outState.putBoolean("isExpanded", isExpanded);
     }
 
+    @Override
+    public void onRecyclerViewLayoutChanged() {
+        // บังคับให้ RecyclerView วัดขนาดใหม่
+        if (recyclerView != null) {
+            recyclerView.post(() -> {
+                recyclerView.requestLayout();
+                notifyParentOfChange();
+            });
+        }
+    }
+    private void calculateAndSetContentHeight() {
+        if (recyclerView == null || adapter == null) return;
+
+        // คำนวณความสูงตามจำนวน items
+        int itemCount = adapter.getItemCount();
+        int estimatedItemHeight = (int) (60 * getResources().getDisplayMetrics().density); // ประมาณความสูงต่อ item
+        int totalHeight = itemCount * estimatedItemHeight;
+
+        // บวกเพิ่ม padding
+        totalHeight += recyclerView.getPaddingTop() + recyclerView.getPaddingBottom();
+
+        // กำหนดความสูงขั้นต่ำและสูงสุด
+        int minHeight = (int) (200 * getResources().getDisplayMetrics().density);
+        int maxHeight = (int) (600 * getResources().getDisplayMetrics().density);
+        totalHeight = Math.max(minHeight, Math.min(totalHeight, maxHeight));
+
+        // กำหนดความสูงให้กับ contentLayout
+        ViewGroup.LayoutParams params = contentLayout.getLayoutParams();
+        params.height =  (int) Math.round(totalHeight*2.5);
+        contentLayout.setLayoutParams(params);
+    }
+    private void measureAndSetContentHeight() {
+        if (recyclerView == null) return;
+
+        // วัดขนาดแต่ละ item และรวมกัน
+        int totalHeight = 0;
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            View itemView = recyclerView.getChildAt(i);
+            if (itemView != null) {
+                itemView.measure(
+                        View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                );
+                totalHeight += itemView.getMeasuredHeight();
+            }
+        }
+
+        // เพิ่ม padding
+        totalHeight += recyclerView.getPaddingTop() + recyclerView.getPaddingBottom();
+
+        // กำหนดความสูงให้กับ contentLayout
+        ViewGroup.LayoutParams params = contentLayout.getLayoutParams();
+        params.height = totalHeight;
+        contentLayout.setLayoutParams(params);
+    }
 }

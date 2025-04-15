@@ -2,13 +2,16 @@ package th.in.ffc.person;
 
 
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
@@ -16,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -79,6 +83,7 @@ import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
+import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.ViewPagerAdapter;
 
@@ -88,7 +93,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private ViewPager2 viewPager;
     private ViewPagerAdapter viewPagerAdapter;
 
-    private Button btnOk, btnCancel;
+    private Button btnOk, btnCancel, btnReCreateTable;
 
     private Context mContext;
 
@@ -214,6 +219,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 //        tabLayout = findViewById(R.id.tabLayout);
 //        viewPager = findViewById(R.id.viewPager);
         btnOk = findViewById(R.id.btnOK);
+        btnReCreateTable = findViewById(R.id.btnReCreateTable);
         btnCancel = findViewById(R.id.btnCancel);
         mContext = getBaseContext();
 //        ArrayList<FragmentTabInfo> fragmentTabInfos = new ArrayList<>();
@@ -286,17 +292,36 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 finish();
             }
         });
+        btnReCreateTable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ScreeningFormProvider.ReCreateTable(mContext);
+                Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
+            }
+        });
         getPersonInfoDetail();
     }
     // เพิ่มเมธอดใหม่สำหรับแสดง Dialog
     private void showFormDialog(String formName) {
-        // หา Fragment ที่เกี่ยวข้อง
         Fragment fragment = fragmentMap.get(formName);
-
         if (fragment != null) {
-            // สร้าง DialogFragment ใหม่ที่ใช้ Fragment นี้
             FormDialogFragment dialogFragment = FormDialogFragment.newInstance(formName, fragment);
             dialogFragment.show(getSupportFragmentManager(), "FormDialog");
+
+            // หน่วงเวลาเพิ่มขึ้นเพื่อให้ Dialog แสดงก่อน
+//            new Handler().postDelayed(() -> {
+//                Dialog dialog = dialogFragment.getDialog();
+//                if (dialog != null) {
+//                    View focusView = dialog.getCurrentFocus();
+//                    if (focusView instanceof EditText) {
+//                        focusView.requestFocus();
+//                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                        if (imm != null) {
+//                            imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
+//                        }
+//                    }
+//                }
+//            }, 700); // ลองเพิ่มเวลารอเป็น 700ms
         }
     }
     private void adjustExpandableListViewHeight() {
@@ -429,15 +454,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
         List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(iPersonId);
         formStatus.put("แบบคัดกรองการใช้สารเสพติด", !drugs.isEmpty());
-
-        // คำนวณคะแนน ASSIST
-        boolean hasAssistScores = false;
-        // ตรวจสอบว่าทุกหมวดมีข้อมูลแล้วหรือไม่
-//        if (drugs != null && !drugs.isEmpty()) {
-//            // ตรวจสอบโดยละเอียด (ถ้าต้องการ)
-//            // hasAssistScores = ...
-//        }
-        formStatus.put("สรุปคะแนนแบบคัดกรอง ASSIST", hasAssistScores);
+        formStatus.put("สรุปคะแนนแบบคัดกรอง ASSIST", !drugs.isEmpty());
 
         // อัปเดตสถานะในไอคอน
         if (expandableListAdapter != null) {
@@ -684,7 +701,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
+                   drugsInfo.setId(id);
                 } else {
                     // กำหนดค่าสำหรับการอัพเดต
                     drugsInfo.setUpdatedBy("SYSTEM");
@@ -1138,7 +1155,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsTwoInfo(List<DrugsInfo> data) {
         this.drugsTwoInfos = data;
-//        displayData(data);
+        displayData(data);
 //        String msg = "====> "+data.size();
 //        System.out.println(msg);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
@@ -1147,18 +1164,19 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsThreeInfo(List<DrugsInfo> data) {
         this.drugsThreeInfos = data;
-//        displayData(data);
+        displayData(data);
     }
 
     @Override
     public void onDrugsFourInfo(List<DrugsInfo> data) {
         this.drugsFourInfos = data;
-//        displayData(data);
+        displayData(data);
     }
 
     @Override
     public void onDrugsFiveInfo(List<DrugsInfo> data) {
         this.drugsFiveInfos = data;
+        displayData(data);
 //        String msg = "====> "+data.size();
 //        System.out.println(msg);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
@@ -1167,6 +1185,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsSixInfo(List<DrugsInfo> data) {
         this.drugsSixInfos = data;
+        displayData(data);
 //        String msg = "====> "+data.size();
 //        System.out.println(msg);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
@@ -1175,6 +1194,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsSevenInfo(List<DrugsInfo> data) {
         this.drugsSevenInfos = data;
+        displayData(data);
 //        String msg = "====> "+data.size();
 //        System.out.println(msg);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
@@ -1183,6 +1203,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsEightInfo(List<DrugsInfo> data) {
         this.drugsEightInfos = data;
+        displayData(data);
 //        String msg = "====> "+data.size();
 //        System.out.println(msg);
 //        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();

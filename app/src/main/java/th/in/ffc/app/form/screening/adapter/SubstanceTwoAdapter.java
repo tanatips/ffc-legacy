@@ -46,8 +46,6 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
         return new FrequencyViewHolder(view);
     }
 
-    // แก้ไขเมธอด updateAnswers ในคลาส SubstanceTwoAdapter
-    // เพิ่มเมธอด updateAnswers ที่รับพารามิเตอร์ excludeId
     public void updateAnswers(Map<String, AnswerFrequencyData> answers, String excludeId) {
         if (isUpdating) return;
         isUpdating = true;
@@ -102,13 +100,15 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
         return substanceList.size();
     }
 
+    // แก้ไขในคลาส SubstanceTwoAdapter.java ที่เมธอด getRadioIdForFrequency และการผูกข้อมูล
+
     class FrequencyViewHolder extends RecyclerView.ViewHolder {
         private TextView titleText;
         private TextView descriptionText;
         private RadioGroup frequencyGroup;
 
-        private TextInputLayout otherSubstanceLayout; // เพิ่ม
-        private TextInputEditText otherSubstanceEdit; // เพิ่ม
+        private TextInputLayout otherSubstanceLayout;
+        private TextInputEditText otherSubstanceEdit;
 
         public FrequencyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -134,7 +134,9 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
 
             // ตั้งค่าการเลือกตามค่าที่มีอยู่
             int frequency = item.getFrequency();
-            Log.d("SubstanceTwoAdapter", "bind: " + item.getId() + " " + frequency);
+            Log.d("SubstanceTwoAdapter", "bind: " + item.getId() + " frequency: " + frequency);
+
+            // แก้ไขตรงนี้โดยเรียกใช้ getRadioIdForFrequency ที่แก้ไขแล้ว
             int radioId = getRadioIdForFrequency(frequency);
             if (radioId != -1) {
                 frequencyGroup.check(radioId);
@@ -163,8 +165,6 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
                 Log.d("SubstanceTwoAdapter", "Item j otherDrugs: " + item.getOtherDrugs());
 
                 // ตั้งค่าข้อความโดยไม่กระทบ cursor position
-                // เช็คว่าข้อความเปลี่ยนหรือไม่ก่อนเรียก setText
-                // เพิ่มเช็คว่า null หรือไม่
                 String currentText = otherSubstanceEdit.getText() != null ? otherSubstanceEdit.getText().toString() : "";
                 String newText = item.getOtherDrugs() != null ? item.getOtherDrugs() : "";
 
@@ -205,7 +205,10 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
                 otherSubstanceLayout.setVisibility(View.GONE);
             }
         }
+
+        // แก้ไขเมธอดนี้เพื่อให้แปลงค่า frequency เป็น RadioButton ID ที่ถูกต้อง
         private int getRadioIdForFrequency(int frequency) {
+            Log.d("SubstanceTwoAdapter", "getRadioIdForFrequency: " + frequency);
             switch (frequency) {
                 case 0: return R.id.radioNever;
                 case 2: return R.id.radio1to2;

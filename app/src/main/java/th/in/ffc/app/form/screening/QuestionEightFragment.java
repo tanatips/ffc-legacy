@@ -162,18 +162,19 @@ public class QuestionEightFragment extends Fragment {
             }
         });
         // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-        if (isFirstLoad && !isDataLoaded) {
-            loadData();
-            isFirstLoad = false;
-        } else {
-            // ถ้ามีข้อมูลใน ViewModel ให้ใช้ข้อมูลนั้น
-            Map<String, AnswerFrequencyData> viewModelAnswers = viewModel.getQuestionEightAnswers().getValue();
-            if (viewModelAnswers != null && viewModelAnswers.containsKey(INJECTION_KEY)) {
-                selectedOption = viewModelAnswers.get(INJECTION_KEY).getFrequency();
-                Log.d("QuestionEightFragment", "Using ViewModel data: " + selectedOption);
-                updateRadioSelection();
-            }
-        }
+        loadData();
+//        if (isFirstLoad && !isDataLoaded) {
+//            loadData();
+//            isFirstLoad = false;
+//        } else {
+//            // ถ้ามีข้อมูลใน ViewModel ให้ใช้ข้อมูลนั้น
+//            Map<String, AnswerFrequencyData> viewModelAnswers = viewModel.getQuestionEightAnswers().getValue();
+//            if (viewModelAnswers != null && viewModelAnswers.containsKey(INJECTION_KEY)) {
+//                selectedOption = viewModelAnswers.get(INJECTION_KEY).getFrequency();
+//                Log.d("QuestionEightFragment", "Using ViewModel data: " + selectedOption);
+//                updateRadioSelection();
+//            }
+//        }
     }
 
     private void loadData() {

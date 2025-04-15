@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
@@ -66,6 +67,17 @@ public class FormDialogFragment extends DialogFragment {
         fragment.formTitle = title;
         fragment.contentFragment = content;
         return fragment;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // เพิ่มโค้ดเพื่อให้ Dialog รองรับการแสดง keyboard
+        getDialog().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        // คุณอาจเพิ่มฟังก์ชันนี้เพื่อป้องกันการปิด dialog เมื่อแตะนอกพื้นที่
+        getDialog().setCanceledOnTouchOutside(false);
     }
 
     @NonNull
@@ -137,8 +149,12 @@ public class FormDialogFragment extends DialogFragment {
                 DisplayMetrics metrics = new DisplayMetrics();
                 getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-                int dialogHeight = (int)(metrics.heightPixels * 0.9); // ใช้ 90% ของความสูงหน้าจอ
-                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, dialogHeight);
+//                int dialogHeight = (int)(metrics.heightPixels * 0.9); // ใช้ 90% ของความสูงหน้าจอ
+//                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, dialogHeight);
+
+                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
             }
         }
     }

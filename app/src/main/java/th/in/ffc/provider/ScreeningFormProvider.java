@@ -87,7 +87,7 @@ public class ScreeningFormProvider extends ContentProvider {
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
 
-    private DbOpenHelper mOpenHelper;
+    private static DbOpenHelper mOpenHelper;
     private static UriMatcher mUriMatcher;
     static {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -157,6 +157,7 @@ public class ScreeningFormProvider extends ContentProvider {
 //            SharedPreferences prefs = getContext().getSharedPreferences("DatabasePrefs", Context.MODE_PRIVATE);
 //            boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
 //            if(isFirstRun) {
+//                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
@@ -167,15 +168,14 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
 
 //            }
 //            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
 
-//            mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
-//            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+
             mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
             mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
@@ -195,7 +195,34 @@ public class ScreeningFormProvider extends ContentProvider {
             return false;
         }
     }
+    public static void ReCreateTable(Context context){
+        mOpenHelper = new DbOpenHelper(context);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
 
+        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
+    }
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,

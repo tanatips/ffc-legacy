@@ -185,10 +185,10 @@ public class QuestionSevenFragment extends Fragment implements OnFrequencySelect
         viewModel.getQuestionSevenAnswers().observe(getViewLifecycleOwner(), answersObserver);
 
         // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-        if (isFirstLoad && !isDataLoaded) {
+//        if (isFirstLoad && !isDataLoaded) {
             loadData();
-            isFirstLoad = false;
-        }
+//            isFirstLoad = false;
+//        }
     }
 
     private void updateSubstanceItems(Map<String, AnswerFrequencyData> frequencies) {

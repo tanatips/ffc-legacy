@@ -1,10 +1,12 @@
 package th.in.ffc.app.form.screening.adapter;
 
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -27,10 +29,23 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
     private OnSubstanceSelectionListener listener;
 
     private boolean isUpdating = false;
+    private RecyclerView recyclerView; // เพิ่มตัวแปรนี้
+
 
     public SubstanceOneAdapter(List<SubstanceItem> substanceList, OnSubstanceSelectionListener listener) {
         this.listener = listener;
         this.substanceList = substanceList;
+    }
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView; // เก็บ reference ไว้
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        this.recyclerView = null;
     }
     public void updateAnswers(Map<String, AnswerData> answers) {
         if (isUpdating) return;
@@ -45,10 +60,35 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
                     item.setOtherDrugs(answer.getOtherDrugs());
                 }
             }
-            // แจ้ง adapter ให้ update ทุกครั้ง
             notifyDataSetChanged();
+            requestLayout();
+
         } finally {
             isUpdating = false;
+        }
+    }
+    // เพิ่มเมธอดใหม่สำหรับบังคับให้ RecyclerView วัดขนาดใหม่
+    public void requestLayout() {
+        if (recyclerView != null) {
+            recyclerView.post(() -> {
+                // บังคับให้วัดขนาดแต่ละ item ใหม่
+
+                for (int i = 0; i < getItemCount(); i++) {
+                    RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(i);
+                    if (viewHolder != null) {
+                        View itemView = viewHolder.itemView;
+                        itemView.requestLayout();
+                    }
+                }
+
+                // บังคับให้ RecyclerView วัดขนาดใหม่
+                recyclerView.requestLayout();
+
+                // อาจเพิ่ม callback เพื่อแจ้ง Fragment ว่ามีการเปลี่ยนแปลงขนาด
+                if (listener instanceof RecyclerViewLayoutChangeListener) {
+                    ((RecyclerViewLayoutChangeListener) listener).onRecyclerViewLayoutChanged();
+                }
+            });
         }
     }
     @NonNull
@@ -69,13 +109,18 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
     public int getItemCount() {
         return substanceList.size();
     }
-
+    // Interface สำหรับแจ้งเมื่อ RecyclerView เปลี่ยนขนาด (เพิ่มใหม่)
+    public interface RecyclerViewLayoutChangeListener {
+        void onRecyclerViewLayoutChanged();
+    }
     class SubstanceViewHolder extends RecyclerView.ViewHolder {
         private TextView titleText;
         private TextView descriptionText;
         private RadioGroup radioGroup;
         private TextInputLayout otherSubstanceLayout; // เพิ่ม
         private TextInputEditText otherSubstanceEdit; // เพิ่ม
+
+        private TextWatcher textWatcher; // เพิ่มตัวแปรนี้เพื่อเก็บ reference
 
         public SubstanceViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -109,15 +154,33 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
                     if (listener != null) {
                         listener.onAnswerChanged(item.getId(), isUsed, item.getOtherDrugs());
                     }
+                    requestLayout(); // ขอให้ปรับขนาดเมื่อมีการเปลี่ยนแปลง
                 }
             });
 
             if (item.getId().equals("j")) {
                 otherSubstanceLayout.setVisibility(View.VISIBLE);
+                // ลบ TextWatcher เดิมก่อน
+                if (textWatcher != null) {
+                    otherSubstanceEdit.removeTextChangedListener(textWatcher);
+                }
+                otherSubstanceEdit.removeTextChangedListener(textWatcher); // ลบ listener เดิมก่อน
                 otherSubstanceEdit.setText(item.getOtherDrugs());
 
-                // ตั้งค่า TextWatcher สำหรับข้อความที่กรอก
-                otherSubstanceEdit.addTextChangedListener(new TextWatcher() {
+                // เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่า EditText สามารถรับ input ได้
+                otherSubstanceEdit.setEnabled(true);
+                otherSubstanceEdit.setFocusable(true);
+                otherSubstanceEdit.setFocusableInTouchMode(true);
+
+                // เตรียม requestFocus เมื่อคลิก
+                otherSubstanceEdit.setOnClickListener(v -> {
+                    otherSubstanceEdit.requestFocus();
+                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(otherSubstanceEdit, InputMethodManager.SHOW_IMPLICIT);
+                });
+
+                // สร้าง TextWatcher ใหม่
+                textWatcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -126,18 +189,23 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
 
                     @Override
                     public void afterTextChanged(Editable s) {
-                        String newText = s.toString();
-                        item.setOtherDrugs(newText);
-                        // เพิ่มการเรียก listener เพื่อ update ViewModel
-                        if (listener != null) {
-                            listener.onAnswerChanged(item.getId(), item.isHasUsed(), newText);
+                        if (!isUpdating) {
+                            String newText = s.toString();
+                            item.setOtherDrugs(newText);
+                            // เพิ่มการเรียก listener
+                            if (listener != null) {
+                                listener.onAnswerChanged(item.getId(), item.isHasUsed(), newText);
+                            }
+                            requestLayout(); // ขอให้ปรับขนาด
                         }
                     }
-                });
+                };
+                otherSubstanceEdit.addTextChangedListener(textWatcher);
+
+
             } else {
                 otherSubstanceLayout.setVisibility(View.GONE);
             }
-
         }
     }
 }

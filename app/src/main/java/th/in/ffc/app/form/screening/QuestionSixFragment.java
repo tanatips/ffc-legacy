@@ -183,10 +183,10 @@ public class QuestionSixFragment extends Fragment implements OnFrequencySelected
         viewModel.getQuestionSixAnswers().observe(getViewLifecycleOwner(), answersObserver);
 
         // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-        if (isFirstLoad && !isDataLoaded) {
+//        if (isFirstLoad && !isDataLoaded) {
             loadData();
-            isFirstLoad = false;
-        }
+//            isFirstLoad = false;
+//        }
     }
     private void updateSubstanceItems(Map<String, AnswerFrequencyData> frequencies) {
         for (SubstanceItem item : substanceList) {

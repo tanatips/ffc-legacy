@@ -54,6 +54,9 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
     private OnDataPass dataPasser;
     private boolean isDataLoaded = false;
     private boolean isFirstLoad = true;
+    LinearLayout headerLayout ;
+    LinearLayout contentLayout ;
+    ImageView expandIcon  ;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -81,9 +84,9 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         View view = inflater.inflate(R.layout.fragment_question_three, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewThree);
-        LinearLayout headerLayout = view.findViewById(R.id.headerLayoutThree);
-        final LinearLayout contentLayout = view.findViewById(R.id.contentLayoutThree);
-        final ImageView expandIcon = view.findViewById(R.id.expandIconThree);
+        headerLayout = view.findViewById(R.id.headerLayoutThree);
+        contentLayout = view.findViewById(R.id.contentLayoutThree);
+        expandIcon = view.findViewById(R.id.expandIconThree);
 
         // ตั้งค่า RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -101,20 +104,15 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
                     contentLayout.setVisibility(View.GONE);
                     expandIcon.setImageResource(R.drawable.ic_expand_more);
                     notifyParentOfChange();
+                    calculateAndSetContentHeight();
                 } else {
                     contentLayout.setVisibility(View.VISIBLE);
                     expandIcon.setImageResource(R.drawable.ic_expand_less);
                     notifyParentOfChange();
+                    calculateAndSetContentHeight();
                 }
             }
         });
-
-//        recyclerView = view.findViewById(R.id.recyclerViewThree);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//
-//        adapter = new SubstanceThreeAdapter(substanceList, this);
-//        recyclerView.setAdapter(adapter);
-
         return view;
     }
     private void notifyParentOfChange() {
@@ -123,15 +121,6 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         if (parentFragment instanceof MainQuestionsFragment) {
             ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
         }
-
-        // วิธีที่ 2: ถ้าไม่มี notifyChildFragmentStateChanged() ใน MainQuestionsFragment
-        // หรือไม่สามารถเข้าถึง MainQuestionsFragment ได้ ให้แจ้ง activity โดยตรง
-//        if (getActivity() instanceof PersonScreeningForm15Activity) {
-//            // หน่วงเวลาเล็กน้อยเพื่อให้ layout ได้อัปเดตก่อน
-//            new Handler().postDelayed(() -> {
-//                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
-//            }, 200);
-//        }
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -176,10 +165,10 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         viewModel.getQuestionThreeAnswers().observe(getViewLifecycleOwner(), answersObserver);
 
         // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-        if (isFirstLoad && !isDataLoaded) {
+//        if (isFirstLoad && !isDataLoaded) {
             loadData();
-            isFirstLoad = false;
-        }
+//            isFirstLoad = false;
+//        }
     }
 
     private void updateSubstanceItems(Map<String, AnswerFrequencyData> frequencies) {
@@ -435,5 +424,25 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         super.onSaveInstanceState(outState);
         outState.putSerializable("selectedFrequencies", new HashMap<>(selectedFrequencies));
     }
+    private void calculateAndSetContentHeight() {
+        if (recyclerView == null || adapter == null) return;
 
+        // คำนวณความสูงตามจำนวน items
+        int itemCount = adapter.getItemCount();
+        int estimatedItemHeight = (int) (60 * getResources().getDisplayMetrics().density); // ประมาณความสูงต่อ item
+        int totalHeight = itemCount * estimatedItemHeight;
+
+        // บวกเพิ่ม padding
+        totalHeight += recyclerView.getPaddingTop() + recyclerView.getPaddingBottom();
+
+        // กำหนดความสูงขั้นต่ำและสูงสุด
+        int minHeight = (int) (200 * getResources().getDisplayMetrics().density);
+        int maxHeight = (int) (600 * getResources().getDisplayMetrics().density);
+        totalHeight = Math.max(minHeight, Math.min(totalHeight, maxHeight));
+
+        // กำหนดความสูงให้กับ contentLayout
+        ViewGroup.LayoutParams params = contentLayout.getLayoutParams();
+        params.height =  (int) Math.round(totalHeight*6.1);
+        contentLayout.setLayoutParams(params);
+    }
 }

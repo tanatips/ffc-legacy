@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="10dp"
     tools:context=".person.PersonScreeningForm15Activity">
@@ -20,7 +20,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -85,7 +85,7 @@
                     android:layout_marginTop="20dp"
                     android:id="@+id/expandableListView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:divider="#a9a9a9"
                     android:dividerHeight="1dp"
                     android:groupIndicator="@null"
@@ -118,7 +118,7 @@
                 android:layout_marginEnd="5dp"
                 android:text="ยกเลิก"
                 android:textColor="@android:color/white"
-                android:background="@drawable/button_cancel_background" />
+                android:background="@drawable/button_save_background" />
 
             <Button
                 android:id="@+id/btnOK"
@@ -129,6 +129,18 @@
                 android:text="บันทึกข้อมูล"
                 android:textColor="@android:color/white"
                 android:background="@drawable/button_save_background" />
+
+            <Button
+                android:id="@+id/btnReCreateTable"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:text="re create table"
+                android:textColor="@android:color/white"
+                android:background="@drawable/button_save_background"
+                android:visibility="gone"
+                />
         </LinearLayout>
 
         <FrameLayout

@@ -181,10 +181,10 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
         };
         viewModel.getQuestionFourAnswers().observe(getViewLifecycleOwner(), answersObserver);
         // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-        if (isFirstLoad && !isDataLoaded) {
+//        if (isFirstLoad && !isDataLoaded) {
             loadData();
-            isFirstLoad = false;
-        }
+//            isFirstLoad = false;
+//        }
     }
     private void updateSubstanceItems(Map<String, AnswerFrequencyData> frequencies) {
         for (SubstanceItem item : substanceList) {

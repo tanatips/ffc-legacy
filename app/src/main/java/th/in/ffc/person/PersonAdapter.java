@@ -277,7 +277,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             }
                             if(!cardiovascularRiskInfos.isEmpty())
                             {
-                                choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol());
+                                choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol()!=null?cardiovascularRiskInfos.get(0).getCholesterol():"0");
                             }
                             double cost13 = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,0);
                             double costFpg = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),fpg,0);

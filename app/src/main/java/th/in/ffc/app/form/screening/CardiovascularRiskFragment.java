@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -117,6 +118,7 @@ public class CardiovascularRiskFragment extends Fragment {
 
         // เพิ่ม Listeners
         setupListeners();
+//        setupEditTextClickListeners();
     }
     private void loadData() {
         try {
@@ -554,7 +556,26 @@ public class CardiovascularRiskFragment extends Fragment {
 
         return true;
     }
+    private void setupEditTextClickListeners() {
+        // สร้าง InputMethodManager
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
+        // เพิ่ม OnClickListener ให้กับ EditText ต่างๆ
+        View.OnClickListener clickListener = v -> {
+            v.requestFocus();
+            imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+        };
+
+        // ตั้งค่า click listener สำหรับแต่ละ EditText
+        edtAge.setOnClickListener(clickListener);
+        edtBP.setOnClickListener(clickListener);
+        edtWaist.setOnClickListener(clickListener);
+        edtHeight.setOnClickListener(clickListener);
+        edtCholesterol.setOnClickListener(clickListener);
+        edtRiskPercentage.setOnClickListener(clickListener);
+        edtRiskLevel.setOnClickListener(clickListener);
+        edtRecommendation.setOnClickListener(clickListener);
+    }
     private double calculateRiskScore(int age, String gender, int bp, int waist,
                                       int height, int cholesterol, boolean isSmoking,
                                       boolean hasDiabetes) {
@@ -606,4 +627,5 @@ public class CardiovascularRiskFragment extends Fragment {
 //        }
         edtRecommendation.setText(recommendation);
     }
+
 }

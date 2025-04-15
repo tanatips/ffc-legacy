@@ -55,6 +55,8 @@
             android:layout_height="wrap_content"
             android:hint="ระบุอายุ"
             android:inputType="number"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:layout_marginBottom="12dp"/>
 
         <!-- ข้อมูลส่วนตัว - เพศ -->
@@ -114,6 +116,8 @@
             android:layout_height="wrap_content"
             android:hint="มม.ปรอท"
             android:inputType="number"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:layout_marginBottom="8dp"/>
 
         <!-- ข้อมูลสุขภาพ - รอบเอว -->

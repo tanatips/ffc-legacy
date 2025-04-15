@@ -93,7 +93,7 @@
             android:name=".person.PersonScreeningForm15Activity"
             android:exported="true"
             android:label="@string/form_15"
-            android:windowSoftInputMode="stateHidden">
+            >
             <intent-filter android:icon="@drawable/health_screening">
                 <action android:name="ffc.intent.action.MAIN" />
 
