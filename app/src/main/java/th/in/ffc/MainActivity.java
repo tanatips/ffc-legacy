@@ -114,6 +114,7 @@ public class MainActivity extends FFCGridActivity {
         getSupportActionBar().setSubtitle(R.string.app_version);
 
 
+
         boolean quit = getIntent().getBooleanExtra("quit", false);
         if (quit) {
             this.finish();

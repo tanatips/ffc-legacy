@@ -618,7 +618,8 @@ public class SmartCardReaderActivity extends AppCompatActivity {
 
                 /*================= When Click [Find Reader Button]   =================*/
                 case "findreader": {
-                    int listOption = NA_POPUP + NA_SCAN + NA_BLE1 + NA_BLE0 + NA_BT + NA_USB;     //0x9F USB & BLE Reader
+//                    int listOption = NA_POPUP + NA_SCAN + NA_BLE1 + NA_BLE0 + NA_BT + NA_USB;     //0x9F USB & BLE Reader
+                    int listOption =  NA_SCAN + NA_BLE1 + NA_BLE0 + NA_BT + NA_USB;
                     setEnableButton(false, false, false, false);
 
                     /*================= get Reader List =================*/

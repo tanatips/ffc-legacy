@@ -31,10 +31,20 @@ android {
         namespace "th.in.ffc"
         minSdk 23
         targetSdk 33
-        versionCode 30001
-        versionName "3.0.1"
+        versionCode 30002
+        versionName "3.0.2"
     }
-
+    def formattedDate = new Date().format('dd-MM-yyyy_HH-mm-ss')
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.all { output ->
+                outputFileName = "ffc-${formattedDate}.aab"
+            }
+        }
+    }
+    bundle {
+        archivesBaseName = "ffc-${formattedDate}"
+    }
     signingConfigs {
 
         debug {
@@ -63,8 +73,9 @@ android {
             versionNameSuffix " debug"
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
-            manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
-            // เพิ่ม configuration สำหรับ API
+            manifestPlaceholders = [google_map_key: 'AIzaSyAwSNHiKW1PAX3lY5mYrEyU7SsOjvUjHcM']
+//          manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
+//          manifestPlaceholders = [google_map_key: 'AIzaSyCeguSxvCwtEU12GTUxW868RZ8sRor-G9U']
             buildConfigField "String", "API_BASE_URL", "\"https://test.nhso.go.th/nhsoendpoint/api/\""
             buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
             buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""
@@ -81,8 +92,9 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
-
+            manifestPlaceholders = [google_map_key: 'AIzaSyAwSNHiKW1PAX3lY5mYrEyU7SsOjvUjHcM']
+//            manifestPlaceholders = [google_map_key: 'AIzaSyDFnqKppKcMpTfZZhSXP1rIn2rrtd89hr8']
+//            manifestPlaceholders = [google_map_key: 'AIzaSyCeguSxvCwtEU12GTUxW868RZ8sRor-G9U']
             buildConfigField "String", "API_BASE_URL", "\"https://test.nhso.go.th/nhsoendpoint/api/\""
             buildConfigField "String", "API_SOURCE_ID", "\"BKKCC\""
             buildConfigField "String", "API_ENDPOINT_REAL_PERSON", "\"RealPerson\""

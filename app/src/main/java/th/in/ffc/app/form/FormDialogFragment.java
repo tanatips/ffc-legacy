@@ -31,6 +31,7 @@ import th.in.ffc.person.PersonScreeningForm15Activity;
 public class FormDialogFragment extends DialogFragment {
     private Fragment contentFragment;
     private String formTitle;
+    private Integer send_to_claim;
     private OnDataPass dataPassListener;
 
     @Override
@@ -62,10 +63,11 @@ public class FormDialogFragment extends DialogFragment {
         }
     }
 
-    public static FormDialogFragment newInstance(String title, Fragment content) {
+    public static FormDialogFragment newInstance(String title, Fragment content,Integer send_to_claim) {
         FormDialogFragment fragment = new FormDialogFragment();
         fragment.formTitle = title;
         fragment.contentFragment = content;
+        fragment.send_to_claim = send_to_claim;
         return fragment;
     }
 
@@ -122,7 +124,10 @@ public class FormDialogFragment extends DialogFragment {
                         .replace(R.id.dialogFragmentContainer, contentFragment)
                         .commit();
             }
-
+            if (send_to_claim != null && send_to_claim == 1) {
+                Button positiveButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setEnabled(false);
+            }
             // เพิ่มปุ่มเลื่อนขึ้นด้านบนหรือปุ่มเลื่อนกลับ หากต้องการ
         });
 

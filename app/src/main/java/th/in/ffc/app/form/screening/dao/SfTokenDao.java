@@ -116,4 +116,28 @@ public class SfTokenDao {
         token.setUpdatedDate(cursor.getLong(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.UPDATED_DATE)));
         return token;
     }
+    public void insertDefaultTokenIfEmpty() {
+        ContentResolver resolver = mContext.getContentResolver();
+        Uri uri = getTokenDaoUriAppend("list");
+
+        // Check if table is empty
+        Cursor cursor = resolver.query(uri, new String[]{ScreeningFormProvider.SfToken.ID}, null, null, null);
+        boolean isEmpty = true;
+
+        if (cursor != null) {
+            isEmpty = cursor.getCount() == 0;
+            cursor.close();
+        }
+
+        // Insert default token if table is empty
+        if (isEmpty) {
+            SfToken defaultToken = new SfToken();
+            defaultToken.setTokenAuth("34913796-e515-4b33-9656-6a2eb64ef569");
+            defaultToken.setTokenClaim("0b749fef-b348-4072-94f6-2a62cce6f7ac");
+            defaultToken.setCreatedDate(System.currentTimeMillis());
+            defaultToken.setUpdatedDate(System.currentTimeMillis());
+
+            insert(defaultToken);
+        }
+    }
 }

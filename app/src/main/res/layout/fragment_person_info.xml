@@ -385,20 +385,7 @@
             android:textColor="@color/black"
             android:hint="@string/height_cm" />
     </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutBodyTemperature"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/CustomTextInputLayout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/txtTemperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:hint="อุณหภูมิร่างกาย (°C)"
-            android:inputType="numberDecimal" />
-    </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -429,19 +416,6 @@
             android:contentDescription="@string/WaistCircumferenceInterpretation"
             android:src="@drawable/ic_info_blue" />
     </LinearLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutBp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/CustomTextInputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/txtBp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:hint="@string/bp" />
-    </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -474,22 +448,49 @@
             android:scaleType="fitCenter"
             android:contentDescription="@string/bmi_info" />
     </LinearLayout>
-
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutSymptomsPressure"
+        android:id="@+id/layoutBp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CustomTextInputLayout"
-        >
+        style="@style/CustomTextInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/txtSymptomsPressure"
+            android:id="@+id/txtBp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:hint="@string/symptoms_pressure" />
+            android:hint="@string/bp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+            <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutSymptomsPressure"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@style/CustomTextInputLayout"
+                >
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/txtSymptomsPressure"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:hint="@string/symptoms_pressure" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <ImageButton
+                        android:id="@+id/btnDeviceSsp"
+                        android:layout_width="match_parent"
+                        android:layout_weight="6"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/blood_pressure_gauge"
+                        />
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -518,8 +519,22 @@
             android:src="@drawable/ic_info_blue"
             android:scaleType="fitCenter"
             android:contentDescription="@string/BloodPressure" />
-    </LinearLayout>
 
+    </LinearLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutBodyTemperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtTemperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:hint="อุณหภูมิร่างกาย (°C)"
+            android:inputType="numberDecimal" />
+    </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
         </RelativeLayout>
     </ScrollView>

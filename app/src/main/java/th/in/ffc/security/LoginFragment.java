@@ -16,7 +16,9 @@ import java.security.NoSuchAlgorithmException;
 
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragment;
+import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.godmode.godMain;
+import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.provider.UserProvider.User;
 import th.in.ffc.provider.UserProvider.UserDatabaseOpenHelper;
 import th.in.ffc.session.UserSessionManager;
@@ -50,6 +52,8 @@ public class LoginFragment extends FFCFragment implements
                 .findViewById(R.id.password);
         mButtonLogin = (Button) root.findViewById(R.id.submit);
         mButtonLogin.setOnLongClickListener(lc);
+        SfTokenDao sfTokenDao = new SfTokenDao(getContext());
+        sfTokenDao.insertDefaultTokenIfEmpty();
         //DEBUG
         return root;
     }

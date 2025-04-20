@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.HashMap;
+
+import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.provider.HouseProvider.Village;
 import android.content.SharedPreferences;
 import android.content.Context;
@@ -81,6 +83,7 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ITEMS = 37;
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ID = 38;
     private static final int SF_DRUGS_SUMMARY = 39;
+    boolean isFirstRun = true;
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.sfpersoninfo";
@@ -154,9 +157,10 @@ public class ScreeningFormProvider extends ContentProvider {
         try {
             mOpenHelper = new DbOpenHelper(this.getContext());
             // เพิ่มการตรวจสอบการใช้งานครั้งแรก
-//            SharedPreferences prefs = getContext().getSharedPreferences("DatabasePrefs", Context.MODE_PRIVATE);
-//            boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
-//            if(isFirstRun) {
+            SharedPreferences prefs = getContext().getSharedPreferences("DatabasePrefs", Context.MODE_PRIVATE);
+
+            if(isFirstRun) {
+//                mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
@@ -169,25 +173,28 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
+                isFirstRun = false;
 
-//            }
+            }
 //            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
 //                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
 //            }
 
 
-            mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
-            mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
 
             return true;
         }
@@ -197,8 +204,9 @@ public class ScreeningFormProvider extends ContentProvider {
     }
     public static void ReCreateTable(Context context){
         mOpenHelper = new DbOpenHelper(context);
+        mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
-//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
@@ -210,8 +218,9 @@ public class ScreeningFormProvider extends ContentProvider {
         mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
 
+        mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
-//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
@@ -222,6 +231,8 @@ public class ScreeningFormProvider extends ContentProvider {
         mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
+        SfTokenDao tokenDao = new SfTokenDao(context);
+        tokenDao.insertDefaultTokenIfEmpty();
     }
     @Nullable
     @Override

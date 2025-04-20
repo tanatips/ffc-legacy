@@ -225,12 +225,14 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
            setResult(RESULT_OK,intent);
        }
        private void destroyBluetooth(){
-           if (mBtController.isBTConnected()) {
-               mBtController.disconnect();
-               mBtController.disableBtAdpter();
-               mBtController.unregisterBroadcastReceiver(this);
-               tvBtinfo.setText("");
-           }
+        if(mBtController!=null) {
+            if (mBtController.isBTConnected()) {
+                mBtController.disconnect();
+                mBtController.disableBtAdpter();
+                mBtController.unregisterBroadcastReceiver(this);
+                tvBtinfo.setText("");
+            }
+         }
        }
         public void onClick (View v){
         switch (v.getId()) {

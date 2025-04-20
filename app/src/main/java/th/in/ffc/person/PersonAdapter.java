@@ -105,6 +105,10 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         holder.tvBirthday.setText("วันเกิด: " + person.getBirthday());
         holder.tvPhone.setText("โทรศัพท์: " + person.getPhone());
         holder.tvPersonId.setText(person.getId());
+        if(person.getSend_to_claim().equals(1)){
+            holder.btnSubmitClaim.setText("ส่งข้อมูลเรียบร้อย");
+            holder.btnSubmitClaim.setEnabled(false);
+        }
     }
 
     @Override

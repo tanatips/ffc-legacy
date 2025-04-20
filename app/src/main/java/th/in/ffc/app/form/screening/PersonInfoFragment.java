@@ -83,6 +83,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
+import com.berry_med.monitordemo.activity.DeviceMainActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -115,7 +116,7 @@ public class PersonInfoFragment extends Fragment {
     private TextInputEditText txtWaistCircumference, txtBp, txtBmi;
     private TextInputEditText txtSymptomsPressure, txtDiastolicPressure;
     private TextInputEditText txtHomeNo,txtVillageNo,txtPostalCode,txtTemperature;
-    private ImageButton smartcardReader,imgPermission;
+    private ImageButton smartcardReader,imgPermission, btnDeviceSsp;
     private TextInputEditText currentEditText;
 
     private Map<EditText, TextFieldUpdater> fieldUpdaters;
@@ -140,6 +141,8 @@ public class PersonInfoFragment extends Fragment {
     private TextView progressBarText;
 
     private SearchableSpinner house;
+
+    private int DEVICE_RESULT_ONE = 101;
 
 
     private interface TextFieldUpdater {
@@ -693,6 +696,14 @@ public class PersonInfoFragment extends Fragment {
         txtVillageNo = view.findViewById(R.id.txtVillageNo);
         txtPostalCode = view.findViewById(R.id.txtPostalCode);
         txtTemperature = view.findViewById(R.id.txtTemperature);
+        btnDeviceSsp = (ImageButton) view.findViewById(R.id.btnDeviceSsp);
+        btnDeviceSsp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), DeviceMainActivity.class);
+                startActivityForResult(intent,DEVICE_RESULT_ONE);
+            }
+        });
     }
 
     private String getSubDistrictCodeByNameAndDistrictCode(String subDistrictName, String districtCode) {
@@ -1064,8 +1075,6 @@ public class PersonInfoFragment extends Fragment {
             setDoubleValue(txtSymptomsPressure, value -> personInfo.setSystolic_pressure(value));
             setDoubleValue(txtDiastolicPressure, value -> personInfo.setDiastolic_pressure(value));
 
-            // Default values
-            personInfo.setSend_to_claim(0);
             personInfo.setCreated_by("SYSTEM");
             personInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
@@ -1208,7 +1217,47 @@ public class PersonInfoFragment extends Fragment {
                         }
                         }
                     }
+                    getDataFromDevice(result);
                 }
             }
     );
+
+   private void getDataFromDevice(ActivityResult result){
+       if (result.getResultCode() == DEVICE_RESULT_ONE) {
+           Intent data = result.getData();
+           String ecgInfo = data.getStringExtra("ECGInfo");
+           String spO2Info = data.getStringExtra("SPO2Info");
+
+           String tempInfo = data.getStringExtra("TEMPInfo");
+           String nibpInfo = data.getStringExtra("NIBPInfo");
+
+           String[] ecgTemp = ecgInfo.split(":");
+           String heartRate = ecgTemp[1].replace("Resp Rate", "");
+           String RespRate = ecgTemp[2];
+
+           String[] spO2Temp = spO2Info.split(":");
+           String spO2 = spO2Temp[1].replace("SPO2", "");
+           String spO2PluseRate = spO2Temp[2];
+
+           String strHigh = "High:";
+           String strLow = "Low:";
+           String strMean = "Mean:";
+           int indexHigh = nibpInfo.indexOf(strHigh);
+           int indexLow = nibpInfo.indexOf(strLow);
+           int indexMean = nibpInfo.indexOf(strMean);
+           String hight = nibpInfo.substring(indexHigh + strHigh.length(), indexLow - 1);
+           String low = nibpInfo.substring(indexLow + strLow.length(), indexMean - 1);
+           String tmp = tempInfo.replace("TEMP:", "").replace("°C", "").trim();
+           if (tmp.trim().indexOf("-") < 0) {
+               txtTemperature.setText(tmp);
+           }
+           if (RespRate.indexOf("-") < 0) {
+               txtBp.setText(spO2PluseRate);
+           }
+           if (hight.indexOf("-") < 0 && low.indexOf("-") < 0) {
+               txtSymptomsPressure.setText(hight);
+               txtDiastolicPressure.setText(low);
+           }
+       }
+   }
 }

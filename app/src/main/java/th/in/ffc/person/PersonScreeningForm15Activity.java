@@ -59,6 +59,7 @@ import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepressionInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
+import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.app.form.screening.datalive.CardiovascularRiskLiveData;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
 import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
@@ -299,13 +300,23 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
             }
         });
+//        SfTokenDao tokenDao = new SfTokenDao(getBaseContext());
+//        tokenDao.insertDefaultTokenIfEmpty();
         getPersonInfoDetail();
+        if(this.personInfo!= null) {
+            if(this.personInfo.getSend_to_claim().equals(1)) {
+                btnOk.setEnabled(false);
+            }
+            else {
+                btnOk.setEnabled(true);
+            }
+        }
     }
     // เพิ่มเมธอดใหม่สำหรับแสดง Dialog
     private void showFormDialog(String formName) {
         Fragment fragment = fragmentMap.get(formName);
         if (fragment != null) {
-            FormDialogFragment dialogFragment = FormDialogFragment.newInstance(formName, fragment);
+            FormDialogFragment dialogFragment = FormDialogFragment.newInstance(formName, fragment,this.personInfo.getSend_to_claim());
             dialogFragment.show(getSupportFragmentManager(), "FormDialog");
 
             // หน่วงเวลาเพิ่มขึ้นเพื่อให้ Dialog แสดงก่อน
@@ -996,8 +1007,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     public void onPersonInfo(PersonInfo data) {
         String msg = "====> "+data.getBirthday()+" "+data.getIdcard()+ " "+data.getFname()+" "+data.getLname()+" "+data.getGender();
         System.out.println(msg);
-//        Toast.makeText(getBaseContext(),msg,Toast.LENGTH_SHORT).show();
         this.personInfo = data;
+        if (this.personInfo.getSend_to_claim() != null) {
+            btnOk.setEnabled(!this.personInfo.getSend_to_claim().equals(1));
+        }
     }
 
     @Override
