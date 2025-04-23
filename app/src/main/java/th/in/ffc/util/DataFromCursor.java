@@ -27,4 +27,11 @@ public class DataFromCursor {
         }
         return null; // คืนค่า null หากคอลัมน์ไม่มี
     }
+    public static byte[] getBlogFromCursor(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex != -1) {
+            return cursor.getBlob(columnIndex);
+        }
+        return null; // คืนค่า null หากคอลัมน์ไม่มี
+    }
 }

@@ -271,33 +271,40 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                 NALibs.closeLibNA();
 
                 try {
-                    Bitmap bitmap;
-                    Drawable drawable = iv_Photo.getDrawable();
+                    // เตรียมข้อมูลรูปภาพจาก ImageView
+                    Bitmap bitmap = null;
 
-                    if (drawable instanceof VectorDrawable) {
-                        // สำหรับ VectorDrawable
-                        bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                                drawable.getIntrinsicHeight(),
-                                Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(bitmap);
-                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-                        drawable.draw(canvas);
-                    } else if (drawable instanceof BitmapDrawable) {
-                        // สำหรับ BitmapDrawable
+                    // ตรวจสอบประเภทของ Drawable ที่อยู่ใน ImageView
+                    Drawable drawable = iv_Photo.getDrawable();
+                    if (drawable instanceof BitmapDrawable) {
+                        // ถ้าเป็น BitmapDrawable ให้ดึง Bitmap ออกมาโดยตรง
                         bitmap = ((BitmapDrawable) drawable).getBitmap();
-                    } else {
-                        // สำหรับ Drawable ประเภทอื่นๆ
-                        bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                    } else if (drawable instanceof VectorDrawable) {
+                        // ถ้าเป็น VectorDrawable ให้วาดลงบน Bitmap ใหม่
+                        bitmap = Bitmap.createBitmap(
+                                drawable.getIntrinsicWidth(),
                                 drawable.getIntrinsicHeight(),
                                 Bitmap.Config.ARGB_8888);
                         Canvas canvas = new Canvas(bitmap);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
+                    } else if (drawable != null) {
+                        // สำหรับ Drawable ประเภทอื่นๆ
+                        bitmap = Bitmap.createBitmap(
+                                drawable.getIntrinsicWidth(),
+                                drawable.getIntrinsicHeight(),
+                                Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(bitmap);
+                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+                        drawable.draw(canvas);
+                    } else {
+                        // ถ้าไม่มี Drawable ให้สร้าง Bitmap เปล่า
+                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_person);
                     }
 
-                    // แปลง Bitmap เป็น byte array
+                    // แปลง Bitmap เป็น byte array ด้วยคุณภาพสูง
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                     byte[] byteArray = stream.toByteArray();
 
                     // ส่งข้อมูลกลับ
@@ -306,13 +313,13 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                     intent.putExtra("image", byteArray);
                     setResult(Activity.RESULT_OK, intent);
                     showSnackbar("บันทึกข้อมูลเรียบร้อยแล้ว");
-
+                    finish();
                 } catch (Exception e) {
                     e.printStackTrace();
                     setResult(Activity.RESULT_CANCELED);
-                    showSnackbar("ไม่สามารถบันทึกข้อมูลได้");
+                    showSnackbar("ไม่สามารถบันทึกข้อมูลได้: " + e.getMessage());
+                    finish();
                 }
-                finish();
             }
         });
 
@@ -1086,9 +1093,18 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                     waitResponse();
 
                     printException(iRes, tv_Result.getText().toString());
-                    if (iRes == 0) {
-                        final Bitmap bMap = BitmapFactory.decodeByteArray(byteRes, 0, byteRes.length);
-                        handler.post(() -> iv_Photo.setImageBitmap(bMap));
+                    if (iRes == 0 && byteRes != null && byteRes.length > 0) {
+                        try {
+                            final Bitmap bMap = BitmapFactory.decodeByteArray(byteRes, 0, byteRes.length);
+                            if (bMap != null) {
+                                handler.post(() -> iv_Photo.setImageBitmap(bMap));
+                            } else {
+                                handler.post(() -> iv_Photo.setImageResource(R.drawable.ic_person));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            handler.post(() -> iv_Photo.setImageResource(R.drawable.ic_person));
+                        }
                     }
 
                     /*================= Disconnect Card =================*/

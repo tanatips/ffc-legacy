@@ -37,6 +37,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -44,6 +45,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -143,6 +145,7 @@ public class PersonInfoFragment extends Fragment {
     private SearchableSpinner house;
 
     private int DEVICE_RESULT_ONE = 101;
+    private ImageView imgPerson;
 
 
     private interface TextFieldUpdater {
@@ -409,6 +412,7 @@ public class PersonInfoFragment extends Fragment {
         citizenId = view.findViewById(R.id.citizenId);
         fname = view.findViewById(R.id.fname);
         lname = view.findViewById(R.id.lname);
+        imgPerson = view.findViewById(R.id.imgPerson); // เพิ่มบรรทัดนี้
 
         rdoGender = view.findViewById(R.id.rdoGender);
         rdoMale = view.findViewById(R.id.rdoMale);
@@ -846,6 +850,24 @@ public class PersonInfoFragment extends Fragment {
     }
      private void setDataToViews(PersonInfo person) {
         if (person != null) {
+            if (person.getPhoto() != null && person.getPhoto().length > 0) {
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(person.getPhoto(), 0, person.getPhoto().length);
+                    if (bitmap != null) {
+                        imgPerson.setImageBitmap(bitmap);
+                    } else {
+                        // ถ้าแปลงเป็น Bitmap ไม่สำเร็จ ให้ใช้รูปดีฟอลต์
+                        imgPerson.setImageResource(R.drawable.ic_person);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // กรณีเกิดข้อผิดพลาด ให้ใช้รูปดีฟอลต์
+                    imgPerson.setImageResource(R.drawable.ic_person);
+                }
+            } else {
+                // กรณีไม่มีข้อมูลรูปภาพ ให้ใช้รูปดีฟอลต์
+                imgPerson.setImageResource(R.drawable.ic_person);
+            }
             citizenId.setText(person.getIdcard());
             fname.setText(person.getFname());
             lname.setText(person.getLname());
@@ -1192,9 +1214,22 @@ public class PersonInfoFragment extends Fragment {
                         Intent data = result.getData();
                         byte[] byteArray = data.getByteArrayExtra("image");
                         String strIdcard = data.getStringExtra("result");
+                        // แสดงรูปภาพที่ได้จากบัตร
                         if (byteArray != null) {
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//                    imgPerson.setImageBitmap(bitmap);
+                            try {
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                                imgPerson.setImageBitmap(bitmap);
+
+                                // เก็บรูปภาพไว้ใน PersonInfo
+//                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//                                byte[] photoData = stream.toByteArray();
+                                personInfo.setPhoto(byteArray);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                // หากมีข้อผิดพลาดให้ใช้รูปภาพดีฟอลต์
+                                imgPerson.setImageResource(R.drawable.ic_person);
+                            }
                         }
                         if(strIdcard!=null && !strIdcard.equals("")){
 
@@ -1205,11 +1240,11 @@ public class PersonInfoFragment extends Fragment {
                             lname.setText(idcardInfo[4].toString());
 
                             int day,month,year;
-                            year = Integer.parseInt(idcardInfo[18].substring(0,4))-543;
+                            year = Integer.parseInt(idcardInfo[18].substring(0,4));
                             month = Integer.parseInt(idcardInfo[18].substring(4,6))-1;
                             day = Integer.parseInt(idcardInfo[18].substring(6,8));
                             txtBirthDay.setText(day+"/"+month+"/"+year);
-
+                            personInfo.setBirthday(convertToWesternDate(txtBirthDay.getText().toString()));
                             if(idcardInfo[1].toString().equals("นาย")) {
                                 rdoMale.setChecked(true);
                             } else {

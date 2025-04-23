@@ -17,7 +17,32 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="รูปภาพบุคคล"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <ImageView
+                        android:id="@+id/imgPerson"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_person"
+                        android:contentDescription="รูปภาพบุคคล"
+                        android:background="@color/background_photo"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

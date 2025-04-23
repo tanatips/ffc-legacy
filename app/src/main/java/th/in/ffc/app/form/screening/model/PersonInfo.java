@@ -46,6 +46,15 @@ public class PersonInfo {
     private String claim_date;
 
     private String visitId;
+    private byte[] photo;
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
+    }
 
     public String getId() {
         return id;

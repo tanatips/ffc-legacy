@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening.dao;
 
+import static th.in.ffc.util.DataFromCursor.getBlogFromCursor;
 import static th.in.ffc.util.DataFromCursor.getDoubleFromCursor;
 import static th.in.ffc.util.DataFromCursor.getIntegerFromCursor;
 import static th.in.ffc.util.DataFromCursor.getStringFromCursor;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import th.in.ffc.app.form.screening.model.PersonInfo;
@@ -126,7 +128,7 @@ public class SfPersonInfoDao {
                 personInfo.setClaim_message(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_MESSAGE));
                 personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
                 personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
-
+                personInfo.setPhoto(getBlogFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PHOTO));
                 personInfos.add(personInfo);
             }
             cursor.close();
@@ -243,6 +245,9 @@ public class SfPersonInfoDao {
         putString(values, "CLAIM_MESSAGE", personInfo.getClaim_message());
         putString(values, "CLAIM_DATE", personInfo.getClaim_date());
         putString(values, "VISIT_ID", personInfo.getVisitId());
+        putBlob(values, "PHOTO", personInfo.getPhoto());
+
+
 
         return values;
     }
@@ -333,6 +338,7 @@ public class SfPersonInfoDao {
                 person.setClaim_message(cursor.getString(cursor.getColumnIndex("claim_message")));
                 person.setClaim_date(cursor.getString(cursor.getColumnIndex("claim_date")));
                 person.setVisitId(cursor.getString(cursor.getColumnIndex("visit_id")));
+                person.setPhoto(getBlogFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PHOTO));
 
                 results.add(person);
             }
@@ -342,6 +348,11 @@ public class SfPersonInfoDao {
         return results;
     }
     private static void putString(ContentValues values, String key, String value) {
+        if (value != null) {
+            values.put(key, value);
+        }
+    }
+    private static void putBlob(ContentValues values, String key, byte[] value) {
         if (value != null) {
             values.put(key, value);
         }
