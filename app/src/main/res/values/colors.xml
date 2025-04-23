@@ -73,4 +73,42 @@
     <color name="light_yellow">#FFFFCC</color>
     <color name="light_red">#FFCCCC</color>
 
+<!--    <color name="colorPrimary">#2196F3</color>-->
+<!--    <color name="colorPrimaryDark">#1976D2</color>-->
+<!--    <color name="colorPrimary2">#3F51B5</color>-->
+<!--    <color name="colorAccent">#E91E63</color>-->
+    <color name="colorSuccess">#4CAF50</color>
+    <color name="colorWarning">#FF9800</color>
+    <color name="colorError">#F44336</color>
+<!--    <color name="white">#FFFFFF</color>-->
+<!--    <color name="black">#000000</color>-->
+<!--    <color name="gray">#CCCCCC</color>-->
+
+    <!-- สีพื้นฐาน -->
+<!--    <color name="colorPrimary">#3F51B5</color>-->
+<!--    <color name="colorPrimaryDark">#303F9F</color>-->
+<!--    <color name="colorAccent">#E91E63</color>-->
+
+    <!-- สีใหม่ที่สบายตากว่า -->
+    <color name="primary_soft">#5C6BC0</color>  <!-- สีฟ้าเข้มอ่อนลง -->
+    <color name="success_soft">#66BB6A</color>  <!-- สีเขียวอ่อนที่สบายตา -->
+    <color name="warning_soft">#FFB74D</color>  <!-- สีส้มอ่อน -->
+    <color name="error_soft">#EF5350</color>    <!-- สีแดงอ่อน -->
+
+    <!-- สีพื้นหลังและตัวอักษร -->
+    <color name="background_soft">#F5F7FA</color>    <!-- สีเทาอ่อนมากเกือบขาว -->
+    <color name="background_data">#F1F3F8</color>    <!-- สีเทาอ่อนสำหรับพื้นหลังข้อมูล -->
+    <color name="background_photo">#F8F9FB</color>   <!-- สีพื้นหลังสำหรับรูปถ่าย -->
+    <color name="text_primary">#394357</color>       <!-- สีเทาเข้มสำหรับข้อความหลัก -->
+    <color name="text_secondary">#667286</color>     <!-- สีเทากลางสำหรับข้อความรอง -->
+    <color name="stroke_light">#E0E6ED</color>       <!-- สีเส้นขอบอ่อนสำหรับการ์ด -->
+
+    <!-- สีระบบ (เก็บไว้เพื่อความเข้ากันได้กับโค้ดเดิม) -->
+<!--    <color name="colorPrimary2">#5C6BC0</color>     &lt;!&ndash; แทนที่ด้วยสีใหม่ &ndash;&gt;-->
+<!--    <color name="colorSuccess">#66BB6A</color>     &lt;!&ndash; แทนที่ด้วยสีใหม่ &ndash;&gt;-->
+<!--    <color name="colorWarning">#FFB74D</color>     &lt;!&ndash; แทนที่ด้วยสีใหม่ &ndash;&gt;-->
+<!--    <color name="colorError">#EF5350</color>       &lt;!&ndash; แทนที่ด้วยสีใหม่ &ndash;&gt;-->
+<!--    <color name="white">#FFFFFF</color>-->
+<!--    <color name="black">#000000</color>-->
+
 </resources>

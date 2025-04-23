@@ -1,147 +1,444 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="@color/background_soft"
     tools:context=".SmartCardReaderActivity">
 
-    <FrameLayout
+    <!-- Previous code unchanged -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary2">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary_soft"
+            app:title="เครื่องอ่านบัตรประชาชน"
+            app:titleTextColor="@android:color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tv_SoftwareInfo"
+            <!-- ส่วนขั้นตอนการอ่านบัตรประชาชน (Collapsible) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_steps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
-                android:text="Software Info : "
-                android:textColor="@android:color/white"
-                android:textSize="12sp" />
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/stroke_light"
+                app:strokeWidth="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <!-- Content of card_steps unchanged -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/steps_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ขั้นตอนการอ่านบัตรประชาชน"
+                            android:textColor="@color/primary_soft"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/steps_expand_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_expand_more"
+                            app:tint="@color/primary_soft" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/steps_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:paddingTop="0dp"
+                        android:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:background="@drawable/step_circle_background"
+                                android:gravity="center"
+                                android:text="1"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginStart="8dp"
+                                android:text="ค้นหาและเชื่อมต่อเครื่องอ่านบัตร"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:background="@drawable/step_circle_background"
+                                android:gravity="center"
+                                android:text="2"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginStart="8dp"
+                                android:text="เสียบบัตรประชาชนเข้าเครื่องอ่าน"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:background="@drawable/step_circle_background"
+                                android:gravity="center"
+                                android:text="3"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginStart="8dp"
+                                android:text="กดปุ่มอ่านข้อมูลบัตร"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_reader_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/stroke_light"
+                app:strokeWidth="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_steps">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:id="@+id/ic_reader"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_card_reader"
+                        app:tint="@color/primary_soft"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_Reader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="เครื่องอ่านบัตร: ไม่พบอุปกรณ์"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        app:layout_constraintStart_toEndOf="@id/ic_reader"
+                        app:layout_constraintEnd_toStartOf="@id/bt_UpdateLicense"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/bt_UpdateLicense"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:icon="@drawable/ic_update"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="24dp"
+                        android:contentDescription="อัปเดตลิขสิทธิ์"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        app:strokeColor="@color/warning_soft"
+                        app:iconTint="@color/warning_soft" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ซ่อนข้อมูลลิขสิทธิ์ -->
+            <TextView
+                android:id="@+id/tv_SoftwareInfo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_LicenseInfo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- ส่วนการดำเนินการ (Collapsible) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_actions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:text="License Info : "
-                android:textColor="@android:color/white"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/stroke_light"
+                app:strokeWidth="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_reader_info">
 
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/tv_Reader"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="10dp"
-        android:layout_weight="1"
-        android:text="Reader : "
-        android:textColor="@android:color/black"
-        android:textSize="14sp" />
-
-    <Button
-        android:id="@+id/bt_SelectReader"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_weight="2"
-        android:text="Find Reader"
-        android:textAllCaps="false"
-        android:textSize="14sp" />
-
-    <Button
-        android:id="@+id/bt_Read"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_weight="2"
-        android:text="Read"
-        android:textAllCaps="false"
-        android:textSize="14sp" />
-
-    <Button
-        android:id="@+id/bt_UpdateLicense"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_weight="2"
-        android:text="Update License"
-        android:textAllCaps="false"
-        android:textSize="14sp" />
-
-    <Button
-        android:id="@+id/bt_Exit"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_weight="2"
-        android:text="Exit"
-        android:textAllCaps="false"
-        android:textSize="14sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="top"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="5dp"
-        android:layout_weight="8"
-        android:gravity="top"
-        android:orientation="horizontal">
-
-        <ScrollView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="4">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_Result"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:layout_weight="3"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-            </LinearLayout>
-        </ScrollView>
+                    android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_Photo"
-            android:layout_width="0dp"
-            android:layout_height="130dp"
-            android:layout_gravity="top"
-            android:layout_margin="10dp"
-            android:layout_weight="1.5"
-            app:srcCompat="@drawable/ic_person" />
+                    <LinearLayout
+                        android:id="@+id/actions_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
-    </LinearLayout>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="การดำเนินการ"
+                            android:textColor="@color/primary_soft"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
-</LinearLayout>
+                        <ImageView
+                            android:id="@+id/actions_expand_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_expand_more"
+                            app:tint="@color/primary_soft" />
+                    </LinearLayout>
+
+                    <!-- Modified this LinearLayout to horizontal orientation -->
+                    <LinearLayout
+                        android:id="@+id/actions_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:paddingTop="0dp"
+                        android:visibility="visible">
+
+                        <!-- Modified buttons to be smaller and in a row with icon on top -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_SelectReader"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:backgroundTint="@color/primary_soft"
+                            android:paddingVertical="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:text="ค้นหา"
+                            android:textAllCaps="false"
+                            android:textSize="12sp"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_search"
+                            app:iconSize="24dp"
+                            app:iconGravity="top"
+                            app:iconPadding="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_Read"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="4dp"
+                            android:backgroundTint="@color/success_soft"
+                            android:paddingVertical="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:text="อ่านบัตร"
+                            android:textAllCaps="false"
+                            android:textSize="12sp"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_credit_card"
+                            app:iconSize="24dp"
+                            app:iconGravity="top"
+                            app:iconPadding="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bt_Exit"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:backgroundTint="@color/primary_soft"
+                            android:paddingVertical="6dp"
+                            android:paddingHorizontal="8dp"
+                            android:text="บันทึก"
+                            android:textAllCaps="false"
+                            android:textSize="12sp"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_save"
+                            app:iconSize="24dp"
+                            app:iconGravity="top"
+                            app:iconPadding="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/stroke_light"
+                app:strokeWidth="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_actions">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="ข้อมูลบัตรประชาชน"
+                        android:textColor="@color/primary_soft"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- รูปบัตรประชาชนอยู่ตรงกลาง -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginHorizontal="16dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="1dp">
+
+                        <ImageView
+                            android:id="@+id/iv_Photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:scaleType="fitCenter"
+                            android:adjustViewBounds="true"
+                            android:src="@drawable/ic_person"
+                            android:background="@color/background_photo"
+                            android:padding="8dp" />
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center"
+                        android:text="รูปถ่ายบุคคล"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <!-- ข้อมูลบัตรอยู่ด้านล่าง -->
+                    <androidx.core.widget.NestedScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:background="@color/background_data">
+
+                        <TextView
+                            android:id="@+id/tv_Result"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="12dp"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp" />
+                    </androidx.core.widget.NestedScrollView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

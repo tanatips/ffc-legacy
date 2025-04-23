@@ -7,6 +7,18 @@ import th.in.ffc.util.Log;
  */
 
 public class NIBP {
+    // Add constants for status codes
+    public static final int STATUS_FINISHED = 0;
+    public static final int STATUS_TESTING = 1;
+    public static final int STATUS_STOPPED = 2;
+    public static final int STATUS_PRESSURE_HIGH = 3;
+    public static final int STATUS_CUFF_LOOSE = 4;
+    public static final int STATUS_TIME_TOO_LONG = 5;
+    public static final int STATUS_ERROR = 6;
+    public static final int STATUS_DISTURB = 7;
+    public static final int STATUS_NO_RESULT = 8;
+    public static final int STATUS_INIT = 9;
+    public static final int STATUS_INIT_FINISHED = 10;
     public int HIGH_PRESSURE_INVALID = 0;
     public int LOW_PRESSURE_INVALID  = 0;
 
@@ -15,6 +27,24 @@ public class NIBP {
     private int lowPressure;
     private int cuffPressure;
     private int status;
+    // Add human-readable status message
+    public String getStatusMessage() {
+        int codeValue = (status >> 2) & 0x0F; // Extract bits 2-5
+        switch(codeValue) {
+            case STATUS_FINISHED: return "Measurement complete";
+            case STATUS_TESTING: return "Measuring...";
+            case STATUS_STOPPED: return "Measurement stopped";
+            case STATUS_PRESSURE_HIGH: return "Pressure too high";
+            case STATUS_CUFF_LOOSE: return "Cuff too loose";
+            case STATUS_TIME_TOO_LONG: return "Measurement time too long";
+            case STATUS_ERROR: return "Measurement error";
+            case STATUS_DISTURB: return "Signal disturbed";
+            case STATUS_NO_RESULT: return "Unable to determine result";
+            case STATUS_INIT: return "Initializing";
+            case STATUS_INIT_FINISHED: return "Ready";
+            default: return "Unknown status";
+        }
+    }
 
     public NIBP(int highPressure, int meanPressure, int lowPressure, int cuffPressure, int status) {
         this.highPressure = highPressure;
@@ -50,11 +80,22 @@ public class NIBP {
         return status;
     }
 
+//    @Override
+//    public String toString() {
+//        return  "Cuff:" +  (cuffPressure!=0 ? cuffPressure: "- -") + "\r\n" +
+//                "High:"+  (highPressure!=0 ? highPressure: "- -") +
+//                " Low:" +  (lowPressure !=0 ? lowPressure : "- -") +
+//                " Mean:"+  (meanPressure!=0 ? meanPressure: "- -");
+//    }
     @Override
     public String toString() {
-        return  "Cuff:" +  (cuffPressure!=0 ? cuffPressure: "- -") + "\r\n" +
-                "High:"+  (highPressure!=0 ? highPressure: "- -") +
-                " Low:" +  (lowPressure !=0 ? lowPressure : "- -") +
-                " Mean:"+  (meanPressure!=0 ? meanPressure: "- -");
+        String statusMsg = getStatusMessage();
+        if (((status >> 2) & 0x0F) != STATUS_FINISHED) {
+            return "Cuff:" + (cuffPressure != 0 ? cuffPressure : "- -") + "\r\n" + statusMsg;
+        }
+        return "Cuff:" + (cuffPressure != 0 ? cuffPressure : "- -") + "\r\n" +
+                "High:" + (highPressure != 0 ? highPressure : "- -") +
+                " Low:" + (lowPressure != 0 ? lowPressure : "- -") +
+                " Mean:" + (meanPressure != 0 ? meanPressure : "- -");
     }
 }

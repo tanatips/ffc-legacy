@@ -701,7 +701,8 @@ public class PersonInfoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), DeviceMainActivity.class);
-                startActivityForResult(intent,DEVICE_RESULT_ONE);
+//                startActivityForResult(intent,DEVICE_RESULT_ONE);
+                activityResultLauncher.launch(intent);
             }
         });
     }
@@ -1223,40 +1224,43 @@ public class PersonInfoFragment extends Fragment {
     );
 
    private void getDataFromDevice(ActivityResult result){
-       if (result.getResultCode() == DEVICE_RESULT_ONE) {
+       if (result.getResultCode() == Activity.RESULT_OK) {
            Intent data = result.getData();
-           String ecgInfo = data.getStringExtra("ECGInfo");
-           String spO2Info = data.getStringExtra("SPO2Info");
+           if(data.getStringExtra("ECGInfo")!=null) {
 
-           String tempInfo = data.getStringExtra("TEMPInfo");
-           String nibpInfo = data.getStringExtra("NIBPInfo");
+               String ecgInfo = data.getStringExtra("ECGInfo");
+               String spO2Info = data.getStringExtra("SPO2Info");
 
-           String[] ecgTemp = ecgInfo.split(":");
-           String heartRate = ecgTemp[1].replace("Resp Rate", "");
-           String RespRate = ecgTemp[2];
+               String tempInfo = data.getStringExtra("TEMPInfo");
+               String nibpInfo = data.getStringExtra("NIBPInfo");
 
-           String[] spO2Temp = spO2Info.split(":");
-           String spO2 = spO2Temp[1].replace("SPO2", "");
-           String spO2PluseRate = spO2Temp[2];
+               String[] ecgTemp = ecgInfo.split(":");
+               String heartRate = ecgTemp[1].replace("Resp Rate", "");
+               String RespRate = ecgTemp[2];
 
-           String strHigh = "High:";
-           String strLow = "Low:";
-           String strMean = "Mean:";
-           int indexHigh = nibpInfo.indexOf(strHigh);
-           int indexLow = nibpInfo.indexOf(strLow);
-           int indexMean = nibpInfo.indexOf(strMean);
-           String hight = nibpInfo.substring(indexHigh + strHigh.length(), indexLow - 1);
-           String low = nibpInfo.substring(indexLow + strLow.length(), indexMean - 1);
-           String tmp = tempInfo.replace("TEMP:", "").replace("°C", "").trim();
-           if (tmp.trim().indexOf("-") < 0) {
-               txtTemperature.setText(tmp);
-           }
-           if (RespRate.indexOf("-") < 0) {
-               txtBp.setText(spO2PluseRate);
-           }
-           if (hight.indexOf("-") < 0 && low.indexOf("-") < 0) {
-               txtSymptomsPressure.setText(hight);
-               txtDiastolicPressure.setText(low);
+               String[] spO2Temp = spO2Info.split(":");
+               String spO2 = spO2Temp[1].replace("SPO2", "");
+               String spO2PluseRate = spO2Temp[2];
+
+               String strHigh = "High:";
+               String strLow = "Low:";
+               String strMean = "Mean:";
+               int indexHigh = nibpInfo.indexOf(strHigh);
+               int indexLow = nibpInfo.indexOf(strLow);
+               int indexMean = nibpInfo.indexOf(strMean);
+               String hight = nibpInfo.substring(indexHigh + strHigh.length(), indexLow - 1);
+               String low = nibpInfo.substring(indexLow + strLow.length(), indexMean - 1);
+               String tmp = tempInfo.replace("TEMP:", "").replace("°C", "").trim();
+               if (tmp.trim().indexOf("-") < 0) {
+                   txtTemperature.setText(tmp);
+               }
+               if (spO2PluseRate.indexOf("-") < 0) {
+                   txtBp.setText(spO2PluseRate);
+               }
+               if (hight.indexOf("-") < 0 && low.indexOf("-") < 0) {
+                   txtSymptomsPressure.setText(hight);
+                   txtDiastolicPressure.setText(low);
+               }
            }
        }
    }

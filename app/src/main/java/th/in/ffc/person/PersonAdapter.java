@@ -306,7 +306,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             double amount = 0.0,total=0.0 ,memo = 0.0;
                             amount = costTotal;
                             total = costTotal;
-                            chaInfo.setChrgitem("B1"); // ทำหัตถการ และบริการวิสัญญี
+                            chaInfo.setChrgitem("I1"); // ทำหัตถการ และบริการวิสัญญี
                             chaInfo.setInvoiceNo(invoiceNumber);
                             chaInfo.setAmount(amount);
                             chaInfo.setTotal(total);

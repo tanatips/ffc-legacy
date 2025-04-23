@@ -263,7 +263,8 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
                 }
                 break;
             case R.id.btnNIBPStart:
-                mBtController.write(DataParser.CMD_START_NIBP);
+//                mBtController.write(DataParser.CMD_START_NIBP);
+                startNIBPMeasurement();
                 break;
             case R.id.btnNIBPStop:
                 mBtController.write(DataParser.CMD_STOP_NIBP);
@@ -395,12 +396,35 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
 
         @Override
         public void onNIBPReceived ( final NIBP nibp){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvNIBPinfo.setText(nibp.toString());
-            }
-        });
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                tvNIBPinfo.setText(nibp.toString());
+//            }
+//        });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvNIBPinfo.setText(nibp.toString());
+
+                    // Get status code (bits 2-5)
+                    int statusCode = (nibp.getStatus() >> 2) & 0x0F;
+
+                    // Update UI based on status
+                    switch(statusCode) {
+                        case NIBP.STATUS_TESTING:
+                            // Show progress indicator
+                            break;
+                        case NIBP.STATUS_CUFF_LOOSE:
+                            Toast.makeText(DeviceMainActivity.this, "Cuff is too loose - please adjust", Toast.LENGTH_SHORT).show();
+                            break;
+                        case NIBP.STATUS_ERROR:
+                        case NIBP.STATUS_NO_RESULT:
+                            Toast.makeText(DeviceMainActivity.this, "NIBP measurement failed - please try again", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            });
     }
 
         @Override
@@ -454,5 +478,59 @@ public class DeviceMainActivity extends AppCompatActivity implements BTControlle
                 }
             });
         }
+        private void startNIBPMeasurement() {
+            // Set adult mode first (if not already set)
+            mBtController.write(new byte[]{0x55, (byte) 0xaa, 0x04, 0x09, 0x01, (byte) 0xF1});
+
+            // Set target pressure to 150mmHg (0x4B * 2 = 150)
+            mBtController.write(new byte[]{0x55, (byte) 0xaa, 0x04, 0x0A, 0x4B, (byte) 0xA6});
+
+            // Start NIBP measurement
+            mBtController.write(DataParser.CMD_START_NIBP);
+        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check permissions first, then initialize Bluetooth if permissions are granted
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (checkAllBluetoothPermissions()) {
+                initializeBluetooth();
+            } else {
+                requestBluetoothPermissions();
+            }
+        } else {
+            initializeBluetooth();
+        }
     }
+    private boolean checkAllBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
+
+    private void requestBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestPermissionsIfNecessary(new String[]{
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            });
+        }
+    }
+
+    private void initializeBluetooth() {
+        BTController bt = new BTController(this);
+        mBtController = bt.getDefaultBTController(this);
+        mBtController.registerBroadcastReceiver(this);
+        mBtController.enableBtAdpter();
+
+        mDataParser = new DataParser(this);
+        mDataParser.start();
+    }
+
+}
 
