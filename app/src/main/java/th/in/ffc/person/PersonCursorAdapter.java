@@ -80,7 +80,7 @@ public class PersonCursorAdapter extends HighLightCursorAdapter {
                 Log.d("Person", name);
                 image.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
             } else {
-                image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.person_default_background));
+                image.setImageDrawable(mContext.getResources().getDrawable(R.drawable.user));
             }
         }
 

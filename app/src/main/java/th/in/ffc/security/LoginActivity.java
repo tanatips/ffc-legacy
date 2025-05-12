@@ -243,6 +243,7 @@ public class LoginActivity extends FFCFragmentActivity implements
     }
     public static final String PREFS_FILE = "FFCPreferences";
     public static final String EXTRA_USER = "username";
+    public static final String EXTRA_PCUCODE = "pcucode";
     @Override
     public void onLoginSuccess(String pcuCode, String user) {
 
@@ -251,6 +252,7 @@ public class LoginActivity extends FFCFragmentActivity implements
         SharedPreferences prefs = getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(EXTRA_USER, user);
+        editor.putString(EXTRA_PCUCODE, pcuCode);
         editor.apply();
 
         Answers.getInstance().logLogin(new LoginEvent()

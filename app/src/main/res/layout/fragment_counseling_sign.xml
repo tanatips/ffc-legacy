@@ -1,0 +1,115 @@
+<!-- fragment_counseling_sign.xml -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ให้คำปรึกษาและแนะนำปรับเปลี่ยนพฤติกรรมรายบุคคล หากเป็นกลุ่มเสี่ยงให้ประสานส่งต่อหรือนัดพบแพทย์เพื่อวินิจฉัยสั่งการรักษา หรือแนะนำรับบริการตามสิทธิ"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupCounseling"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/radioButtonProvideConsult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ให้คำแนะนำ" />
+
+            <EditText
+                android:id="@+id/editTextConsultDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="4dp"
+                android:hint="รายละเอียดคำแนะนำ"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine" />
+
+            <RadioButton
+                android:id="@+id/radioButtonSendToDoctor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ส่งต่อแพทย์/รับบริการตามสิทธิ" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ลงชื่อผู้รับบริการ"
+                android:layout_gravity="end"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:background="#EFEFEF">
+
+                <th.in.ffc.widget.SignatureView
+                    android:id="@+id/signatureViewPatient"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btnClearPatientSignature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ล้างลายเซ็น"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ลงชื่อผู้ให้บริการ"
+                android:layout_gravity="end"
+                android:layout_marginTop="24dp"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:background="#EFEFEF">
+
+                <th.in.ffc.widget.SignatureView
+                    android:id="@+id/signatureViewProvider"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btnClearProviderSignature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ล้างลายเซ็น"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

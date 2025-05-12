@@ -4,6 +4,7 @@ package th.in.ffc.person;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -34,9 +36,11 @@ import java.util.List;
 import java.util.Map;
 
 import th.in.ffc.R;
+import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.form.FormDialogFragment;
 import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.CardiovascularRiskFragment;
+import th.in.ffc.app.form.screening.CounselingSignFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
 import th.in.ffc.app.form.screening.MainQuestionsFragment;
 import th.in.ffc.app.form.screening.SharedViewModel;
@@ -49,6 +53,7 @@ import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
 import th.in.ffc.app.form.screening.adapter.ScreeningExpandableListAdapter;
+import th.in.ffc.app.form.screening.dao.CounselingSignatureDao;
 import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
@@ -62,6 +67,7 @@ import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.app.form.screening.datalive.CardiovascularRiskLiveData;
 import th.in.ffc.app.form.screening.datalive.CigaretteAddictionTestLiveData;
+import th.in.ffc.app.form.screening.datalive.CounselingLiveData;
 import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
@@ -72,6 +78,7 @@ import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.CardiovascularRiskInfo;
+import th.in.ffc.app.form.screening.model.CounselingInfo;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
@@ -84,9 +91,30 @@ import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
+import th.in.ffc.app.form.screening.model.VisitDiagInfo;
+import th.in.ffc.dao.VisitDao;
+import th.in.ffc.dao.VisitDiagDao;
+import th.in.ffc.provider.CounselingSignatureProvider;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
+import th.in.ffc.util.DateConverter;
+import th.in.ffc.util.GenerateSeq;
 import th.in.ffc.util.ViewPagerAdapter;
+
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass {
 
@@ -131,7 +159,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private Map<String, List<String>> subcategoryMap; // หัวข้อย่อย
     private Map<String, Fragment> fragmentMap; // Fragment สำหรับแต่ละหัวข้อย่อย
 
-
+    private CounselingInfo counselingInfo;
 
     private AssistScore assistScoreInfo;
 
@@ -274,7 +302,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         saveDrugsSix();
                         saveDrugsSeven();
                         saveDrugsEight();
-
+                        saveCounseling();
+                        saveVisit();
+                        saveVisitDiag();
                         // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
                         checkExistingData(personInfo.getId());
 
@@ -297,6 +327,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
                 ScreeningFormProvider.ReCreateTable(mContext);
+                CounselingSignatureProvider.ReCreateTable(mContext);
                 Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
             }
         });
@@ -362,6 +393,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private void getPersonInfoDetail(){
 
         String personId = getIntent().getStringExtra("person_id");
+        String visitId = getIntent().getStringExtra("visit_id");
         if(personId!=null) {
             // ใน Activity
             SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
@@ -407,6 +439,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             DrugsLiveData drugsLiveData = new DrugsLiveData();
             drugsLiveData.setPersonId(personId);
             viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
+
+            CounselingLiveData counselingLiveData = new CounselingLiveData();
+            counselingLiveData.setPersonId(personId);
+            counselingLiveData.setVisitId(visitId);
+
+            viewModel.setCounselingLiveData(counselingLiveData);
 
             // ตรวจสอบข้อมูลที่มีอยู่แล้วและอัปเดตสถานะ
             checkExistingData(personId);
@@ -467,6 +505,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         formStatus.put("แบบคัดกรองการใช้สารเสพติด", !drugs.isEmpty());
         formStatus.put("สรุปคะแนนแบบคัดกรอง ASSIST", !drugs.isEmpty());
 
+        // ตรวจสอบข้อมูลการให้คำปรึกษาและลายเซ็น
+        CounselingSignatureDao counselingDao = new CounselingSignatureDao(mContext);
+        List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(personId);
+        formStatus.put("ให้คำปรึกษาและแนะนำ", !counselingInfos.isEmpty());
+
         // อัปเดตสถานะในไอคอน
         if (expandableListAdapter != null) {
             ((ScreeningExpandableListAdapter) expandableListAdapter).updateAllCompletionStatus(formStatus);
@@ -482,6 +525,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         categoryList.add("การคัดกรองสารเสพติด");
         categoryList.add("ภาวะเครียด-ซึมเศร้า");
         categoryList.add("ความเสี่ยงด้านสุขภาพ");
+        categoryList.add("สรุปผลการคัดกรอง");
 
         // 1. หมวดหมู่ การคัดกรองสารเสพติด
         List<String> addictionScreening = new ArrayList<>();
@@ -506,6 +550,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         healthRisks.add("คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด");
         subcategoryMap.put("ความเสี่ยงด้านสุขภาพ", healthRisks);
 
+        // 4. หมวดหมู่ สรุปการคัดกรอง
+        List<String> sfSummary = new ArrayList<>();
+        sfSummary.add("ให้คำปรึกษาและแนะนำ");
+
+        subcategoryMap.put("สรุปผลการคัดกรอง", sfSummary);
+
         // เพิ่ม Fragment ที่เกี่ยวข้องทั้งหมด
         // 1. การคัดกรองสารเสพติด
         fragmentMap.put("แบบคัดกรองการใช้สารเสพติด", new MainQuestionsFragment());
@@ -524,6 +574,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         fragmentMap.put("แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน", new HealthRiskAssessmentFragment());
         fragmentMap.put("คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด", new CardiovascularRiskFragment());
 
+        // 4. สรุปการคัดกรอง
+        fragmentMap.put("ให้คำปรึกษาและแนะนำ", new CounselingSignFragment());
+
         // *** ลบบรรทัดเหล่านี้ออก เพราะจะทำใน onCreate แทน ***
         // expandableListView = findViewById(R.id.expandableListView);
         // expandableListAdapter = new ScreeningExpandableListAdapter(this, categoryList, subcategoryMap);
@@ -536,11 +589,18 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
     private String savePerson(){
         SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
+        UserSessionManager userSessionManager = new UserSessionManager(mContext);
         if(this.personInfo.getId()==null) {
+
+            this.personInfo.setCreated_by(userSessionManager.getUser());
+            this.personInfo.setCreated_date(DateConverter.getCurrentThaiBuddhistDateTime());
             String id = sfPersonInfoDao.insert(this.personInfo);
             this.personInfo.setId(id);
         } else {
+            this.personInfo.setUpdated_date(DateConverter.getCurrentThaiBuddhistDateTime());
+            this.personInfo.setUpdated_by(userSessionManager.getUser());
             sfPersonInfoDao.update(this.personInfo);
+
         }
         List<PersonInfo> personInfos1 = sfPersonInfoDao.getSfPersonInfoById(Integer.parseInt(this.personInfo.getId()));
         System.out.println("===== Start get data by id ======");
@@ -959,22 +1019,132 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
-//    private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter){
-//        Fragment fragment = adapter.getFragmentAt(position);
-//        if(fragment != null && fragment.getView() != null){
-//            fragment.getView().post(() -> {
-//                int width = View.MeasureSpec.makeMeasureSpec(viewPager.getWidth(), View.MeasureSpec.EXACTLY);
-//                int height = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-//
-//                fragment.getView().measure(width, height);
-//                int measuredHeight = fragment.getView().getMeasuredHeight();
-//                ViewGroup.LayoutParams layoutParams = viewPager.getLayoutParams();
-//                layoutParams.height = measuredHeight;
-//                viewPager.setLayoutParams(layoutParams);
-//
-//            });
-//        }
-//    }
+
+    private void saveCounseling() {
+        CounselingSignatureDao counselingDao = new CounselingSignatureDao(getBaseContext());
+        if (counselingInfo != null) {
+            if (personInfo != null) {
+                counselingInfo.setPersonId(personInfo.getId());
+                counselingInfo.setVisitId(personInfo.getVisitId());
+            }
+
+            UserSessionManager sessionManager = new UserSessionManager(getBaseContext());
+
+            if (counselingInfo.getId() == 0) {
+                // กรณีบันทึกใหม่
+                counselingInfo.setCreatedBy(sessionManager.getUsername());
+                long newId = counselingDao.saveCounseling(counselingInfo);
+
+                if (newId > 0) {
+                    counselingInfo.setId(newId);
+                    System.out.println("บันทึกข้อมูลการให้คำปรึกษาสำเร็จ ID: " + newId);
+                    updateFormStatus("ให้คำปรึกษาและแนะนำ", true);
+                } else {
+                    System.out.println("ไม่สามารถบันทึกข้อมูลการให้คำปรึกษาได้");
+                }
+            } else {
+                // กรณีอัพเดต
+                counselingInfo.setUpdatedBy(sessionManager.getUsername());
+                int rowsUpdated = counselingDao.updateCounseling(counselingInfo);
+
+                if (rowsUpdated > 0) {
+                    System.out.println("อัพเดตข้อมูลการให้คำปรึกษาสำเร็จ ID: " + counselingInfo.getId());
+                    updateFormStatus("ให้คำปรึกษาและแนะนำ", true);
+                } else {
+                    System.out.println("ไม่สามารถอัพเดตข้อมูลการให้คำปรึกษาได้");
+                }
+            }
+        }
+    }
+
+    private void saveVisit(){
+        UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
+                VisitDao visitDao = new VisitDao(getContentResolver());
+                if(this.personInfo.getVisitId() == null) { // insert
+                    long visitId = visitDao.saveNewVisitWithVitalSigns(
+                            userSessionManager.getPcuCode(),                     // pcucode
+                            userSessionManager.getPcuCode(),                     // pcucodePerson
+                            personInfo.getIdcard(),                              // pid
+                            personInfo.getCreated_date(),                        // visitDate
+                            (float) personInfo.getWeight(),                       // weight
+                            (float) personInfo.getHeight(),                       // height
+                            personInfo.getBp(),                                  // pressure
+                            (float) personInfo.getTemperature(),                  // temperature
+                            Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"),                               // pluse
+                            (float) personInfo.getWaist_size(),                   // waist
+                            String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
+                            String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
+                            userSessionManager.getUsername()                     // username
+                    );
+                    if(visitId>0) {
+                        this.personInfo.setVisitId(String.valueOf(visitId));
+                        String seq = GenerateSeq.generateSeq(userSessionManager.getPcuCode());
+                        SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(),String.valueOf(visitId),seq);
+                    }
+                }
+                else {
+                    visitDao.updateVisit(
+                            Long.parseLong(personInfo.getVisitId()),            // visitNo
+                            (float) personInfo.getWeight(),                      // weight
+                            (float) personInfo.getHeight(),                      // height
+                            personInfo.getBp(),                                  // pressure
+                            (float) personInfo.getTemperature(),                 // temperature
+                            Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"), // pulse
+                            (float) personInfo.getWaist_size(),                  // waist
+                            String.valueOf(personInfo.getSystolic_pressure()),   // symptoms (ในที่นี้ใช้ systolic แทน)
+                            String.valueOf(personInfo.getDiastolic_pressure())   // diagnote (ในที่นี้ใช้ diastolic แทน)
+                    );
+
+                }
+    }
+    private String getDiagCode (){
+        int age = th.in.ffc.util.AgeCalculator.calculateAge(personInfo.getBirthday());
+        SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(mContext);
+        SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
+        List<CardiovascularRiskInfo> cardiovascularRiskInfos = sfCardiovascularRiskInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+        List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos =  sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+        double fpg= 0.0;
+        double choresteral = 0.0;
+        if(!healthRiskAssessmentInfos.isEmpty())
+        {
+            if(healthRiskAssessmentInfos.size()>0) {
+                fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+            }
+        }
+        if(cardiovascularRiskInfos.isEmpty()) {
+            if (cardiovascularRiskInfos.size() > 0) {
+                choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol() != null ? cardiovascularRiskInfos.get(0).getCholesterol() : "0");
+            }
+        }
+        String diagCode = "";
+        if(15<=age && age<=34){  // DX=Z13.3, Z13.6
+            diagCode = "DX=Z13.3,Z13.6";
+        } else if(35<=age && age<=59){ // DX=Z13.1, Z13.3
+            diagCode = "DX=Z13.1,Z13.3";
+            if(fpg>0) {
+                diagCode = "DX=Z13.1";
+            }
+            if(choresteral>0){
+                diagCode = "DX=213.1";
+            }
+        }
+        return diagCode;
+    }
+    private void saveVisitDiag() {
+        UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
+
+        VisitDiagDao visitDiagDao = new VisitDiagDao(getBaseContext());
+        VisitDiagInfo visitDiagInfo = new VisitDiagInfo();
+        visitDiagInfo.setPcucode(userSessionManager.getPcuCode());
+        visitDiagInfo.setVisitno(this.personInfo.getVisitId());
+        visitDiagInfo.setDiagcode(getDiagCode());
+        if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
+            visitDiagDao.update(visitDiagInfo);
+
+        } else {
+            visitDiagDao.insert(visitDiagInfo);
+        }
+    }
     private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter) {
         Fragment fragment = adapter.getFragmentAt(position);
         if (fragment != null && fragment.getView() != null) {
@@ -1239,6 +1409,129 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     @Override
+    public void onCounselingDataPass(CounselingInfo counselingInfo) {
+        this.counselingInfo = counselingInfo;
+        System.out.println("ID: " + counselingInfo.getId());
+        System.out.println("Person Info ID: " + counselingInfo.getPersonId());
+        System.out.println("Counseling Type: " + counselingInfo.getCounselingType());
+
+        // บันทึกลายเซ็นเป็นไฟล์รูปภาพ
+        try {
+            // ตรวจสอบลายเซ็นผู้รับบริการ
+            byte[] patientSignature = counselingInfo.getPatientSignature();
+            if (patientSignature != null && patientSignature.length > 0) {
+                System.out.println("PatientSignature size: " + patientSignature.length + " bytes");
+                saveSignatureToFile(patientSignature, "patient_signature.png");
+            } else {
+                System.out.println("PatientSignature: NULL or EMPTY");
+            }
+
+            // ตรวจสอบลายเซ็นผู้ให้บริการ
+            byte[] providerSignature = counselingInfo.getProviderSignature();
+            if (providerSignature != null && providerSignature.length > 0) {
+                System.out.println("ProviderSignature size: " + providerSignature.length + " bytes");
+                saveSignatureToFile(providerSignature, "provider_signature.png");
+            } else {
+                System.out.println("ProviderSignature: NULL or EMPTY");
+            }
+        } catch (Exception e) {
+            System.out.println("Error saving signature files: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * บันทึกลายเซ็นเป็นไฟล์รูปภาพในโฟลเดอร์ของแอป
+     * @param signatureBytes ข้อมูลลายเซ็นแบบ byte array
+     * @param filename ชื่อไฟล์ที่ต้องการบันทึก
+     */
+    private void saveSignatureToFile(byte[] signatureBytes, String filename) {
+        try {
+            // ตรวจสอบข้อมูล
+            if (signatureBytes == null || signatureBytes.length == 0) {
+                System.out.println("Cannot save empty signature to file: " + filename);
+                return;
+            }
+
+            // แปลง byte array เป็น Bitmap
+            Bitmap bitmap = BitmapFactory.decodeByteArray(signatureBytes, 0, signatureBytes.length);
+            if (bitmap == null) {
+                System.out.println("Failed to decode signature as bitmap for file: " + filename);
+                return;
+            }
+
+            // บันทึกลงไฟล์ในโฟลเดอร์ Internal Storage ของแอป
+            File dir = getBaseContext().getFilesDir();
+            File file = new File(dir, filename);
+
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+
+            System.out.println("Signature saved to file: " + file.getAbsolutePath());
+
+            // ส่ง broadcast เพื่อให้ Gallery อัพเดท (เฉพาะ External Storage)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // สำหรับ Android 10+
+                try {
+                    // บันทึกลงใน Pictures เพื่อให้เห็นได้ง่าย
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
+                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                    values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Signatures");
+                    values.put(MediaStore.Images.Media.IS_PENDING, 1);
+
+                    ContentResolver resolver = getBaseContext().getContentResolver();
+                    Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    if (uri != null) {
+                        OutputStream os = resolver.openOutputStream(uri);
+                        if (os != null) {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+                            os.close();
+
+                            values.clear();
+                            values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                            resolver.update(uri, values, null, null);
+
+                            System.out.println("Signature also saved to gallery: " + uri.toString());
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error saving to gallery: " + e.getMessage());
+                }
+            } else {
+                // สำหรับ Android 9 และต่ำกว่า
+                try {
+                    String externalDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+                    File extDir = new File(externalDir + "/Signatures");
+                    if (!extDir.exists()) {
+                        extDir.mkdirs();
+                    }
+
+                    File extFile = new File(extDir, filename);
+                    FileOutputStream extFos = new FileOutputStream(extFile);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, extFos);
+                    extFos.flush();
+                    extFos.close();
+
+                    // อัพเดท Gallery
+                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    Uri contentUri = Uri.fromFile(extFile);
+                    mediaScanIntent.setData(contentUri);
+                    getBaseContext().sendBroadcast(mediaScanIntent);
+
+                    System.out.println("Signature also saved to gallery: " + extFile.getAbsolutePath());
+                } catch (Exception e) {
+                    System.out.println("Error saving to gallery: " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error saving signature to file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @Override
     public void onFormSaved(String formName, Object formData) {
         // จัดการข้อมูลที่ส่งกลับมาตามประเภท
         if (formData instanceof SmokerInfo) {
@@ -1277,6 +1570,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
         else if (formData instanceof AssistScore) {
             assistScoreInfo = (AssistScore) formData;
+            // บันทึกข้อมูล AssistScore
+            //saveAssistScore();
+        } else if (formData instanceof CounselingInfo) {
+            counselingInfo = (CounselingInfo) formData;
+
             // บันทึกข้อมูล AssistScore
             //saveAssistScore();
         }

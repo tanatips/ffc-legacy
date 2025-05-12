@@ -18,7 +18,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="12dp"
                 android:contentDescription="@string/not_available"
-                android:src="@drawable/person_default_background"/>
+                android:src="@drawable/user"/>
 
         <TextView
                 android:id="@id/code"

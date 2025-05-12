@@ -20,13 +20,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import th.in.ffc.BuildConfig;
+import th.in.ffc.app.form.screening.dao.SfApiUrlDao;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
+import th.in.ffc.app.form.screening.model.SfApiUrl;
 import th.in.ffc.app.form.screening.model.SfToken;
 
 public class NhsoApiCaller {
 
+    private static final String TAG = "NhsoApiCaller";
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
     private Context mContext;
+
+    // API Code สำหรับเรียกใช้ API
+    private static final String API_CODE_REAL_PERSON = "REAL_PERSON";
+    private static final String API_CODE_AUTHEN_CODE = "AUTHEN_CODE";
 
     // Constructor รับ context
     public NhsoApiCaller(Context context) {
@@ -52,82 +59,18 @@ public class NhsoApiCaller {
      * @param callback callback สำหรับรับผลลัพธ์
      */
     public void getRealPersonInfo(String citizenId, RealPersonApiCallback callback) {
-        new Thread(() -> {
-            HttpURLConnection conn = null;
-            try {
-                // ดึง token จากฐานข้อมูล
-                SfTokenDao tokenDao = new SfTokenDao(mContext);
-                List<SfToken> allTokens = tokenDao.getAllTokens();
-                String authToken = "34913796-e515-4b33-9656-6a2eb64ef569"; // default token
-
-                if (!allTokens.isEmpty()) {
-                    SfToken token = allTokens.get(0);
-                    authToken = token.getTokenAuth();
-                }
-
-                // สร้าง URL จาก BuildConfig
-                String apiUrl = BuildConfig.API_BASE_URL +
-                        BuildConfig.API_ENDPOINT_REAL_PERSON +
-                        "?SOURCE_ID=" + BuildConfig.API_SOURCE_ID +
-                        "&PID=" + citizenId;
-
-                URL url = new URL(apiUrl);
-                conn = (HttpURLConnection) url.openConnection();
-
-                // ตั้งค่า connection
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("Authorization", "Bearer " + authToken);
-                conn.setConnectTimeout(BuildConfig.API_TIMEOUT);
-                conn.setReadTimeout(BuildConfig.API_TIMEOUT);
-
-                // เชื่อมต่อและอ่านผลลัพธ์
-                int responseCode = conn.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // อ่านข้อมูลจาก response
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
+        // ใช้ ApiManager เพื่อเรียก API ตาม API Code
+        ApiManager.callGetApi(mContext, API_CODE_REAL_PERSON, getLatestToken(true),
+                citizenId, new ApiManager.ApiCallback() {
+                    @Override
+                    public void onResult(boolean success, String message) {
+                        if (success) {
+                            callback.onSuccess(message);
+                        } else {
+                            callback.onError(message);
+                        }
                     }
-                    reader.close();
-
-                    final String responseData = response.toString();
-
-                    // ส่งผลลัพธ์กลับผ่าน callback
-                    mainHandler.post(() -> callback.onSuccess(responseData));
-                } else {
-                    // กรณีเกิดข้อผิดพลาด
-                    BufferedReader reader;
-                    if (conn.getErrorStream() != null) {
-                        reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-                    } else {
-                        reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    }
-
-                    StringBuilder errorResponse = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        errorResponse.append(line);
-                    }
-                    reader.close();
-
-                    final String errorMessage = "รหัสข้อผิดพลาด: " + responseCode + "\n" + errorResponse.toString();
-
-                    mainHandler.post(() -> callback.onError(errorMessage));
-                }
-            } catch (Exception e) {
-                final String errorMsg = "เกิดข้อผิดพลาด: " + e.getMessage();
-                mainHandler.post(() -> callback.onError(errorMsg));
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-        }).start();
+                });
     }
 
     /**
@@ -137,64 +80,26 @@ public class NhsoApiCaller {
      * @param callback callback สำหรับรับผลลัพธ์
      */
     public void getAuthenCode(AuthenCodeRequest request, AuthenCodeCallback callback) {
-        new Thread(() -> {
-            HttpURLConnection conn = null;
-            try {
-                // ดึง token จากฐานข้อมูล
-                SfTokenDao tokenDao = new SfTokenDao(mContext);
-                List<SfToken> allTokens = tokenDao.getAllTokens();
-                String authToken = "Bearer 34913796-e515-4b33-9656-6a2eb64ef569"; // default token
+        // แปลง request เป็น JSON String
+        String jsonBody = new Gson().toJson(request);
 
-                if (!allTokens.isEmpty()) {
-                    SfToken token = allTokens.get(0);
-                    authToken = "Bearer " + token.getTokenAuth();
-                }
-
-                // สร้าง URL จาก BuildConfig
-                String apiUrl = BuildConfig.API_AUTHENCODE_URL;
-
-                URL url = new URL(apiUrl);
-                conn = (HttpURLConnection) url.openConnection();
-
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-                conn.setUseCaches(false);
-                conn.setRequestMethod("POST");
-
-                conn.addRequestProperty("Accept", "application/json");
-                conn.addRequestProperty("Content-Type", "application/json");
-                conn.addRequestProperty("Authorization", authToken);
-                conn.setConnectTimeout(BuildConfig.API_TIMEOUT);
-                conn.setReadTimeout(BuildConfig.API_TIMEOUT);
-
-                String jsonInputString = new Gson().toJson(request);
-                try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
-                    wr.write(jsonInputString.getBytes(StandardCharsets.UTF_8));
-                }
-
-                int responseCode = conn.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                        String response = in.lines().collect(Collectors.joining());
-                        ApiResponse apiResponse = new Gson().fromJson(response, ApiResponse.class);
-                        mainHandler.post(() -> callback.onSuccess(apiResponse));
+        // ใช้ ApiManager เพื่อเรียก API ตาม API Code
+        ApiManager.callPostApi(mContext, API_CODE_AUTHEN_CODE, getLatestToken(true),
+                jsonBody, new ApiManager.ApiCallback() {
+                    @Override
+                    public void onResult(boolean success, String message) {
+                        if (success) {
+                            try {
+                                ApiResponse apiResponse = new Gson().fromJson(message, ApiResponse.class);
+                                callback.onSuccess(apiResponse);
+                            } catch (Exception e) {
+                                callback.onError(new Exception("การแปลงข้อมูลล้มเหลว: " + e.getMessage()));
+                            }
+                        } else {
+                            callback.onError(new Exception(message));
+                        }
                     }
-                } else {
-                    // กรณีเกิดข้อผิดพลาด
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
-                        String errorResponse = reader.lines().collect(Collectors.joining());
-                        final Exception exception = new Exception("HTTP error code: " + responseCode + "\n" + errorResponse);
-                        mainHandler.post(() -> callback.onError(exception));
-                    }
-                }
-            } catch (Exception e) {
-                mainHandler.post(() -> callback.onError(e));
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-        }).start();
+                });
     }
 
     /**
@@ -209,13 +114,30 @@ public class NhsoApiCaller {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
-                // สร้าง URL จาก BuildConfig
-                String apiUrl = BuildConfig.API_BASE_URL +
-                        BuildConfig.API_ENDPOINT_REAL_PERSON +
-                        "?SOURCE_ID=" + BuildConfig.API_SOURCE_ID +
-                        "&PID=" + citizenId;
+                // ดึงข้อมูล API URL จากฐานข้อมูล
+                SfApiUrlDao apiUrlDao = new SfApiUrlDao(mContext);
+                SfApiUrl apiUrl = apiUrlDao.findByApiCode(API_CODE_REAL_PERSON);
+                apiUrlDao.close();
 
-                URL url = new URL(apiUrl);
+                if (apiUrl == null) {
+                    // ถ้าไม่พบ API URL ในฐานข้อมูล ใช้ค่าจาก BuildConfig
+                    mainHandler.post(() -> callback.onError("ไม่พบ API URL สำหรับ REAL_PERSON ในฐานข้อมูล"));
+                    return;
+                }
+
+                // สร้าง URL จากข้อมูลในฐานข้อมูล
+                String apiUrlStr = apiUrl.getActiveUrl();
+                if (apiUrl.getParams() != null && !apiUrl.getParams().isEmpty()) {
+                    apiUrlStr += (apiUrlStr.contains("?") ? "&" : "?") + apiUrl.getParams();
+                } else {
+                    // ถ้าไม่มีพารามิเตอร์ในฐานข้อมูล ใช้ค่า default
+                    apiUrlStr += "?SOURCE_ID=" + BuildConfig.API_SOURCE_ID + "&PID=" + citizenId;
+                }
+
+                // ตรวจสอบและแทนที่ PID ด้วยค่าจริง
+                apiUrlStr = apiUrlStr.replace("{PID}", citizenId);
+
+                URL url = new URL(apiUrlStr);
                 conn = (HttpURLConnection) url.openConnection();
 
                 // ตั้งค่า connection
@@ -273,6 +195,31 @@ public class NhsoApiCaller {
             }
         }).start();
     }
+
+    /**
+     * ดึง token ล่าสุดจากฐานข้อมูล
+     *
+     * @param isAuthToken true หากต้องการ token_auth, false หากต้องการ token_claim
+     * @return token ล่าสุด
+     */
+    private String getLatestToken(boolean isAuthToken) {
+        try {
+            SfTokenDao tokenDao = new SfTokenDao(mContext);
+            List<SfToken> tokens = tokenDao.getAllTokens();
+
+            if (!tokens.isEmpty()) {
+                SfToken token = tokens.get(0);
+                return isAuthToken ? token.getTokenAuth() : token.getTokenClaim();
+            }
+
+            // ถ้าไม่พบ token ให้ใช้ค่า default
+            return "34913796-e515-4b33-9656-6a2eb64ef569";
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting token", e);
+            return "34913796-e515-4b33-9656-6a2eb64ef569";
+        }
+    }
+
     private String formatResponseData(String response) {
         try {
             JSONObject jsonObject = new JSONObject(response);
@@ -345,6 +292,7 @@ public class NhsoApiCaller {
             return response;
         }
     }
+
     public String extractInsuranceCode(String data) {
         String insuranceCode = null;
 

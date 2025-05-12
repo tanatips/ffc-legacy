@@ -16,8 +16,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/not_available"
-                android:scaleType="centerCrop"
-                android:src="@drawable/person_default_background"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/user"/>
 
         <TextView
                 android:id="@id/code"

@@ -613,6 +613,8 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String VISIT_ID = "visit_id";
         public static final String PHOTO = "photo";
 
+        public static final String SEQ = "seq";
+
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -660,6 +662,8 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfPersonInfo.CLAIM_DATE, "claim_date AS " + SfPersonInfo.CLAIM_DATE);
             PROJECTION_MAP.put(SfPersonInfo.VISIT_ID, "visit_id AS " + SfPersonInfo.VISIT_ID);
             PROJECTION_MAP.put(SfPersonInfo.PHOTO, "photo AS " + SfPersonInfo.PHOTO);
+
+            PROJECTION_MAP.put(SfPersonInfo.SEQ, "seq AS " + SfPersonInfo.SEQ);
         }
 //        public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
 //                ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -727,7 +731,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         CLAIM_MESSAGE + " TEXT, " +
         CLAIM_DATE + " TEXT, " +
         VISIT_ID + " TEXT, " +
-        PHOTO + " BLOB " +
+        PHOTO + " BLOB, " +
+        SEQ + " TEXT(20) " +
         ")";
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
@@ -751,7 +756,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_message TEXT;",
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_date TEXT;",
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN visit_id TEXT;"
-                  "ALTER TABLE ffc_sf_person_info ADD COLUMN photo BLOB DEFAULT NULL"
+//                  "ALTER TABLE ffc_sf_person_info ADD COLUMN photo BLOB DEFAULT NULL",
+                "ALTER TABLE ffc_sf_person_info ADD COLUMN seq TEXT(20);"
         };
     }
 

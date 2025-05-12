@@ -6,6 +6,7 @@ import static th.in.ffc.util.Log.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,7 @@ import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.dao.VisitDao;
+import th.in.ffc.security.LoginActivity;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.DateTime;
@@ -145,9 +147,11 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     String[] names = tvName.getText().toString().split(" ");
                     List<PersonInfo>  personInfos =  SfPersonInfoDao.getSfPersonInfoById(Integer.valueOf(tvPersonId.getText().toString()));
                     personInfo = new PersonInfo();
+                    SharedPreferences prefs = mContext.getSharedPreferences(LoginActivity.PREFS_FILE, Context.MODE_PRIVATE);
+                    String pcuCode = prefs.getString("EXTRA_PCUCODE", "");
                     if(!personInfos.isEmpty()) {
                         personInfo = personInfos.get(0);
-                        personInfo.setHcode("32045");
+                        personInfo.setHcode(pcuCode);  // รหัสสถานบริการ)
                     }
                     UserSessionManager userSessionManager = new UserSessionManager(itemView.getContext());
                     String user = userSessionManager.getUser();
@@ -167,22 +171,22 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     NHSOOPDInfo hnSoOPDInfo = new NHSOOPDInfo();
 
                     VisitDao visitDao = new VisitDao(itemView.getContext().getContentResolver());
-
-                    long visitId = visitDao.saveNewVisitWithVitalSigns(
-                            userSessionManager.getPcuCode(),                     // pcucode
-                            userSessionManager.getPcuCode(),                     // pcucodePerson
-                            personInfo.getIdcard(),                              // pid
-                            personInfo.getCreated_date(),                        // visitDate
-                            (float)personInfo.getWeight(),                       // weight
-                            (float)personInfo.getHeight(),                       // height
-                            personInfo.getBp(),                                  // pressure
-                            (float)personInfo.getTemperature(),                  // temperature
-                            Integer.valueOf(personInfo.getBp()),                               // pluse
-                            (float)personInfo.getWaist_size(),                   // waist
-                            String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
-                            String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
-                            userSessionManager.getUsername()                     // username
-                    );
+                    long visitId = Long.valueOf(personInfo.getVisitId());
+//                    long visitId = visitDao.saveNewVisitWithVitalSigns(
+//                            userSessionManager.getPcuCode(),                     // pcucode
+//                            userSessionManager.getPcuCode(),                     // pcucodePerson
+//                            personInfo.getIdcard(),                              // pid
+//                            personInfo.getCreated_date(),                        // visitDate
+//                            (float)personInfo.getWeight(),                       // weight
+//                            (float)personInfo.getHeight(),                       // height
+//                            personInfo.getBp(),                                  // pressure
+//                            (float)personInfo.getTemperature(),                  // temperature
+//                            Integer.valueOf(personInfo.getBp()!=null?personInfo.getBp():"0"),                               // pluse
+//                            (float)personInfo.getWaist_size(),                   // waist
+//                            String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
+//                            String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
+//                            userSessionManager.getUsername()                     // username
+//                    );
                     // แฟ้ม 1
                     patient.setType("CID");
                     patient.setCid(personInfo.getIdcard());

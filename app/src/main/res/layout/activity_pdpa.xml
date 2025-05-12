@@ -40,15 +40,6 @@
         android:gravity="center"
         android:layout_marginBottom="20dp"
         >
-
-    <Button
-        android:id="@+id/btnCancel"
-        android:layout_margin="5dp"
-
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:text="ยกเลิก"/>
-
     <Button
         android:id="@+id/btnOK"
         android:layout_margin="5dp"
@@ -57,5 +48,14 @@
         android:layout_height="50dp"
         android:text="ตกลง"
         />
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_margin="5dp"
+
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="ยกเลิก"/>
+
+
     </LinearLayout>
 </LinearLayout>

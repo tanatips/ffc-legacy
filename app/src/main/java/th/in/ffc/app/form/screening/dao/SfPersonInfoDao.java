@@ -347,6 +347,32 @@ public class SfPersonInfoDao {
 
         return results;
     }
+    /**
+     * อัปเดตข้อมูล visitId และ seq สำหรับบุคคลตาม ID
+     * @param personId ID ของบุคคลที่ต้องการอัปเดต
+     * @param visitId ID ของการเข้ารับบริการ
+     * @param seq ลำดับการเข้ารับบริการ
+     * @return 1 ถ้าสำเร็จ, 0 ถ้าไม่สำเร็จ
+     */
+    public static long updateVisitInfo(String personId, String visitId, String seq) {
+        try {
+            String select = "ID=?";
+            String[] selectionArgs = {personId};
+            ContentValues values = new ContentValues();
+
+            // เพิ่มข้อมูล visitId และ seq ลงใน values
+            putString(values, "VISIT_ID", visitId);
+            putString(values, "SEQ", seq);
+
+            // อัปเดตข้อมูลบุคคล
+            mContext.getContentResolver().update(getPersonInfoUriById(Integer.valueOf(personId)), values, select, selectionArgs);
+
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
     private static void putString(ContentValues values, String key, String value) {
         if (value != null) {
             values.put(key, value);

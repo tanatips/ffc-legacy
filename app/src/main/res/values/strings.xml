@@ -1030,4 +1030,47 @@
     <string name="EveryDay">เป็นทุกวัน</string>
     <string name="bmi_info">ข้อมูล BMI</string>
 
+    <!-- API URLs Management -->
+    <string name="api_urls_management">จัดการ API URL</string>
+    <string name="add_api_url">เพิ่ม API URL</string>
+    <string name="edit_api_url">แก้ไข API URL</string>
+    <string name="api_code">รหัส API</string>
+    <string name="api_name">ชื่อ API</string>
+    <string name="description">คำอธิบาย</string>
+    <string name="http_method">HTTP Method</string>
+    <string name="test_url">Test URL</string>
+    <string name="prod_url">Production URL</string>
+    <string name="params">พารามิเตอร์</string>
+    <string name="request_format">รูปแบบข้อมูลที่ส่ง</string>
+    <!--    <string name="save">บันทึก</string>-->
+    <!--    <string name="cancel">ยกเลิก</string>-->
+    <!--    <string name="delete">ลบ</string>-->
+    <string name="delete_confirmation">ยืนยันการลบ</string>
+    <string name="delete_api_url_confirmation">คุณต้องการลบ API URL นี้หรือไม่?</string>
+    <string name="api_url_saved">บันทึก API URL สำเร็จ</string>
+    <string name="api_url_updated">อัปเดต API URL สำเร็จ</string>
+    <string name="api_url_deleted">ลบ API URL สำเร็จ</string>
+    <string name="api_url_save_error">ไม่สามารถบันทึก API URL ได้</string>
+    <string name="api_url_delete_error">ไม่สามารถลบ API URL ได้</string>
+    <string name="api_code_required">กรุณาระบุรหัส API</string>
+    <string name="api_name_required">กรุณาระบุชื่อ API</string>
+    <string name="test_url_required">กรุณาระบุ Test URL</string>
+    <string name="prod_url_required">กรุณาระบุ Production URL</string>
+    <string name="api_code_exists">รหัส API นี้มีอยู่แล้ว</string>
+    <string name="current_environment">สภาพแวดล้อมปัจจุบัน</string>
+    <string name="environment_test">Test</string>
+    <string name="environment_production">Production</string>
+    <string name="environment_changed_to_test">เปลี่ยนสภาพแวดล้อมเป็น Test แล้ว</string>
+    <string name="environment_changed_to_production">เปลี่ยนสภาพแวดล้อมเป็น Production แล้ว</string>
+    <string name="refresh">รีเฟรช</string>
+
+    <!-- HTTP Methods -->
+    <string-array name="http_methods">
+        <item>GET</item>
+        <item>POST</item>
+        <item>PUT</item>
+        <item>DELETE</item>
+        <item>PATCH</item>
+    </string-array>
+
 </resources>

@@ -44,6 +44,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -52,12 +53,17 @@ import androidx.fragment.app.FragmentTransaction;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +74,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -78,6 +85,7 @@ import java.util.Locale;
 import th.in.ffc.api.nhso.NhsoApiCaller;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.FFCGridActivity;
+import th.in.ffc.app.form.screening.ApiUrlListActivity;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.app.form.screening.interfaces.ApiTestCallback;
 import th.in.ffc.app.form.screening.model.SfToken;
@@ -87,6 +95,7 @@ import th.in.ffc.security.CryptographerService;
 import th.in.ffc.security.PdpaActivity;
 import th.in.ffc.util.AssetReader;
 import th.in.ffc.util.DateTime;
+import th.in.ffc.util.GenerateSeq;
 import th.in.ffc.util.TokenValidator;
 import th.in.ffc.widget.IntentBaseAdapter;
 import th.in.ffc.BuildConfig;
@@ -267,24 +276,116 @@ public class MainActivity extends FFCGridActivity {
 
                 return true;
             case R.layout.menu_settings:
-                showTokenValidationDialog();
+//                showTokenValidationDialog();
+                showSettingsMenu(findViewById(R.layout.menu_settings));
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+    private void showSettingsMenu(View anchorView) {
+        // สร้าง PopupMenu โดยให้แสดงที่ View ที่เป็น Anchor (ในที่นี้คือ ปุ่ม Settings)
+        PopupMenu popup = new PopupMenu(this, anchorView);
+        MenuInflater inflater = popup.getMenuInflater();
+
+        // สร้างเมนูอย่างง่าย
+        Menu menu = popup.getMenu();
+        menu.add(Menu.NONE, 1, Menu.NONE, "ทดสอบ Token");
+        menu.add(Menu.NONE, 2, Menu.NONE, "จัดการ API");
+
+        // ตั้งค่า Event Listener เมื่อกดเลือกเมนู
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case 1: // ทดสอบ Token
+                        showTokenValidationDialog();
+                        return true;
+                    case 2: // จัดการ API
+//                        showApiManagementDialog();
+                        showApiManagementScreen();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+
+        // แสดง PopupMenu
+        popup.show();
+    }
+    private void showApiManagementScreen() {
+        // สมมติว่าหน้าจอจัดการ API เดิมถูกเรียกผ่าน Intent นี้
+        // หากคุณใช้วิธีอื่น ให้ปรับโค้ดส่วนนี้ตามความเหมาะสม
+        Intent intent = new Intent(this, ApiUrlListActivity.class);
+        startActivity(intent);
+
+    }
+    private void showApiManagementDialog() {
+        // สร้าง dialog แบบเต็มหน้าจอ
+        final Dialog dialog = new Dialog(this, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar_MinWidth);
+        dialog.setTitle("จัดการ API");
+        dialog.setContentView(R.layout.dialog_api_management); // คุณต้องสร้างไฟล์เลย์เอาท์นี้เพิ่ม
+        dialog.setCancelable(true);
+
+        // ตั้งค่าให้ dialog มีขนาดใหญ่ขึ้น
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(layoutParams);
+        }
+
+        // ค้นหา View ต่างๆ ในไฟล์เลย์เอาท์และตั้งค่าการทำงาน
+        // คุณต้องเพิ่มการทำงานที่ต้องการในส่วนนี้
+
+        // แสดง dialog
+        dialog.show();
+    }
     private void showTokenValidationDialog() {
-        // สร้าง dialog
-        final Dialog dialog = new Dialog(this);
+        // สร้าง dialog แบบเต็มหน้าจอ
+        final Dialog dialog = new Dialog(this, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar_MinWidth);
         dialog.setTitle("Token Validation");
         dialog.setContentView(R.layout.dialog_token_validation);
         dialog.setCancelable(true);
 
-        // อ้างอิงถึงวิดเจ็ตต่างๆ ใน dialog
+        // ตั้งค่าให้ dialog มีขนาดใหญ่ขึ้น
+        Window window = dialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(layoutParams);
+        }
+
+        // ===== TOKEN AUTH SECTION =====
+        // อ้างอิงถึงวิดเจ็ตต่างๆ สำหรับ Token Auth
         final TextInputEditText editTokenAuth = dialog.findViewById(R.id.edit_token_auth);
+        final TextInputEditText editCitizenIdAuth = dialog.findViewById(R.id.edit_citizen_id_auth);
+        final Button btnValidateAuth = dialog.findViewById(R.id.btn_validate_auth);
+        final Button btnTestApiAuth = dialog.findViewById(R.id.btn_test_api_auth);
+
+        // Collapsible header สำหรับ Token Auth
+        final RelativeLayout tokenAuthHeader = dialog.findViewById(R.id.token_auth_header);
+        final LinearLayout tokenAuthContent = dialog.findViewById(R.id.token_auth_content);
+        final ImageView tokenAuthExpandIcon = dialog.findViewById(R.id.token_auth_expand_icon);
+
+        // ===== TOKEN CLAIM SECTION =====
+        // อ้างอิงถึงวิดเจ็ตต่างๆ สำหรับ Token Claim
         final TextInputEditText editTokenClaim = dialog.findViewById(R.id.edit_token_claim);
-        final TextInputEditText editCitizenId = dialog.findViewById(R.id.edit_citizen_id);
-        final Button btnValidate = dialog.findViewById(R.id.btn_validate);
-        final Button btnTestApi = dialog.findViewById(R.id.btn_test_api);
+        final EditText editJsonClaim = dialog.findViewById(R.id.edit_json_claim); // เปลี่ยนเป็น EditText แทน TextInputEditText
+        final Button btnValidateClaim = dialog.findViewById(R.id.btn_validate_claim);
+        final Button btnTestApiClaim = dialog.findViewById(R.id.btn_test_api_claim);
+        final Button btnLoadDefaultJson = dialog.findViewById(R.id.btn_load_default_json);
+
+        // Collapsible header สำหรับ Token Claim
+        final RelativeLayout tokenClaimHeader = dialog.findViewById(R.id.token_claim_header);
+        final LinearLayout tokenClaimContent = dialog.findViewById(R.id.token_claim_content);
+        final ImageView tokenClaimExpandIcon = dialog.findViewById(R.id.token_claim_expand_icon);
+
+        // ส่วนแสดงผลลัพธ์
         final TextView tvResult = dialog.findViewById(R.id.tv_validation_result);
 
         // ดึง token ล่าสุดจากฐานข้อมูลมาแสดง (ถ้ามี)
@@ -293,13 +394,110 @@ public class MainActivity extends FFCGridActivity {
             editTokenAuth.setText(latestToken[0]);  // token_auth
             editTokenClaim.setText(latestToken[1]); // token_claim
         }
-//        editCitizenId.setText("1101401424853");
-        // เมื่อกดปุ่ม validate
-        btnValidate.setOnClickListener(new View.OnClickListener() {
+
+        // ตั้งค่า Collapsible สำหรับส่วน Token Auth
+        tokenAuthHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tokenAuthContent.getVisibility() == View.VISIBLE) {
+                    tokenAuthContent.setVisibility(View.GONE);
+                    tokenAuthExpandIcon.setImageResource(R.drawable.ic_action_expand);
+                } else {
+                    tokenAuthContent.setVisibility(View.VISIBLE);
+                    tokenAuthExpandIcon.setImageResource(R.drawable.ic_action_collapse);
+                }
+            }
+        });
+
+        // ตั้งค่า Collapsible สำหรับส่วน Token Claim
+        tokenClaimHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tokenClaimContent.getVisibility() == View.VISIBLE) {
+                    tokenClaimContent.setVisibility(View.GONE);
+                    tokenClaimExpandIcon.setImageResource(R.drawable.ic_action_expand);
+                } else {
+                    tokenClaimContent.setVisibility(View.VISIBLE);
+                    tokenClaimExpandIcon.setImageResource(R.drawable.ic_action_collapse);
+
+                    // เปิดส่วน Token Claim แล้วกดปุ่มโหลด JSON ตัวอย่างโดยอัตโนมัติถ้ายังไม่มีข้อมูล
+                    if (editJsonClaim.getText().toString().trim().isEmpty()) {
+                        btnLoadDefaultJson.performClick();
+                    }
+                }
+            }
+        });
+        String pcuCode=getPcuCode();
+        String seq = GenerateSeq.generateSeq(pcuCode);
+        // ข้อมูล JSON ตัวอย่าง
+        final String defaultJsonData = "{\n" +
+                "    \"fsDatas\": [\n" +
+                "        {\n" +
+                "            \"opd\": {\n" +
+                "                \"SEQ\": \""+seq+"\",\n" +
+                "                \"INSCL\": \"UCS\",\n" +
+                "                \"DATEOPD\": \"2021-12-31T13:15:30\",\n" +
+                "                \"PERMITNO\": \"PP1040589918\",\n" +
+                "                \"HTYPE\": \"1\",\n" +
+                "                \"UUC\": \"1\",\n" +
+                "                \"CHIEFCOMP\": \"CHIEFCOMP_TEST\",\n" +
+                "                \"BTEMP\": 37.6,\n" +
+                "                \"SBP\": 130,\n" +
+                "                \"DBP\": 89,\n" +
+                "                \"PR\": 98,\n" +
+                "                \"RR\": 20,\n" +
+                "                \"WAISTLINE\": 34,\n" +
+                "                \"WEIGHT\": 50,\n" +
+                "                \"HEIGHT\": 150,\n" +
+                "                \"HEADCIRCUM\": 35,\n" +
+                "                \"CLINIC\": \"01\"\n" +
+                "            },\n" +
+                "            \"patient\": {\n" +
+                "                \"SEQ\": \""+seq+"\",\n" +
+                "                \"TYPE\": \"CID\",\n" +
+                "                \"CID\": \"1730201588821\",\n" +
+                "                \"PPN\": \"1730201588821\",\n" +
+                "                \"PWD\": \"AA123456\",\n" +
+                "                \"NAME.GIVEN\": \"อำนาจ\",\n" +
+                "                \"NAME.FAMILY\": \"รอบรู้\",\n" +
+                "                \"BIRTHDATE\": \"2021-12-31\",\n" +
+                "                \"GENDER\": \"1\",\n" +
+                "                \"ADDRESS.LINE\": \"99/999 หมู่ที่ 2 หมู่บ้านอบอุ่น ซอยอบอ้าว\",\n" +
+                "                \"ADDRESS.CITY\": \"110101\",\n" +
+                "                \"ADDRESS.DISTRICT\": \"1101\",\n" +
+                "                \"ADDRESS.STATE\": \"11\",\n" +
+                "                \"ADDRESS.POSTALCODE\": \"10310\",\n" +
+                "                \"NATIONALITY\": \"099\",\n" +
+                "                \"RACE\": \"ไทย\",\n" +
+                "                \"HN\": \"Xxx000\",\n" +
+                "                \"AN\": \"Xxx000\"\n" +
+                "            },\n" +
+                "            \"provider\": {\n" +
+                "                \"SEQ\": \""+seq+"\",\n" +
+                "                \"HCODE\": \"11415\",\n" +
+                "                \"HCODE_NAME\": \"โรงพยาบาลเขาชัยสน\",\n" +
+                "                \"HCODE_SEND\": \"11415\",\n" +
+                "                \"HCODE_SEND_NAME\": \"โรงพยาบาลเขาชัยสน\",\n" +
+                "                \"HMAIN\": \"10745\",\n" +
+                "                \"HMAIN_NAME\": \"โรงพยาบาลสงขลา\"\n" +
+                "            }\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+
+        // เมื่อกดปุ่มโหลดข้อมูล JSON ตัวอย่าง
+        btnLoadDefaultJson.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editJsonClaim.setText(defaultJsonData);
+            }
+        });
+
+        // เมื่อกดปุ่มตรวจสอบ Token Auth
+        btnValidateAuth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String tokenAuth = editTokenAuth.getText().toString().trim();
-                String tokenClaim = editTokenClaim.getText().toString().trim();
 
                 if (tokenAuth.isEmpty()) {
                     tvResult.setText("กรุณาระบุ Token Auth");
@@ -308,48 +506,55 @@ public class MainActivity extends FFCGridActivity {
                 }
 
                 // ตรวจสอบรูปแบบของ token_auth
-                if (!TokenValidator.isValidUuidFormat(tokenAuth)) {
-                    tvResult.setText("รูปแบบ Token Auth ไม่ถูกต้อง");
-                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    return;
-                }
-
-                if (tokenClaim.isEmpty()) {
-                    tvResult.setText("กรุณาระบุ Token Auth");
-                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    return;
-                }
-
-                if (!TokenValidator.isValidUuidFormat(tokenClaim)) {
-                    tvResult.setText("รูปแบบ Token Claim ไม่ถูกต้อง");
-                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    return;
-                }
-
-                // ตรวจสอบผ่าน API (ถ้ามี)
-                tvResult.setText("กำลังตรวจสอบ...");
-                tvResult.setTextColor(getResources().getColor(android.R.color.black));
-
-                if (TokenValidator.isValidUuidFormat(tokenAuth) && TokenValidator.isValidUuid(tokenClaim)) {
-                    // รูปแบบถูกต้อง
-                    tvResult.setText("Token ถูกต้องตามรูปแบบ UUID");
+                if (TokenValidator.isValidUuidFormat(tokenAuth)) {
+                    tvResult.setText("Token Auth ถูกต้องตามรูปแบบ UUID");
                     tvResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-                    // บันทึก token ลงฐานข้อมูล (ถ้ายังไม่มี)
-                    saveTokenToDatabase(tokenAuth, tokenClaim);
-
+                    // บันทึก token auth ลงฐานข้อมูล
+                    String tokenClaim = editTokenClaim.getText().toString().trim();
+                    if (!tokenClaim.isEmpty()) {
+                        saveTokenToDatabase(tokenAuth, tokenClaim);
+                    }
                 } else {
-                    // รูปแบบไม่ถูกต้อง
-                    tvResult.setText("รูปแบบ Token ไม่ถูกต้อง ต้องเป็นรูปแบบ UUID เช่น 34913796-e515-4b33-9656-6a2eb64ef569");
+                    tvResult.setText("รูปแบบ Token Auth ไม่ถูกต้อง ต้องเป็นรูปแบบ UUID เช่น 34913796-e515-4b33-9656-6a2eb64ef569");
                     tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
                 }
             }
         });
-// เมื่อกดปุ่มทดสอบ API
-        btnTestApi.setOnClickListener(new View.OnClickListener() {
+
+        // เมื่อกดปุ่มตรวจสอบ Token Claim
+        btnValidateClaim.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tokenClaim = editTokenClaim.getText().toString().trim();
+
+                if (tokenClaim.isEmpty()) {
+                    tvResult.setText("กรุณาระบุ Token Claim");
+                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    return;
+                }
+
+                // ตรวจสอบรูปแบบของ token_claim
+                if (TokenValidator.isValidUuidFormat(tokenClaim)) {
+                    tvResult.setText("Token Claim ถูกต้องตามรูปแบบ UUID");
+                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                    // บันทึก token claim ลงฐานข้อมูล
+                    String tokenAuth = editTokenAuth.getText().toString().trim();
+                    if (!tokenAuth.isEmpty()) {
+                        saveTokenToDatabase(tokenAuth, tokenClaim);
+                    }
+                } else {
+                    tvResult.setText("รูปแบบ Token Claim ไม่ถูกต้อง ต้องเป็นรูปแบบ UUID เช่น 34913796-e515-4b33-9656-6a2eb64ef569");
+                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                }
+            }
+        });
+
+        // เมื่อกดปุ่มทดสอบ API ด้วย Token Auth
+        btnTestApiAuth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String tokenAuth = editTokenAuth.getText().toString().trim();
-                String citizenId = editCitizenId.getText().toString().trim();
+                String citizenId = editCitizenIdAuth.getText().toString().trim();
 
                 if (tokenAuth.isEmpty()) {
                     tvResult.setText("กรุณาระบุ Token Auth");
@@ -364,31 +569,119 @@ public class MainActivity extends FFCGridActivity {
                 }
 
                 // แสดงสถานะกำลังทดสอบ
-                tvResult.setText("กำลังทดสอบการเชื่อมต่อกับ API...");
+                tvResult.setText("กำลังทดสอบการเชื่อมต่อกับ API ด้วย Token Auth...");
                 tvResult.setTextColor(getResources().getColor(android.R.color.black));
 
-                // สร้าง instance ของ NhsoApiCaller
-                NhsoApiCaller apiCaller = new NhsoApiCaller(MainActivity.this);
+                // แสดง ProgressDialog ระหว่างรอผลลัพธ์
+                final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                progressDialog.setMessage("กำลังเชื่อมต่อกับ API...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
 
-                // เรียกใช้ testRealPersonApi
-                apiCaller.testRealPersonApi(citizenId, tokenAuth, new NhsoApiCaller.RealPersonApiCallback() {
-                    @Override
-                    public void onSuccess(String response) {
-                        tvResult.setText("ทดสอบ API สำเร็จ: \n" + response);
-                        tvResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-                    }
+                // ใช้ ApiManager เพื่อเรียกใช้ API
+                th.in.ffc.api.nhso.ApiManager.callGetApi(
+                        MainActivity.this,
+                        "REAL_PERSON",
+                        tokenAuth,
+                        citizenId,
+                        new th.in.ffc.api.nhso.ApiManager.ApiCallback() {
+                            @Override
+                            public void onResult(boolean success, String message) {
+                                // ปิด Progress Dialog
+                                progressDialog.dismiss();
 
-                    @Override
-                    public void onError(String errorMessage) {
-                        tvResult.setText("ทดสอบ API ล้มเหลว: " + errorMessage);
-                        tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    }
-                });
+                                // อัปเดต TextView ผลลัพธ์
+                                if (success) {
+                                    tvResult.setText("ทดสอบ API ด้วย Token Auth สำเร็จ");
+                                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                                } else {
+                                    tvResult.setText("ทดสอบ API ด้วย Token Auth ล้มเหลว");
+                                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                                }
+
+                                // แสดงผลลัพธ์แบบ Dialog
+                                String title = success ? "API ทำงานสำเร็จ" : "API ทำงานล้มเหลว";
+                                showApiResultDialog(title, message, success);
+                            }
+                        }
+                );
             }
         });
+        // เมื่อกดปุ่มทดสอบ API ด้วย Token Claim
+        btnTestApiClaim.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tokenClaim = editTokenClaim.getText().toString().trim();
+                String jsonData = editJsonClaim.getText().toString().trim();
+
+                if (tokenClaim.isEmpty()) {
+                    tvResult.setText("กรุณาระบุ Token Claim");
+                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    return;
+                }
+
+                if (jsonData.isEmpty()) {
+                    tvResult.setText("กรุณาระบุข้อมูล JSON");
+                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    return;
+                }
+
+                // ตรวจสอบรูปแบบ JSON
+                try {
+                    new org.json.JSONObject(jsonData);
+                } catch (Exception e) {
+                    tvResult.setText("รูปแบบ JSON ไม่ถูกต้อง: " + e.getMessage());
+                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    return;
+                }
+
+                // แสดงสถานะกำลังทดสอบ
+                tvResult.setText("กำลังทดสอบการเชื่อมต่อกับ API ด้วย Token Claim...");
+                tvResult.setTextColor(getResources().getColor(android.R.color.black));
+
+                // แสดง ProgressDialog ระหว่างรอผลลัพธ์
+                final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+                progressDialog.setMessage("กำลังเชื่อมต่อกับ API...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
+                // ใช้ ApiManager เพื่อเรียกใช้ API
+                th.in.ffc.api.nhso.ApiManager.callPostApi(
+                        MainActivity.this,
+                        "CREATE_FS_DATA", // API code สำหรับ FS Data
+                        tokenClaim,
+                        jsonData,
+                        new th.in.ffc.api.nhso.ApiManager.ApiCallback() {
+                            @Override
+                            public void onResult(boolean success, String message) {
+                                // ปิด Progress Dialog
+                                progressDialog.dismiss();
+
+                                // อัปเดต TextView ผลลัพธ์
+                                if (success) {
+                                    tvResult.setText("ทดสอบ API ด้วย Token Claim สำเร็จ");
+                                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                                } else {
+                                    tvResult.setText("ทดสอบ API ด้วย Token Claim ล้มเหลว");
+                                    tvResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                                }
+
+                                // แสดงผลลัพธ์แบบ Dialog
+                                String title = success ? "API ทำงานสำเร็จ" : "API ทำงานล้มเหลว";
+                                showApiResultDialog(title, message, success);
+                            }
+                        }
+                );
+            }
+        });
+        // แสดง dialog แบบเต็มหน้าจอ
         dialog.show();
+
+        // เปิดส่วน Token Auth โดยค่าเริ่มต้น
+        tokenAuthHeader.performClick();
     }
-    private void testTokenWithApi(final String token, final String citizenId, final ApiTestCallback callback) {
+    private void testTokenWithApi(final String token, final String citizenId, final String apiUrl,
+                                  final ApiTestCallback callback) {
         final Handler handler = new Handler(Looper.getMainLooper());
 
         new Thread(new Runnable() {
@@ -397,10 +690,14 @@ public class MainActivity extends FFCGridActivity {
                 HttpURLConnection urlConnection = null;
                 try {
                     // สร้าง URL
-                    URL url = new URL(BuildConfig.API_BASE_URL + BuildConfig.API_ENDPOINT_REAL_PERSON +
-                            "?SOURCE_ID=" + BuildConfig.API_SOURCE_ID + "&PID=" + citizenId);
-
-//                    URL url = new URL("https://test.nhso.go.th/nhsoendpoint/api/RealPerson?SOURCE_ID=BKKCC&PID=" + citizenId);
+                    URL url;
+                    if (apiUrl.contains("?")) {
+                        // ถ้ามี query parameters อยู่แล้ว
+                        url = new URL(apiUrl + "&SOURCE_ID=" + BuildConfig.API_SOURCE_ID + "&PID=" + citizenId);
+                    } else {
+                        // ถ้ายังไม่มี query parameters
+                        url = new URL(apiUrl + "?SOURCE_ID=" + BuildConfig.API_SOURCE_ID + "&PID=" + citizenId);
+                    }
 
                     // เปิดการเชื่อมต่อ
                     urlConnection = (HttpURLConnection) url.openConnection();
@@ -427,6 +724,7 @@ public class MainActivity extends FFCGridActivity {
 
                         while ((line = reader.readLine()) != null) {
                             response.append(line);
+                            response.append("\n");
                         }
                         reader.close();
 
@@ -441,12 +739,19 @@ public class MainActivity extends FFCGridActivity {
                         });
                     } else {
                         // กรณีเกิดข้อผิดพลาด
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
+                        BufferedReader reader;
+                        if (urlConnection.getErrorStream() != null) {
+                            reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
+                        } else {
+                            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                        }
+
                         StringBuilder errorResponse = new StringBuilder();
                         String line;
 
                         while ((line = reader.readLine()) != null) {
                             errorResponse.append(line);
+                            errorResponse.append("\n");
                         }
                         reader.close();
 
@@ -476,6 +781,95 @@ public class MainActivity extends FFCGridActivity {
             }
         }).start();
     }
+
+//    private void testTokenWithApi(final String token, final String citizenId, final ApiTestCallback callback) {
+//        final Handler handler = new Handler(Looper.getMainLooper());
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                HttpURLConnection urlConnection = null;
+//                try {
+//                    // สร้าง URL
+//                    URL url = new URL(BuildConfig.API_BASE_URL + BuildConfig.API_ENDPOINT_REAL_PERSON +
+//                            "?SOURCE_ID=" + BuildConfig.API_SOURCE_ID + "&PID=" + citizenId);
+//
+////                    URL url = new URL("https://test.nhso.go.th/nhsoendpoint/api/RealPerson?SOURCE_ID=BKKCC&PID=" + citizenId);
+//
+//                    // เปิดการเชื่อมต่อ
+//                    urlConnection = (HttpURLConnection) url.openConnection();
+//                    urlConnection.setRequestMethod("GET");
+//
+//                    // กำหนด header สำหรับ Bearer Token
+//                    urlConnection.setRequestProperty("Authorization", "Bearer " + token);
+//
+//                    // กำหนด timeout
+//                    urlConnection.setConnectTimeout(BuildConfig.API_TIMEOUT);
+//                    urlConnection.setReadTimeout(BuildConfig.API_TIMEOUT);
+//
+//                    // เชื่อมต่อ
+//                    urlConnection.connect();
+//
+//                    // อ่านผลลัพธ์
+//                    final int responseCode = urlConnection.getResponseCode();
+//
+//                    if (responseCode == HttpURLConnection.HTTP_OK) {
+//                        // อ่านข้อมูลจาก response
+//                        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//                        StringBuilder response = new StringBuilder();
+//                        String line;
+//
+//                        while ((line = reader.readLine()) != null) {
+//                            response.append(line);
+//                        }
+//                        reader.close();
+//
+//                        final String responseData = response.toString();
+//
+//                        // ส่งผลลัพธ์กลับไปที่ UI thread
+//                        handler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                callback.onResult(true, responseData);
+//                            }
+//                        });
+//                    } else {
+//                        // กรณีเกิดข้อผิดพลาด
+//                        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
+//                        StringBuilder errorResponse = new StringBuilder();
+//                        String line;
+//
+//                        while ((line = reader.readLine()) != null) {
+//                            errorResponse.append(line);
+//                        }
+//                        reader.close();
+//
+//                        final String errorMessage = "รหัสข้อผิดพลาด: " + responseCode + "\n" + errorResponse.toString();
+//
+//                        handler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                callback.onResult(false, errorMessage);
+//                            }
+//                        });
+//                    }
+//                } catch (final Exception e) {
+//                    e.printStackTrace();
+//
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            callback.onResult(false, "เกิดข้อผิดพลาด: " + e.getMessage());
+//                        }
+//                    });
+//                } finally {
+//                    if (urlConnection != null) {
+//                        urlConnection.disconnect();
+//                    }
+//                }
+//            }
+//        }).start();
+//    }
 
     private void saveTokenToDatabase(String tokenAuth, String tokenClaim) {
         try {
@@ -640,5 +1034,56 @@ public class MainActivity extends FFCGridActivity {
         }
 
     }
+    private void showApiResultDialog(String title, String message, boolean isSuccess) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // กำหนด Title และ Icon ตามผลลัพธ์
+        builder.setTitle(title);
+        if (isSuccess) {
+//            builder.setIcon(R.drawable.ic_action_success); // ถ้าไม่มี icon นี้ให้ใช้ icon อื่นที่เหมาะสม
+        } else {
+//            builder.setIcon(R.drawable.ic_action_error); // ถ้าไม่มี icon นี้ให้ใช้ icon อื่นที่เหมาะสม
+        }
+
+        // สร้าง ScrollView และ TextView เพื่อรองรับข้อความยาว
+        ScrollView scrollView = new ScrollView(this);
+        TextView textView = new TextView(this);
+
+        // ตั้งค่า TextView
+        textView.setText(message);
+        textView.setPadding(30, 30, 30, 30);
+        textView.setTextIsSelectable(true); // สามารถเลือกข้อความได้
+
+        // เพิ่ม TextView ใน ScrollView
+        scrollView.addView(textView);
+
+        // กำหนด ScrollView เป็น View ของ Dialog
+        builder.setView(scrollView);
+
+        // เพิ่มปุ่ม OK
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // เพิ่มปุ่มคัดลอกผลลัพธ์
+        builder.setNeutralButton("คัดลอก", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // คัดลอกข้อความไปยัง clipboard
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("API Result", message);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(MainActivity.this, "คัดลอกข้อความแล้ว", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // แสดง Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
 }

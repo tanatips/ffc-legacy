@@ -56,6 +56,7 @@ public class SearchPersonActivity extends AppCompatActivity {
             if(!isButtonClicked) {
                 Intent intent = new Intent(this, PersonScreeningForm15Activity.class);
                 intent.putExtra("person_id", person.getId());
+                intent.putExtra("visit_id", person.getVisitId());
                 startActivity(intent);
             }
             else {

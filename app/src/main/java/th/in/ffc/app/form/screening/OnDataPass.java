@@ -4,6 +4,7 @@ import java.util.List;
 
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.CardiovascularRiskInfo;
+import th.in.ffc.app.form.screening.model.CounselingInfo;
 import th.in.ffc.app.form.screening.model.DataCenterInfo;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
@@ -43,5 +44,6 @@ public interface OnDataPass {
 
     void onAssistScoreInfo(AssistScore data);
 
+    void onCounselingDataPass(CounselingInfo counselingInfo);
     void onFormSaved(String formName, Object formData);
 }

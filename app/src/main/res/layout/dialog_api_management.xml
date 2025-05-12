@@ -13,12 +13,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ตรวจสอบและทดสอบ Token"
+            android:text="จัดการ API"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
-        <!-- ============= TOKEN AUTH SECTION ============= -->
+        <!-- ============= API ENDPOINT SECTION ============= -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
                 android:orientation="vertical">
 
                 <RelativeLayout
-                    android:id="@+id/token_auth_header"
+                    android:id="@+id/api_endpoint_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
@@ -41,13 +41,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Token Auth (สำหรับ RealPerson API)"
+                        android:text="ตั้งค่า API Endpoint"
                         android:textColor="#FFFFFF"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:id="@+id/token_auth_expand_icon"
+                        android:id="@+id/api_endpoint_expand_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_alignParentEnd="true"
@@ -56,71 +56,72 @@
                 </RelativeLayout>
 
                 <LinearLayout
-                    android:id="@+id/token_auth_content"
+                    android:id="@+id/api_endpoint_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:visibility="gone">
 
-                    <!-- Token Auth Input -->
+                    <!-- API Base URL -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Token Auth"
+                        android:hint="API Base URL"
                         style="@style/CustomTextInputLayout"
                         android:layout_marginBottom="16dp">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edit_token_auth"
+                            android:id="@+id/edit_api_base_url"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- API Source ID -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="API Source ID"
+                        style="@style/CustomTextInputLayout"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_api_source_id"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Token Auth Validate Button -->
-                    <Button
-                        android:id="@+id/btn_validate_auth"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="ตรวจสอบรูปแบบ Token Auth"
-                        android:layout_marginBottom="16dp" />
-
-                    <!-- API Test for Token Auth -->
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="ทดสอบ Token Auth กับ API RealPerson"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
-
+                    <!-- API Timeout -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="เลขบัตรประชาชน"
+                        android:hint="API Timeout (มิลลิวินาที)"
                         style="@style/CustomTextInputLayout"
                         android:layout_marginBottom="16dp">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edit_citizen_id_auth"
+                            android:id="@+id/edit_api_timeout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:maxLength="13" />
+                            android:inputType="number" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- บันทึกการตั้งค่า API Endpoint -->
                     <Button
-                        android:id="@+id/btn_test_api_auth"
+                        android:id="@+id/btn_save_api_endpoint"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="ทดสอบ Token Auth กับ API" />
+                        android:text="บันทึกการตั้งค่า API Endpoint" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ============= TOKEN CLAIM SECTION ============= -->
+        <!-- ============= API ENDPOINTS SECTION ============= -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,7 +135,7 @@
                 android:orientation="vertical">
 
                 <RelativeLayout
-                    android:id="@+id/token_claim_header"
+                    android:id="@+id/api_endpoints_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
@@ -143,13 +144,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Token Claim (สำหรับ Claim/FS Data API)"
+                        android:text="ตั้งค่า API Endpoints"
                         android:textColor="#FFFFFF"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:id="@+id/token_claim_expand_icon"
+                        android:id="@+id/api_endpoints_expand_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_alignParentEnd="true"
@@ -158,79 +159,122 @@
                 </RelativeLayout>
 
                 <LinearLayout
-                    android:id="@+id/token_claim_content"
+                    android:id="@+id/api_endpoints_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:visibility="gone">
 
-                    <!-- Token Claim Input -->
+                    <!-- Real Person API Endpoint -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Token Claim"
+                        android:hint="Real Person API Endpoint"
                         style="@style/CustomTextInputLayout"
                         android:layout_marginBottom="16dp">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edit_token_claim"
+                            android:id="@+id/edit_real_person_endpoint"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Token Claim Validate Button -->
+                    <!-- FS Data API Endpoint -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="FS Data API Endpoint"
+                        style="@style/CustomTextInputLayout"
+                        android:layout_marginBottom="16dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_fs_data_endpoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- บันทึกการตั้งค่า API Endpoints -->
                     <Button
-                        android:id="@+id/btn_validate_claim"
+                        android:id="@+id/btn_save_api_endpoints"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="ตรวจสอบรูปแบบ Token Claim"
-                        android:layout_marginBottom="16dp" />
+                        android:text="บันทึกการตั้งค่า API Endpoints" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-                    <!-- API Test for Token Claim -->
+        <!-- ============= API LOGS SECTION ============= -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/api_logs_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="@color/colorAccent">
+
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ทดสอบ Token Claim กับ API Claim/FS Data"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
+                        android:text="ประวัติการเรียกใช้ API"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="ข้อมูล JSON:"
-                        android:layout_marginBottom="8dp" />
+                    <ImageView
+                        android:id="@+id/api_logs_expand_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/ic_action_expand" />
+                </RelativeLayout>
 
-                    <!-- JSON input using EditText instead of TextInputLayout -->
-                    <EditText
-                        android:id="@+id/edit_json_claim"
+                <LinearLayout
+                    android:id="@+id/api_logs_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <!-- ประวัติการเรียกใช้ API -->
+                    <ScrollView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textMultiLine"
-                        android:gravity="top|start"
-                        android:minLines="8"
-                        android:maxLines="15"
-                        android:scrollbars="vertical"
-                        android:background="@android:drawable/edit_text"
+                        android:layout_height="200dp"
+                        android:background="#F5F5F5"
                         android:padding="8dp"
-                        android:textSize="14sp"
-                        android:fontFamily="monospace"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp">
 
+                        <TextView
+                            android:id="@+id/tv_api_logs"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="ยังไม่มีประวัติการเรียกใช้ API"
+                            android:textSize="14sp" />
+                    </ScrollView>
+
+                    <!-- ปุ่มล้างประวัติ -->
                     <Button
-                        android:id="@+id/btn_load_default_json"
+                        android:id="@+id/btn_clear_api_logs"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="โหลดข้อมูล JSON ตัวอย่าง"
-                        android:layout_marginBottom="16dp" />
-
-                    <Button
-                        android:id="@+id/btn_test_api_claim"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="ทดสอบ Token Claim กับ API" />
+                        android:text="ล้างประวัติการเรียกใช้ API" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -239,19 +283,19 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ผลการทดสอบ"
+            android:text="ผลการทำงาน"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="120dp"
             android:background="#F5F5F5"
             android:padding="8dp">
 
             <TextView
-                android:id="@+id/tv_validation_result"
+                android:id="@+id/tv_api_management_result"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text=""

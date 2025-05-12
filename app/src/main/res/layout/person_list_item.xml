@@ -19,7 +19,7 @@
             android:padding="2dp"
             android:scaleType="centerCrop"
             android:contentDescription="@string/not_available"
-            android:src="@drawable/person_default_background"/>
+            android:src="@drawable/user"/>
 
     <TextView
             android:id="@+id/citizenID"

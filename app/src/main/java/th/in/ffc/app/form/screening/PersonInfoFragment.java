@@ -9,9 +9,15 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
@@ -73,10 +79,13 @@ import th.in.ffc.app.form.screening.model.SubDistrictInfo;
 import th.in.ffc.code.HouseListDialog;
 import th.in.ffc.person.BmiInfoActivity;
 import th.in.ffc.person.BmiInfoDialogFragment;
+
+import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.BMICalculator;
 import th.in.ffc.util.BMILevel;
 import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.DateTime;
+import th.in.ffc.util.NetworkUtils;
 import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.util.ThaiDatePickerDialog;
 import th.in.ffc.widget.SearchableSpinner;
@@ -124,7 +133,7 @@ public class PersonInfoFragment extends Fragment {
     private Map<EditText, TextFieldUpdater> fieldUpdaters;
     private BMICalculator bmiCalculator;
 //    private TextView dateTextView;
-    private ImageButton selectDateButton, selectAuthenDateButton, btnAuthenCode;
+    private ImageButton selectDateButton, btnAuthenCode;
     private AutoCompleteTextView spinnerProvince, spinnerDistrict, spinnerSubDistrict;
 
     String provinceCode, districtCode, subDistrictCode;
@@ -142,10 +151,12 @@ public class PersonInfoFragment extends Fragment {
     private FrameLayout progressBarContainer;
     private TextView progressBarText;
 
-    private SearchableSpinner house;
+//    private SearchableSpinner house;
 
     private int DEVICE_RESULT_ONE = 101;
     private ImageView imgPerson;
+
+    private String pcuCode;
 
 
     private interface TextFieldUpdater {
@@ -390,6 +401,8 @@ public class PersonInfoFragment extends Fragment {
         setupBmiInfoButton();
         setupBloodPressureButton();
         setupDropdowns();
+        UserSessionManager userSessionManager = new UserSessionManager(getContext());
+        pcuCode = userSessionManager.getPcuCode();
     }
     private void showProgressBar(String message) {
         progressBarContainer = getActivity().findViewById(R.id.progressBarContainer);
@@ -437,50 +450,50 @@ public class PersonInfoFragment extends Fragment {
 //        dateTextView = view.findViewById(R.id.dateTextView);
         selectDateButton = view.findViewById(R.id.selectDateButton);
         txtBirthDay = view.findViewById(R.id.txtBirthDay);
-        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
-        house.setDialog(getActivity().getSupportFragmentManager(),
-                HouseListDialog.class, "house");
-
-        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
-                dataPasser.onPersonInfo(personInfo);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
+//        house.setDialog(getActivity().getSupportFragmentManager(),
+//                HouseListDialog.class, "house");
+//
+//        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
+//                dataPasser.onPersonInfo(personInfo);
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
 
 
 
         selectDateButton.setOnClickListener(v -> showDatePickerDialog(this.txtBirthDay,this.personInfo.getBirthday()));
-        selectAuthenDateButton = view.findViewById(R.id.selectAuthenDateButton);
-        selectAuthenDateButton.setOnClickListener(v -> showDatePickerDialog(this.txtAuthenDate,this.personInfo.getAuthen_date()));
         btnAuthenCode.setOnClickListener(v -> {
+
+            if (!NetworkUtils.checkInternetAndShowDialog(getContext())) {
+                return; // ออกจากเมธอดเมื่อไม่มีการเชื่อมต่อ
+            }
+
+            // ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
+            if (!NetworkUtils.isInternetAvailable(getContext())) {
+                NetworkUtils.showNoInternetDialog(getContext());
+                return;
+            }
             AuthenCodeRequest request = new AuthenCodeRequest();
             request.setPid(citizenId.getText().toString());
             request.setFirstName(fname.getText().toString());
             request.setLastName(lname.getText().toString());
             request.setSex(rdoMale.isChecked() ? "1" : "2");
             request.setBirthDay(convertToWesternDate(txtBirthDay.getText().toString()));
-
             request.setHn(txtHn.getText().toString());
-            request.setHcode("11471");
+            request.setHcode(pcuCode);
             request.setSourceId("BKKCC");
             request.setTransId(generateTransId());
             request.setServiceCode("PG0060001");
-            request.setSubDistrict(subDistrictName);
-            request.setSubDistrictCode(subDistrictCode);
-            request.setDistrict(districtName);
-            request.setDistrictCode(districtCode);
-            request.setProvince(provinceName);
-            request.setProvinceCode(provinceCode);
             showProgressBar("Authenticating...");
-//            showProgressDialog();
 
             NhsoApiCaller apiCaller = new NhsoApiCaller(getContext());
             apiCaller.getAuthenCode(request, new NhsoApiCaller.AuthenCodeCallback() {
@@ -489,9 +502,27 @@ public class PersonInfoFragment extends Fragment {
 //                    dismissProgressDialog();
                     hideProgressBar();
                     txtAuthenNo.setText(response.getAuthenCode());
-                    txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(DateTime.getCurrentDate()));
+                    Calendar cal = Calendar.getInstance();
+                    int day = cal.get(Calendar.DAY_OF_MONTH);
+                    int month = cal.get(Calendar.MONTH) + 1;
+                    int yearBE = cal.get(Calendar.YEAR) + 543;
+                    int hour = cal.get(Calendar.HOUR_OF_DAY);
+                    int minute = cal.get(Calendar.MINUTE);
+                    int second = cal.get(Calendar.SECOND);
+
+                    // กำหนดวันที่และเวลาปัจจุบันให้กับ txtAuthenDate
+                    String currentThaiDateTime = String.format(Locale.US, "%d/%d/%d %02d:%02d:%02d",
+                            day, month, yearBE, hour, minute, second);
+                    txtAuthenDate.setText(currentThaiDateTime);
+
+                    // อัพเดทค่าใน personInfo - แปลงเป็นรูปแบบ yyyy-MM-dd HH:mm:ss
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                    cal.set(Calendar.YEAR, cal.get(Calendar.YEAR)); // ใช้ปีคริสตศักราชตามปกติ
+                    String westernDateTime = outputFormat.format(cal.getTime());
+                    personInfo.setAuthen_date(westernDateTime);
+//                    txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(DateTime.getCurrentDate()));
                     personInfo.setAuthen_code(response.getAuthenCode());
-                    personInfo.setAuthen_date(DateConverter.convertToWesternDate(txtAuthenDate.getText().toString()));
+//                    personInfo.setAuthen_date(DateConverter.convertToWesternDate(txtAuthenDate.getText().toString()));
 //                    txtAuthenDate.setText(response.getAuthenDate());
                 }
                 @Override
@@ -507,7 +538,9 @@ public class PersonInfoFragment extends Fragment {
         imgPermission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (!NetworkUtils.checkInternetAndShowDialog(getContext())) {
+                    NetworkUtils.showNoInternetDialog(getContext());
+                }
 
                 SfTokenDao sfTokenDao = new SfTokenDao(getContext());
                 List<SfToken> tokens = sfTokenDao.getAllTokens();
@@ -872,7 +905,7 @@ public class PersonInfoFragment extends Fragment {
             fname.setText(person.getFname());
             lname.setText(person.getLname());
             txtBirthDay.setText(DateConverter.convertToThaiBuddhistDate(person.getBirthday()));
-            txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(person.getAuthen_date()));
+            txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDateTime(person.getAuthen_date()));
             if ("M".equals(person.getGender())) {
                 rdoMale.setChecked(true);
             } else if ("F".equals(person.getGender())) {
@@ -896,9 +929,9 @@ public class PersonInfoFragment extends Fragment {
             txtVillageNo.setText(person.getVillageNo());
             txtPostalCode.setText(person.getPostCode());
             txtTemperature.setText(String.valueOf(person.getTemperature()));
-            if(person.getHcode() != null) {
-                house.setSelectionById(Long.valueOf(person.getHcode()));
-            }
+//            if(person.getHcode() != null) {
+//                house.setSelectionById(Long.valueOf(person.getHcode()));
+//            }
             if(person.getProvCode() != null) {
                 spinnerProvince.setText(person.getProvName(), false);
                 provinceCode = person.getProvCode();
@@ -1080,12 +1113,14 @@ public class PersonInfoFragment extends Fragment {
             } else if (rdoFemale.isChecked()) {
                 personInfo.setGender("F");
             }
-            personInfo.setBirthday(convertToWesternDate(getTextFromEditText(txtBirthDay)));
+            String birthDay = getTextFromEditText(txtBirthDay);
+            personInfo.setBirthday(convertToWesternDate(birthDay));
 
             // Contact and Hospital Information
             personInfo.setPhone(getTextFromEditText(txtPhoneNo));
             personInfo.setHn(getTextFromEditText(txtHn));
-            personInfo.setAuthen_date(convertToWesternDate(getTextFromEditText(txtAuthenDate)));
+            String authenDate = getTextFromEditText(txtAuthenDate);
+            personInfo.setAuthen_date(convertToWesternDate(authenDate));
             personInfo.setAuthen_code(getTextFromEditText(txtAuthenNo));
 
             // Physical Measurements
@@ -1127,10 +1162,16 @@ public class PersonInfoFragment extends Fragment {
             fname.setError("กรุณากรอกชื่อ");
             isValid = false;
         }
+        else {
+            fname.setError(null);
+        }
 
         if (lname.getText().toString().trim().isEmpty()) {
             lname.setError("กรุณากรอกนามสกุล");
             isValid = false;
+        }
+        else {
+            lname.setError(null);
         }
 
         // Validate numeric fields
@@ -1171,6 +1212,9 @@ public class PersonInfoFragment extends Fragment {
 
         setupTextWatchers();
         loadData();
+        if (!NetworkUtils.checkInternetAndShowDialog(getContext())) {
+            NetworkUtils.showNoInternetDialog(getContext());
+        }
         return view;
     }
     private void loadData(){

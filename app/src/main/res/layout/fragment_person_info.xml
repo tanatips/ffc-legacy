@@ -192,22 +192,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
+            android:inputType="phone"
             android:hint="@string/phone_no" />
     </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <th.in.ffc.widget.SearchableSpinner
-            android:id="@+id/spinnerHcode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+<!--        <th.in.ffc.widget.SearchableSpinner-->
+<!--            android:id="@+id/spinnerHcode"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutHouseNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="บ้านเลขที่"
+            android:visibility="gone"
             style="@style/CustomTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -222,6 +224,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/layoutVillageNo"
             android:hint="หมู่"
+            android:visibility="gone"
             style="@style/CustomTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -235,6 +238,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="จังหวัด"
+            android:visibility="gone"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
             <AutoCompleteTextView
@@ -251,6 +255,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="อำเภอ"
+            android:visibility="gone"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
             <AutoCompleteTextView
                 android:id="@+id/spinnerDistrict"
@@ -265,6 +270,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="ตำบล"
+            android:visibility="gone"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
             <AutoCompleteTextView
                 android:id="@+id/spinnerSubDistrict"
@@ -280,6 +286,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="รหัสไปรษณีย์"
+            android:visibility="gone"
             style="@style/CustomTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -338,16 +345,15 @@
                 android:hint="@string/date_authen" />
         </com.google.android.material.textfield.TextInputLayout>
         <ImageButton
-            android:id="@+id/selectAuthenDateButton"
+            android:id="@+id/btnAuthenCode"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="7"
-            android:background="@color/white"
-            android:padding="5dp"
-            android:layout_gravity="center"
-            android:contentDescription="เลือกวันที่"
+            android:layout_marginStart="8dp"
+            android:layout_weight="6"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_calendar_blue" />
+            android:contentDescription="@string/WaistCircumferenceInterpretation"
+            android:src="@drawable/authenticity" />
     </LinearLayout>
 
     <LinearLayout
@@ -370,16 +376,7 @@
             android:textColor="@color/black"
             android:hint="@string/no_authen" />
     </com.google.android.material.textfield.TextInputLayout>
-    <ImageButton
-        android:id="@+id/btnAuthenCode"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
-        android:layout_weight="6"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:scaleType="fitCenter"
-        android:contentDescription="@string/WaistCircumferenceInterpretation"
-        android:src="@drawable/authenticity" />
+
     </LinearLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutWeight"
@@ -393,6 +390,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
+            android:inputType="numberDecimal"
             android:hint="@string/weight_kg" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -408,6 +406,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
+            android:inputType="numberDecimal"
             android:hint="@string/height_cm" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -427,6 +426,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
+            android:inputType="numberDecimal"
             android:hint="@string/waist_circumference" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -458,6 +458,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
+            android:inputType="numberDecimal"
             android:hint="@string/bmi_2" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -484,7 +485,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:hint="@string/bp" />
+            android:inputType="numberDecimal"
+            android:hint="อัตราการเต้นของหัวใจ" />
     </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -503,6 +505,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black"
+                        android:inputType="numberDecimal"
                         android:hint="@string/symptoms_pressure" />
                     </com.google.android.material.textfield.TextInputLayout>
                     <ImageButton
@@ -532,6 +535,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
+            android:inputType="numberDecimal"
             android:hint="@string/diastolic_pressure" />
     </com.google.android.material.textfield.TextInputLayout>
         <ImageButton
