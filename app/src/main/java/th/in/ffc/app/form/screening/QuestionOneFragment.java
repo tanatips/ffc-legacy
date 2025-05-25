@@ -295,8 +295,10 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
             AnswerData newAnswer = new AnswerData(hasUsed, otherSubstance);
             AnswerData currentAnswer = selectedAnswers.get(id);
 
+            Boolean newHasUsed = Boolean.valueOf(hasUsed);
+
             if (currentAnswer == null ||
-                    currentAnswer.isHasUsed() != hasUsed ||
+                    !newHasUsed.equals(currentAnswer.isHasUsed()) ||
                     !Objects.equals(currentAnswer.getOtherDrugs(), otherSubstance)) {
 
                 selectedAnswers.put(id, newAnswer);
@@ -358,7 +360,12 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                         drugsInfo.setQuestion("Q1");
                         drugsInfo.setSubquestion(entry.getKey());
                     }
-                    drugsInfo.setAnswer(entry.getValue().isHasUsed() ? "1" : "0");
+                    if(entry.getValue().isHasUsed() == null){
+                        drugsInfo.setAnswer(null);
+                        Log.d("QuestionOneFragment", "entry.getValue().isHasUsed() is null");
+                    }else {
+                        drugsInfo.setAnswer(entry.getValue().isHasUsed() ? "1" : "0");
+                    }
                     drugsInfo.setOtherDrugs(entry.getValue().getOtherDrugs());
                     drugsInfo.setUpdatedBy("SYSTEM");
                     drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
@@ -415,7 +422,7 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                         }
                     } else {
                         // ถ้าไม่พบข้อมูล ใช้ค่าเริ่มต้น
-                        answers.put(item.getId(), new AnswerData(false, ""));
+                        answers.put(item.getId(), new AnswerData(null, ""));
                     }
                 }
 
@@ -513,4 +520,30 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         params.height = totalHeight;
         contentLayout.setLayoutParams(params);
     }
+    public boolean validateAllQuestionsAnswered() {
+        // ตรวจสอบว่าจำนวนคำตอบเท่ากับจำนวนคำถามหรือไม่
+        if (selectedAnswers.size() != substanceList.size()) {
+            return false;
+        }
+
+        // ตรวจสอบว่าทุกรายการมีการเลือกหรือไม่
+        for (SubstanceItem item : substanceList) {
+            AnswerData answer = selectedAnswers.get(item.getId());
+            if (answer == null) {
+                return false;
+            }
+
+            // ถ้าเป็นตัวเลือก j (อื่นๆ) และผู้ใช้เลือก "เคย" แต่ไม่ระบุสารเสพติด
+            if(answer.isHasUsed() == null){
+                return false;
+            }
+            if (item.getId().equals("j") && answer.isHasUsed() &&
+                    (answer.getOtherDrugs() == null || answer.getOtherDrugs().trim().isEmpty())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

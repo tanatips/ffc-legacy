@@ -9,7 +9,7 @@ public class SubstanceItem implements Parcelable {
     private String id;
     private String name;
     private String description;
-    private boolean hasUsed;
+    private Boolean hasUsed;
     private String otherDrugs; // เพิ่มฟิลด์ใหม่
     private int frequency;
     private int concern;
@@ -18,7 +18,7 @@ public class SubstanceItem implements Parcelable {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.hasUsed = false;
+        this.hasUsed = null;
         this.frequency = 0;
         this.concern = 0;
         this.otherDrugs = "";
@@ -39,8 +39,8 @@ public class SubstanceItem implements Parcelable {
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
-    public boolean isHasUsed() { return hasUsed; }
-    public void setHasUsed(boolean hasUsed) { this.hasUsed = hasUsed; }
+    public Boolean isHasUsed() { return hasUsed; }
+    public void setHasUsed(Boolean hasUsed) { this.hasUsed = hasUsed; }
     public String getOtherDrugs() { return otherDrugs; }
     public void setOtherDrugs(String otherDrugs) { this.otherDrugs = otherDrugs; }
 

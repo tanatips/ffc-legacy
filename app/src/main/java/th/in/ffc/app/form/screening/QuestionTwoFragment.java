@@ -291,7 +291,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                                 " otherDrugs: " + otherDrugs);
                     } else {
                         // ถ้าไม่พบข้อมูล ใช้ค่าเริ่มต้น
-                        frequencies.put(item.getId(), new AnswerFrequencyData(0, ""));
+                        frequencies.put(item.getId(), new AnswerFrequencyData(-1, ""));
 
                         // รีเซ็ต state ของ SubstanceItem ด้วย
                         item.setFrequency(0);
@@ -530,6 +530,31 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
         ViewGroup.LayoutParams params = contentLayout.getLayoutParams();
         params.height =  (int) Math.round(totalHeight*6.1);
         contentLayout.setLayoutParams(params);
+    }
+    public boolean validateAllQuestionsAnswered() {
+        // ตรวจสอบว่าทุกคำถามมีคำตอบครบหรือไม่
+        if (selectedFrequencies == null || selectedFrequencies.isEmpty()) {
+            return false;
+        }
+        // ตรวจสอบว่าทุกรายการมีการเลือกความถี่
+        for (SubstanceItem item : substanceList) {
+            AnswerFrequencyData data = selectedFrequencies.get(item.getId());
+            if (data == null) {
+                return false;
+            } else if(data != null) {
+                if(data.getFrequency() == -1) {
+                    return false;
+                }
+            }
+
+            // ตรวจสอบกรณีเฉพาะของรายการ "อื่นๆ" (j)
+            if (item.getId().equals("j") && data.getFrequency() > 0 &&
+                    (data.getOtherDrugs() == null || data.getOtherDrugs().trim().isEmpty())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 

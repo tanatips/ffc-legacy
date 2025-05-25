@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +36,8 @@ public class FormDialogFragment extends DialogFragment {
     private Integer send_to_claim;
     private OnDataPass dataPassListener;
 
+    private boolean validated = false;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -51,12 +55,40 @@ public class FormDialogFragment extends DialogFragment {
     private void saveDataAndCallActivityButton() {
         if (getActivity() instanceof PersonScreeningForm15Activity) {
             PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
+            // เพิ่มการตรวจสอบข้อมูลสำหรับ MainQuestionsFragment
+            if (contentFragment instanceof MainQuestionsFragment) {
+                MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
+                // ตรวจสอบความครบถ้วนของข้อมูล
+                if (!mainFragment.isAllDataComplete()) {
+                    // แสดงข้อความแจ้งเตือน
+                    validated = false;
+//                    Toast.makeText(getContext(), "กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม", Toast.LENGTH_LONG).show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle("ข้อมูลไม่ครบถ้วน")
+                            .setMessage("กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม")
+                            .setPositiveButton("ตกลง", null)
+                            .setCancelable(false)
+                            .show();
+                    return; // ไม่ดำเนินการบันทึกต่อ
+                }
+                else {
+                    validated = true;
+                }
+
+            }
 
             // จำลองการกดปุ่ม btnOk
             Button btnOk = activity.findViewById(R.id.btnOK);
             if (btnOk != null) {
                 btnOk.performClick();
             }
+            // อัปเดตสถานะการกรอกข้อมูล
+            if (formTitle.equals("แบบคัดกรองการใช้สารเสพติด")) {
+                activity.updateMainQuestionsStatus();
+            } else {
+                activity.updateFormStatus(formTitle, true);
+            }
+
 
             // ปิด Dialog
             dismiss();
@@ -95,17 +127,8 @@ public class FormDialogFragment extends DialogFragment {
         // ตั้งค่าหัวเรื่องและ view
         builder.setView(view)
                 .setTitle(formTitle)
-                .setPositiveButton("บันทึก", (dialog, which) -> {
-                    // เรียกเมธอด saveFormData ผ่าน PersonScreeningForm15Activity
-                    saveDataAndCallActivityButton();
-                    if (getActivity() instanceof PersonScreeningForm15Activity) {
-                        ((PersonScreeningForm15Activity) getActivity()).updateFormStatus(formTitle, true);
-                    }
-                })
-                .setNegativeButton("ยกเลิก", (dialog, which) -> {
-                    // ไม่ต้องทำอะไร dialog จะปิดเอง
-                });
-
+                .setPositiveButton("บันทึก", null)
+                .setNegativeButton("ยกเลิก",null);
         // สร้าง AlertDialog
         AlertDialog dialog = builder.create();
 
@@ -115,23 +138,95 @@ public class FormDialogFragment extends DialogFragment {
             FrameLayout container = view.findViewById(R.id.dialogFragmentContainer);
             if (contentFragment != null && container != null) {
                 // เอา ScrollView ออกจาก Fragment ก่อนเพิ่มลงใน container
-                if (contentFragment instanceof FagerstromNicotineFragment) {
-                    // อาจต้องปรับ layout ของ Fragment โดยเฉพาะ
-                    // หรือใช้เทคนิคอื่นๆ เช่น setMaxHeight ให้กับ container
-                }
+//                if (contentFragment instanceof FagerstromNicotineFragment) {
+//                    // อาจต้องปรับ layout ของ Fragment โดยเฉพาะ
+//                    // หรือใช้เทคนิคอื่นๆ เช่น setMaxHeight ให้กับ container
+//                }
 
                 getChildFragmentManager().beginTransaction()
                         .replace(R.id.dialogFragmentContainer, contentFragment)
                         .commit();
             }
+            // สำคัญ: เข้าถึงปุ่มที่ถูกสร้างโดย AlertDialog และเปลี่ยน listener
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            // กำหนดการทำงานสำหรับปุ่ม "บันทึก"
+            if (positiveButton != null) {
+                positiveButton.setOnClickListener(v -> {
+                    validateAndSave();
+                });
+            }
+
+            // กำหนดการทำงานสำหรับปุ่ม "ยกเลิก"
+            if (negativeButton != null) {
+                negativeButton.setOnClickListener(v -> {
+                    dismiss();
+                });
+            }
+
             if (send_to_claim != null && send_to_claim == 1) {
-                Button positiveButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                positiveButton.setEnabled(false);
+                if (positiveButton != null) {
+                    positiveButton.setEnabled(false);
+                }
+            }
+            // ตรวจสอบกรณี MainQuestionsFragment
+            if (contentFragment instanceof MainQuestionsFragment && getActivity() instanceof PersonScreeningForm15Activity) {
+                MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
+                PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
+
+                // อัปเดตสถานะหลังจากที่ Fragment ถูกโหลดเรียบร้อย
+                new Handler().postDelayed(() -> {
+                    boolean isComplete = mainFragment.isAllDataComplete();
+                    activity.updateFormStatus("แบบคัดกรองการใช้สารเสพติด", isComplete);
+                }, 500); // รอสักครู่เพื่อให้ Fragment ถูกโหลดเรียบร้อย
             }
             // เพิ่มปุ่มเลื่อนขึ้นด้านบนหรือปุ่มเลื่อนกลับ หากต้องการ
         });
 
         return dialog;
+    }
+    private void validateAndSave() {
+        if (getActivity() instanceof PersonScreeningForm15Activity) {
+            PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
+
+            // เพิ่มการตรวจสอบข้อมูลสำหรับ MainQuestionsFragment
+            if (contentFragment instanceof MainQuestionsFragment) {
+                MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
+
+                // ตรวจสอบความครบถ้วนของข้อมูล
+                if (!mainFragment.isAllDataComplete()) {
+                    // แสดงข้อความแจ้งเตือน
+                    validated = false;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle("ข้อมูลไม่ครบถ้วน")
+                            .setMessage("กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม")
+                            .setPositiveButton("ตกลง", null)
+                            .setCancelable(false)
+                            .show();
+                    return; // ไม่ดำเนินการบันทึกต่อ และไม่ปิด Dialog
+                }
+                else {
+                    validated = true;
+                }
+            }
+
+            // จำลองการกดปุ่ม btnOk
+            Button btnOk = activity.findViewById(R.id.btnOK);
+            if (btnOk != null) {
+                btnOk.performClick();
+            }
+
+            // อัปเดตสถานะการกรอกข้อมูล
+            if (formTitle.equals("แบบคัดกรองการใช้สารเสพติด")) {
+                activity.updateMainQuestionsStatus();
+            } else {
+                activity.updateFormStatus(formTitle, true);
+            }
+
+            // ปิด Dialog เมื่อข้อมูลถูกต้อง
+            dismiss();
+        }
     }
 
     @Override

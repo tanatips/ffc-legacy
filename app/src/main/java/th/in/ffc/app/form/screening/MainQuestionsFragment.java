@@ -54,6 +54,38 @@ public class MainQuestionsFragment extends Fragment {
     private QuestionSixFragment questionSixFragment;
     private QuestionSevenFragment questionSevenFragment;
 
+    public QuestionOneFragment getQuestionOneFragment() {
+        return questionOneFragment;
+    }
+
+    public QuestionTwoFragment getQuestionTwoFragment() {
+        return questionTwoFragment;
+    }
+
+    public QuestionThreeFragment getQuestionThreeFragment() {
+        return questionThreeFragment;
+    }
+
+    public QuestionFourFragment getQuestionFourFragment() {
+        return questionFourFragment;
+    }
+
+    public QuestionFiveFragment getQuestionFiveFragment() {
+        return questionFiveFragment;
+    }
+
+    public QuestionSixFragment getQuestionSixFragment() {
+        return questionSixFragment;
+    }
+
+    public QuestionSevenFragment getQuestionSevenFragment() {
+        return questionSevenFragment;
+    }
+
+    public QuestionEightFragment getQuestionEightFragment() {
+        return questionEightFragment;
+    }
+
     private QuestionEightFragment questionEightFragment;
 
     private QuestionsStateViewModel questionsStateViewModel;
@@ -188,7 +220,7 @@ public class MainQuestionsFragment extends Fragment {
         if (questionsStateViewModel.getQuestionOneAnswers().getValue() == null) {
             Map<String, AnswerData> initialOneAnswers = new HashMap<>();
             for (SubstanceItem item : templateList) {
-                initialOneAnswers.put(item.getId(), new AnswerData(false, ""));
+                initialOneAnswers.put(item.getId(), new AnswerData(null, ""));
             }
             questionsStateViewModel.initQuestionOneAnswers(initialOneAnswers);
         }
@@ -197,7 +229,7 @@ public class MainQuestionsFragment extends Fragment {
         Map<String, AnswerData> initialAnswers = new HashMap<>();
         Map<String, AnswerFrequencyData> initialFrequencyAnswers = new HashMap<>();
         for (SubstanceItem item : templateList) {
-            initialAnswers.put(item.getId(), new AnswerData(false, ""));
+            initialAnswers.put(item.getId(), new AnswerData(null, ""));
         }
 
         if (questionsStateViewModel.getQuestionTwoAnswers().getValue() == null) {
@@ -373,5 +405,44 @@ public class MainQuestionsFragment extends Fragment {
                 ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
             }, 300); // delay เล็กน้อยเพื่อให้ Fragment ย่อยได้คำนวณขนาดก่อน
         }
+    }
+    // เพิ่มเมธอดนี้ใน MainQuestionsFragment.java
+    public boolean isAllDataComplete() {
+        boolean isComplete = true;
+
+        // ตรวจสอบความครบถ้วนของแต่ละ Fragment
+        if (questionOneFragment != null && !questionOneFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionTwoFragment != null && !questionTwoFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionThreeFragment != null && !questionThreeFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionFourFragment != null && !questionFourFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionFiveFragment != null && !questionFiveFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionSixFragment != null && !questionSixFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionSevenFragment != null && !questionSevenFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        if (questionEightFragment != null && !questionEightFragment.validateAllQuestionsAnswered()) {
+            isComplete = false;
+        }
+
+        return isComplete;
     }
 }

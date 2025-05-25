@@ -347,8 +347,13 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private void showFormDialog(String formName) {
         Fragment fragment = fragmentMap.get(formName);
         if (fragment != null) {
-            FormDialogFragment dialogFragment = FormDialogFragment.newInstance(formName, fragment,this.personInfo.getSend_to_claim());
-            dialogFragment.show(getSupportFragmentManager(), "FormDialog");
+            if(this.personInfo!=null) {
+                FormDialogFragment dialogFragment = FormDialogFragment.newInstance(formName, fragment, this.personInfo.getSend_to_claim());
+                dialogFragment.show(getSupportFragmentManager(), "FormDialog");
+            }
+            else {
+                Toast.makeText(this, "โปรดกรอกข้อมูลผู้ส่วนตัวก่อนทำแบบคัดกรอง", Toast.LENGTH_SHORT).show();
+            }
 
             // หน่วงเวลาเพิ่มขึ้นเพื่อให้ Dialog แสดงก่อน
 //            new Handler().postDelayed(() -> {
@@ -1598,4 +1603,22 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             viewPager.post(() -> adjustViewPagerHeight(viewPager.getCurrentItem(), viewPager, viewPagerAdapter));
         }
     }
+    // เพิ่มเมธอดนี้ใน PersonScreeningForm15Activity.java
+    public void updateMainQuestionsStatus() {
+        // ค้นหา Fragment จากหน้าจอปัจจุบัน
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof MainQuestionsFragment) {
+                MainQuestionsFragment mainFragment = (MainQuestionsFragment) fragment;
+                boolean isComplete = mainFragment.isAllDataComplete();
+
+                // อัปเดตสถานะใน expandableListAdapter
+                if (expandableListAdapter != null) {
+                    expandableListAdapter.updateCompletionStatus("แบบคัดกรองการใช้สารเสพติด", isComplete);
+                }
+
+                break;
+            }
+        }
+    }
+
 }

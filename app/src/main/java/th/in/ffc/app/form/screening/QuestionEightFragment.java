@@ -341,4 +341,24 @@ public class QuestionEightFragment extends Fragment {
             }
         }
     }
+    public boolean validateAllQuestionsAnswered() {
+        // ตรวจสอบข้อมูลจาก ViewModel
+        Map<String, AnswerFrequencyData> currentAnswers = viewModel.getQuestionEightAnswers().getValue();
+
+        if (currentAnswers == null || !currentAnswers.containsKey(INJECTION_KEY)) {
+            // ถ้าไม่มีข้อมูลใน ViewModel หรือไม่มีข้อมูล INJECTION_KEY
+            return false;
+        }
+
+        // ตรวจสอบว่ามีการเลือกคำตอบหรือไม่ โดยดูจาก RadioGroup
+        if (radioGroupInjection != null) {
+            int selectedRadioButtonId = radioGroupInjection.getCheckedRadioButtonId();
+            return selectedRadioButtonId != -1; // -1 หมายถึงไม่มีการเลือกปุ่มใด
+        }
+
+        // ถ้า radioGroupInjection เป็น null ให้ตรวจสอบจากค่า selectedOption
+        // selectedOption มีค่าเริ่มต้นเป็น 0 ซึ่งหมายถึง "ไม่เคย" จึงถือว่ามีการเลือกคำตอบแล้ว
+        // หากต้องการบังคับให้ผู้ใช้ต้องกดเลือกคำตอบด้วยตัวเอง สามารถเปลี่ยนเงื่อนไขตรงนี้
+        return true;
+    }
 }

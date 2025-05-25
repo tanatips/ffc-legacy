@@ -41,8 +41,9 @@ public class QuestionsStateViewModel extends ViewModel {
 
         // ตรวจสอบว่าค่าเปลี่ยนแปลงจริงๆ หรือไม่
         AnswerData currentAnswer = currentAnswers.get(id);
+        Boolean newHasUsed = Boolean.valueOf(hasUsed);
         if (currentAnswer == null ||
-                currentAnswer.isHasUsed() != hasUsed ||
+                !newHasUsed.equals(currentAnswer.isHasUsed()) ||
                 !Objects.equals(currentAnswer.getOtherDrugs(), otherDrugs)) {
 
             Map<String, AnswerData> newAnswers = new HashMap<>(currentAnswers);

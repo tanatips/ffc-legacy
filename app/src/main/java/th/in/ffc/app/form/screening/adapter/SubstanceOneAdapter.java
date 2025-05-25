@@ -145,7 +145,9 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
 
             // Set radio button state
             radioGroup.clearCheck();
-            radioGroup.check(item.isHasUsed() ? R.id.radioUsed : R.id.radioNotUsed);
+            if(item.isHasUsed()!=null){
+                radioGroup.check(item.isHasUsed() ? R.id.radioUsed : R.id.radioNotUsed);
+            }
             // ตั้งค่า listener
             radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
                 if (!isUpdating) {
