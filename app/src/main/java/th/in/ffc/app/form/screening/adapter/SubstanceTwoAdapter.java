@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -110,6 +111,13 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
         private TextInputLayout otherSubstanceLayout;
         private TextInputEditText otherSubstanceEdit;
 
+        private RadioButton radioNever;
+        private RadioButton radio1to2;
+        private RadioButton radioMonthly;
+        private RadioButton radioWeekly;
+        private RadioButton radioDaily;
+
+
         public FrequencyViewHolder(@NonNull View itemView) {
             super(itemView);
             titleText = itemView.findViewById(R.id.titleText);
@@ -117,6 +125,17 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
             frequencyGroup = itemView.findViewById(R.id.frequencyGroup);
             otherSubstanceLayout = itemView.findViewById(R.id.otherSubstanceLayout);
             otherSubstanceEdit = itemView.findViewById(R.id.otherSubstanceEdit);
+            radioNever = itemView.findViewById(R.id.radioNever);
+            radio1to2 = itemView.findViewById(R.id.radio1to2);
+            radioMonthly = itemView.findViewById(R.id.radioMonthly);
+            radioWeekly = itemView.findViewById(R.id.radioWeekly);
+            radioDaily = itemView.findViewById(R.id.radioDaily);
+            radioNever.setText(radioNever.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioNever)+" คะแนน)");
+            radio1to2.setText(radio1to2.getText().toString()+" ("+getFrequencyForRadioId(R.id.radio1to2)+" คะแนน)");
+            radioMonthly.setText(radioMonthly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioMonthly)+" คะแนน)");
+            radioWeekly.setText(radioWeekly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioWeekly)+" คะแนน)");
+            radioDaily.setText(radioDaily.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioDaily)+" คะแนน)");
+
         }
 
         public void bind(SubstanceItem item) {
@@ -140,6 +159,7 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
             int radioId = getRadioIdForFrequency(frequency);
             if (radioId != -1) {
                 frequencyGroup.check(radioId);
+
             }
 
             // ตั้งค่า listener หลังจากตั้งค่าการเลือกแล้ว

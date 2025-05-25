@@ -14,6 +14,7 @@ import java.util.Map;
 
 import android.text.TextUtils;
 
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ public class SubstanceFourAdapter extends RecyclerView.Adapter<SubstanceFourAdap
     private ArrayList<SubstanceItem> substanceList;
     private OnFrequencySelectedListener listener;
     private boolean isUpdating = false;
+
 
     public SubstanceFourAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
         this.substanceList = substanceList;
@@ -105,6 +107,11 @@ public class SubstanceFourAdapter extends RecyclerView.Adapter<SubstanceFourAdap
 
         // เพิ่ม TextWatcher เป็น field เพื่อให้สามารถถอดออกได้
         private TextWatcher textWatcher;
+        private RadioButton radioNever;
+        private RadioButton radio1to2;
+        private RadioButton radioMonthly;
+        private RadioButton radioWeekly;
+        private RadioButton radioDaily;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleText = itemView.findViewById(R.id.titleText);
@@ -112,6 +119,17 @@ public class SubstanceFourAdapter extends RecyclerView.Adapter<SubstanceFourAdap
             frequencyGroup = itemView.findViewById(R.id.frequencyGroup);
             otherSubstanceLayout = itemView.findViewById(R.id.otherSubstanceLayout);
             otherSubstanceEdit = itemView.findViewById(R.id.otherSubstanceEdit);
+            radioNever = itemView.findViewById(R.id.radioNever);
+            radio1to2 = itemView.findViewById(R.id.radio1to2);
+            radioMonthly = itemView.findViewById(R.id.radioMonthly);
+            radioWeekly = itemView.findViewById(R.id.radioWeekly);
+            radioDaily = itemView.findViewById(R.id.radioDaily);
+            radioNever.setText(radioNever.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioNever)+" คะแนน)");
+            radio1to2.setText(radio1to2.getText().toString()+" ("+getFrequencyForRadioId(R.id.radio1to2)+" คะแนน)");
+            radioMonthly.setText(radioMonthly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioMonthly)+" คะแนน)");
+            radioWeekly.setText(radioWeekly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioWeekly)+" คะแนน)");
+            radioDaily.setText(radioDaily.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioDaily)+" คะแนน)");
+
         }
 
         public void bind(SubstanceItem item) {

@@ -6,6 +6,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -109,6 +110,11 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
 
         // เพิ่ม TextWatcher เป็น field เพื่อให้สามารถถอดออกได้
         private TextWatcher textWatcher;
+
+        private RadioButton radioNever;
+        private RadioButton radioWithin;
+        private RadioButton radioBefore;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleText = itemView.findViewById(R.id.titleText);
@@ -116,6 +122,14 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
             answerGroup = itemView.findViewById(R.id.answerGroup);
             otherSubstanceLayout = itemView.findViewById(R.id.otherSubstanceLayout);
             otherSubstanceEdit = itemView.findViewById(R.id.otherSubstanceEdit);
+            radioNever = itemView.findViewById(R.id.radioNever);
+            radioWithin = itemView.findViewById(R.id.radioWithin);
+            radioBefore = itemView.findViewById(R.id.radioBefore);
+
+            radioNever.setText(radioNever.getText().toString()+" ("+getValueForRadioId(R.id.radioNever)+" คะแนน)");
+            radioWithin.setText(radioWithin.getText().toString()+" ("+getValueForRadioId(R.id.radioWithin)+" คะแนน)");
+            radioBefore.setText(radioBefore.getText().toString()+" ("+getValueForRadioId(R.id.radioBefore)+" คะแนน)");
+
         }
         public void bind(SubstanceItem item) {
             titleText.setText(item.getName());
