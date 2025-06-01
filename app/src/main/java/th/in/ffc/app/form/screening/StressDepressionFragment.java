@@ -3,6 +3,7 @@ package th.in.ffc.app.form.screening;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,20 +51,26 @@ public class StressDepressionFragment extends Fragment {
     private static final String COLOR_HIGHLIGHT_3 = "#EF9A9A"; // Light red for high stress
     private static final String COLOR_HIGHLIGHT_4 = "#E57373"; // Darker red for highest stress
     private static final String COLOR_DEFAULT = "#FFFFFF"; // White background
-    // Define colors
 
     int white;
     int light_gray;
     int highlightColor;
+
+    // ตัวแปรสำหรับตรวจสอบข้อมูล
+    private boolean isFormValid = false;
+    private boolean[] questionAnswered = {false, false, false, false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่
+
     public StressDepressionFragment() {
         // Required empty public constructor
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_stress_depression, container, false);
     }
+
     private void initializeTable(View view) {
         tableLayout = view.findViewById(R.id.stressScoreTable);
 
@@ -84,33 +91,41 @@ public class StressDepressionFragment extends Fragment {
         light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
         highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
     }
-    private void addTableRow(TableLayout table, String score, String description,String code, int position) {
+
+    // ปรับปรุง addTableRow method เพื่อใช้สีที่สอดคล้องกัน
+    private void addTableRow(TableLayout table, String score, String description, String code, int position) {
         TableRow row = new TableRow(getContext());
 
         // Create score column
         TextView scoreView = createTextView(score, false);
-        scoreView.setPadding(16, 24, 16, 24);  // Increased padding
+        scoreView.setPadding(16, 24, 16, 24);
 
         // Create description column
         TextView descView = createTextView(description, false);
-        descView.setPadding(16, 24, 16, 24);  // Increased padding
+        descView.setPadding(16, 24, 16, 24);
 
         TextView codeView = createTextView(code, false);
-        codeView.setPadding(16, 24, 16, 24);  // Increased padding
+        codeView.setPadding(16, 24, 16, 24);
 
-        // Set background color based on position
-        if (position % 2 == 0) {
-            row.setBackgroundColor(Color.parseColor("#E8F5E9")); // Light green background
-        } else {
-            row.setBackgroundColor(Color.parseColor("#F5F5F5")); // Light gray background
-        }
+        // Set background color based on stress level (not alternating)
+        String backgroundColor = getBackgroundColorForPosition(position);
+        row.setBackgroundColor(Color.parseColor(backgroundColor));
 
         row.addView(scoreView);
         row.addView(descView);
         row.addView(codeView);
         table.addView(row);
     }
-
+    // เพิ่ม method สำหรับกำหนดสีพื้นหลังของแต่ละแถว
+    private String getBackgroundColorForPosition(int position) {
+        switch (position) {
+            case 0: return "#E8F5E8"; // เขียวอ่อน - เครียดน้อย
+            case 1: return "#FFFDE7"; // เหลืองอ่อน - เครียดปานกลาง
+            case 2: return "#FFEBEE"; // แดงอ่อน - เครียดมาก
+            case 3: return "#FFCDD2"; // แดงเข้ม - เครียดมากที่สุด
+            default: return "#FFFFFF"; // สีขาว (default)
+        }
+    }
     private TextView createTextView(String text, boolean isHeader) {
         TextView textView = new TextView(getContext());
         textView.setText(text);
@@ -135,10 +150,12 @@ public class StressDepressionFragment extends Fragment {
 
         return textView;
     }
+
     public static StressDepressionFragment newInstance(String param1, String param2) {
         StressDepressionFragment fragment = new StressDepressionFragment();
         return fragment;
     }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -148,6 +165,7 @@ public class StressDepressionFragment extends Fragment {
             throw new ClassCastException(context.toString() + " must implement OnDataPass");
         }
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,6 +193,16 @@ public class StressDepressionFragment extends Fragment {
         rdoObesityQ4 = view.findViewById(R.id.rdoObesityQ4);
         rdoObesityQ5 = view.findViewById(R.id.rdoObesityQ5);
         stressDepressionInfo = new StressDepressionInfo();
+
+        setupRadioGroupListeners();
+        loadData();
+        initializeTable(view);
+    }
+
+    /**
+     * ตั้งค่า Listener สำหรับ RadioGroup ทั้งหมด
+     */
+    private void setupRadioGroupListeners() {
         rdoObesityQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -200,7 +228,10 @@ public class StressDepressionFragment extends Fragment {
                 }
                 stressDepressionInfo.setQ1(data);
                 stressDepressionInfo.setPoints(points);
-                dataPasser.onStressDepression(stressDepressionInfo);
+
+                // ตรวจสอบว่าตอบคำถามที่ 1 แล้ว
+                questionAnswered[0] = true;
+                validateAndSaveData();
                 calculatePoints();
             }
         });
@@ -229,7 +260,10 @@ public class StressDepressionFragment extends Fragment {
                 }
                 stressDepressionInfo.setQ2(data);
                 stressDepressionInfo.setPoints(points);
-                dataPasser.onStressDepression(stressDepressionInfo);
+
+                // ตรวจสอบว่าตอบคำถามที่ 2 แล้ว
+                questionAnswered[1] = true;
+                validateAndSaveData();
                 calculatePoints();
             }
         });
@@ -258,7 +292,10 @@ public class StressDepressionFragment extends Fragment {
                 }
                 stressDepressionInfo.setQ3(data);
                 stressDepressionInfo.setPoints(points);
-                dataPasser.onStressDepression(stressDepressionInfo);
+
+                // ตรวจสอบว่าตอบคำถามที่ 3 แล้ว
+                questionAnswered[2] = true;
+                validateAndSaveData();
                 calculatePoints();
             }
         });
@@ -287,7 +324,10 @@ public class StressDepressionFragment extends Fragment {
                 }
                 stressDepressionInfo.setQ4(data);
                 stressDepressionInfo.setPoints(points);
-                dataPasser.onStressDepression(stressDepressionInfo);
+
+                // ตรวจสอบว่าตอบคำถามที่ 4 แล้ว
+                questionAnswered[3] = true;
+                validateAndSaveData();
                 calculatePoints();
             }
         });
@@ -316,59 +356,158 @@ public class StressDepressionFragment extends Fragment {
                 }
                 stressDepressionInfo.setQ5(data);
                 stressDepressionInfo.setPoints(points);
-                dataPasser.onStressDepression(stressDepressionInfo);
+
+                // ตรวจสอบว่าตอบคำถามที่ 5 แล้ว
+                questionAnswered[4] = true;
+                validateAndSaveData();
                 calculatePoints();
             }
         });
-        loadData();
-        initializeTable(view);
-//        setUserScore(stressDepressionInfo.getSum());
     }
+
+    /**
+     * ตรวจสอบความถูกต้องของข้อมูลและบันทึกข้อมูล
+     */
+    private void validateAndSaveData() {
+        // ตรวจสอบว่าตอบคำถามครบทุกข้อหรือไม่
+        boolean allAnswered = true;
+        for (boolean answered : questionAnswered) {
+            if (!answered) {
+                allAnswered = false;
+                break;
+            }
+        }
+
+        isFormValid = allAnswered;
+
+        if (isFormValid) {
+            // ถ้าตอบครบทุกข้อ ให้บันทึกข้อมูล
+            Log.d("StressDepression", "ตอบคำถามครบทุกข้อแล้ว - บันทึกข้อมูล");
+            dataPasser.onStressDepression(stressDepressionInfo);
+        } else {
+            // ถ้ายังตอบไม่ครบ ให้แสดงข้อความแจ้งเตือน
+            showIncompleteFormMessage();
+        }
+    }
+
+    /**
+     * แสดงข้อความแจ้งเตือนเมื่อตอบไม่ครบ
+     */
+    private void showIncompleteFormMessage() {
+        String missingQuestions = getMissingQuestionsText();
+        if (!missingQuestions.isEmpty()) {
+//            Toast.makeText(getContext(),
+//                    "กรุณาตอบคำถามให้ครบถ้วน: " + missingQuestions,
+//                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * ดึงรายการคำถามที่ยังไม่ได้ตอบ
+     */
+    private String getMissingQuestionsText() {
+        ArrayList<String> missingQuestions = new ArrayList<>();
+
+        for (int i = 0; i < questionAnswered.length; i++) {
+            if (!questionAnswered[i]) {
+                missingQuestions.add("ข้อ " + (i + 1));
+            }
+        }
+
+        if (missingQuestions.isEmpty()) {
+            return "";
+        }
+
+        return String.join(", ", missingQuestions);
+    }
+
+    /**
+     * ตรวจสอบว่าแบบฟอร์มกรอกครบหรือไม่
+     */
+    public boolean isFormComplete() {
+        return isFormValid;
+    }
+
+    /**
+     * รีเซ็ตสถานะการตรวจสอบ (ใช้เมื่อล้างข้อมูล)
+     */
+    public void resetValidation() {
+        isFormValid = false;
+        for (int i = 0; i < questionAnswered.length; i++) {
+            questionAnswered[i] = false;
+        }
+    }
+
+    /**
+     * ตรวจสอบสถานะการตอบจาก RadioGroup
+     */
+    private void checkAnsweredStatus() {
+        questionAnswered[0] = rdoObesityQ1.getCheckedRadioButtonId() != -1;
+        questionAnswered[1] = rdoObesityQ2.getCheckedRadioButtonId() != -1;
+        questionAnswered[2] = rdoObesityQ3.getCheckedRadioButtonId() != -1;
+        questionAnswered[3] = rdoObesityQ4.getCheckedRadioButtonId() != -1;
+        questionAnswered[4] = rdoObesityQ5.getCheckedRadioButtonId() != -1;
+    }
+
     public void setUserScore(int score) {
         currentScore = score;
         updateTableHighlight();
     }
 
-//    private void updateTableHighlight() {
-//        // First reset all rows to default color
-//        for (int i = 1; i < tableLayout.getChildCount(); i++) {
-//            TableRow row = (TableRow) tableLayout.getChildAt(i);
-//            row.setBackgroundColor(Color.parseColor(COLOR_DEFAULT));
-//        }
-//
-//        // Then highlight only the appropriate row based on score
-//        if (currentScore >= 0) {
-//            int rowIndex = getRowIndexForScore(currentScore);
-//            if (rowIndex > 0 && rowIndex < tableLayout.getChildCount()) {
-//                TableRow row = (TableRow) tableLayout.getChildAt(rowIndex);
-//                String highlightColor = getHighlightColorForRow(rowIndex);
-//                row.setBackgroundColor(Color.parseColor(highlightColor));
-//            }
-//        }
-//    }
     private void updateTableHighlight() {
         // First set alternating colors for all rows
         for (int i = 1; i < tableLayout.getChildCount(); i++) {
             TableRow row = (TableRow) tableLayout.getChildAt(i);
-            row.setBackgroundColor(i % 2 == 0 ?
-                    light_gray : white);
+
+            // Set default alternating background colors
+            if (i % 2 == 0) {
+                row.setBackgroundColor(Color.parseColor("#F5F5F5")); // Light gray
+            } else {
+                row.setBackgroundColor(Color.parseColor("#FFFFFF")); // White
+            }
         }
 
-        // Then highlight the row that matches the score range
+        // Then highlight the row that matches the score range with appropriate color
         if (currentScore >= 0) {
             int rowIndex = getRowIndexForScore(currentScore);
             if (rowIndex > 0 && rowIndex < tableLayout.getChildCount()) {
                 TableRow row = (TableRow) tableLayout.getChildAt(rowIndex);
-                row.setBackgroundColor(highlightColor);
+
+                // Set highlight color based on stress level
+                String highlightColor = getHighlightColorForScore(currentScore);
+                row.setBackgroundColor(Color.parseColor(highlightColor));
             }
         }
+
         int totalScore = currentScore;
         String resultCode = getResultCode(totalScore);
+        String stressLevel = getStressLevelText(totalScore);
         TextView resultTextView = getView().findViewById(R.id.resultStressDepressionScore);
         if (resultTextView != null) {
-            resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน (%s)", totalScore, resultCode));
+            resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน (%s - %s)",
+                    totalScore, resultCode, stressLevel));
         }
-
+    }
+    // เพิ่ม method ใหม่สำหรับกำหนดสี highlight ตามระดับคะแนน
+    private String getHighlightColorForScore(int score) {
+        if (score >= 0 && score <= 4) {
+            return "#C8E6C9"; // เขียวอ่อน - เครียดน้อย
+        } else if (score >= 5 && score <= 7) {
+            return "#FFF9C4"; // เหลืองอ่อน - เครียดปานกลาง
+        } else if (score >= 8 && score <= 9) {
+            return "#FFCDD2"; // แดงอ่อน - เครียดมาก
+        } else if (score >= 10 && score <= 15) {
+            return "#EF9A9A"; // แดงเข้ม - เครียดมากที่สุด
+        }
+        return "#FFFFFF"; // สีขาว (default)
+    }
+    // เพิ่ม method สำหรับดึงข้อความระดับความเครียด
+    private String getStressLevelText(int score) {
+        if (score >= 0 && score <= 4) return "เครียดน้อย";
+        if (score >= 5 && score <= 7) return "เครียดปานกลาง";
+        if (score >= 8 && score <= 9) return "เครียดมาก";
+        if (score >= 10 && score <= 15) return "เครียดมากที่สุด";
+        return "";
     }
     private String getHighlightColorForRow(int rowIndex) {
         switch (rowIndex) {
@@ -379,6 +518,7 @@ public class StressDepressionFragment extends Fragment {
             default: return COLOR_DEFAULT;
         }
     }
+
     private int getRowIndexForScore(int score) {
         if (score >= 0 && score <= 4) return 1;
         if (score >= 5 && score <= 7) return 2;
@@ -386,6 +526,7 @@ public class StressDepressionFragment extends Fragment {
         if (score >= 10 && score <= 19) return 4;
         return -1;
     }
+
     private String getResultCode(int score) {
         if (score >= 0 && score <= 4) return "1B132";
         if (score >= 5 && score <= 7) return "1B133";
@@ -393,7 +534,6 @@ public class StressDepressionFragment extends Fragment {
         if (score >= 10 && score <= 19) return "1B135";
         return "";
     }
-
 
     private void loadData(){
         SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(getContext());
@@ -408,6 +548,7 @@ public class StressDepressionFragment extends Fragment {
             }
         });
     }
+
     public void setStressDepressionInfo(StressDepressionInfo info) {
         this.stressDepressionInfo = info;
         updateUI();
@@ -423,8 +564,10 @@ public class StressDepressionFragment extends Fragment {
         setRadioGroupFromAnswer(rdoObesityQ4, stressDepressionInfo.getQ4(), "rdoObesityQ4_");
         setRadioGroupFromAnswer(rdoObesityQ5, stressDepressionInfo.getQ5(), "rdoObesityQ5_");
 
-        calculatePoints();
+        // ตรวจสอบสถานะการตอบจากข้อมูลที่โหลดมา
+        checkAnsweredStatus();
 
+        calculatePoints();
     }
 
     private void setRadioGroupFromAnswer(RadioGroup group, String answer, String idPrefix) {
@@ -437,6 +580,7 @@ public class StressDepressionFragment extends Fragment {
             }
         }
     }
+
     private void calculatePoints() {
         ArrayList<Integer> points = new ArrayList<>();
 
@@ -453,6 +597,7 @@ public class StressDepressionFragment extends Fragment {
         stressDepressionInfo.getSum();
         setUserScore(stressDepressionInfo.getSum());
     }
+
     private int getPointFromAnswer(String answer) {
         // แปลงคำตอบเป็นคะแนน
         switch (answer) {
@@ -464,4 +609,15 @@ public class StressDepressionFragment extends Fragment {
         }
     }
 
+    /**
+     * เมธอดสำหรับหน้าจออื่นที่ต้องการตรวจสอบความครบถ้วนของข้อมูล
+     */
+    public StressDepressionInfo getFormData() {
+        if (isFormValid) {
+            return stressDepressionInfo;
+        } else {
+            showIncompleteFormMessage();
+            return null;
+        }
+    }
 }

@@ -27,6 +27,13 @@ import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
 import th.in.ffc.app.form.screening.MainQuestionsFragment;
 import th.in.ffc.app.form.screening.OnDataPass;
 import th.in.ffc.app.form.screening.SmookingFragment;
+import th.in.ffc.app.form.screening.StressDepressionFragment;
+import th.in.ffc.app.form.screening.StressDepression2qFragment;
+import th.in.ffc.app.form.screening.StressDepression9qFragment;
+import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
+import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
+import th.in.ffc.app.form.screening.CardiovascularRiskFragment;
+import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.person.PersonScreeningForm15Activity;
 
@@ -50,49 +57,6 @@ public class FormDialogFragment extends DialogFragment {
 
     private void saveFormData() {
         // รวบรวมข้อมูลจาก Fragment ต่างๆ (สามารถเพิ่มเติมได้ตามต้องการ)
-    }
-
-    private void saveDataAndCallActivityButton() {
-        if (getActivity() instanceof PersonScreeningForm15Activity) {
-            PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
-            // เพิ่มการตรวจสอบข้อมูลสำหรับ MainQuestionsFragment
-            if (contentFragment instanceof MainQuestionsFragment) {
-                MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
-                // ตรวจสอบความครบถ้วนของข้อมูล
-                if (!mainFragment.isAllDataComplete()) {
-                    // แสดงข้อความแจ้งเตือน
-                    validated = false;
-//                    Toast.makeText(getContext(), "กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม", Toast.LENGTH_LONG).show();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("ข้อมูลไม่ครบถ้วน")
-                            .setMessage("กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม")
-                            .setPositiveButton("ตกลง", null)
-                            .setCancelable(false)
-                            .show();
-                    return; // ไม่ดำเนินการบันทึกต่อ
-                }
-                else {
-                    validated = true;
-                }
-
-            }
-
-            // จำลองการกดปุ่ม btnOk
-            Button btnOk = activity.findViewById(R.id.btnOK);
-            if (btnOk != null) {
-                btnOk.performClick();
-            }
-            // อัปเดตสถานะการกรอกข้อมูล
-            if (formTitle.equals("แบบคัดกรองการใช้สารเสพติด")) {
-                activity.updateMainQuestionsStatus();
-            } else {
-                activity.updateFormStatus(formTitle, true);
-            }
-
-
-            // ปิด Dialog
-            dismiss();
-        }
     }
 
     public static FormDialogFragment newInstance(String title, Fragment content,Integer send_to_claim) {
@@ -129,6 +93,7 @@ public class FormDialogFragment extends DialogFragment {
                 .setTitle(formTitle)
                 .setPositiveButton("บันทึก", null)
                 .setNegativeButton("ยกเลิก",null);
+
         // สร้าง AlertDialog
         AlertDialog dialog = builder.create();
 
@@ -137,16 +102,11 @@ public class FormDialogFragment extends DialogFragment {
             // ต้องเรียก getChildFragmentManager() เพื่อจัดการ Fragment ใน Dialog
             FrameLayout container = view.findViewById(R.id.dialogFragmentContainer);
             if (contentFragment != null && container != null) {
-                // เอา ScrollView ออกจาก Fragment ก่อนเพิ่มลงใน container
-//                if (contentFragment instanceof FagerstromNicotineFragment) {
-//                    // อาจต้องปรับ layout ของ Fragment โดยเฉพาะ
-//                    // หรือใช้เทคนิคอื่นๆ เช่น setMaxHeight ให้กับ container
-//                }
-
                 getChildFragmentManager().beginTransaction()
                         .replace(R.id.dialogFragmentContainer, contentFragment)
                         .commit();
             }
+
             // สำคัญ: เข้าถึงปุ่มที่ถูกสร้างโดย AlertDialog และเปลี่ยน listener
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -170,45 +130,142 @@ public class FormDialogFragment extends DialogFragment {
                     positiveButton.setEnabled(false);
                 }
             }
-            // ตรวจสอบกรณี MainQuestionsFragment
-            if (contentFragment instanceof MainQuestionsFragment && getActivity() instanceof PersonScreeningForm15Activity) {
-                MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
+
+            // ตรวจสอบกรณี Fragment ต่างๆ และอัปเดตสถานะ
+            if (getActivity() instanceof PersonScreeningForm15Activity) {
                 PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
 
                 // อัปเดตสถานะหลังจากที่ Fragment ถูกโหลดเรียบร้อย
                 new Handler().postDelayed(() -> {
-                    boolean isComplete = mainFragment.isAllDataComplete();
-                    activity.updateFormStatus("แบบคัดกรองการใช้สารเสพติด", isComplete);
+                    updateFragmentStatus(activity);
                 }, 500); // รอสักครู่เพื่อให้ Fragment ถูกโหลดเรียบร้อย
             }
-            // เพิ่มปุ่มเลื่อนขึ้นด้านบนหรือปุ่มเลื่อนกลับ หากต้องการ
         });
 
         return dialog;
     }
+
+    /**
+     * อัปเดตสถานะของ Fragment ต่างๆ
+     */
+    private void updateFragmentStatus(PersonScreeningForm15Activity activity) {
+        boolean isComplete = false;
+
+        if (contentFragment instanceof MainQuestionsFragment) {
+            MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
+            isComplete = mainFragment.isAllDataComplete();
+            activity.updateFormStatus("แบบคัดกรองการใช้สารเสพติด", isComplete);
+        } else if (contentFragment instanceof StressDepressionFragment) {
+            StressDepressionFragment stressFragment = (StressDepressionFragment) contentFragment;
+            isComplete = stressFragment.isFormComplete();
+            activity.updateFormStatus("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)", isComplete);
+        }
+        // เพิ่ม Fragment อื่นๆ ที่มีการตรวจสอบข้อมูลในอนาคต
+    }
+
+    /**
+     * ตรวจสอบความถูกต้องของข้อมูลและบันทึก
+     */
     private void validateAndSave() {
         if (getActivity() instanceof PersonScreeningForm15Activity) {
             PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
+            boolean isFormValid = true;
+            String errorMessage = "";
 
-            // เพิ่มการตรวจสอบข้อมูลสำหรับ MainQuestionsFragment
+            // ตรวจสอบข้อมูลสำหรับ MainQuestionsFragment
             if (contentFragment instanceof MainQuestionsFragment) {
                 MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
-
-                // ตรวจสอบความครบถ้วนของข้อมูล
                 if (!mainFragment.isAllDataComplete()) {
-                    // แสดงข้อความแจ้งเตือน
-                    validated = false;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("ข้อมูลไม่ครบถ้วน")
-                            .setMessage("กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม")
-                            .setPositiveButton("ตกลง", null)
-                            .setCancelable(false)
-                            .show();
-                    return; // ไม่ดำเนินการบันทึกต่อ และไม่ปิด Dialog
+                    isFormValid = false;
+                    errorMessage = "กรุณากรอกข้อมูลให้ครบถ้วนในทุกคำถาม";
                 }
-                else {
-                    validated = true;
+            }
+            // ตรวจสอบข้อมูลสำหรับ StressDepressionFragment
+            else if (contentFragment instanceof StressDepressionFragment) {
+                StressDepressionFragment stressFragment = (StressDepressionFragment) contentFragment;
+                if (!stressFragment.isFormComplete()) {
+                    isFormValid = false;
+                    errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (5 ข้อ)";
                 }
+            }
+            // เพิ่มการตรวจสอบสำหรับ Fragment อื่นๆ ตามต้องการ
+            else if (contentFragment instanceof StressDepression2qFragment) {
+                StressDepression2qFragment stress2qFragment = (StressDepression2qFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน StressDepression2qFragment
+                // if (!stress2qFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (2 ข้อ)";
+                // }
+            }
+            else if (contentFragment instanceof StressDepression9qFragment) {
+                StressDepression9qFragment stress9qFragment = (StressDepression9qFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน StressDepression9qFragment
+                // if (!stress9qFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (9 ข้อ)";
+                // }
+            }
+            else if (contentFragment instanceof SuicideAssessment8qFragment) {
+                SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน SuicideAssessment8qFragment
+                // if (!suicide8qFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (8 ข้อ)";
+                // }
+            }
+            else if (contentFragment instanceof HealthRiskAssessmentFragment) {
+                HealthRiskAssessmentFragment healthFragment = (HealthRiskAssessmentFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน HealthRiskAssessmentFragment
+                // if (!healthFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณากรอกข้อมูลให้ครบถ้วนทุกข้อ";
+                // }
+            }
+            else if (contentFragment instanceof CardiovascularRiskFragment) {
+                CardiovascularRiskFragment cardioFragment = (CardiovascularRiskFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน CardiovascularRiskFragment
+                // if (!cardioFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณากรอกข้อมูลให้ครบถ้วนทุกข้อ";
+                // }
+            }
+            else if (contentFragment instanceof AlcoholFragment) {
+                AlcoholFragment alcoholFragment = (AlcoholFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน AlcoholFragment
+                // if (!alcoholFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณาตอบคำถามเกี่ยวกับการดื่มสุราให้ครบถ้วน";
+                // }
+            }
+            else if (contentFragment instanceof SmookingFragment) {
+                SmookingFragment smokingFragment = (SmookingFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน SmookingFragment
+                // if (!smokingFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณาตอบคำถามเกี่ยวกับการสูบบุหรี่ให้ครบถ้วน";
+                // }
+            }
+            else if (contentFragment instanceof FagerstromNicotineFragment) {
+                FagerstromNicotineFragment fagerstromFragment = (FagerstromNicotineFragment) contentFragment;
+                // สมมติว่ามีเมธอด isFormComplete() ใน FagerstromNicotineFragment
+                // if (!fagerstromFragment.isFormComplete()) {
+                //     isFormValid = false;
+                //     errorMessage = "กรุณาตอบคำถามการติดนิโคตินให้ครบถ้วนทุกข้อ (6 ข้อ)";
+                // }
+            }
+
+            // ถ้าข้อมูลไม่ถูกต้อง แสดงข้อความแจ้งเตือน
+            if (!isFormValid) {
+                validated = false;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("ข้อมูลไม่ครบถ้วน")
+                        .setMessage(errorMessage)
+                        .setPositiveButton("ตกลง", null)
+                        .setCancelable(false)
+                        .show();
+                return; // ไม่ดำเนินการบันทึกต่อ และไม่ปิด Dialog
+            } else {
+                validated = true;
             }
 
             // จำลองการกดปุ่ม btnOk
@@ -218,14 +275,29 @@ public class FormDialogFragment extends DialogFragment {
             }
 
             // อัปเดตสถานะการกรอกข้อมูล
-            if (formTitle.equals("แบบคัดกรองการใช้สารเสพติด")) {
-                activity.updateMainQuestionsStatus();
-            } else {
-                activity.updateFormStatus(formTitle, true);
-            }
+            updateFormStatusAfterSave(activity);
 
             // ปิด Dialog เมื่อข้อมูลถูกต้อง
             dismiss();
+        }
+    }
+
+    /**
+     * อัปเดตสถานะหลังการบันทึกข้อมูล
+     */
+    private void updateFormStatusAfterSave(PersonScreeningForm15Activity activity) {
+        if (formTitle.equals("แบบคัดกรองการใช้สารเสพติด")) {
+            activity.updateMainQuestionsStatus();
+        } else if (formTitle.equals("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)")) {
+            // อัปเดตสถานะสำหรับ StressDepressionFragment
+            if (contentFragment instanceof StressDepressionFragment) {
+                StressDepressionFragment stressFragment = (StressDepressionFragment) contentFragment;
+                boolean isComplete = stressFragment.isFormComplete();
+                activity.updateFormStatus(formTitle, isComplete);
+            }
+        } else {
+            // อัปเดตสถานะสำหรับ Fragment อื่นๆ
+            activity.updateFormStatus(formTitle, true);
         }
     }
 
@@ -248,9 +320,6 @@ public class FormDialogFragment extends DialogFragment {
                 // เพิ่มการตั้งค่าเพื่อให้ใช้พื้นที่ส่วนใหญ่ของหน้าจอแต่ไม่เต็มทั้งหมด
                 DisplayMetrics metrics = new DisplayMetrics();
                 getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-//                int dialogHeight = (int)(metrics.heightPixels * 0.9); // ใช้ 90% ของความสูงหน้าจอ
-//                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, dialogHeight);
 
                 window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

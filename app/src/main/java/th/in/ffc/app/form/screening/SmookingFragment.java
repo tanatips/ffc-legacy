@@ -25,7 +25,17 @@ import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.util.Log;
+import android.widget.TextView;
+import th.in.ffc.app.form.screening.dao.SfDrugsDao;
+import java.util.Map;
+import java.util.HashMap;
 
+// เพิ่มในส่วน import
+import android.widget.TextView;
+import th.in.ffc.app.form.screening.dao.SfDrugsDao;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SmookingFragment#newInstance} factory method to
@@ -55,6 +65,11 @@ public class SmookingFragment extends Fragment {
     public SmookingFragment() {
         // Required empty public constructor
     }
+    // เพิ่มตัวแปรสำหรับแสดงคะแนน
+    private TextView tvSmokingScore;
+    private TextView tvSmokingRiskLevel;
+
+    // ตัวแปรเดิมทั้งหมด...
 
     public static SmookingFragment newInstance(String param1, String param2) {
         SmookingFragment fragment = new SmookingFragment();
@@ -108,6 +123,42 @@ public class SmookingFragment extends Fragment {
         rdoSmokerRegularly1 = view.findViewById(R.id.rdoSmokerRegularly1);
         rdoSmokerRegularly2 = view.findViewById(R.id.rdoSmokerRegularly2);
         rdoSmokerRegularly3 = view.findViewById(R.id.rdoSmokerRegularly3);
+
+        // เชื่อมโยง TextView สำหรับแสดงคะแนน
+        tvSmokingScore = view.findViewById(R.id.tvSmokingScore);
+        tvSmokingRiskLevel = view.findViewById(R.id.tvSmokingRiskLevel);
+
+        // โค้ดเดิมทั้งหมด...
+        smokerInfo = new SmokerInfo();
+        sfSmokerInfoDao = new SfSmokerInfoDao(getContext());
+        rdoSmokerGroup = view.findViewById(R.id.rdoSmokerGroup);
+        rdoSmokerAssist = view.findViewById(R.id.rdoSmokerAssist);
+        rdoSmokerRegularly = view.findViewById(R.id.rdoSmokerRegularly);
+
+        // เพิ่มการ observe คะแนนจาก SharedViewModel
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        // สังเกตการเปลี่ยนแปลงข้อมูลจาก ViewModel
+        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+            if (personInfo != null && personInfo.getId() != null) {
+                // ดึงข้อมูลคะแนนการสูบบุหรี่จาก SfDrugsDao
+                loadSmokingScore(personInfo.getId());
+            }
+        });
+
+        // สังเกตคะแนน nicotine จาก AssistScore
+        viewModel.getAssistScoreMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+            if (data.getPersonId() != null && data.getNicotineScore() != null) {
+                // แสดงคะแนนบุหรี่ - แปลง String เป็น int
+                try {
+                    int nicotineScore = Integer.parseInt(data.getNicotineScore());
+                    updateSmokingScore(nicotineScore);
+                } catch (NumberFormatException e) {
+                    Log.e("SmookingFragment", "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
+                    updateSmokingScore(0); // ใช้ค่าเริ่มต้นเป็น 0
+                }
+            }
+        });
 
 //        boolean isInDialog = getParentFragment() instanceof DialogFragment;
 
@@ -204,6 +255,117 @@ public class SmookingFragment extends Fragment {
         });
         loadData();
     }
+    /**
+     * โหลดคะแนนการสูบบุหรี่จาก SfDrugsDao
+     */
+    private void loadSmokingScore(String personInfoId) {
+        try {
+            // คำนวณผลรวมของคำตอบจาก Q2 ถึง Q7 สำหรับยาสูบ (substance a)
+            String[] questions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7"};
+            int totalScore = 0;
+
+            // ดึงข้อมูลจากแต่ละคำถามและรวมคะแนนสำหรับยาสูบ (a)
+            for (String question : questions) {
+                Map<String, Integer> summaryMap = SfDrugsDao.getSummaryMapBySubquestion(
+                        Integer.valueOf(personInfoId), question);
+
+                // เอาเฉพาะคะแนนของยาสูบ (substance a)
+                if (summaryMap.containsKey("a")) {
+                    totalScore += summaryMap.get("a");
+                }
+            }
+
+            // แสดงคะแนนรวม
+            updateSmokingScore(totalScore);
+
+            Log.d("SmookingFragment", "โหลดคะแนนการสูบบุหรี่สำเร็จ: " + totalScore);
+        } catch (Exception e) {
+            Log.e("SmookingFragment", "เกิดข้อผิดพลาดในการโหลดคะแนน: " + e.getMessage());
+        }
+    }
+    /**
+     * คำนวณและอัปเดตคะแนนแบบ real-time
+     */
+    private void calculateAndUpdateScore() {
+        try {
+            // คำนวณคะแนนจากการเลือกปัจจุบัน
+            int score = calculateCurrentScore();
+            updateSmokingScore(score);
+        } catch (Exception e) {
+            Log.e("SmookingFragment", "เกิดข้อผิดพลาดในการคำนวณคะแนน: " + e.getMessage());
+        }
+    }
+    /**
+     * คำนวณคะแนนจากการเลือกปัจจุบัน
+     */
+    private int calculateCurrentScore() {
+        int score = 0;
+
+        // คำนวณจากการเลือกใน RadioGroup ต่างๆ
+        if (smokerInfo != null) {
+            // Q2: ความถี่การใช้ (SmokerGroup)
+            if (smokerInfo.getSmokerGroup() != null) {
+                switch (smokerInfo.getSmokerGroup()) {
+                    case "1": score += 0; break;  // ไม่เคย
+                    case "2": score += 2; break;  // เคย แต่ไม่ใช่ใน 3 เดือนที่ผ่านมา
+                    case "3": score += 4; break;  // ใช้ใน 3 เดือนที่ผ่านมา
+                }
+            }
+
+            // Q3: ความถี่การใช้ในช่วง 3 เดือน (SmokerAssist)
+            if (smokerInfo.getSmokerAssist() != null && "3".equals(smokerInfo.getSmokerGroup())) {
+                switch (smokerInfo.getSmokerAssist()) {
+                    case "1": score += 2; break;  // เดือนละครั้งหรือน้อยกว่า
+                    case "2": score += 3; break;  // 2-4 ครั้งต่อเดือน
+                    case "3": score += 4; break;  // 2-3 ครั้งต่อสัปดาห์ หรือมากกว่า
+                }
+            }
+
+            // เพิ่มคะแนนจาก SmokerRegularly ถ้ามี
+            if (smokerInfo.getSmokerRegularly() != null && "3".equals(smokerInfo.getSmokerAssist())) {
+                switch (smokerInfo.getSmokerRegularly()) {
+                    case "1": score += 1; break;
+                    case "2": score += 2; break;
+                    case "3": score += 4; break;
+                }
+            }
+        }
+
+        return score;
+    }
+
+    /**
+     * อัปเดตการแสดงคะแนนและระดับความเสี่ยง
+     */
+    /**
+     * อัปเดตการแสดงคะแนนและระดับความเสี่ยง (เวอร์ชันใช้สีที่กำหนดเอง)
+     */
+    private void updateSmokingScore(int score) {
+        if (tvSmokingScore != null) {
+            tvSmokingScore.setText(String.valueOf(score));
+        }
+
+        if (tvSmokingRiskLevel != null) {
+            String riskLevel;
+
+            // กำหนดระดับความเสี่ยงตามคะแนน (สำหรับยาสูบ)
+            if (score >= 0 && score <= 3) {
+                riskLevel = "ไม่มีความเสี่ยง";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_green);
+                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 4 && score <= 26) {
+                riskLevel = "ความเสี่ยงปานกลาง";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_yellow);
+                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+            } else {
+                riskLevel = "ความเสี่ยงสูง";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_red);
+                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+            }
+
+            tvSmokingRiskLevel.setText(riskLevel);
+        }
+    }
 
     private void loadData(){
 
@@ -229,6 +391,7 @@ public class SmookingFragment extends Fragment {
     public void setSmokerInfo(SmokerInfo info) {
         this.smokerInfo = info;
         updateUI();
+//        calculateAndUpdateScore();
     }
     private void updateUI() {
         if (this.smokerInfo != null) {

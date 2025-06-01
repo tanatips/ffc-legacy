@@ -20,6 +20,7 @@
                 android:layout_margin="10dp"
                 android:textStyle="bold"
                 android:text="แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน"
+                android:visibility="gone"
                 />
             <TextView
                 android:layout_width="match_parent"

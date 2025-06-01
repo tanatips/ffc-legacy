@@ -1,108 +1,486 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="#F8F9FA"
     tools:context=".app.form.screening.AlcoholFragment">
 
-    <androidx.cardview.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        >
+        <!-- ส่วนหัวของหน้า -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_margin="10dp"
-                android:textStyle="bold"
-                android:text="คัดกรองความเสี่ยงจากการดื่มสุรา"
-                />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
 
-            <RadioGroup
-                android:id="@+id/rdoDrinking"
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_alcohol"
+                android:tint="#FF6B35"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="คัดกรองความเสี่ยงจากการดื่มสุรา"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#2C3E50" />
+        </LinearLayout>
+
+        <!-- แบบฟอร์มการดื่มสุรา -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="20dp">
 
-                <RadioButton
-                    android:id="@+id/rdoDrinking1"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/drink_1b600"
-                    />
-                <RadioButton
-                    android:id="@+id/rdoDrinking2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/drink_1b601"
-                    />
-                <RadioButton
-                    android:id="@+id/rdoDrinking3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/drink"
-                    />
+                    android:text="ข้อมูลการดื่มสุรา"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#34495E"
+                    android:layout_marginBottom="16dp"
+                    android:drawablePadding="8dp" />
+
                 <RadioGroup
-                    android:id="@+id/rdoDrinkingFrequency"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <RadioButton
-                        android:id="@+id/rdoDrinkingFrequency1"
-                        android:layout_marginLeft="20dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/once_in_a_while"/>
-                    <RadioButton
-                        android:id="@+id/rdoDrinkingFrequency2"
-                        android:layout_marginLeft="20dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/occasionally"/>
-                    <RadioButton
-                        android:id="@+id/rdoDrinkingFrequency3"
-                        android:layout_marginLeft="20dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/regularly"/>
-                </RadioGroup>
-                <RadioGroup
-                    android:id="@+id/rdoDrinkingAlway"
+                    android:id="@+id/rdoDrinking"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <RadioButton
-                        android:id="@+id/rdoDrinkingAlway1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="40dp"
-                        android:text="@string/drink_1b602" />
+                        android:id="@+id/rdoDrinking1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/drink_1b600"
+                        android:textSize="14sp"
+                        android:textColor="#2C3E50"
+                        android:padding="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/radio_button_background" />
 
                     <RadioButton
-                        android:id="@+id/rdoDrinkingAlway2"
-                        android:layout_marginLeft="40dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/drink_1b603"/>
+                        android:id="@+id/rdoDrinking2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/drink_1b601"
+                        android:textSize="14sp"
+                        android:textColor="#2C3E50"
+                        android:padding="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/radio_button_background" />
+
                     <RadioButton
-                        android:id="@+id/rdoDrinkingAlway3"
-                        android:layout_marginLeft="40dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/drink_1b604"/>
+                        android:id="@+id/rdoDrinking3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/drink"
+                        android:textSize="14sp"
+                        android:textColor="#2C3E50"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/radio_button_background" />
 
+                    <!-- ความถี่การดื่ม -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="#F8F9FA"
+                        android:padding="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginBottom="8dp"
+                        app:cardCornerRadius="8dp">
 
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="ความถี่ในการดื่ม"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#7F8C8D"
+                            android:layout_marginBottom="8dp" />
+
+                        <RadioGroup
+                            android:id="@+id/rdoDrinkingFrequency"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <RadioButton
+                                android:id="@+id/rdoDrinkingFrequency1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/once_in_a_while"
+                                android:textSize="13sp"
+                                android:textColor="#34495E"
+                                android:padding="8dp"
+                                android:layout_marginBottom="4dp" />
+
+                            <RadioButton
+                                android:id="@+id/rdoDrinkingFrequency2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/occasionally"
+                                android:textSize="13sp"
+                                android:textColor="#34495E"
+                                android:padding="8dp"
+                                android:layout_marginBottom="4dp" />
+
+                            <RadioButton
+                                android:id="@+id/rdoDrinkingFrequency3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/regularly"
+                                android:textSize="13sp"
+                                android:textColor="#34495E"
+                                android:padding="8dp" />
+                        </RadioGroup>
+                    </LinearLayout>
+
+                    <!-- ระดับการดื่มเป็นประจำ -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="#FFF3CD"
+                        android:padding="16dp"
+                        android:layout_marginStart="32dp"
+                        app:cardCornerRadius="8dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="ระดับการดื่มเป็นประจำ"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#856404"
+                            android:layout_marginBottom="8dp" />
+
+                        <RadioGroup
+                            android:id="@+id/rdoDrinkingAlway"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <RadioButton
+                                android:id="@+id/rdoDrinkingAlway1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/drink_1b602"
+                                android:textSize="13sp"
+                                android:textColor="#856404"
+                                android:padding="8dp"
+                                android:layout_marginBottom="4dp" />
+
+                            <RadioButton
+                                android:id="@+id/rdoDrinkingAlway2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/drink_1b603"
+                                android:textSize="13sp"
+                                android:textColor="#856404"
+                                android:padding="8dp"
+                                android:layout_marginBottom="4dp" />
+
+                            <RadioButton
+                                android:id="@+id/rdoDrinkingAlway3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/drink_1b604"
+                                android:textSize="13sp"
+                                android:textColor="#856404"
+                                android:padding="8dp" />
+                        </RadioGroup>
+                    </LinearLayout>
                 </RadioGroup>
-            </RadioGroup>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
+        <!-- ผลการประเมินคะแนน -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="#FFFFFF">
 
-</LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- หัวข้อผลการประเมิน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_assessment"
+                        android:tint="#3498DB"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ผลการประเมินความเสี่ยง"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+                </LinearLayout>
+
+                <!-- ตารางแสดงคะแนน -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="16dp">
+
+                    <TableLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="*">
+
+                        <!-- Header Row -->
+                        <TableRow
+                            android:background="@drawable/gradient_header"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2"
+                                android:text="สารเสพติด"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:gravity="center"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="คะแนน"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:gravity="center"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2"
+                                android:text="ระดับความเสี่ยง"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:gravity="center"
+                                android:padding="8dp" />
+                        </TableRow>
+
+                        <!-- แถวข้อมูลแอลกอฮอล์ -->
+                        <TableRow
+                            android:padding="12dp"
+                            android:background="#FFFFFF">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="2"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:src="@drawable/ic_wine"
+                                    android:tint="#E74C3C"
+                                    android:layout_marginEnd="8dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="แอลกอฮอล์"
+                                    android:textSize="14sp"
+                                    android:textColor="#2C3E50"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                app:cardCornerRadius="20dp"
+                                app:cardElevation="2dp"
+                                android:layout_margin="4dp">
+
+                                <TextView
+                                    android:id="@+id/tvAlcoholScore"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="-"
+                                    android:gravity="center"
+                                    android:padding="12dp"
+                                    android:textStyle="bold"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:background="@drawable/gradient_score" />
+                            </androidx.cardview.widget.CardView>
+
+                            <TextView
+                                android:id="@+id/tvAlcoholRiskLevel"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2"
+                                android:text="ยังไม่ได้ประเมิน"
+                                android:gravity="center"
+                                android:padding="12dp"
+                                android:textStyle="bold"
+                                android:textSize="13sp"
+                                android:textColor="#7F8C8D"
+                                android:background="@drawable/risk_level_background" />
+                        </TableRow>
+                    </TableLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- เกณฑ์การประเมิน -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="#F8F9FA">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_info"
+                                android:tint="#3498DB"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="เกณฑ์การประเมิน"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_green"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0-10 คะแนน: ไม่ต้องบำบัด"
+                                android:textSize="13sp"
+                                android:textColor="#27AE60" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_yellow"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="11-26 คะแนน: ได้รับการบำบัดอย่างย่อ"
+                                android:textSize="13sp"
+                                android:textColor="#F39C12" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_red"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="27+ คะแนน: ได้รับการบำบัดรักษาเข้มข้นมากขึ้น"
+                                android:textSize="13sp"
+                                android:textColor="#E74C3C" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ช่องว่างด้านล่าง -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+    </LinearLayout>
+</ScrollView>

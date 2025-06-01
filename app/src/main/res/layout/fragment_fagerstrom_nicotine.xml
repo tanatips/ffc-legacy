@@ -1,250 +1,487 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
     tools:context=".app.form.screening.FagerstromNicotineFragment">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- ส่วนหัวของหน้า -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_smoking"
+                android:tint="#E74C3C"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="แบบทดสอบการติดนิโคติน (Fagerstrom)"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#2C3E50" />
+        </LinearLayout>
+
+        <!-- Hidden Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="10dp"
+            android:textStyle="bold"
+            android:text="แบบทดสอบการติดบุหรี่"
+            android:visibility="gone" />
+
+        <!-- คำถามที่ 1 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_margin="10dp"
-                    android:textStyle="bold"
-                    android:text="แบบทดสอบการติดบุหรี่"
-                    />
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="1.โดยปกติคุณ สูบบุหรี่วันละกี่มวน"
+                    android:text="1. โดยปกติคุณสูบบุหรี่วันละกี่มวน"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E50"
                     android:padding="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <RadioGroup
                         android:id="@+id/rdoNicotineQ1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="20dp">
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ1_1"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="10 มวลหรือน้อยกว่า"/>
+                            android:layout_height="wrap_content"
+                            android:text="10 มวนหรือน้อยกว่า"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ1_2"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="10-20 มวน"/>
+                            android:layout_height="wrap_content"
+                            android:text="11-20 มวน"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ1_3"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="21-30 มวน"/>
+                            android:layout_height="wrap_content"
+                            android:text="21-30 มวน"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ1_4"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="มากกว่า 31 มวน"/>
+                            android:layout_height="wrap_content"
+                            android:text="มากกว่า 31 มวน"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- คำถามที่ 2 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="2.หนังตื่นนอนตอนเช้าคุณสูบบุหรี่มวนแรกเมื่อไหร่"
+                    android:text="2. หลังตื่นนอนตอนเช้าคุณสูบบุหรี่มวนแรกเมื่อไหร่"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E50"
                     android:padding="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <RadioGroup
                         android:id="@+id/rdoNicotineQ2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="20dp">
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ2_1"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="ภายใน 5 นาทีหลังตื่นนอน"/>
+                            android:layout_height="wrap_content"
+                            android:text="ภายใน 5 นาทีหลังตื่นนอน"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ2_2"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="ุ6-30 นาที หลังตื่นนอน"/>
+                            android:layout_height="wrap_content"
+                            android:text="6-30 นาที หลังตื่นนอน"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ2_3"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="31-60 นาที หลังตื่นนอน"/>
+                            android:layout_height="wrap_content"
+                            android:text="31-60 นาที หลังตื่นนอน"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ2_4"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="มากกว่า 60 นาที"/>
+                            android:layout_height="wrap_content"
+                            android:text="มากกว่า 60 นาที"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- คำถามที่ 3 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="3.คุณสูบบุหรี่จัดในชั่วโมงแรกหลังตื่นนอน\n(สูบมากกว่าในช่วงเวลาอื่นของวัน)"
+                    android:text="3. คุณสูบบุหรี่จัดในชั่วโมงแรกหลังตื่นนอน (สูบมากกว่าในช่วงเวลาอื่นของวัน)"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E50"
                     android:padding="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <RadioGroup
                         android:id="@+id/rdoNicotineQ3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="20dp">
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ3_1"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="ใช่"/>
+                            android:layout_height="wrap_content"
+                            android:text="ใช่"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ3_2"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:text="ไม่ใช่"/>
+                            android:layout_height="wrap_content"
+                            android:text="ไม่ใช่"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- คำถามที่ 4 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="4.บุหรี่มวนไหนที่คุณไม่อยากเลิกมากที่สุด"
+                    android:text="4. บุหรี่มวนไหนที่คุณไม่อยากเลิกมากที่สุด"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E50"
                     android:padding="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <RadioGroup
                         android:id="@+id/rdoNicotineQ4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="20dp">
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ4_1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:tag="1"
-                            android:text="มวนแรกต้อนเช้า"/>
+                            android:text="มวนแรกตอนเช้า"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ4_2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:tag="0"
-                            android:text="มวนอื่นๆ"/>
+                            android:text="มวนอื่นๆ"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- คำถามที่ 5 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="5.คุณรู้สึกลำบากหรือยุ่งยากไหมที่ต้องอยู่ใน 'เขตปลอดบุหรี่' \n เช่น โรงภาพยนต์ รถโดยสาร ร้านอาหาร"
+                    android:text="5. คุณรู้สึกลำบากหรือยุ่งยากไหมที่ต้องอยู่ใน 'เขตปลอดบุหรี่' เช่น โรงภาพยนต์ รถโดยสาร ร้านอาหาร"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E50"
                     android:padding="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <RadioGroup
                         android:id="@+id/rdoNicotineQ5"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="20dp">
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ5_1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:tag="1"
-                            android:text="รู้สึกลำบาก"/>
+                            android:text="รู้สึกลำบาก"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ5_2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:tag="0"
-                            android:text="ไม่รู้สึกลำบาก"/>
+                            android:text="ไม่รู้สึกลำบาก"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- คำถามที่ 6 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="6.คุณยังต้องสูบบุหรี่ แม้จะเจ็บป่วย นอนพักตลอดในโรงพยาบาล"
+                    android:text="6. คุณยังต้องสูบบุหรี่ แม้จะเจ็บป่วย นอนพักตลอดในโรงพยาบาล"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E50"
                     android:padding="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
                     <RadioGroup
                         android:id="@+id/rdoNicotineQ6"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="20dp">
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ6_1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:tag="1"
-                            android:text="ใช่"/>
+                            android:text="ใช่"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp"
+                            android:layout_marginBottom="4dp" />
+
                         <RadioButton
                             android:id="@+id/rdoNicotineQ6_2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:tag="0"
-                            android:text="ไม่ใช่"/>
+                            android:text="ไม่ใช่"
+                            android:textSize="15sp"
+                            android:textColor="#2C3E50"
+                            android:buttonTint="#E74C3C"
+                            android:padding="12dp" />
                     </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-            <LinearLayout
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <!-- ส่วนผลการประเมิน (รูปแบบเดิม) -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/resultFagerStromScore"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/resultFagerStromScore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2C3E50"
+                android:background="#E3F2FD"
+                android:layout_marginBottom="16dp" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                >
+                app:cardElevation="4dp">
 
                 <TableLayout
                     android:id="@+id/tbFagerstrome"
@@ -253,7 +490,7 @@
 
                     <!-- หัวตาราง -->
                     <TableRow
-                        android:background="@color/header_purple"
+                        android:background="#6C5CE7"
                         android:padding="8dp">
 
                         <TextView
@@ -278,14 +515,17 @@
 
                     <!-- 0-3 คะแนน -->
                     <TableRow
-                        android:padding="8dp">
+                        android:padding="8dp"
+                        android:background="#E8F5E8">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="0 - 3"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#27AE60" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -293,12 +533,13 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:text="ไม่นับว่าคุณติดสารนิโคติน"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textColor="#2C3E50" />
                     </TableRow>
 
                     <!-- 4-5 คะแนน -->
                     <TableRow
-                        android:background="#F5F5F5"
+                        android:background="#FFF3CD"
                         android:padding="8dp">
 
                         <TextView
@@ -306,7 +547,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="4 - 5"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#F39C12" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -314,19 +557,23 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:text="คุณติดสารนิโคตินในระดับปานกลาง"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textColor="#2C3E50" />
                     </TableRow>
 
                     <!-- 6-7 คะแนน -->
                     <TableRow
-                        android:padding="8dp">
+                        android:padding="8dp"
+                        android:background="#FFE8D4">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="6 - 7"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FF9800" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -334,12 +581,13 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:text="คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textColor="#2C3E50" />
                     </TableRow>
 
                     <!-- 8-9 คะแนน -->
                     <TableRow
-                        android:background="#F5F5F5"
+                        android:background="#F8D7DA"
                         android:padding="8dp">
 
                         <TextView
@@ -347,7 +595,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="8 - 9"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#E74C3C" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -355,19 +605,23 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:text="คุณติดสารนิโคตินในระดับสูง"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textColor="#2C3E50" />
                     </TableRow>
 
                     <!-- 10 คะแนน -->
                     <TableRow
-                        android:padding="8dp">
+                        android:padding="8dp"
+                        android:background="#F5C6CB">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="10"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#C0392B" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -375,13 +629,12 @@
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
                             android:text="คุณติดสารนิโคตินในระดับสูงมาก"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textColor="#2C3E50" />
                     </TableRow>
-
                 </TableLayout>
             </androidx.cardview.widget.CardView>
-
         </LinearLayout>
 
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

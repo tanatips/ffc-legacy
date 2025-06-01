@@ -1,0 +1,83 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Cigarette body -->
+    <path
+        android:pathData="M4,10 L16,10 Q17,10 17,12 Q17,14 16,14 L4,14 Q3,14 3,12 Q3,10 4,10 Z"
+        android:fillColor="#F5F5F5"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="0.5"/>
+
+    <!-- Cigarette filter -->
+    <path
+        android:pathData="M4,10 L6,10 Q7,10 7,12 Q7,14 6,14 L4,14 Q3,14 3,12 Q3,10 4,10 Z"
+        android:fillColor="#FFE0B2"/>
+
+    <!-- Cigarette texture lines -->
+    <path
+        android:pathData="M8,10.5 L8,13.5"
+        android:strokeColor="#E0E0E0"
+        android:strokeWidth="0.3"/>
+
+    <path
+        android:pathData="M10,10.5 L10,13.5"
+        android:strokeColor="#E0E0E0"
+        android:strokeWidth="0.3"/>
+
+    <path
+        android:pathData="M12,10.5 L12,13.5"
+        android:strokeColor="#E0E0E0"
+        android:strokeWidth="0.3"/>
+
+    <path
+        android:pathData="M14,10.5 L14,13.5"
+        android:strokeColor="#E0E0E0"
+        android:strokeWidth="0.3"/>
+
+    <!-- Lit end (outer circle) -->
+    <path
+        android:pathData="M16,11 A1,1 0 0,1 17,12 A1,1 0 0,1 16,13 A1,1 0 0,1 15,12 A1,1 0 0,1 16,11 Z"
+        android:fillColor="#FF5722"/>
+
+    <!-- Lit end (inner circle) -->
+    <path
+        android:pathData="M16,11.5 A0.5,0.5 0 0,1 16.5,12 A0.5,0.5 0 0,1 16,12.5 A0.5,0.5 0 0,1 15.5,12 A0.5,0.5 0 0,1 16,11.5 Z"
+        android:fillColor="#FF8A65"/>
+
+    <!-- Smoke wave 1 -->
+    <path
+        android:pathData="M17,12 Q18,11 19,12 Q20,13 21,12 Q22,11 23,12"
+        android:strokeColor="#9E9E9E"
+        android:strokeWidth="1"
+        android:fillColor="#00000000"/>
+
+    <!-- Smoke wave 2 -->
+    <path
+        android:pathData="M17.5,11.5 Q18.5,10.5 19.5,11.5 Q20.5,12.5 21.5,11.5"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="0.8"
+        android:fillColor="#00000000"/>
+
+    <!-- Smoke wave 3 -->
+    <path
+        android:pathData="M18,12.5 Q19,13.5 20,12.5 Q21,11.5 22,12.5"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="0.6"
+        android:fillColor="#00000000"/>
+
+    <!-- Warning symbol background circle -->
+    <path
+        android:pathData="M8,3 A3,3 0 0,1 11,6 A3,3 0 0,1 8,9 A3,3 0 0,1 5,6 A3,3 0 0,1 8,3 Z"
+        android:fillColor="#FF5722"/>
+
+    <!-- Warning exclamation mark -->
+    <path
+        android:pathData="M8,4.5 L8,7 M8,7.5 L8,8"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.8"
+        android:strokeLineCap="round"/>
+
+</vector>

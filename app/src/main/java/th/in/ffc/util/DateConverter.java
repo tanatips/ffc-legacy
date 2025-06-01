@@ -30,7 +30,7 @@ public class DateConverter {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return "Invalid date format";
+            return null;
         }
     }
     /**
@@ -66,7 +66,7 @@ public class DateConverter {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return "Invalid date format";
+            return null;
         }
     }
 
@@ -95,7 +95,7 @@ public class DateConverter {
             return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return "Invalid date format";
+            return null;
         }
     }
 
@@ -179,7 +179,7 @@ public class DateConverter {
             return westernDate;
         } catch (Exception e) {
             e.printStackTrace();
-            return "Invalid date format";
+            return null;
         }
     }
 }

@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="การคัดกรองโรคซึมเศร้าด้วย 2 คําถาม (2Q)"
+        android:visibility="gone"
         />
     <LinearLayout
         android:layout_width="match_parent"

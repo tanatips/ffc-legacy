@@ -680,6 +680,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(mContext);
             stressDepressionInfo.setPersonId(this.personInfo.getId());
             stressDepressionInfo.setIdcard(this.personInfo.getIdcard());
+
             if(this.stressDepressionInfo.getId()==null) {
                 String id = sfStressDepressionInfoDao.insert(stressDepressionInfo);
                 this.stressDepressionInfo.setId(id);
@@ -687,9 +688,29 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             else {
                 sfStressDepressionInfoDao.update(stressDepressionInfo);
             }
+
             StressDepressionInfo stressDepressionInfo = sfStressDepressionInfoDao.getById(Integer.parseInt(this.stressDepressionInfo.getId()));
             if (stressDepressionInfo != null) {
                 System.out.println("stress depression:" + stressDepressionInfo.getId() + " " + stressDepressionInfo.getPersonId());
+                // อัปเดตสถานะหลังบันทึกข้อมูลสำเร็จ
+                updateFormStatus("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)", true);
+            }
+        }
+    }
+    // เพิ่มเมธอดใหม่สำหรับตรวจสอบสถานะ StressDepressionFragment
+    public void updateStressDepressionStatus() {
+        // ค้นหา Fragment จากหน้าจอปัจจุบัน
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof StressDepressionFragment) {
+                StressDepressionFragment stressFragment = (StressDepressionFragment) fragment;
+                boolean isComplete = stressFragment.isFormComplete();
+
+                // อัปเดตสถานะใน expandableListAdapter
+                if (expandableListAdapter != null) {
+                    expandableListAdapter.updateCompletionStatus("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)", isComplete);
+                }
+
+                break;
             }
         }
     }
@@ -1220,6 +1241,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         System.out.println(msg);
     }
 
+    // ปรับปรุงเมธอด onStressDepression() เพื่อเพิ่มการตรวจสอบข้อมูล
     @Override
     public void onStressDepression(StressDepressionInfo data) {
         String msg = "====> "+data.getQ1()
@@ -1231,12 +1253,29 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +"  "+data.getResultCode()
                 +"  "+data.getResultDescription()
                 ;
-//        if(this.stressDepressionInfo==null){
-            this.stressDepressionInfo = data;
-//        }
+
+        this.stressDepressionInfo = data;
+
+        // ตรวจสอบความครบถ้วนของข้อมูล
+        boolean isComplete = isStressDepressionDataComplete(data);
+
+        // อัปเดตสถานะการกรอกข้อมูล
+        updateFormStatus("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)", isComplete);
+
         System.out.println(msg);
-       // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
+    // เพิ่มเมธอดสำหรับตรวจสอบความครบถ้วนของข้อมูล StressDepression
+    private boolean isStressDepressionDataComplete(StressDepressionInfo data) {
+        if (data == null) return false;
+
+        // ตรวจสอบว่าตอบครบทุกคำถาม (Q1-Q5)
+        return !data.getQ1().equals("0") &&
+                !data.getQ2().equals("0") &&
+                !data.getQ3().equals("0") &&
+                !data.getQ4().equals("0") &&
+                !data.getQ5().equals("0");
+    }
+
 
     @Override
     public void onStressDepression2q(StressDepression2qInfo data) {
@@ -1548,6 +1587,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         } else if (formData instanceof StressDepressionInfo) {
             stressDepressionInfo = (StressDepressionInfo) formData;
             saveStressDepression();
+            // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
+            updateStressDepressionStatus();
         }
         else if (formData instanceof SuicideAssessment8qInfo) {
             suicideAssessment8qInfo = (SuicideAssessment8qInfo) formData;

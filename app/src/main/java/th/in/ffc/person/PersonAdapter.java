@@ -73,7 +73,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
     boolean isButtonClicked = false;
     private SimpleDateFormat dateFormat;
     private Context mContext;
-
+    public static final String EXTRA_PCUCODE = "pcucode";
     PersonInfo personInfo;
     // เพิ่ม interface สำหรับปุ่ม
     public interface OnButtonClickListener {
@@ -148,7 +148,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     List<PersonInfo>  personInfos =  SfPersonInfoDao.getSfPersonInfoById(Integer.valueOf(tvPersonId.getText().toString()));
                     personInfo = new PersonInfo();
                     SharedPreferences prefs = mContext.getSharedPreferences(LoginActivity.PREFS_FILE, Context.MODE_PRIVATE);
-                    String pcuCode = prefs.getString("EXTRA_PCUCODE", "");
+                    String pcuCode = prefs.getString(EXTRA_PCUCODE, "");
                     if(!personInfos.isEmpty()) {
                         personInfo = personInfos.get(0);
                         personInfo.setHcode(pcuCode);  // รหัสสถานบริการ)
