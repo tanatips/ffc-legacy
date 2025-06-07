@@ -1,541 +1,783 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="@color/background_light"
     tools:context=".app.form.screening.HealthRiskAssessmentFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="@color/primary_blue">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_margin="24dp"
                 android:textStyle="bold"
                 android:text="แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน"
-                android:visibility="gone"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="1.อายุ"
-                android:textStyle="bold"
-                android:padding="8dp" />
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Question 1: Age -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. อายุ"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp"/>
+
                 <RadioGroup
                     android:id="@+id/rdoHealthRiskQ1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp">
+                    android:orientation="vertical">
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ1_1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="34-39 ปี"/>
+                        android:layout_height="wrap_content"
+                        android:text="34-39 ปี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ1_2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="40-44 ปี"/>
+                        android:layout_height="wrap_content"
+                        android:text="40-44 ปี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ1_3"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="45-49 ปี"/>
+                        android:layout_height="wrap_content"
+                        android:text="45-49 ปี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ1_4"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ตั้งแต่ 50 ปี ขึ้นไป"/>
+                        android:layout_height="wrap_content"
+                        android:text="ตั้งแต่ 50 ปี ขึ้นไป"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:textColor="@color/text_primary"/>
                 </RadioGroup>
             </LinearLayout>
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        <!-- Question 2: Gender -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="2.เพศ"
-                android:textStyle="bold"
-                android:padding="8dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2. เพศ"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp"/>
+
                 <RadioGroup
                     android:id="@+id/rdoHealthRiskQ2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp">
+                    android:orientation="vertical">
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ2_1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="หญิง"/>
+                        android:layout_height="wrap_content"
+                        android:text="หญิง"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ2_2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ชาย"/>
-
+                        android:layout_height="wrap_content"
+                        android:text="ชาย"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:textColor="@color/text_primary"/>
                 </RadioGroup>
             </LinearLayout>
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        <!-- Question 3: BMI -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="3.ดัชนีมวลกาย"
-                android:textStyle="bold"
-                android:padding="8dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3. ดัชนีมวลกาย"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp"/>
+
                 <RadioGroup
                     android:id="@+id/rdoHealthRiskQ3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp">
+                    android:orientation="vertical">
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ3_1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ต่ำกว่า 23 กก./ม2."/>
+                        android:layout_height="wrap_content"
+                        android:text="ต่ำกว่า 23 กก./ม²"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ3_2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ตั้งแต่ 23 ขึ้นไปแต่ น้อยกว่า 27.5 กก/ม2."/>
+                        android:layout_height="wrap_content"
+                        android:text="ตั้งแต่ 23 ขึ้นไปแต่ น้อยกว่า 27.5 กก/ม²"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
 
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ3_3"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ตั้งแต่ 27.5 กก/ม2. ขึ้นไป"/>
-
+                        android:layout_height="wrap_content"
+                        android:text="ตั้งแต่ 27.5 กก/ม² ขึ้นไป"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:textColor="@color/text_primary"/>
                 </RadioGroup>
             </LinearLayout>
-        </LinearLayout>
-
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        </androidx.cardview.widget.CardView>
+        <!-- Question 4: Waist -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="4.รอบเอว"
-                android:textStyle="bold"
-                android:padding="8dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4. รอบเอว"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp"/>
+
                 <RadioGroup
                     android:id="@+id/rdoHealthRiskQ4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp">
+                    android:orientation="vertical">
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ4_1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ผู้ชายน้อยกว่า 90 ชม. ผู้หญิงน้อยกว่า 80 ซม."/>
+                        android:layout_height="wrap_content"
+                        android:text="ผู้ชายน้อยกว่า 90 ซม. ผู้หญิงน้อยกว่า 80 ซม."
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ4_2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ผู้ชายตั้งแต่ 90 ซม. ขึ้นไป ผู้หญิงตั้งแต่ 80 ชม. ขึ้นไป"/>
+                        android:layout_height="wrap_content"
+                        android:text="ผู้ชายตั้งแต่ 90 ซม. ขึ้นไป ผู้หญิงตั้งแต่ 80 ซม. ขึ้นไป"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:textColor="@color/text_primary"/>
                 </RadioGroup>
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        <!-- Question 5: Blood Pressure -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="5.ความดันโลหิต"
-                android:textStyle="bold"
-                android:padding="8dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="5. ความดันโลหิต"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp"/>
+
                 <RadioGroup
                     android:id="@+id/rdoHealthRiskQ5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp">
+                    android:orientation="vertical">
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ5_1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ไม่มี"/>
+                        android:layout_height="wrap_content"
+                        android:text="ไม่มี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ5_2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="มี"/>
+                        android:layout_height="wrap_content"
+                        android:text="มี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:textColor="@color/text_primary"/>
                 </RadioGroup>
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
+        <!-- Question 6: Family History -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="6.ประวัติโรคเบาหวานในญาติสายตรง(พ่อ แม่ พี่ น้อง)"
-                android:textStyle="bold"
-                android:padding="8dp" />
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="6. ประวัติโรคเบาหวานในญาติสายตรง (พ่อ แม่ พี่ น้อง)"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp"/>
+
                 <RadioGroup
                     android:id="@+id/rdoHealthRiskQ6"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="20dp">
+                    android:orientation="vertical">
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ6_1"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="ไม่มี"/>
+                        android:layout_height="wrap_content"
+                        android:text="ไม่มี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/text_primary"/>
+
                     <RadioButton
                         android:id="@+id/rdoHealthRiskQ6_2"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="มี"/>
+                        android:layout_height="wrap_content"
+                        android:text="มี"
+                        android:textSize="16sp"
+                        android:padding="12dp"
+                        android:background="@drawable/radio_button_background"
+                        android:textColor="@color/text_primary"/>
                 </RadioGroup>
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-    <!-- ตารางแปลผล -->
-    <TextView
-        android:id="@+id/resultHealthRiskScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:gravity="center"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:stretchColumns="*">
-
-        <!-- Header Row -->
-        <TableRow
-            android:background="@color/header_purple"
-            android:padding="8dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.2"
-                android:text="ผลรวมคะแนน"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:text="ความเสี่ยงเบาหวาน\nใน 12 ปี"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="ระดับ\nความเสี่ยง"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:textStyle="bold" />
-        </TableRow>
-
-        <!-- Score Row 1 -->
-        <TableRow
-            android:id="@+id/scoreRow1"
-            android:padding="8dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.2"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="น้อยกว่าหรือเท่ากับ 2"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="น้อยกว่าร้อยละ 5"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="เสี่ยงน้อย"/>
-        </TableRow>
-
-        <!-- Score Row 2 -->
-        <TableRow
-            android:id="@+id/scoreRow2"
-            android:background="#F0F0F0"
-            android:padding="8dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.2"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="3-5"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="ร้อยละ 5-10"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="เสี่ยงปานกลาง"/>
-        </TableRow>
-
-        <!-- Score Row 3 -->
-        <TableRow
-            android:id="@+id/scoreRow3"
-            android:padding="8dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.2"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="6-8"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="ร้อยละ 11-20"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="เสี่ยงสูง"/>
-        </TableRow>
-
-        <!-- Score Row 4 -->
-        <TableRow
-            android:id="@+id/scoreRow4"
-            android:background="#F0F0F0"
-            android:padding="8dp">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.2"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="มากกว่า 8"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="มากกว่าร้อยละ 20"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:text="เสี่ยงสูงมาก"/>
-        </TableRow>
-    </TableLayout>
-    <!-- ส่วนแสดงผลการตรวจ -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
-
+        </androidx.cardview.widget.CardView>
+        <!-- Result Display -->
         <TextView
+            android:id="@+id/resultHealthRiskScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ระดับน้ำตาลในเลือดโดยวิธีเจาะปลายนิ้ว (FCBG)"
-            android:textStyle="bold"/>
+            android:padding="16dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:background="@drawable/result_background"
+            android:layout_marginBottom="16dp"/>
 
-        <EditText
-            android:id="@+id/edtFCBG"
+        <!-- Risk Assessment Table -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="มก/ดล"
-            android:inputType="numberDecimal"/>
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ระดับพลาสมากลูโคส (FPG)"
-            android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <EditText
-            android:id="@+id/edtFPG"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="มก/ดล"
-            android:inputType="numberDecimal"/>
-
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stretchColumns="*"
-            android:layout_margin="16dp">
-
-            <!-- Header Row -->
-            <TableRow
-                android:background="#800080"
-                android:padding="8dp">
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="ระดับน้ำตาลในเลือด"
-                    android:textColor="#FFFFFF"
+                    android:text="ตารางประเมินความเสี่ยง"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-                <TextView
-                    android:layout_width="0dp"
+                    android:textColor="@color/text_primary"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp"/>
+
+                <TableLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="การแปลผล"
-                    android:textColor="#FFFFFF"
+                    android:stretchColumns="*">
+
+                    <!-- Header Row -->
+                    <TableRow
+                        android:background="@drawable/table_header_background"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.2"
+                            android:text="ผลรวมคะแนน"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:text="ความเสี่ยงเบาหวาน\nใน 12 ปี"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ระดับ\nความเสี่ยง"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textStyle="bold" />
+                    </TableRow>
+
+                    <!-- Score Row 1 -->
+                    <TableRow
+                        android:id="@+id/scoreRow1"
+                        android:background="@drawable/table_row_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.2"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="น้อยกว่าหรือเท่ากับ 2"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="น้อยกว่าร้อยละ 5"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="เสี่ยงน้อย"
+                            android:textColor="@color/success_green"
+                            android:textStyle="bold"/>
+                    </TableRow>
+
+                    <!-- Score Row 2 -->
+                    <TableRow
+                        android:id="@+id/scoreRow2"
+                        android:background="@drawable/table_row_alt_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.2"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="3-5"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="ร้อยละ 5-10"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="เสี่ยงปานกลาง"
+                            android:textColor="@color/warning_orange"
+                            android:textStyle="bold"/>
+                    </TableRow>
+
+                    <!-- Score Row 3 -->
+                    <TableRow
+                        android:id="@+id/scoreRow3"
+                        android:background="@drawable/table_row_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.2"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="6-8"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="ร้อยละ 11-20"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="เสี่ยงสูง"
+                            android:textColor="@color/danger_red"
+                            android:textStyle="bold"/>
+                    </TableRow>
+
+                    <!-- Score Row 4 -->
+                    <TableRow
+                        android:id="@+id/scoreRow4"
+                        android:background="@drawable/table_row_alt_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.2"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="มากกว่า 8"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="มากกว่าร้อยละ 20"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:text="เสี่ยงสูงมาก"
+                            android:textColor="@color/danger_dark_red"
+                            android:textStyle="bold"/>
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <!-- Blood Sugar Testing Section -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ผลการตรวจระดับน้ำตาลในเลือด"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-            </TableRow>
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="20dp"/>
 
-            <!-- Data Row 1 -->
-            <TableRow
-                android:id="@+id/glucoseRow1"
-                android:padding="8dp">
+                <!-- FCBG Input -->
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="น้อยกว่า 100"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="ปกติ"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-            </TableRow>
+                    android:text="ระดับน้ำตาลในเลือดโดยวิธีเจาะปลายนิ้ว (FCBG)"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp"/>
 
-            <!-- Data Row 2 -->
-            <TableRow
-                android:id="@+id/glucoseRow2"
-                android:background="#F0F0F0"
-                android:padding="8dp">
-                <TextView
-                    android:layout_width="0dp"
+                <EditText
+                    android:id="@+id/edtFCBG"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="100-125"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="เสี่ยงต่อการเป็นโรคเบาหวาน"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-            </TableRow>
+                    android:hint="มก/ดล"
+                    android:inputType="numberDecimal"
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:background="@drawable/edittext_background"
+                    android:layout_marginBottom="16dp"/>
 
-            <!-- Data Row 3 -->
-            <TableRow
-                android:id="@+id/glucoseRow3"
-                android:padding="8dp">
+                <!-- FPG Input -->
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="ตั้งแต่ 126 ขึ้นไป"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
+                    android:text="ระดับพลาสมากลูโคส (FPG)"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/edtFPG"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="มก/ดล"
+                    android:inputType="numberDecimal"
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:background="@drawable/edittext_background"
+                    android:layout_marginBottom="24dp"/>
+
+                <!-- Glucose Interpretation Table -->
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="เป็นโรคเบาหวาน"
-                    android:textSize="14sp"
-                    android:gravity="center"/>
-            </TableRow>
-        </TableLayout>
+                    android:text="ตารางแปลผลระดับน้ำตาลในเลือด"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp"/>
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="*">
+
+                    <!-- Header Row -->
+                    <TableRow
+                        android:background="@drawable/table_header_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ระดับน้ำตาลในเลือด"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="การแปลผล"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"/>
+                    </TableRow>
+
+                    <!-- Data Row 1 -->
+                    <TableRow
+                        android:id="@+id/glucoseRow1"
+                        android:background="@drawable/table_row_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="น้อยกว่า 100"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ปกติ"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="@color/success_green"
+                            android:textStyle="bold"/>
+                    </TableRow>
+
+                    <!-- Data Row 2 -->
+                    <TableRow
+                        android:id="@+id/glucoseRow2"
+                        android:background="@drawable/table_row_alt_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="100-125"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="เสี่ยงต่อการเป็นโรคเบาหวาน"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="@color/warning_orange"
+                            android:textStyle="bold"/>
+                    </TableRow>
+
+                    <!-- Data Row 3 -->
+                    <TableRow
+                        android:id="@+id/glucoseRow3"
+                        android:background="@drawable/table_row_background"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ตั้งแต่ 126 ขึ้นไป"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="@color/text_primary"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="เป็นโรคเบาหวาน"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:textColor="@color/danger_red"
+                            android:textStyle="bold"/>
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

@@ -19,7 +19,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="20dp"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="32dp"
@@ -354,7 +355,7 @@
                                     android:padding="12dp"
                                     android:textStyle="bold"
                                     android:textSize="18sp"
-                                    android:textColor="#FFFFFF"
+                                    android:textColor="#000000"
                                     android:background="@drawable/gradient_score" />
                             </androidx.cardview.widget.CardView>
 

@@ -18,6 +18,7 @@ import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +53,11 @@ public class StressDepression9qFragment extends Fragment {
     private TableLayout depression9resultTable;
     private static final int QUESTION_COUNT = 9;
     private TextView depression9result;
+
+    // เพิ่มตัวแปรสำหรับตรวจสอบข้อมูล
+    private boolean isFormValid = false;
+    private boolean[] questionAnswered = {false, false, false, false, false, false, false, false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่ (9 ข้อ)
+
     public StressDepression9qFragment() {
         // Required empty public constructor
     }
@@ -60,6 +66,122 @@ public class StressDepression9qFragment extends Fragment {
     public static StressDepression9qFragment newInstance(String param1, String param2) {
         StressDepression9qFragment fragment = new StressDepression9qFragment();
         return fragment;
+    }
+    /**
+     * ตรวจสอบความถูกต้องของข้อมูลและบันทึกข้อมูล
+     */
+    private void validateAndSaveData() {
+        // ตรวจสอบว่าตอบคำถามครบทุกข้อหรือไม่
+        boolean allAnswered = true;
+        for (boolean answered : questionAnswered) {
+            if (!answered) {
+                allAnswered = false;
+                break;
+            }
+        }
+
+        isFormValid = allAnswered;
+
+        if (isFormValid) {
+            // ถ้าตอบครบทุกข้อ ให้บันทึกข้อมูล
+            Log.d("StressDepression9q", "ตอบคำถามครบทุกข้อแล้ว - บันทึกข้อมูล");
+            dataPasser.onStressDepression9q(stressDepression9qInfo);
+        } else {
+            // ถ้ายังตอบไม่ครบ ให้แสดงข้อความแจ้งเตือน
+            showIncompleteFormMessage();
+        }
+    }
+    /**
+     * แสดงข้อความแจ้งเตือนเมื่อตอบไม่ครบ
+     */
+    private void showIncompleteFormMessage() {
+        String missingQuestions = getMissingQuestionsText();
+        if (!missingQuestions.isEmpty()) {
+//            Toast.makeText(getContext(),
+//                    "กรุณาตอบคำถามให้ครบถ้วน: " + missingQuestions,
+//                    Toast.LENGTH_SHORT).show();
+        }
+    }
+    /**
+     * ดึงรายการคำถามที่ยังไม่ได้ตอบ
+     */
+    private String getMissingQuestionsText() {
+        ArrayList<String> missingQuestions = new ArrayList<>();
+
+        for (int i = 0; i < questionAnswered.length; i++) {
+            if (!questionAnswered[i]) {
+                missingQuestions.add("ข้อ " + (i + 1));
+            }
+        }
+
+        if (missingQuestions.isEmpty()) {
+            return "";
+        }
+
+        return String.join(", ", missingQuestions);
+    }
+
+    /**
+     * ตรวจสอบว่าแบบฟอร์มกรอกครบหรือไม่
+     */
+    public boolean isFormComplete() {
+        return isFormValid;
+    }
+    /**
+     * รีเซ็ตสถานะการตรวจสอบ (ใช้เมื่อล้างข้อมูล)
+     */
+    public void resetValidation() {
+        isFormValid = false;
+        for (int i = 0; i < questionAnswered.length; i++) {
+            questionAnswered[i] = false;
+        }
+    }
+    /**
+     * ตรวจสอบสถานะการตอบจาก RadioGroup
+     */
+    private void checkAnsweredStatus() {
+        questionAnswered[0] = getView().findViewById(R.id.rdoStress9qQ1).findViewById(R.id.rdoStress9qQ1_1) != null;
+        questionAnswered[1] = getView().findViewById(R.id.rdoStress9qQ2).findViewById(R.id.rdoStress9qQ2_1) != null;
+        questionAnswered[2] = getView().findViewById(R.id.rdoStress9qQ3).findViewById(R.id.rdoStress9qQ3_1) != null;
+        questionAnswered[3] = getView().findViewById(R.id.rdoStress9qQ4).findViewById(R.id.rdoStress9qQ4_1) != null;
+        questionAnswered[4] = getView().findViewById(R.id.rdoStress9qQ5).findViewById(R.id.rdoStress9qQ5_1) != null;
+        questionAnswered[5] = getView().findViewById(R.id.rdoStress9qQ6).findViewById(R.id.rdoStress9qQ6_1) != null;
+        questionAnswered[6] = getView().findViewById(R.id.rdoStress9qQ7).findViewById(R.id.rdoStress9qQ7_1) != null;
+        questionAnswered[7] = getView().findViewById(R.id.rdoStress9qQ8).findViewById(R.id.rdoStress9qQ8_1) != null;
+        questionAnswered[8] = getView().findViewById(R.id.rdoStress9qQ9).findViewById(R.id.rdoStress9qQ9_1) != null;
+
+        // วิธีที่ถูกต้องในการตรวจสอบ RadioGroup
+        RadioGroup rdoStress9qQ1 = getView().findViewById(R.id.rdoStress9qQ1);
+        RadioGroup rdoStress9qQ2 = getView().findViewById(R.id.rdoStress9qQ2);
+        RadioGroup rdoStress9qQ3 = getView().findViewById(R.id.rdoStress9qQ3);
+        RadioGroup rdoStress9qQ4 = getView().findViewById(R.id.rdoStress9qQ4);
+        RadioGroup rdoStress9qQ5 = getView().findViewById(R.id.rdoStress9qQ5);
+        RadioGroup rdoStress9qQ6 = getView().findViewById(R.id.rdoStress9qQ6);
+        RadioGroup rdoStress9qQ7 = getView().findViewById(R.id.rdoStress9qQ7);
+        RadioGroup rdoStress9qQ8 = getView().findViewById(R.id.rdoStress9qQ8);
+        RadioGroup rdoStress9qQ9 = getView().findViewById(R.id.rdoStress9qQ9);
+
+        questionAnswered[0] = rdoStress9qQ1.getCheckedRadioButtonId() != -1;
+        questionAnswered[1] = rdoStress9qQ2.getCheckedRadioButtonId() != -1;
+        questionAnswered[2] = rdoStress9qQ3.getCheckedRadioButtonId() != -1;
+        questionAnswered[3] = rdoStress9qQ4.getCheckedRadioButtonId() != -1;
+        questionAnswered[4] = rdoStress9qQ5.getCheckedRadioButtonId() != -1;
+        questionAnswered[5] = rdoStress9qQ6.getCheckedRadioButtonId() != -1;
+        questionAnswered[6] = rdoStress9qQ7.getCheckedRadioButtonId() != -1;
+        questionAnswered[7] = rdoStress9qQ8.getCheckedRadioButtonId() != -1;
+        questionAnswered[8] = rdoStress9qQ9.getCheckedRadioButtonId() != -1;
+    }
+
+    /**
+     * เมธอดสำหรับหน้าจออื่นที่ต้องการตรวจสอบความครบถ้วนของข้อมูล
+     */
+    public StressDepression9qInfo getFormData() {
+        if (isFormValid) {
+            return stressDepression9qInfo;
+        } else {
+            showIncompleteFormMessage();
+            return null;
+        }
     }
 
     @Override
@@ -136,10 +258,13 @@ public class StressDepression9qFragment extends Fragment {
                 }
                 stressDepression9qInfo.setQ1(data);
                 stressDepression9qInfo.setPoint(points);
+
+                // ตรวจสอบว่าตอบคำถามที่ 1 แล้ว
+                questionAnswered[0] = true;
+                validateAndSaveData();
+
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
-
                 stressDepression9qLiveData.setSelectedQ1(checkedId);
-
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
                 displayPoints();
 
@@ -166,7 +291,10 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ2(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                questionAnswered[1] = true;
+                validateAndSaveData();
+
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ2(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -194,7 +322,11 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ3(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                // ตรวจสอบว่าตอบคำถามที่ 2 แล้ว
+                questionAnswered[2] = true;
+                validateAndSaveData();
+
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ3(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -223,7 +355,11 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ4(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+
+                questionAnswered[3] = true;
+                validateAndSaveData();
+
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ4(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -252,6 +388,10 @@ public class StressDepression9qFragment extends Fragment {
                 stressDepression9qInfo.setQ5(data);
                 stressDepression9qInfo.setPoint(points);
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
+
+                questionAnswered[4] = true;
+                validateAndSaveData();
+
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ5(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -279,8 +419,12 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ6(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                questionAnswered[5] = true;
+                validateAndSaveData();
+
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ6(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
                 displayPoints();
@@ -307,7 +451,11 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ7(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+
+                questionAnswered[6] = true;
+                validateAndSaveData();
+
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ7(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -335,7 +483,11 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ8(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+
+                questionAnswered[7] = true;
+                validateAndSaveData();
+
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ8(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -363,7 +515,11 @@ public class StressDepression9qFragment extends Fragment {
 
                 stressDepression9qInfo.setQ9(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
+
+                questionAnswered[8] = true;
+                validateAndSaveData();
+
+//                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 updateTableHighlight();
                 stressDepression9qLiveData.setSelectedQ9(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
@@ -398,6 +554,7 @@ public class StressDepression9qFragment extends Fragment {
             }
         });
     }
+    // ปรับปรุง loadExistingData() ให้ตรวจสอบสถานะการตอบ
     private void loadExistingData() {
         if (this.stressDepression9qInfo == null) return;
 
@@ -415,6 +572,13 @@ public class StressDepression9qFragment extends Fragment {
                 }
             }
         }
+
+        // ตรวจสอบสถานะการตอบจากข้อมูลที่โหลดมา
+        checkAnsweredStatus();
+
+        // อัปเดตสถานะความถูกต้องของข้อมูล
+        validateAndSaveData();
+
         displayPoints();
     }
     private void setQuestionValue(int questionNumber, String value) {
@@ -463,36 +627,63 @@ public class StressDepression9qFragment extends Fragment {
         for (Integer point : points) {
             totalScore += point;
         }
-        int defaultWhite = ContextCompat.getColor(requireContext(), R.color.white);// Color.WHITE;
-        int lightGray = ContextCompat.getColor(requireContext(), R.color.light_gray);
-        int highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow); // สีเหลืองสำหรับ highlight
 
-        // ล้าง highlight เดิม
+        int defaultWhite = ContextCompat.getColor(requireContext(), R.color.white);
+        int lightGray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+
+        // กำหนดสีสำหรับแต่ละระดับ
+        int lightGreen = Color.parseColor("#E8F5E8");    // เขียวอ่อน - ปกติ
+        int lightYellow = Color.parseColor("#FFF3CD");   // เหลือง - ระดับน้อย
+        int lightRed = Color.parseColor("#F8D7DA");      // แดงอ่อน - ระดับปานกลาง
+        int darkRed = Color.parseColor("#F5C6CB");       // แดงเข้ม - ระดับมาก
+
+        // ล้าง highlight เดิม - กลับเป็นสีพื้นหลังเดิม
         for (int i = 1; i < depression9resultTable.getChildCount(); i++) {
             TableRow row = (TableRow) depression9resultTable.getChildAt(i);
-            row.setBackgroundColor(i % 2 == 0 ?
-                    lightGray : defaultWhite);
+
+            // กำหนดสีพื้นหลังเดิมตามแถว
+            if (i == 1) {
+                row.setBackgroundColor(lightGreen);  // แถวปกติ
+            } else if (i == 2) {
+                row.setBackgroundColor(lightYellow); // แถวระดับน้อย
+            } else if (i == 3) {
+                row.setBackgroundColor(lightRed);    // แถวระดับปานกลาง
+            } else if (i == 4) {
+                row.setBackgroundColor(darkRed);     // แถวระดับมาก
+            }
         }
 
         // กำหนด highlight ตามช่วงคะแนน
         TableRow rowToHighlight = null;
+        int highlightColor = Color.parseColor("#FFE066"); // สีเหลืองเข้มสำหรับ highlight
+
         if (totalScore < 7) {
             rowToHighlight = (TableRow) depression9resultTable.getChildAt(1);
             resultCode = "1B0260|1B0282";
+            highlightColor = Color.parseColor("#C8E6C9"); // เขียวเข้มขึ้น
         } else if (totalScore >= 7 && totalScore <= 12) {
             rowToHighlight = (TableRow) depression9resultTable.getChildAt(2);
             resultCode = "1B0261:1B0283";
+            highlightColor = Color.parseColor("#FFE082"); // เหลืองเข้มขึ้น
         } else if (totalScore >= 13 && totalScore <= 18) {
             rowToHighlight = (TableRow) depression9resultTable.getChildAt(3);
             resultCode = "1B0262:1B0284";
+            highlightColor = Color.parseColor("#FFAB91"); // ส้มอ่อน
         } else if (totalScore >= 19) {
             rowToHighlight = (TableRow) depression9resultTable.getChildAt(4);
             resultCode = "1B0263:1B0285";
+            highlightColor = Color.parseColor("#EF9A9A"); // แดงอ่อน
         }
 
         if (rowToHighlight != null) {
             rowToHighlight.setBackgroundColor(highlightColor); // highlight แถวที่ตรงกับช่วงคะแนน
         }
+
         depression9result.setText(String.format("คะแนนที่ได้: %d คะแนน (%s)", totalScore, resultCode));
+
+        checkAnsweredStatus();
+        validateAndSaveData();
     }
+
+
 }

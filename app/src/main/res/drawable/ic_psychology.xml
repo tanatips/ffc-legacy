@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Head outline -->
+    <path
+        android:pathData="M25,25 L25,55 Q25,60 30,60 L50,60 Q55,60 55,55 L55,25 Q55,20 50,20 L30,20 Q25,20 25,25 Z"
+        android:strokeColor="#673AB7"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Left eye -->
+    <path
+        android:pathData="M33,35 A2,2 0 1,1 37,35 A2,2 0 1,1 33,35"
+        android:fillColor="#673AB7"/>
+
+    <!-- Right eye -->
+    <path
+        android:pathData="M43,35 A2,2 0 1,1 47,35 A2,2 0 1,1 43,35"
+        android:fillColor="#673AB7"/>
+
+    <!-- Mouth -->
+    <path
+        android:pathData="M32,45 Q40,52 48,45"
+        android:strokeColor="#673AB7"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Brain symbols -->
+    <path
+        android:pathData="M30,15 Q20,10 15,18 Q12,25 20,28 Q25,30 30,25"
+        android:strokeColor="#673AB7"
+        android:strokeWidth="1.5"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M50,15 Q60,10 65,18 Q68,25 60,28 Q55,30 50,25"
+        android:strokeColor="#673AB7"
+        android:strokeWidth="1.5"
+        android:fillColor="@android:color/transparent"/>
+</vector>

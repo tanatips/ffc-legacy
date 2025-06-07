@@ -492,7 +492,15 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         // ตรวจสอบข้อมูลการประเมินฆ่าตัวตาย 8Q
         SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(mContext);
         List<SuicideAssessment8qInfo> suicideAssessment8qs = sfSuicideAssessment8qInfoDao.getByPersonId(iPersonId);
-        formStatus.put("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", !suicideAssessment8qs.isEmpty());
+
+        // ตรวจสอบความครบถ้วนของข้อมูล
+        boolean suicide8qComplete = false;
+        if (!suicideAssessment8qs.isEmpty()) {
+            SuicideAssessment8qInfo data = suicideAssessment8qs.get(0);
+            suicide8qComplete = isSuicideAssessment8qDataComplete(data);
+        }
+        formStatus.put("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", suicide8qComplete);
+
 
         // ตรวจสอบข้อมูลประเมินความเสี่ยงโรคเบาหวาน
         SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
@@ -715,6 +723,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
     }
 
+    // ปรับปรุงเมธอด saveStressDepression2q() เพื่อเพิ่มการอัปเดตสถานะ
     private void saveStressDepression2q(){
         if(stressDepression2qInfo!=null) {
             SfStressDepression2qInfoDao sfStressDepression2qInfoDao = new SfStressDepression2qInfoDao(mContext);
@@ -729,6 +738,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             StressDepression2qInfo stressDepression2qInfo = sfStressDepression2qInfoDao.getById(Integer.parseInt(this.stressDepression2qInfo.getId()));
             if (stressDepression2qInfo != null) {
                 System.out.println("stress depression 2q:" + stressDepression2qInfo.getId() + " " + stressDepression2qInfo.getPersonId());
+                // อัปเดตสถานะหลังบันทึกข้อมูลสำเร็จ
+                updateFormStatus("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)", true);
             }
         }
     }
@@ -747,6 +758,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             StressDepression9qInfo stressDepression9qInfo = sfStressDepression9qInfoDao.getById(Integer.parseInt(this.stressDepression9qInfo.getId()));
             if (stressDepression9qInfo != null) {
                 System.out.println("stress depression 9q:" + stressDepression9qInfo.getId() + " " + stressDepression9qInfo.getPersonId());
+                // อัปเดตสถานะหลังบันทึกข้อมูลสำเร็จ
+                updateFormStatus("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)", true);
             }
         }
     }
@@ -765,6 +778,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             SuicideAssessment8qInfo suicideAssessment8qInfo = sfSuicideAssessment8qInfoDao.getById(Integer.parseInt(this.suicideAssessment8qInfo.getId()));
             if (suicideAssessment8qInfo != null) {
                 System.out.println("Suicide Assessment 8q:" + suicideAssessment8qInfo.getId() + " " + suicideAssessment8qInfo.getPersonId());
+                // อัปเดตสถานะหลังบันทึกข้อมูลสำเร็จ
+                updateFormStatus("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", true);
             }
         }
     }
@@ -1286,14 +1301,26 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +" "+data.getResultCode()
                 +" "+data.getResultDescription()
                 ;
-//        if(this.stressDepression2qInfo==null){
-            this.stressDepression2qInfo = data;
-//        }
+
+        this.stressDepression2qInfo = data;
+
+        // ตรวจสอบความครบถ้วนของข้อมูล
+        boolean isComplete = isStressDepression2qDataComplete(data);
+
+        // อัปเดตสถานะการกรอกข้อมูล
+        updateFormStatus("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)", isComplete);
 
         System.out.println(msg);
-       // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
-
     }
+    // เพิ่มเมธอดสำหรับตรวจสอบความครบถ้วนของข้อมูล StressDepression2q
+    private boolean isStressDepression2qDataComplete(StressDepression2qInfo data) {
+        if (data == null) return false;
+
+        // ตรวจสอบว่าตอบครบทุกคำถาม (Q1-Q2)
+        return !data.getQ1().equals("0") && !data.getQ2().equals("0");
+    }
+
+
 
     @Override
     public void onStressDepression9q(StressDepression9qInfo data) {
@@ -1313,13 +1340,29 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +"  "+data.getResultCode()
                 +"  "+data.getResultDescription()
                 ;
-        if(this.stressDepression9qInfo==null){
-            this.stressDepression9qInfo = data;
-        }
+
+        this.stressDepression9qInfo = data;
+
+        // ตรวจสอบความครบถ้วนของข้อมูล
+        boolean isComplete = isStressDepression9qDataComplete(data);
+
+        // อัปเดตสถานะการกรอกข้อมูล
+        updateFormStatus("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)", isComplete);
+
         System.out.println(msg);
        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
+    // เพิ่มเมธอดสำหรับตรวจสอบความครบถ้วนของข้อมูล StressDepression9q
+    private boolean isStressDepression9qDataComplete(StressDepression9qInfo data) {
+        if (data == null) return false;
 
+        // ตรวจสอบว่าตอบครบทุกคำถาม (Q1-Q9)
+        return !data.getQ1().equals("0") && !data.getQ2().equals("0") &&
+                !data.getQ3().equals("0") && !data.getQ4().equals("0") &&
+                !data.getQ5().equals("0") && !data.getQ6().equals("0") &&
+                !data.getQ7().equals("0") && !data.getQ8().equals("0") &&
+                !data.getQ9().equals("0");
+    }
     @Override
     public void onSuicideAssessment8q(SuicideAssessment8qInfo data) {
         String msg = "====> "
@@ -1336,9 +1379,40 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         if(this.suicideAssessment8qInfo==null){
             this.suicideAssessment8qInfo = data;
         }
+
+        // ตรวจสอบความครบถ้วนของข้อมูล
+        boolean isComplete = isSuicideAssessment8qDataComplete(data);
+
+        // อัปเดตสถานะการกรอกข้อมูล
+        updateFormStatus("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", isComplete);
+
         System.out.println(msg);
         // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
 
+    }
+    /**
+     * ตรวจสอบความครบถ้วนของข้อมูล SuicideAssessment8q
+     */
+    private boolean isSuicideAssessment8qDataComplete(SuicideAssessment8qInfo data) {
+        if (data == null) return false;
+
+        // ตรวจสอบคำถามหลัก Q1-Q8
+        boolean mainQuestionsComplete = !data.getQ1().equals("0") &&
+                !data.getQ2().equals("0") &&
+                !data.getQ3().equals("0") &&
+                !data.getQ4().equals("0") &&
+                !data.getQ5().equals("0") &&
+                !data.getQ6().equals("0") &&
+                !data.getQ7().equals("0") &&
+                !data.getQ8().equals("0");
+
+        // ตรวจสอบคำถามย่อย Q3_2_1 (หากจำเป็น)
+        boolean subQuestionComplete = true;
+        if (data.getQ3().equals("2")) { // หากตอบ "มี" ในคำถาม Q3
+            subQuestionComplete = !data.getQ3_2_1().equals("0");
+        }
+
+        return mainQuestionsComplete && subQuestionComplete;
     }
 
     @Override
@@ -1355,6 +1429,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
         System.out.println(msg);
         // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    /**
+     * เมธอดสำหรับตรวจสอบสถานะ SuicideAssessment8qFragment
+     */
+    public void updateSuicideAssessment8qStatus() {
+        // ค้นหา Fragment จากหน้าจอปัจจุบัน
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof SuicideAssessment8qFragment) {
+                SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) fragment;
+                boolean isComplete = suicide8qFragment.isFormComplete();
+
+                // อัปเดตสถานะใน expandableListAdapter
+                if (expandableListAdapter != null) {
+                    expandableListAdapter.updateCompletionStatus("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", isComplete);
+                }
+
+                break;
+            }
+        }
     }
     private void displayData(List<DrugsInfo> data){
         for (DrugsInfo drugsInfo : data) {
@@ -1590,10 +1683,6 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
             updateStressDepressionStatus();
         }
-        else if (formData instanceof SuicideAssessment8qInfo) {
-            suicideAssessment8qInfo = (SuicideAssessment8qInfo) formData;
-            saveSuicideAssessment8q();
-        }
         else if (formData instanceof HealthRiskAssessmentInfo) {
             healthRiskAssessmentInfo = (HealthRiskAssessmentInfo) formData;
             saveHealthRiskAssessment();
@@ -1605,10 +1694,20 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         else if (formData instanceof StressDepression2qInfo) {
             stressDepression2qInfo = (StressDepression2qInfo) formData;
             saveStressDepression2q();
+            // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
+            updateStressDepression2qStatus();
         }
         else if (formData instanceof StressDepression9qInfo) {
             stressDepression9qInfo = (StressDepression9qInfo) formData;
             saveStressDepression9q();
+
+            updateStressDepression9qStatus();
+        }
+        else if (formData instanceof SuicideAssessment8qInfo) {
+            suicideAssessment8qInfo = (SuicideAssessment8qInfo) formData;
+            saveSuicideAssessment8q();
+            // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
+            updateSuicideAssessment8qStatus();
         }
         else if (formData instanceof CardiovascularRiskInfo) {
             cardiovascularRiskInfo = (CardiovascularRiskInfo) formData;
@@ -1661,5 +1760,40 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
+    // เพิ่มเมธอดใหม่สำหรับตรวจสอบสถานะ StressDepression2qFragment
+    public void updateStressDepression2qStatus() {
+        // ค้นหา Fragment จากหน้าจอปัจจุบัน
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof StressDepression2qFragment) {
+                StressDepression2qFragment stress2qFragment = (StressDepression2qFragment) fragment;
+                boolean isComplete = stress2qFragment.isFormComplete();
+
+                // อัปเดตสถานะใน expandableListAdapter
+                if (expandableListAdapter != null) {
+                    expandableListAdapter.updateCompletionStatus("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)", isComplete);
+                }
+
+                break;
+            }
+        }
+    }
+    // เพิ่มเมธอดใหม่สำหรับตรวจสอบสถานะ StressDepression9qFragment
+    public void updateStressDepression9qStatus() {
+        // ค้นหา Fragment จากหน้าจอปัจจุบัน
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof StressDepression9qFragment) {
+                StressDepression9qFragment stress9qFragment = (StressDepression9qFragment) fragment;
+                boolean isComplete = stress9qFragment.isFormComplete();
+
+                // อัปเดตสถานะใน expandableListAdapter
+                if (expandableListAdapter != null) {
+                    expandableListAdapter.updateCompletionStatus("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)", isComplete);
+                }
+
+                break;
+            }
+        }
+    }
+
 
 }

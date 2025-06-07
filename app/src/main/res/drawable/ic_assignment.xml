@@ -1,0 +1,67 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Clipboard body -->
+    <path
+        android:pathData="M25,20 L55,20 Q57,20 57,22 L57,58 Q57,60 55,60 L25,60 Q23,60 23,58 L23,22 Q23,20 25,20 Z"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Clipboard clip -->
+    <path
+        android:pathData="M28,15 L52,15 Q54,15 54,17 L54,21 Q54,23 52,23 L28,23 Q26,23 26,21 L26,17 Q26,15 28,15 Z"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Checkbox 1 (empty) -->
+    <path
+        android:pathData="M30,28 L33,28 L33,31 L30,31 Z"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M35,30 L48,30"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"/>
+
+    <!-- Checkbox 2 (empty) -->
+    <path
+        android:pathData="M30,34 L33,34 L33,37 L30,37 Z"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M35,36 L48,36"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"/>
+
+    <!-- Checkbox 3 (checked) -->
+    <path
+        android:pathData="M30,40 L33,40 L33,43 L30,43 Z"
+        android:fillColor="#2C3E50"/>
+    <path
+        android:pathData="M31,41.5 L32,42.5 L33.5,41"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M35,42 L45,42"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"/>
+
+    <!-- Checkbox 4 (empty) -->
+    <path
+        android:pathData="M30,46 L33,46 L33,49 L30,49 Z"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M35,48 L47,48"
+        android:strokeColor="#2C3E50"
+        android:strokeWidth="1"/>
+</vector>

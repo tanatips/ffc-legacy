@@ -1,0 +1,41 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Prohibition circle -->
+    <path
+        android:pathData="M15,40 A25,25 0 1,1 65,40 A25,25 0 1,1 15,40"
+        android:strokeColor="#D68910"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Cigarette body -->
+    <path
+        android:pathData="M25,37 L55,37 Q58,37 58,40 Q58,43 55,43 L25,43 Q22,43 22,40 Q22,37 25,37 Z"
+        android:fillColor="#666666"/>
+
+    <!-- Cigarette filter -->
+    <path
+        android:pathData="M52,38 L58,38 L58,42 L52,42 Z"
+        android:fillColor="#CD853F"/>
+
+    <!-- Smoke waves -->
+    <path
+        android:pathData="M28,32 Q30,28 32,32 Q34,28 36,32"
+        android:strokeColor="#999999"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M42,32 Q44,28 46,32 Q48,28 50,32"
+        android:strokeColor="#999999"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Prohibition line -->
+    <path
+        android:pathData="M25,25 L55,55"
+        android:strokeColor="#D68910"
+        android:strokeWidth="3"/>
+</vector>

@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Heart -->
+    <path
+        android:pathData="M40,58 L32,47 Q25,37 20,42 Q15,47 20,52 L40,58 L60,52 Q65,47 60,42 Q55,37 48,47 Z"
+        android:fillColor="#2E86C1"
+        android:strokeColor="#2E86C1"/>
+
+    <!-- Heart rate lines -->
+    <path
+        android:pathData="M15,25 L20,25 L22,20 L25,30 L28,15 L30,25 L35,25"
+        android:strokeColor="#2E86C1"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M45,25 L50,25 L52,20 L55,30 L58,15 L60,25 L65,25"
+        android:strokeColor="#2E86C1"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+</vector>

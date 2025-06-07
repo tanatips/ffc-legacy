@@ -1,0 +1,50 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Face circle -->
+    <path
+        android:pathData="M15,40 A25,25 0 1,1 65,40 A25,25 0 1,1 15,40"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Stressed eyes -->
+    <path
+        android:pathData="M30,30 L35,35 L30,35"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+    <path
+        android:pathData="M50,30 L45,35 L50,35"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Frown -->
+    <path
+        android:pathData="M30,52 Q40,47 50,52"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Stress lines -->
+    <path
+        android:pathData="M20,25 L22,22"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="1.5"/>
+    <path
+        android:pathData="M18,30 L20,27"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="1.5"/>
+    <path
+        android:pathData="M60,25 L58,22"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="1.5"/>
+    <path
+        android:pathData="M62,30 L60,27"
+        android:strokeColor="#8E44AD"
+        android:strokeWidth="1.5"/>
+</vector>

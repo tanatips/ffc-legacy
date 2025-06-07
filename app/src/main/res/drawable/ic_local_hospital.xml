@@ -1,0 +1,30 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Hospital building -->
+    <path
+        android:pathData="M20,20 L60,20 Q62,20 62,22 L62,58 Q62,60 60,60 L20,60 Q18,60 18,58 L18,22 Q18,20 20,20 Z"
+        android:strokeColor="#2E86C1"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Medical cross vertical -->
+    <path
+        android:pathData="M36,28 L44,28 L44,52 L36,52 Z"
+        android:fillColor="#2E86C1"/>
+
+    <!-- Medical cross horizontal -->
+    <path
+        android:pathData="M28,36 L52,36 L52,44 L28,44 Z"
+        android:fillColor="#2E86C1"/>
+
+    <!-- Circle around cross -->
+    <path
+        android:pathData="M22,40 A18,18 0 1,1 58,40 A18,18 0 1,1 22,40"
+        android:strokeColor="#2E86C1"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"/>
+</vector>

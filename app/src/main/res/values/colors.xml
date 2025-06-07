@@ -136,4 +136,67 @@
     <color name="dark_yellow">#856404</color>
 <!--    <color name="light_red">#F8D7DA</color>-->
     <color name="dark_red">#721C24</color>
+
+    <!-- Suicide Assessment Colors -->
+    <color name="suicide_primary">#D32F2F</color>          <!-- แดงเข้มหลัก -->
+    <color name="suicide_secondary">#F57C00</color>        <!-- ส้มรอง -->
+    <color name="suicide_light">#FFEBEE</color>            <!-- แดงอ่อน -->
+    <color name="suicide_dark">#B71C1C</color>             <!-- แดงเข้มมาก -->
+
+    <!-- Background Colors -->
+    <color name="background_light_blue">#F3F8FF</color>    <!-- พื้นหลังฟ้าอ่อน -->
+
+    <!-- Text Colors -->
+    <color name="text_dark">#212121</color>                <!-- ข้อความเข้ม -->
+    <color name="text_medium">#616161</color>              <!-- ข้อความปานกลาง -->
+    <color name="text_light">#9E9E9E</color>               <!-- ข้อความอ่อน -->
+
+    <!-- Table Colors -->
+    <color name="table_header_suicide">#C62828</color>     <!-- หัวตารางแดง -->
+    <color name="table_row_even">#FAFAFA</color>           <!-- แถวคู่ -->
+    <color name="table_row_odd">#FFFFFF</color>            <!-- แถวคี่ -->
+
+    <!-- Risk Level Colors -->
+    <color name="risk_none">#4CAF50</color>                <!-- ไม่มีความเสี่ยง - เขียว -->
+    <color name="risk_low">#FF9800</color>                 <!-- ความเสี่ยงต่ำ - ส้ม -->
+    <color name="risk_medium">#FF5722</color>              <!-- ความเสี่ยงปานกลาง - ส้มแดง -->
+    <color name="risk_high">#F44336</color>                <!-- ความเสี่ยงสูง - แดง -->
+
+    <!-- Warning Colors -->
+    <color name="warning_light">#FFF3E0</color>            <!-- เตือนอ่อน -->
+    <color name="warning_dark">#E65100</color>             <!-- เตือนเข้ม -->
+
+    <!-- Highlight Colors -->
+<!--    <color name="highlight_yellow">#FFEB3B</color>         &lt;!&ndash; ไฮไลท์เหลือง &ndash;&gt;-->
+    <color name="highlight_green">#C8E6C9</color>          <!-- ไฮไลท์เขียว -->
+    <color name="highlight_red">#FFCDD2</color>            <!-- ไฮไลท์แดง -->
+
+    <!-- Common Colors -->
+<!--    <color name="white">#FFFFFF</color>-->
+<!--    <color name="light_gray">#F5F5F5</color>-->
+<!--    <color name="header_purple">#673AB7</color>-->
+
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+
+    <!-- Background Colors -->
+    <color name="background_light">#F8F9FA</color>
+<!--    <color name="white">#FFFFFF</color>-->
+    <color name="white_70">#B3FFFFFF</color>
+
+    <!-- Text Colors -->
+<!--    <color name="text_primary">#212121</color>-->
+<!--    <color name="text_secondary">#757575</color>-->
+
+    <!-- Status Colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="danger_red">#F44336</color>
+    <color name="danger_dark_red">#D32F2F</color>
+
+    <!-- UI Helper Colors -->
+<!--    <color name="light_blue">#E3F2FD</color>-->
+<!--    <color name="light_gray">#FAFAFA</color>-->
+    <color name="border_gray">#E0E0E0</color>
+<!--    <color name="header_purple">#673AB7</color>-->
 </resources>

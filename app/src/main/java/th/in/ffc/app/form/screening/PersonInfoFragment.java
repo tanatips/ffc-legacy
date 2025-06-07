@@ -151,7 +151,7 @@ public class PersonInfoFragment extends Fragment {
     private FrameLayout progressBarContainer;
     private TextView progressBarText;
 
-//    private SearchableSpinner house;
+    private SearchableSpinner house;
 
     private int DEVICE_RESULT_ONE = 101;
     private ImageView imgPerson;
@@ -450,22 +450,21 @@ public class PersonInfoFragment extends Fragment {
 //        dateTextView = view.findViewById(R.id.dateTextView);
         selectDateButton = view.findViewById(R.id.selectDateButton);
         txtBirthDay = view.findViewById(R.id.txtBirthDay);
-//        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
-//        house.setDialog(getActivity().getSupportFragmentManager(),
-//                HouseListDialog.class, "house");
-//
-//        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
-//                dataPasser.onPersonInfo(personInfo);
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
+        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
+        house.setDialog(getActivity().getSupportFragmentManager(),
+                HouseListDialog.class, "house");
+
+        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                personInfo.setVillageNo(String.valueOf(house.getSelectedItemId()));
+                dataPasser.onPersonInfo(personInfo);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
 
 
@@ -501,6 +500,7 @@ public class PersonInfoFragment extends Fragment {
                 public void onSuccess(ApiResponse response) {
 //                    dismissProgressDialog();
                     hideProgressBar();
+                    if(response.getAuthenCode()!=null) {
                     txtAuthenNo.setText(response.getAuthenCode());
                     Calendar cal = Calendar.getInstance();
                     int day = cal.get(Calendar.DAY_OF_MONTH);
@@ -520,8 +520,13 @@ public class PersonInfoFragment extends Fragment {
                     cal.set(Calendar.YEAR, cal.get(Calendar.YEAR)); // ใช้ปีคริสตศักราชตามปกติ
                     String westernDateTime = outputFormat.format(cal.getTime());
                     personInfo.setAuthen_date(westernDateTime);
-//                    txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(DateTime.getCurrentDate()));
-                    personInfo.setAuthen_code(response.getAuthenCode());
+//                    txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDate(DateTime.getCurrentDate()))
+                        personInfo.setAuthen_code(response.getAuthenCode());
+
+                    }
+                    else {
+                        Toast.makeText(getContext(),response.getDataError(),Toast.LENGTH_SHORT);
+                    }
 //                    personInfo.setAuthen_date(DateConverter.convertToWesternDate(txtAuthenDate.getText().toString()));
 //                    txtAuthenDate.setText(response.getAuthenDate());
                 }

@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Prohibition circle -->
+    <path
+        android:pathData="M15,40 A25,25 0 1,1 65,40 A25,25 0 1,1 15,40"
+        android:strokeColor="#D68910"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Bottle body -->
+    <path
+        android:pathData="M32,50 L32,30 Q32,25 37,25 L43,25 Q48,25 48,30 L48,50"
+        android:strokeColor="#666666"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Bottle base (ellipse) -->
+    <path
+        android:pathData="M32,52 Q32,49 40,49 Q48,49 48,52 Q48,55 40,55 Q32,55 32,52"
+        android:strokeColor="#666666"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Bottle neck -->
+    <path
+        android:pathData="M38,20 L42,20 L42,28 L38,28 Z"
+        android:strokeColor="#666666"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Liquid inside -->
+    <path
+        android:pathData="M34,45 Q34,37 40,37 Q46,37 46,45 Q46,53 40,53 Q34,53 34,45"
+        android:fillColor="#FFE4B5"
+        android:fillAlpha="0.7"/>
+
+    <!-- Prohibition line -->
+    <path
+        android:pathData="M25,25 L55,55"
+        android:strokeColor="#D68910"
+        android:strokeWidth="3"/>
+</vector>

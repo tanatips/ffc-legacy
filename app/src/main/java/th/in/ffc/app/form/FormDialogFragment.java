@@ -3,8 +3,14 @@ package th.in.ffc.app.form;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,6 +20,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -88,9 +97,20 @@ public class FormDialogFragment extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_form, null);
 
+        // สร้าง Spannable text สำหรับ title
+//        SpannableString spannableTitle = new SpannableString(formTitle);
+//
+//        // กำหนดสีตามประเภทของแบบฟอร์ม
+//        int titleColor = getTitleColor(formTitle);
+//        spannableTitle.setSpan(new ForegroundColorSpan(titleColor), 0, formTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        spannableTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, formTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // สร้าง custom title view
+        View customTitleView = createCustomTitleView(inflater);
+
         // ตั้งค่าหัวเรื่องและ view
-        builder.setView(view)
-                .setTitle(formTitle)
+        builder.setCustomTitle(customTitleView)
+                .setView(view)
                 .setPositiveButton("บันทึก", null)
                 .setNegativeButton("ยกเลิก",null);
 
@@ -144,6 +164,60 @@ public class FormDialogFragment extends DialogFragment {
 
         return dialog;
     }
+    private View createCustomTitleView(LayoutInflater inflater) {
+        // สร้าง layout สำหรับ custom title
+        LinearLayout titleLayout = new LinearLayout(getContext());
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+        // กำหนดสีพื้นหลัง
+        int backgroundColor = getTitleBackgroundColor(formTitle);
+        titleLayout.setBackgroundColor(backgroundColor);
+
+        // เพิ่มไอคอน
+        ImageView iconView = new ImageView(getContext());
+        iconView.setImageResource(getTitleIcon(formTitle));
+        iconView.setColorFilter(getTitleColor(formTitle));
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        // เพิ่ม TextView สำหรับ title
+        TextView titleTextView = new TextView(getContext());
+        titleTextView.setText(formTitle);
+        titleTextView.setTextColor(getTitleColor(formTitle));
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
+    }
+
+    private int getTitleIcon(String title) {
+        if (title.contains("ซึมเศร้า")) {
+            return R.drawable.ic_psychology; // ไอคอนจิตใจ
+        } else if (title.contains("เครียด")) {
+            return R.drawable.ic_mood_bad; // ไอคอนอารมณ์
+        } else if (title.contains("ฆ่าตัวตาย")) {
+            return R.drawable.ic_warning; // ไอคอนเตือนสำหรับการประเมินการฆ่าตัวตาย
+        } else if (title.contains("สารเสพติด")) {
+            return R.drawable.ic_warning; // ไอคอนเตือน
+        } else if (title.contains("หัวใจ")) {
+            return R.drawable.ic_favorite; // ไอคอนหัวใจ
+        } else if (title.contains("เบาหวาน")) {
+            return R.drawable.ic_local_hospital; // ไอคอนโรงพยาบาล
+        } else if (title.contains("บุหรี่")) {
+            return R.drawable.ic_smoke_free; // ไอคอนเลิกบุหรี่
+        } else if (title.contains("สุรา")) {
+            return R.drawable.ic_no_drinks; // ไอคอนเลิกเหล้า
+        } else {
+            return R.drawable.ic_assignment; // ไอคอนแบบฟอร์ม
+        }
+    }
+
 
     /**
      * อัปเดตสถานะของ Fragment ต่างๆ
@@ -159,7 +233,20 @@ public class FormDialogFragment extends DialogFragment {
             StressDepressionFragment stressFragment = (StressDepressionFragment) contentFragment;
             isComplete = stressFragment.isFormComplete();
             activity.updateFormStatus("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)", isComplete);
+        } else if (contentFragment instanceof StressDepression2qFragment) {
+            StressDepression2qFragment stress2qFragment = (StressDepression2qFragment) contentFragment;
+            isComplete = stress2qFragment.isFormComplete();
+            activity.updateFormStatus("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)", isComplete);
+        } else if (contentFragment instanceof StressDepression9qFragment) {
+            StressDepression9qFragment stress9qFragment = (StressDepression9qFragment) contentFragment;
+            isComplete = stress9qFragment.isFormComplete();
+            activity.updateFormStatus("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)", isComplete);
+        } else if (contentFragment instanceof SuicideAssessment8qFragment) {
+            SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) contentFragment;
+            isComplete = suicide8qFragment.isFormComplete();
+            activity.updateFormStatus("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", isComplete);
         }
+
         // เพิ่ม Fragment อื่นๆ ที่มีการตรวจสอบข้อมูลในอนาคต
     }
 
@@ -191,27 +278,36 @@ public class FormDialogFragment extends DialogFragment {
             // เพิ่มการตรวจสอบสำหรับ Fragment อื่นๆ ตามต้องการ
             else if (contentFragment instanceof StressDepression2qFragment) {
                 StressDepression2qFragment stress2qFragment = (StressDepression2qFragment) contentFragment;
-                // สมมติว่ามีเมธอด isFormComplete() ใน StressDepression2qFragment
-                // if (!stress2qFragment.isFormComplete()) {
-                //     isFormValid = false;
-                //     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (2 ข้อ)";
-                // }
+//                 สมมติว่ามีเมธอด isFormComplete() ใน StressDepression2qFragment
+                 if (!stress2qFragment.isFormComplete()) {
+                     isFormValid = false;
+                     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (2 ข้อ)";
+                 }
             }
             else if (contentFragment instanceof StressDepression9qFragment) {
                 StressDepression9qFragment stress9qFragment = (StressDepression9qFragment) contentFragment;
                 // สมมติว่ามีเมธอด isFormComplete() ใน StressDepression9qFragment
-                // if (!stress9qFragment.isFormComplete()) {
-                //     isFormValid = false;
-                //     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (9 ข้อ)";
-                // }
+                 if (!stress9qFragment.isFormComplete()) {
+                     isFormValid = false;
+                     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (9 ข้อ)";
+                 }
             }
             else if (contentFragment instanceof SuicideAssessment8qFragment) {
                 SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) contentFragment;
                 // สมมติว่ามีเมธอด isFormComplete() ใน SuicideAssessment8qFragment
-                // if (!suicide8qFragment.isFormComplete()) {
-                //     isFormValid = false;
-                //     errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (8 ข้อ)";
-                // }
+                if (!suicide8qFragment.isFormComplete()) {
+                    isFormValid = false;
+                    // ใช้ข้อความรายละเอียดจาก getIncompleteQuestions()
+                    String incompleteQuestions = suicide8qFragment.getIncompleteQuestions();
+                    if (!incompleteQuestions.isEmpty()) {
+                        errorMessage = incompleteQuestions;
+                    } else {
+                        errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (8 ข้อ)";
+                    }
+                } else {
+                    // ตรวจสอบและแสดงการเตือนหากมีความเสี่ยงสูง
+                    suicide8qFragment.checkHighRiskAlert();
+                }
             }
             else if (contentFragment instanceof HealthRiskAssessmentFragment) {
                 HealthRiskAssessmentFragment healthFragment = (HealthRiskAssessmentFragment) contentFragment;
@@ -295,7 +391,31 @@ public class FormDialogFragment extends DialogFragment {
                 boolean isComplete = stressFragment.isFormComplete();
                 activity.updateFormStatus(formTitle, isComplete);
             }
-        } else {
+        } else if (formTitle.equals("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)")) {
+            // อัปเดตสถานะสำหรับ StressDepression2qFragment
+            if (contentFragment instanceof StressDepression2qFragment) {
+                StressDepression2qFragment stress2qFragment = (StressDepression2qFragment) contentFragment;
+                boolean isComplete = stress2qFragment.isFormComplete();
+                activity.updateFormStatus(formTitle, isComplete);
+            }
+        } else if (formTitle.equals("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)")) {
+            // อัปเดตสถานะสำหรับ StressDepression9qFragment
+            if (contentFragment instanceof StressDepression9qFragment) {
+                StressDepression9qFragment stress9qFragment = (StressDepression9qFragment) contentFragment;
+                boolean isComplete = stress9qFragment.isFormComplete();
+                activity.updateFormStatus(formTitle, isComplete);
+            }
+        } else if (formTitle.equals("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)")) {
+            // อัปเดตสถานะสำหรับ SuicideAssessment8qFragment
+            if (contentFragment instanceof SuicideAssessment8qFragment) {
+                SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) contentFragment;
+                boolean isComplete = suicide8qFragment.isFormComplete();
+                activity.updateFormStatus(formTitle, isComplete);
+
+                // แสดงสถานะการกรอกข้อมูล
+                suicide8qFragment.showCompletionStatus();
+            }
+        }  else {
             // อัปเดตสถานะสำหรับ Fragment อื่นๆ
             activity.updateFormStatus(formTitle, true);
         }
@@ -326,5 +446,43 @@ public class FormDialogFragment extends DialogFragment {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
             }
         }
+    }
+     // เพิ่มเมธอดสำหรับกำหนดสีตามประเภทแบบฟอร์ม
+    private int getTitleColor(String title) {
+        if (title.contains("ซึมเศร้า")) {
+            return Color.parseColor("#673AB7"); // ม่วง สำหรับโรคซึมเศร้า
+        } else if (title.contains("เครียด")) {
+            return Color.parseColor("#8E44AD"); // ม่วงเข้ม สำหรับความเครียด
+        } else if (title.contains("ฆ่าตัวตาย")) {
+            return Color.parseColor("#C0392B"); // แดงเข้ม สำหรับการประเมินการฆ่าตัวตาย
+        } else if (title.contains("สารเสพติด")) {
+            return Color.parseColor("#E74C3C"); // แดง สำหรับสารเสพติด
+        } else if (title.contains("หัวใจ") || title.contains("เบาหวาน")) {
+            return Color.parseColor("#2E86C1"); // น้ำเงิน สำหรับโรคเรื้อรัง
+        } else if (title.contains("บุหรี่") || title.contains("สุรา")) {
+            return Color.parseColor("#D68910"); // ส้ม สำหรับสารเสพติด
+        } else {
+            return Color.parseColor("#2C3E50"); // เทาเข้ม สำหรับอื่นๆ
+        }
+    }
+    private int getTitleBackgroundColor(String title) {
+        if(!title.isEmpty()) {
+            if (title.contains("ซึมเศร้า")) {
+                return Color.parseColor("#F3E5F5"); // ม่วงอ่อน
+            } else if (title.contains("เครียด")) {
+                return Color.parseColor("#EBF3FD"); // น้ำเงินอ่อน
+            } else if (title.contains("ฆ่าตัวตาย")) {
+                return Color.parseColor("#FFEBEE"); // แดงอ่อน สำหรับการประเมินการฆ่าตัวตาย
+            } else if (title.contains("สารเสพติด")) {
+                return Color.parseColor("#FFEBEE"); // แดงอ่อน
+            } else {
+                return Color.parseColor("#F8F9FA"); // เทาอ่อน
+            }
+        }
+        return Color.parseColor("#F8F9FA"); // เทาอ่อน;
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 }

@@ -104,6 +104,7 @@ public class AssistScoreFragment extends Fragment {
         String[] substanceIds = new String[]{
                 "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"
         };
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
         // สร้าง Map เพื่อเชื่อมโยง ID ของสารเสพติดกับ TextView
         for (int i = 0; i < scoreIds.length; i++) {

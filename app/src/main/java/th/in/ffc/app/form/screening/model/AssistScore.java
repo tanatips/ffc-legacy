@@ -4,6 +4,7 @@ public class AssistScore {
 
     private String personId;
     private String nicotineScore;
+    private String alcoholScore;
 
     public String getNicotineScore() {
         return nicotineScore;
@@ -19,5 +20,13 @@ public class AssistScore {
 
     public void setPersonId(String personId) {
         this.personId = personId;
+    }
+
+    public String getAlcoholScore() {
+        return alcoholScore;
+    }
+
+    public void setAlcoholScore(String alcoholScore) {
+        this.alcoholScore = alcoholScore;
     }
 }
