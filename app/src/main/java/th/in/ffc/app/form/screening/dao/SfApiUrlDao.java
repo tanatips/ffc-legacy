@@ -143,7 +143,87 @@ public class SfApiUrlDao {
             statusTracksApi.setCreatedAt(currentTime);
             statusTracksApi.setUpdatedAt(currentTime);
             insert(statusTracksApi);
+
+            // Status-tracks V2 API (New)
+            SfApiUrl statusTracksV2Api = new SfApiUrl();
+            statusTracksV2Api.setApiCode("STATUS_TRACKS_V2");
+            statusTracksV2Api.setApiName("Status Tracks V2 API");
+            statusTracksV2Api.setDescription("API สำหรับติดตามสถานะ เวอร์ชัน 2");
+            statusTracksV2Api.setMethod("POST");
+            statusTracksV2Api.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setParams("");
+            statusTracksV2Api.setRequestFormat("{\"trackDatas\": [{\"uid\": \"2eda2961-78e2-4c58-a334-bb141b9fb5f6\"}]}");
+            statusTracksV2Api.setIsActive(1);
+            statusTracksV2Api.setEnvType(SfApiUrl.ENV_TEST);
+            statusTracksV2Api.setCreatedAt(currentTime);
+            statusTracksV2Api.setUpdatedAt(currentTime);
+            insert(statusTracksV2Api);
         }
+    }
+    /**
+     * เพิ่ม API URL ใหม่หากยังไม่มี (สำหรับ API ที่เพิ่มมาทีหลัง)
+     */
+    public void addMissingApis() {
+        long currentTime = System.currentTimeMillis();
+
+        // ตรวจสอบและเพิ่ม STATUS_TRACKS_V2 หากยังไม่มี
+        if (findByApiCode("STATUS_TRACKS_V2") == null) {
+            SfApiUrl statusTracksV2Api = new SfApiUrl();
+            statusTracksV2Api.setApiCode("STATUS_TRACKS_V2");
+            statusTracksV2Api.setApiName("Status Tracks V2 API");
+            statusTracksV2Api.setDescription("API สำหรับติดตามสถานะ เวอร์ชัน 2");
+            statusTracksV2Api.setMethod("POST");
+            statusTracksV2Api.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setParams("");
+            statusTracksV2Api.setRequestFormat("{\"trackDatas\": [{\"uid\": \"2eda2961-78e2-4c58-a334-bb141b9fb5f6\"}]}");
+            statusTracksV2Api.setIsActive(1);
+            statusTracksV2Api.setEnvType(SfApiUrl.ENV_TEST);
+            statusTracksV2Api.setCreatedAt(currentTime);
+            statusTracksV2Api.setUpdatedAt(currentTime);
+            insert(statusTracksV2Api);
+        }
+
+        // อัปเดต request format ของ STATUS_TRACKS หากยังไม่ถูกต้อง
+        SfApiUrl statusTracksApi = findByApiCode("STATUS_TRACKS");
+        if (statusTracksApi != null && statusTracksApi.getRequestFormat().contains("statusTracks")) {
+            statusTracksApi.setRequestFormat("{\"fsTrackDatas\": [{\"id\": \"string\", \"seq\": \"string\"}]}");
+            statusTracksApi.setUpdatedAt(currentTime);
+            update(statusTracksApi);
+        }
+    }
+    /**
+     * อัปเดต API URLs ที่มีอยู่แล้ว (สำหรับการแก้ไข URL หรือข้อมูลที่เปลี่ยนแปลง)
+     */
+    public void updateExistingApis() {
+        long currentTime = System.currentTimeMillis();
+
+        // อัปเดต CREATE_FS_DATA หากมีการเปลี่ยนแปลง URL
+        SfApiUrl createFsDataApi = findByApiCode("CREATE_FS_DATA");
+        if (createFsDataApi != null) {
+            createFsDataApi.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/create-fs-data");
+            createFsDataApi.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/create-fs-data");
+            createFsDataApi.setUpdatedAt(currentTime);
+            update(createFsDataApi);
+        }
+
+        // อัปเดต STATUS_TRACKS_V2 หากมีการเปลี่ยนแปลง
+        SfApiUrl statusTracksV2Api = findByApiCode("STATUS_TRACKS_V2");
+        if (statusTracksV2Api != null) {
+            statusTracksV2Api.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setUpdatedAt(currentTime);
+            update(statusTracksV2Api);
+        }
+    }
+    /**
+     * ตรวจสอบและเพิ่ม/อัปเดต APIs ทั้งหมด
+     * เรียกใช้ใน Application.onCreate() หรือเมื่อแอปเริ่มทำงาน
+     */
+    public void syncApis() {
+        addMissingApis();
+        updateExistingApis();
     }
 
     /**

@@ -29,6 +29,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- ส่วนเลือกปีงบประมาณ -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,6 +52,7 @@
 
             </LinearLayout>
 
+            <!-- แสดงช่วงเวลา -->
             <TextView
                 android:id="@+id/text_date_range"
                 android:layout_width="match_parent"
@@ -59,6 +61,7 @@
                 android:text="ช่วงเวลา: 1 ตุลาคม 2566 - 30 กันยายน 2567"
                 android:textSize="14sp" />
 
+            <!-- Card สรุปภาพรวม -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -86,6 +89,7 @@
                         android:layout_marginBottom="8dp"
                         android:background="#E0E0E0" />
 
+                    <!-- จำนวนรายการทั้งหมด -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -110,6 +114,7 @@
                             android:gravity="end" />
                     </LinearLayout>
 
+                    <!-- ยอดเงินที่ส่งเบิกทั้งหมด -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -120,24 +125,78 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="ยอดเงินทั้งหมด:"
+                            android:text="ยอดเงินที่ส่งเบิกทั้งหมด:"
                             android:textSize="16sp" />
 
                         <TextView
-                            android:id="@+id/text_total_amount"
+                            android:id="@+id/text_total_charge_amount"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="0.00 บาท"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:gravity="end" />
+                            android:gravity="end"
+                            android:textColor="@android:color/holo_blue_dark" />
+                    </LinearLayout>
+
+                    <!-- ยอดเงินที่เบิกได้ทั้งหมด -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ยอดเงินที่เบิกได้ทั้งหมด:"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/text_total_claim_amount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0.00 บาท"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:gravity="end"
+                            android:textColor="@android:color/holo_green_dark" />
+                    </LinearLayout>
+
+                    <!-- ส่วนต่างที่ไม่ได้เบิก -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ส่วนต่างที่ไม่ได้เบิก:"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/text_total_difference"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0.00 บาท"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:gravity="end"
+                            android:textColor="@android:color/holo_red_dark" />
                     </LinearLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Card สรุปตามประเภทรายการ -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -165,6 +224,7 @@
                         android:layout_marginBottom="8dp"
                         android:background="#E0E0E0" />
 
+                    <!-- หัวตาราง -->
                     <TableLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -177,9 +237,11 @@
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
+                                android:layout_weight="1.5"
                                 android:text="ประเภทรายการ"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                android:textSize="12sp"
+                                android:gravity="center" />
 
                             <TextView
                                 android:layout_width="0dp"
@@ -187,15 +249,26 @@
                                 android:layout_weight="1"
                                 android:text="จำนวนรายการ"
                                 android:textStyle="bold"
-                                android:gravity="end" />
+                                android:gravity="center"
+                                android:textSize="12sp" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1.5"
-                                android:text="จำนวนเงิน (บาท)"
+                                android:text="จำนวนเงินที่ส่งเบิก (บาท)"
                                 android:textStyle="bold"
-                                android:gravity="end" />
+                                android:gravity="center"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:text="จำนวนเงินที่เบิกได้ (บาท)"
+                                android:textStyle="bold"
+                                android:gravity="center"
+                                android:textSize="12sp" />
 
                             <TextView
                                 android:layout_width="0dp"
@@ -203,11 +276,13 @@
                                 android:layout_weight="0.5"
                                 android:text="ร้อยละ"
                                 android:textStyle="bold"
-                                android:gravity="end" />
+                                android:gravity="center"
+                                android:textSize="12sp" />
                         </TableRow>
 
                     </TableLayout>
 
+                    <!-- RecyclerView สำหรับแสดงข้อมูลรายการ -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_charge_items"
                         android:layout_width="match_parent"
@@ -218,6 +293,7 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Card แผนภูมิ -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -234,7 +310,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="แผนภูมิสัดส่วนตามประเภทรายการ"
+                        android:text="แผนภูมิสัดส่วนตามประเภทรายการ (จำนวนเงินที่เบิกได้)"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -255,6 +331,7 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- ปุ่มดำเนินการ -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

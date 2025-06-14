@@ -7,4 +7,14 @@
         android:icon="@android:drawable/ic_popup_sync"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/action_sync_apis"
+        android:title="ซิงค์ APIs"
+        android:icon="@android:drawable/ic_menu_upload" />
+
+    <item
+        android:id="@+id/action_test_apis"
+        android:title="ทดสอบ APIs"
+        android:icon="@android:drawable/ic_menu_info_details" />
+
 </menu>

@@ -27,6 +27,8 @@ import android.util.Log;
 import th.in.ffc.R;
 import th.in.ffc.api.nhso.StatusTrackApiCaller;
 import th.in.ffc.api.nhso.StatusTrackResponse;
+import th.in.ffc.api.nhso.StatusTracksV2ApiCaller;
+import th.in.ffc.api.nhso.StatusTracksV2Response;
 import th.in.ffc.app.form.nhso.dao.NHSOCHADao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.model.ClaimInfo;
@@ -43,6 +45,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
     private SimpleDateFormat displayFormat;
     private DecimalFormat decimalFormat;
     private StatusTrackApiCaller statusTrackApiCaller;
+    private StatusTracksV2ApiCaller statusTracksV2ApiCaller;
     private NHSOCHADao nhsochaDao;
 
     public ClaimListAdapter(Context context, List<ClaimInfo> claimList) {
@@ -51,6 +54,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
         this.displayFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         this.decimalFormat = new DecimalFormat("#,##0.00");
         this.statusTrackApiCaller = new StatusTrackApiCaller(context);
+        this.statusTracksV2ApiCaller = new StatusTracksV2ApiCaller(context);
         this.nhsochaDao = new NHSOCHADao(context);
     }
 
@@ -86,7 +90,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
 
         if (visitId != null && !visitId.isEmpty()) {
             // ดึงจำนวนเงินจาก NHSOCHADao โดยใช้ seq (visitId)
-            claimAmount = nhsochaDao.getTotalAmountBySeq(visitId);
+            claimAmount = nhsochaDao.getTotalClaimAmountBySeq(visitId);
 
             // กรณีไม่พบข้อมูล หรือเป็น 0 ให้ลองดึงจาก total
             if (claimAmount == 0.0) {
@@ -156,7 +160,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
         try {
             JSONObject statusTrackData = StatusTrackApiCaller.createStatusTrackData(
                     claim.getClaimId(), // ใช้ ID ของ claim เป็น id
-                    claim.getVisitId()
+                    claim.getSeq()
             );
 
             // เรียกใช้ API
@@ -168,19 +172,27 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
 
                 @Override
                 public void onSuccess(List<StatusTrackResponse> responses) {
-                    // ปิด Progress Dialog
-                    progressDialog.dismiss();
-
                     // ส่งต่อข้อมูลให้ listener
                     if (mListener != null) {
                         mListener.onStatusCheckComplete(claim, responses);
                     }
 
-                    // แสดงผลตอบกลับในรูปแบบ Dialog
+                    // ตรวจสอบว่ามี response และมี uuid
                     if (responses != null && !responses.isEmpty()) {
                         StatusTrackResponse firstResponse = responses.get(0);
-                        showResponseDialog(claim, firstResponse, position);
+                        String uuid = firstResponse.getUid();
+
+                        if (uuid != null && !uuid.isEmpty()) {
+                            // เรียกใช้ StatusTracksV2ApiCaller ด้วย uuid
+                            checkStatusTracksV2(claim, uuid, firstResponse, position, progressDialog);
+                        } else {
+                            // ปิด Progress Dialog และแสดงผลแบบเดิม
+                            progressDialog.dismiss();
+                            showResponseDialog(claim, firstResponse, position);
+                        }
                     } else {
+                        // ปิด Progress Dialog และแสดงผลแบบเดิม
+                        progressDialog.dismiss();
                         showResponseDialog(claim, null, position);
                     }
                 }
@@ -204,7 +216,169 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
     }
 
     /**
-     * แสดงข้อมูลตอบกลับจาก API ในรูปแบบ Dialog
+     * เรียกใช้ StatusTracksV2ApiCaller เพื่อดูผลการส่งเบิก
+     */
+
+    private void checkStatusTracksV2(ClaimInfo claim, String uuid, StatusTrackResponse originalResponse,
+                                     int position, ProgressDialog progressDialog) {
+        try {
+            // อัพเดตข้อความ Progress Dialog
+            progressDialog.setMessage("กำลังตรวจสอบผลการส่งเบิก...");
+
+            // สร้าง JSON Object สำหรับ track data
+            JSONObject trackData = StatusTracksV2ApiCaller.createTrackData(uuid);
+
+            if (trackData == null) {
+                // ปิด Progress Dialog
+                progressDialog.dismiss();
+                Log.e(TAG, "Failed to create track data for uuid: " + uuid);
+                showResponseDialog(claim, originalResponse, position);
+                return;
+            }
+
+            statusTracksV2ApiCaller.sendTrackData(trackData, new StatusTracksV2ApiCaller.StatusTracksV2ApiCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    // ไม่ต้องทำอะไร จะใช้ method ด้านล่างแทน
+                }
+
+                @Override
+                public void onSuccess(List<StatusTracksV2Response> responses) {
+                    // ปิด Progress Dialog
+                    progressDialog.dismiss();
+
+                    // แสดงผลการเบิกที่ได้จาก V2 API
+                    if (responses != null && !responses.isEmpty()) {
+                        StatusTracksV2Response firstResponse = responses.get(0);
+                        showClaimResultDialog(claim, originalResponse, firstResponse, position);
+                    } else {
+                        Log.w(TAG, "StatusTracksV2 API returned empty response");
+                        showResponseDialog(claim, originalResponse, position);
+                    }
+                }
+
+                @Override
+                public void onError(String errorMessage, Exception e) {
+                    // ปิด Progress Dialog
+                    progressDialog.dismiss();
+
+                    Log.w(TAG, "StatusTracksV2 API failed, falling back to original response: " + errorMessage);
+
+                    // แสดงผลแบบเดิมถ้า V2 API ไม่สำเร็จ
+                    showResponseDialog(claim, originalResponse, position);
+                }
+            });
+        } catch (Exception e) {
+            // ปิด Progress Dialog
+            progressDialog.dismiss();
+
+            Log.e(TAG, "Error calling StatusTracksV2 API", e);
+
+            // แสดงผลแบบเดิมถ้าเกิดข้อผิดพลาด
+            showResponseDialog(claim, originalResponse, position);
+        }
+    }
+    /**
+     * แสดงผลการเบิกจาก StatusTracksV2ApiCaller
+     */
+    private void showClaimResultDialog(ClaimInfo claim, StatusTrackResponse originalResponse,
+                                       StatusTracksV2Response v2Response, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("ผลการตรวจสอบสถานะการเบิก");
+
+        // สร้างข้อความสำหรับแสดงใน Dialog
+        StringBuilder content = new StringBuilder();
+        content.append("ผู้ป่วย: ").append(claim.getPatientName()).append("\n\n");
+
+        // แสดงรายละเอียดจาก original response
+        if (originalResponse != null) {
+            content.append("รหัสอ้างอิง (ID): ").append(originalResponse.getId()).append("\n");
+            content.append("UID: ").append(originalResponse.getUid()).append("\n");
+            content.append("SEQ: ").append(originalResponse.getSeq()).append("\n");
+
+            if (originalResponse.getHcode() != null && !originalResponse.getHcode().isEmpty()) {
+                content.append("รหัสสถานพยาบาล: ").append(originalResponse.getHcode()).append("\n");
+            }
+
+            if (originalResponse.getHn() != null && !originalResponse.getHn().isEmpty()) {
+                content.append("HN: ").append(originalResponse.getHn()).append("\n");
+            }
+
+            if (originalResponse.getRecordStatus() != null && !originalResponse.getRecordStatus().isEmpty()) {
+                content.append("สถานะการบันทึก: ").append(originalResponse.getRecordStatus()).append("\n");
+            }
+
+            content.append("UUID: ").append(originalResponse.getUid()).append("\n\n");
+        }
+
+        // แสดงผลการเบิกจาก V2 API
+        String claimResult = "";
+        boolean isSuccess = false;
+
+        if (v2Response != null && v2Response.getMessage() != null) {
+            claimResult = v2Response.getMessage();
+            content.append("ผลการเบิก: ").append(claimResult).append("\n");
+
+            // ตรวจสอบสถานะความสำเร็จ
+            isSuccess = "SUCCESS".equalsIgnoreCase(claimResult) ||
+                    "APPROVED".equalsIgnoreCase(claimResult) ||
+                    claimResult.contains("อนุมัติ");
+        } else {
+            // ใช้ข้อมูลจาก original response ถ้าไม่มีข้อมูลจาก V2
+            if (originalResponse != null) {
+                claimResult = originalResponse.getMessage();
+                content.append("ผลการตรวจสอบ: ").append(claimResult);
+                isSuccess = "SUCCESS".equals(claimResult);
+            } else {
+                content.append("ไม่พบข้อมูลผลการเบิก");
+            }
+        }
+
+        builder.setMessage(content.toString());
+
+        // กำหนดไอคอนและสีตามผลการเบิก
+        if (isSuccess) {
+            builder.setIcon(android.R.drawable.ic_dialog_info);
+
+            // อัปเดตสถานะและบันทึกลงฐานข้อมูล
+            claim.setClaimStatus("อนุมัติ");
+            updateClaimStatusInDatabase(claim, originalResponse);
+            notifyItemChanged(position);
+        } else {
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+        }
+
+        // เพิ่มปุ่มตกลง
+        builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+        // แสดง Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     * แสดงข้อความผิดพลาดในรูปแบบ Dialog
+     */
+    private void showErrorDialog(String errorMessage, Exception e) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("เกิดข้อผิดพลาด");
+
+        String detailMessage = e != null ? e.getMessage() : "";
+        String fullMessage = errorMessage;
+        if (detailMessage != null && !detailMessage.isEmpty()) {
+            fullMessage += "\n\nรายละเอียด: " + detailMessage;
+        }
+
+        builder.setMessage(fullMessage);
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+        // แสดง Dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    /**
+     * แสดงข้อมูลตอบกลับจาก API ในรูปแบบ Dialog (ใช้เมื่อไม่มี V2 API)
      */
     private void showResponseDialog(ClaimInfo claim, StatusTrackResponse response, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -239,9 +413,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
             builder.setMessage(content.toString());
 
             // กำหนดสีปุ่มตามสถานะ
-            int buttonColor;
             if ("SUCCESS".equals(message)) {
-                buttonColor = android.R.color.holo_green_dark;
                 builder.setIcon(android.R.drawable.ic_dialog_info);
 
                 // อัปเดตสถานะและบันทึกลงฐานข้อมูล
@@ -249,7 +421,6 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
                 updateClaimStatusInDatabase(claim, response);
                 notifyItemChanged(position);
             } else {
-                buttonColor = android.R.color.holo_red_dark;
                 builder.setIcon(android.R.drawable.ic_dialog_alert);
             }
 
@@ -264,30 +435,8 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
         // แสดง Dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+
     }
-
-    /**
-     * แสดงข้อความผิดพลาดในรูปแบบ Dialog
-     */
-    private void showErrorDialog(String errorMessage, Exception e) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("เกิดข้อผิดพลาด");
-
-        String detailMessage = e != null ? e.getMessage() : "";
-        String fullMessage = errorMessage;
-        if (detailMessage != null && !detailMessage.isEmpty()) {
-            fullMessage += "\n\nรายละเอียด: " + detailMessage;
-        }
-
-        builder.setMessage(fullMessage);
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
-        builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
-
-        // แสดง Dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
     /**
      * อัพเดตสถานะการเบิกในฐานข้อมูล
      * @param claim ข้อมูล claim
@@ -303,6 +452,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
             String claimMessage = response.getMessage();
             String claimDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
             String visitId = response.getSeq(); // ใช้ uid จาก response เป็น visitId
+            String seq = response.getSeq(); // ใช้ seq จาก response เป็น visitId
             String claimId = String.valueOf(response.getId()); // ใช้ seq จาก response เป็น claim_id
 
             // บันทึก visitId ไว้ในข้อมูล claim
@@ -319,18 +469,18 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
             );
 
             // ดึงข้อมูลจำนวนเงินจาก NHSOCHADao หลังจากได้รับ visitId
-            if (visitId != null && !visitId.isEmpty()) {
-                double amount = nhsochaDao.getTotalAmountBySeq(visitId);
+            if (seq != null && !seq.isEmpty()) {
+                double amount = nhsochaDao.getTotalAmountBySeq(seq);
                 if (amount > 0) {
                     // อัพเดตจำนวนเงินในข้อมูล claim
                     claim.setAmount(amount);
-                    Log.d(TAG, "Updated claim amount from NHSOCHA: " + amount + " for visitId: " + visitId);
+                    Log.d(TAG, "Updated claim amount from NHSOCHA: " + amount + " for seq: " + seq);
                 } else {
                     // ถ้าไม่พบข้อมูลใน amount ให้ลองดูที่ total
-                    amount = nhsochaDao.getTotalSumBySeq(visitId);
+                    amount = nhsochaDao.getTotalSumBySeq(seq);
                     if (amount > 0) {
                         claim.setAmount(amount);
-                        Log.d(TAG, "Updated claim amount from NHSOCHA (total): " + amount + " for visitId: " + visitId);
+                        Log.d(TAG, "Updated claim amount from NHSOCHA (total): " + amount + " for seq: " + seq);
                     }
                 }
             }

@@ -31,6 +31,8 @@ public class NHSOCHAInfo {
     // 7. รายละเอียดค่าบริการและการรักษาเพิ่มเติม (ถ้ามี)
     private String opdMemo;
 
+    private Double claimAmount; // จำนวนเงินที่เบิกได้ (จำนวนเงินที่อนุมัติ)
+
     // Getters and Setters
     public long getId() {
         return id;
@@ -94,5 +96,11 @@ public class NHSOCHAInfo {
 
     public void setOpdMemo(String opdMemo) {
         this.opdMemo = opdMemo;
+    }
+    public Double getClaimAmount() {
+        return claimAmount;
+    }
+    public void setClaimAmount(Double claimAmount) {
+        this.claimAmount = claimAmount;
     }
 }

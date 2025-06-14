@@ -29,12 +29,13 @@ public class NHSOCHA implements BaseColumns {
     public static final String CHRGITEM = "chrgitem";          // ชนิดของบริการที่คิดค่ารักษา
     public static final String INVOICE_NO = "invoice_no";      // เลขที่อ้างอิงในแจ้งหนี้ของหน่วยบริการ
     public static final String AMOUNT = "amount";              // จำนวนเงิน ค่ารักษาของบริการรายการนั้น
-    public static final String TOTAL = "total";                // จำนวนเงินค่ารักษารวมหน่วยเป็นบาท
+    public static final String TOTAL = "total";                // จำนวนเงินค่ารักษารวมหน่วยเป็นบาท (จำนวนเงินที่ส่งเบิก)
     public static final String OPD_MEMO = "opd_memo";          // รายละเอียดค่าบริการและการรักษาเพิ่มเติม
     public static final String USER = "user";                  // ผู้บันทึกข้อมูล
     public static final String PCUCODE = "pcucode";            // รหัส PCU
     public static final String UPDATE = "update_status";       // สถานะการอัพเดท
     public static final String DATEUPDATE = "dateupdate";      // วันเวลาที่อัพเดท
+    public static final String CLAIM_TOTAL = "claim_total";    // จำนวนเงินที่สามารถเบิกได้ (จำนวนเงินที่อนุมัติ)
 
     // ตาราง NHSO CHA
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS  " + TABLENAME + " ("
@@ -49,8 +50,13 @@ public class NHSOCHA implements BaseColumns {
             + USER + " TEXT, "
             + PCUCODE + " TEXT, "
             + UPDATE + " TEXT, "
-            + DATEUPDATE + " INTEGER"
+            + DATEUPDATE + " INTEGER, "
+            + CLAIM_TOTAL + " REAL DEFAULT 0"  // เพิ่ม column claim_total
             + ");";
+
+    // SQL สำหรับอัพเกรดตาราง - เพิ่ม column claim_total หากยังไม่มี
+    public static final String ALTER_TABLE_ADD_CLAIM_TOTAL =
+            "ALTER TABLE " + TABLENAME + " ADD COLUMN " + CLAIM_TOTAL + " REAL DEFAULT 0";
 
     public static final HashMap<String, String> PROJECTION_MAP = new HashMap<>();
 
@@ -67,6 +73,7 @@ public class NHSOCHA implements BaseColumns {
         PROJECTION_MAP.put(PCUCODE, PCUCODE);
         PROJECTION_MAP.put(UPDATE, UPDATE);
         PROJECTION_MAP.put(DATEUPDATE, DATEUPDATE);
+        PROJECTION_MAP.put(CLAIM_TOTAL, CLAIM_TOTAL);  // เพิ่ม claim_total
     }
 
     public static Uri getContentUri(long id) {

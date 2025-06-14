@@ -66,6 +66,7 @@ public class SfPersonInfoDao {
                 personInfo.setClaim_message(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_MESSAGE));
                 personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
                 personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
+                personInfo.setSeq(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEQ));
 
                 personInfos.add(personInfo);
             }
@@ -129,6 +130,7 @@ public class SfPersonInfoDao {
                 personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
                 personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
                 personInfo.setPhoto(getBlogFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PHOTO));
+                personInfo.setSeq(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEQ));
                 personInfos.add(personInfo);
             }
             cursor.close();
@@ -171,7 +173,8 @@ public class SfPersonInfoDao {
             putString(values, "CLAIM_STATUS", claimStatus);
             putString(values, "CLAIM_MESSAGE", claimMessage);
             putString(values, "CLAIM_DATE", claimDate);
-            putString(values, "VISIT_ID", visitId);
+//            putString(values, "VISIT_ID", visitId);
+
 
             // Set send_to_claim status to 1 (sent)
             values.put("SEND_TO_CLAIM", 1);
@@ -246,6 +249,7 @@ public class SfPersonInfoDao {
         putString(values, "CLAIM_DATE", personInfo.getClaim_date());
         putString(values, "VISIT_ID", personInfo.getVisitId());
         putBlob(values, "PHOTO", personInfo.getPhoto());
+        putString(values, "SEQ", personInfo.getSeq());
 
 
 
@@ -339,6 +343,7 @@ public class SfPersonInfoDao {
                 person.setClaim_date(cursor.getString(cursor.getColumnIndex("claim_date")));
                 person.setVisitId(cursor.getString(cursor.getColumnIndex("visit_id")));
                 person.setPhoto(getBlogFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PHOTO));
+                person.setSeq(cursor.getString(cursor.getColumnIndex("seq")));
 
                 results.add(person);
             }

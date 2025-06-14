@@ -48,6 +48,8 @@ public class PersonInfo {
     private String visitId;
     private byte[] photo;
 
+    private String seq;
+
     public byte[] getPhoto() {
         return photo;
     }
@@ -381,6 +383,13 @@ public class PersonInfo {
 
     public void setVisitId(String visitId) {
         this.visitId = visitId;
+    }
+
+    public String getSeq() {
+        return seq;
+    }
+    public void setSeq(String seq) {
+        this.seq = seq;
     }
 }
 

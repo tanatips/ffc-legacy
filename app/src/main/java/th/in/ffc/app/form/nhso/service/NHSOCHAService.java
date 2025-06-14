@@ -9,8 +9,10 @@ import android.util.Log;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import th.in.ffc.app.form.nhso.model.NHSOCHAInfo;
 import th.in.ffc.provider.NHSOCHA;
@@ -57,8 +59,12 @@ public class NHSOCHAService {
                 values.put(NHSOCHA.TOTAL, chaInfo.getTotal());
             }
 
-            values.put(NHSOCHA.OPD_MEMO, chaInfo.getOpdMemo());
+            // เพิ่มการรองรับ claim_total
+            if (chaInfo.getClaimAmount() != null) {
+                values.put(NHSOCHA.CLAIM_TOTAL, chaInfo.getClaimAmount());
+            }
 
+            values.put(NHSOCHA.OPD_MEMO, chaInfo.getOpdMemo());
             values.put(NHSOCHA.USER, username);
             values.put(NHSOCHA.DATEUPDATE, System.currentTimeMillis());
 
@@ -167,6 +173,9 @@ public class NHSOCHAService {
      * @param cursor Cursor ที่ต้องการแปลง
      * @return NHSOCHAInfo
      */
+    /**
+     * แปลงข้อมูลจาก Cursor เป็น NHSOCHAInfo (อัพเดตเพื่อรองรับ claim_total)
+     */
     private NHSOCHAInfo cursorToCHA(Cursor cursor) {
         NHSOCHAInfo chaInfo = new NHSOCHAInfo();
 
@@ -210,12 +219,70 @@ public class NHSOCHAService {
             chaInfo.setTotal(cursor.getDouble(totalIndex));
         }
 
+        // เพิ่มการดึงข้อมูล claim_total
+        int claimTotalIndex = cursor.getColumnIndex(NHSOCHA.CLAIM_TOTAL);
+        if (claimTotalIndex != -1 && !cursor.isNull(claimTotalIndex)) {
+            chaInfo.setClaimAmount(cursor.getDouble(claimTotalIndex));
+        }
+
         int opdMemoIndex = cursor.getColumnIndex(NHSOCHA.OPD_MEMO);
         if (opdMemoIndex != -1) {
             chaInfo.setOpdMemo(cursor.getString(opdMemoIndex));
         }
 
         return chaInfo;
+    }
+    /**
+     * คำนวณยอดค่าใช้จ่ายที่เบิกได้ของรหัสการรับบริการ
+     * @param seq รหัสการรับบริการ
+     * @return ยอดค่าใช้จ่ายที่เบิกได้
+     */
+    public double calculateTotalClaimAmountBySeq(String seq) {
+        double total = 0.0;
+
+        try {
+            Cursor cursor = context.getContentResolver().query(
+                    NHSOCHA.CONTENT_URI,
+                    new String[]{"COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS total"},
+                    NHSOCHA.SEQ + "=?",
+                    new String[]{seq},
+                    null);
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    total = cursor.getDouble(0);
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error calculating total claim amount for SEQ: " + seq, e);
+        }
+
+        return total;
+    }
+
+    /**
+     * อัพเดท claim_total สำหรับ seq ที่ระบุ
+     * @param seq รหัสการรับบริการ
+     * @param claimTotal จำนวนเงินที่เบิกได้
+     * @return จำนวนรายการที่อัพเดต
+     */
+    public int updateClaimTotalBySeq(String seq, double claimTotal) {
+        try {
+            ContentValues values = new ContentValues();
+            values.put(NHSOCHA.CLAIM_TOTAL, claimTotal);
+            values.put(NHSOCHA.UPDATE, "1");
+            values.put(NHSOCHA.DATEUPDATE, System.currentTimeMillis());
+
+            return context.getContentResolver().update(
+                    NHSOCHA.CONTENT_URI,
+                    values,
+                    NHSOCHA.SEQ + "=?",
+                    new String[]{seq});
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating claim total for SEQ: " + seq, e);
+            return 0;
+        }
     }
 
     /**
@@ -243,8 +310,12 @@ public class NHSOCHAService {
                 values.put(NHSOCHA.TOTAL, chaInfo.getTotal());
             }
 
-            values.put(NHSOCHA.OPD_MEMO, chaInfo.getOpdMemo());
+            // เพิ่มการรองรับ claim_total
+            if (chaInfo.getClaimAmount() != null) {
+                values.put(NHSOCHA.CLAIM_TOTAL, chaInfo.getClaimAmount());
+            }
 
+            values.put(NHSOCHA.OPD_MEMO, chaInfo.getOpdMemo());
             values.put(NHSOCHA.USER, username);
             values.put(NHSOCHA.UPDATE, "1"); // ตั้งค่าสถานะการอัพเดท
             values.put(NHSOCHA.DATEUPDATE, System.currentTimeMillis());
@@ -260,7 +331,6 @@ public class NHSOCHAService {
             return 0;
         }
     }
-
     /**
      * ลบข้อมูล CHA
      * @param id ID ของข้อมูลที่ต้องการลบ
@@ -297,6 +367,7 @@ public class NHSOCHAService {
             String invoiceNo,
             double amount,
             double total,
+            double claimTotal,  // เพิ่ม parameter สำหรับ claim_total
             String memo,
             String username) {
 
@@ -307,6 +378,7 @@ public class NHSOCHAService {
         chaInfo.setInvoiceNo(invoiceNo);
         chaInfo.setAmount(amount);
         chaInfo.setTotal(total);
+        chaInfo.setClaimAmount(claimTotal); // เพิ่มการกำหนดค่า claim_total
         chaInfo.setOpdMemo(memo);
 
         return createCHA(chaInfo, username);
@@ -424,19 +496,22 @@ public class NHSOCHAService {
                             NHSOCHA.SEQ,
                             "SUM(" + NHSOCHA.AMOUNT + ") AS total_amount",
                             "SUM(" + NHSOCHA.TOTAL + ") AS total_sum",
+                            "COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS total_claim", // เพิ่ม claim_total
                             "COUNT(*) AS count"
                     },
                     null,
                     null,
-                    NHSOCHA.SEQ + " ASC GROUP BY seq");
+                    NHSOCHA.SEQ + " ASC GROUP BY " + NHSOCHA.SEQ);
+
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     do {
-                        Object[] row = new Object[4];
+                        Object[] row = new Object[5]; // เพิ่มขนาด array
                         row[0] = cursor.getString(cursor.getColumnIndex(NHSOCHA.SEQ));
                         row[1] = cursor.getDouble(cursor.getColumnIndex("total_amount"));
                         row[2] = cursor.getDouble(cursor.getColumnIndex("total_sum"));
-                        row[3] = cursor.getInt(cursor.getColumnIndex("count"));
+                        row[3] = cursor.getDouble(cursor.getColumnIndex("total_claim")); // เพิ่ม claim_total
+                        row[4] = cursor.getInt(cursor.getColumnIndex("count"));
                         summary.add(row);
                     } while (cursor.moveToNext());
                 }
@@ -449,6 +524,170 @@ public class NHSOCHAService {
         return summary;
     }
 
+    /**
+     * ค้นหาข้อมูล CHA พร้อมข้อมูล claim_total ตามช่วงวันที่
+     * @param startDate วันที่เริ่มต้น
+     * @param endDate วันที่สิ้นสุด
+     * @return รายการข้อมูล CHA ที่พบ
+     */
+    public List<NHSOCHAInfo> findCHAsWithClaimTotalByDateRange(Date startDate, Date endDate) {
+        List<NHSOCHAInfo> results = new ArrayList<>();
+
+        try {
+            String startDateStr = dateFormat.format(startDate);
+            String endDateStr = dateFormat.format(endDate);
+
+            String selection = NHSOCHA.DATE + " BETWEEN ? AND ?";
+            String[] selectionArgs = {startDateStr, endDateStr};
+
+            Cursor cursor = context.getContentResolver().query(
+                    NHSOCHA.CONTENT_URI,
+                    null, // เลือกทุก column รวม claim_total
+                    selection,
+                    selectionArgs,
+                    NHSOCHA.DATE + " ASC");
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    do {
+                        results.add(cursorToCHA(cursor));
+                    } while (cursor.moveToNext());
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error finding CHAs with claim total by date range", e);
+        }
+
+        return results;
+    }
+
+    /**
+     * เปรียบเทียบยอดส่งเบิกกับยอดที่เบิกได้
+     * @param seq รหัสการรับบริการ
+     * @return Map ที่มี chargeAmount, claimAmount, และ difference
+     */
+    public Map<String, Double> compareChargeVsClaimBySeq(String seq) {
+        Map<String, Double> comparison = new HashMap<>();
+
+        try {
+            Cursor cursor = context.getContentResolver().query(
+                    NHSOCHA.CONTENT_URI,
+                    new String[]{
+                            "SUM(" + NHSOCHA.TOTAL + ") AS charge_total",
+                            "COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS claim_total"
+                    },
+                    NHSOCHA.SEQ + "=?",
+                    new String[]{seq},
+                    null);
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    double chargeAmount = cursor.getDouble(cursor.getColumnIndex("charge_total"));
+                    double claimAmount = cursor.getDouble(cursor.getColumnIndex("claim_total"));
+                    double difference = chargeAmount - claimAmount;
+
+                    comparison.put("chargeAmount", chargeAmount);
+                    comparison.put("claimAmount", claimAmount);
+                    comparison.put("difference", difference);
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error comparing charge vs claim for SEQ: " + seq, e);
+        }
+
+        return comparison;
+    }
+
+    /**
+     * ดึงข้อมูลสถิติการเบิกจ่าย
+     * @return Map ที่มีข้อมูลสถิติ
+     */
+    public Map<String, Object> getClaimStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+
+        try {
+            Cursor cursor = context.getContentResolver().query(
+                    NHSOCHA.CONTENT_URI,
+                    new String[]{
+                            "COUNT(*) AS total_records",
+                            "SUM(" + NHSOCHA.TOTAL + ") AS total_charge_amount",
+                            "COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS total_claim_amount",
+                            "COUNT(CASE WHEN " + NHSOCHA.CLAIM_TOTAL + " > 0 THEN 1 END) AS records_with_claim",
+                            "AVG(" + NHSOCHA.TOTAL + ") AS avg_charge_amount",
+                            "AVG(" + NHSOCHA.CLAIM_TOTAL + ") AS avg_claim_amount"
+                    },
+                    null,
+                    null,
+                    null);
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int totalRecords = cursor.getInt(cursor.getColumnIndex("total_records"));
+                    double totalChargeAmount = cursor.getDouble(cursor.getColumnIndex("total_charge_amount"));
+                    double totalClaimAmount = cursor.getDouble(cursor.getColumnIndex("total_claim_amount"));
+                    int recordsWithClaim = cursor.getInt(cursor.getColumnIndex("records_with_claim"));
+                    double avgChargeAmount = cursor.getDouble(cursor.getColumnIndex("avg_charge_amount"));
+                    double avgClaimAmount = cursor.getDouble(cursor.getColumnIndex("avg_claim_amount"));
+
+                    stats.put("totalRecords", totalRecords);
+                    stats.put("totalChargeAmount", totalChargeAmount);
+                    stats.put("totalClaimAmount", totalClaimAmount);
+                    stats.put("totalDifference", totalChargeAmount - totalClaimAmount);
+                    stats.put("recordsWithClaim", recordsWithClaim);
+                    stats.put("claimRatio", totalRecords > 0 ? (double) recordsWithClaim / totalRecords : 0.0);
+                    stats.put("avgChargeAmount", avgChargeAmount);
+                    stats.put("avgClaimAmount", avgClaimAmount);
+
+                    if (totalChargeAmount > 0) {
+                        stats.put("claimPercentage", (totalClaimAmount / totalChargeAmount) * 100);
+                    } else {
+                        stats.put("claimPercentage", 0.0);
+                    }
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting claim statistics", e);
+        }
+
+        return stats;
+    }
+
+    /**
+     * อัพเดท claim_total จากผลการตรวจสอบสถานะ
+     * @param seq รหัสการรับบริการ
+     * @param claimResult ผลการเบิกจากระบบ
+     * @return สถานะการอัพเดต
+     */
+    public boolean updateClaimResultBySeq(String seq, String claimResult) {
+        try {
+            // แปลง claimResult เป็นตัวเลข (ถ้าเป็น string ที่มีจำนวนเงิน)
+            double claimAmount = 0.0;
+
+            if (claimResult != null && !claimResult.isEmpty()) {
+                // ลองแปลงเป็นตัวเลข หากเป็นไปได้
+                try {
+                    claimAmount = Double.parseDouble(claimResult);
+                } catch (NumberFormatException e) {
+                    // ถ้าไม่สามารถแปลงเป็นตัวเลขได้ ให้ใช้ยอดส่งเบิกเดิม
+                    claimAmount = calculateTotalAmountBySeq(seq);
+
+                    // ถ้าผลการเบิกไม่สำเร็จ ให้ตั้งเป็น 0
+                    if (!claimResult.toUpperCase().contains("SUCCESS") &&
+                            !claimResult.contains("อนุมัติ")) {
+                        claimAmount = 0.0;
+                    }
+                }
+            }
+
+            return updateClaimTotalBySeq(seq, claimAmount) > 0;
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating claim result for SEQ: " + seq, e);
+            return false;
+        }
+    }
     /**
      * ตรวจสอบว่ามีข้อมูล CHA สำหรับรหัสการรับบริการหรือไม่
      * @param seq รหัสการรับบริการ

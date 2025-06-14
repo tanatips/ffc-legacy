@@ -24,6 +24,8 @@ public class ClaimInfo implements Serializable {
     private String claimMessage;
     private String visitId;
 
+    private String seq;
+
     // Default constructor
     public ClaimInfo() {
     }
@@ -32,7 +34,7 @@ public class ClaimInfo implements Serializable {
     public ClaimInfo(String id, String patientId, String patientName, String idCard,
                      String patientGroup, String serviceDate, String serviceType,
                      double amount, String status, String statusMessage,
-                     String claimDate, String visitId) {
+                     String claimDate, String visitId,String seq) {
         this.id = id;
         this.patientId = patientId;
         this.patientName = patientName;
@@ -45,6 +47,7 @@ public class ClaimInfo implements Serializable {
         this.statusMessage = statusMessage;
         this.claimDate = claimDate;
         this.visitId = visitId;
+        this.seq = seq;
     }
 
     // Getters and Setters
@@ -142,6 +145,13 @@ public class ClaimInfo implements Serializable {
 
     public void setVisitId(String visitId) {
         this.visitId = visitId;
+    }
+
+    public String getSeq() {
+        return seq;
+    }
+    public void setSeq(String seq) {
+        this.seq = seq;
     }
 
     /**

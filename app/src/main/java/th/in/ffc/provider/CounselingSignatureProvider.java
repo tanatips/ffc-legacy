@@ -144,10 +144,58 @@ public class CounselingSignatureProvider extends ContentProvider {
         long id = 0;
         Uri uriReturn = null;
 
+        // Debug: Log ข้อมูลที่จะบันทึก
+        if (values != null) {
+            Log.d(TAG, "=== INSERT DEBUG ===");
+            Log.d(TAG, "Inserting values: " + values.toString());
+
+            // ตรวจสอบข้อมูลสำคัญ
+            if (values.containsKey(CounselingSignature.VISIT_ID)) {
+                Log.d(TAG, "Visit ID: " + values.getAsString(CounselingSignature.VISIT_ID));
+            }
+            if (values.containsKey(CounselingSignature.PERSON_ID)) {
+                Log.d(TAG, "Person ID: " + values.getAsString(CounselingSignature.PERSON_ID));
+            }
+            if (values.containsKey(CounselingSignature.COUNSELING_TYPE)) {
+                Log.d(TAG, "Counseling Type: " + values.getAsInteger(CounselingSignature.COUNSELING_TYPE));
+            }
+
+            // ตรวจสอบ signature data
+            if (values.containsKey(CounselingSignature.PATIENT_SIGNATURE)) {
+                byte[] patientSig = values.getAsByteArray(CounselingSignature.PATIENT_SIGNATURE);
+                Log.d(TAG, "Patient signature length: " + (patientSig != null ? patientSig.length : "null"));
+            }
+
+            if (values.containsKey(CounselingSignature.PROVIDER_SIGNATURE)) {
+                byte[] providerSig = values.getAsByteArray(CounselingSignature.PROVIDER_SIGNATURE);
+                Log.d(TAG, "Provider signature length: " + (providerSig != null ? providerSig.length : "null"));
+            }
+        } else {
+            Log.w(TAG, "ContentValues is null!");
+        }
+
         switch (mUriMatcher.match(uri)) {
             case COUNSELING_SIGNATURE:
-                id = db.insert(CounselingSignature.TABLENAME, null, values);
-                uriReturn = ContentUris.withAppendedId(CounselingSignature.CONTENT_URI, id);
+                try {
+                    db.beginTransaction();
+                    id = db.insert(CounselingSignature.TABLENAME, null, values);
+
+                    if (id > 0) {
+                        db.setTransactionSuccessful();
+                        uriReturn = ContentUris.withAppendedId(CounselingSignature.CONTENT_URI, id);
+                        Log.d(TAG, "Insert successful, new ID: " + id + ", URI: " + uriReturn);
+
+                        // ตรวจสอบว่าข้อมูลถูกบันทึกจริงหรือไม่
+                        verifyInsertedData(db, id);
+                    } else {
+                        Log.e(TAG, "Insert failed, ID: " + id);
+                    }
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Error inserting data", e);
+                } finally {
+                    db.endTransaction();
+                }
                 break;
 
             default:
@@ -156,8 +204,10 @@ public class CounselingSignatureProvider extends ContentProvider {
 
         if (id > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+            Log.d(TAG, "Content resolver notified of change");
         }
 
+        Log.d(TAG, "=== END INSERT DEBUG ===");
         return uriReturn;
     }
 
@@ -207,39 +257,151 @@ public class CounselingSignatureProvider extends ContentProvider {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int rowUpdated = 0;
 
-        switch (mUriMatcher.match(uri)) {
-            case COUNSELING_SIGNATURE_ITEMS:
-                rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
-                break;
+        // Debug: Log ข้อมูลที่จะอัปเดท
+        if (values != null) {
+            Log.d(TAG, "=== UPDATE DEBUG ===");
+            Log.d(TAG, "Updating values: " + values.toString());
+            Log.d(TAG, "Selection: " + selection);
 
-            case COUNSELING_SIGNATURE_ITEM_ID:
-                selection = CounselingSignature.ID + "=?";
-                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
-                break;
+            if (values.containsKey(CounselingSignature.PATIENT_SIGNATURE)) {
+                byte[] patientSig = values.getAsByteArray(CounselingSignature.PATIENT_SIGNATURE);
+                Log.d(TAG, "Patient signature length: " + (patientSig != null ? patientSig.length : "null"));
+            }
 
-            case COUNSELING_SIGNATURE_BY_VISIT:
-                String visitId = uri.getLastPathSegment();
-                selection = CounselingSignature.VISIT_ID + "=?";
-                selectionArgs = new String[]{visitId};
-                rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
-                break;
+            if (values.containsKey(CounselingSignature.PROVIDER_SIGNATURE)) {
+                byte[] providerSig = values.getAsByteArray(CounselingSignature.PROVIDER_SIGNATURE);
+                Log.d(TAG, "Provider signature length: " + (providerSig != null ? providerSig.length : "null"));
+            }
+        }
 
-            case COUNSELING_SIGNATURE_BY_PERSON:
-                String personId = uri.getLastPathSegment();
-                selection = CounselingSignature.PERSON_ID + "=?";
-                selectionArgs = new String[]{personId};
-                rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
-                break;
+        try {
+            db.beginTransaction();
 
-            default:
-                throw new IllegalArgumentException("Unknown URI: " + uri);
+            switch (mUriMatcher.match(uri)) {
+                case COUNSELING_SIGNATURE_ITEMS:
+                    rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
+                    break;
+
+                case COUNSELING_SIGNATURE_ITEM_ID:
+                    long recordId = ContentUris.parseId(uri);
+                    selection = CounselingSignature.ID + "=?";
+                    selectionArgs = new String[]{String.valueOf(recordId)};
+                    rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
+
+                    if (rowUpdated > 0) {
+                        verifyUpdatedData(db, recordId);
+                    }
+                    break;
+
+                case COUNSELING_SIGNATURE_BY_VISIT:
+                    String visitId = uri.getLastPathSegment();
+                    selection = CounselingSignature.VISIT_ID + "=?";
+                    selectionArgs = new String[]{visitId};
+                    rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
+                    break;
+
+                case COUNSELING_SIGNATURE_BY_PERSON:
+                    String personId = uri.getLastPathSegment();
+                    selection = CounselingSignature.PERSON_ID + "=?";
+                    selectionArgs = new String[]{personId};
+                    rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown URI: " + uri);
+            }
+
+            if (rowUpdated > 0) {
+                db.setTransactionSuccessful();
+                Log.d(TAG, "Update successful, rows affected: " + rowUpdated);
+            } else {
+                Log.w(TAG, "Update failed, no rows affected");
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating data", e);
+        } finally {
+            db.endTransaction();
         }
 
         if (rowUpdated > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
 
+        Log.d(TAG, "=== END UPDATE DEBUG ===");
         return rowUpdated;
+    }
+    // เพิ่ม method ตรวจสอบข้อมูลที่ถูกบันทึก
+    private void verifyInsertedData(SQLiteDatabase db, long id) {
+        Cursor cursor = null;
+        try {
+            cursor = db.query(CounselingSignature.TABLENAME, null,
+                    CounselingSignature.ID + "=?", new String[]{String.valueOf(id)},
+                    null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Log.d(TAG, "Verification - Record found with ID: " + id);
+
+                int patientSigIndex = cursor.getColumnIndex(CounselingSignature.PATIENT_SIGNATURE);
+                int providerSigIndex = cursor.getColumnIndex(CounselingSignature.PROVIDER_SIGNATURE);
+
+                if (patientSigIndex >= 0) {
+                    byte[] patientSig = cursor.getBlob(patientSigIndex);
+                    Log.d(TAG, "Verification - Patient signature length: " +
+                            (patientSig != null ? patientSig.length : "null"));
+                }
+
+                if (providerSigIndex >= 0) {
+                    byte[] providerSig = cursor.getBlob(providerSigIndex);
+                    Log.d(TAG, "Verification - Provider signature length: " +
+                            (providerSig != null ? providerSig.length : "null"));
+                }
+            } else {
+                Log.e(TAG, "Verification failed - No record found with ID: " + id);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error verifying inserted data", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    // เพิ่ม method ตรวจสอบข้อมูลที่ถูกอัปเดท
+    private void verifyUpdatedData(SQLiteDatabase db, long id) {
+        Cursor cursor = null;
+        try {
+            cursor = db.query(CounselingSignature.TABLENAME, null,
+                    CounselingSignature.ID + "=?", new String[]{String.valueOf(id)},
+                    null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                Log.d(TAG, "Update Verification - Record found with ID: " + id);
+
+                int patientSigIndex = cursor.getColumnIndex(CounselingSignature.PATIENT_SIGNATURE);
+                int providerSigIndex = cursor.getColumnIndex(CounselingSignature.PROVIDER_SIGNATURE);
+
+                if (patientSigIndex >= 0) {
+                    byte[] patientSig = cursor.getBlob(patientSigIndex);
+                    Log.d(TAG, "Update Verification - Patient signature length: " +
+                            (patientSig != null ? patientSig.length : "null"));
+                }
+
+                if (providerSigIndex >= 0) {
+                    byte[] providerSig = cursor.getBlob(providerSigIndex);
+                    Log.d(TAG, "Update Verification - Provider signature length: " +
+                            (providerSig != null ? providerSig.length : "null"));
+                }
+            } else {
+                Log.e(TAG, "Update Verification failed - No record found with ID: " + id);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error verifying updated data", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 }

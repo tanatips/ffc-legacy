@@ -172,6 +172,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
 
                     VisitDao visitDao = new VisitDao(itemView.getContext().getContentResolver());
                     long visitId = Long.valueOf(personInfo.getVisitId());
+                    String seq = personInfo.getSeq();
 //                    long visitId = visitDao.saveNewVisitWithVitalSigns(
 //                            userSessionManager.getPcuCode(),                     // pcucode
 //                            userSessionManager.getPcuCode(),                     // pcucodePerson
@@ -192,7 +193,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     patient.setCid(personInfo.getIdcard());
                     patient.setNameGiven(names[0]);
                     patient.setNameFamily(names[1]);
-                    patient.setSeq(String.valueOf(visitId));
+                    patient.setSeq(seq);
                     patient.setBirthDate(personInfo.getBirthday());
                     patient.setGender(personInfo.getGender().equals("M")?"1":"2");
                     patient.setAddressLine(personInfo.getHomeNo()+" หมู่ที่ "+personInfo.getVillageNo());
@@ -204,21 +205,22 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     nhsoPatientService.createPatient(patient, userSessionManager.getUser());
 
                     // แฟ้ม 2
-                    hospital.setSeq(String.valueOf(visitId));
+                    hospital.setSeq(seq);
                     hospital.setHcode(personInfo.getHcode());
                     nhsoHospitalService.createHospital(hospital, userSessionManager.getUser());
 
                     // แฟ้ม 3
 
-                    practitioner.setSeq(String.valueOf(visitId));
+                    practitioner.setSeq(seq);
                     practitioner.setHcode(personInfo.getHcode());
                     practitioner.setCid(personInfo.getIdcard());
                     nhsoPractitionerService.createPractitioner(practitioner,userSessionManager.getUser());
 
                     // แฟ้ม 4
-                    hnSoOPDInfo.setSeq(String.valueOf(visitId));
+                    hnSoOPDInfo.setSeq(seq);
                     hnSoOPDInfo.setHtype("1");
                     hnSoOPDInfo.setUuc("1");
+
                     try {
                         hnSoOPDInfo.setDateOPD(dateFormat.parse(personInfo.getCreated_date()));
                     } catch (ParseException e) {
@@ -243,9 +245,10 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             NHSODiagnosisInfo nhsoDiagnosisInfo = new NHSODiagnosisInfo();
                             List<NHSODiagnosisInfo> nhsoDiagnosisInfos = new ArrayList<>();
                             NHSODiagnosisService nhsoDiagnosisService = new NHSODiagnosisService(itemView.getContext());
-                            nhsoDiagnosisInfo.setSeq(String.valueOf(visitId));
+                            nhsoDiagnosisInfo.setSeq(seq);
                             nhsoDiagnosisInfo.setDiag("E119"); // E119
                             nhsoDiagnosisInfo.setDiagType("1"); // 1
+
                             try {
                                 nhsoDiagnosisInfo.setDateDx(dateFormat.parse(personInfo.getCreated_date()));
                             } catch (ParseException e) {
@@ -261,9 +264,10 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             NHSOCHADService chadService = new NHSOCHADService(itemView.getContext());
                             NHSOCHADInfo nhsochadInfo = new NHSOCHADInfo();
                             List<NHSOCHADInfo> nhsochadInfos = new ArrayList<>();
-                            nhsochadInfo.setSeq(String.valueOf(visitId));
+                            nhsochadInfo.setSeq(seq);
                             nhsochadInfo.setStdcode("1170884"); /* 1170884 (TMTID) 220001 (TMLT Code) 9099264 (TTMTID) */
                             nhsochadInfo.setInvoiceNo(invoiceNumber);  // เลขที่อ้างอิงในแจ้งหนี้
+
                             try {
                                 nhsochadInfo.setServdate(dateFormat.parse(personInfo.getCreated_date()));
                             } catch (ParseException e) {
@@ -301,7 +305,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             NHSOCHAInfo chaInfo = new NHSOCHAInfo();
                             List<NHSOCHAInfo> chaInfos = new ArrayList<>();
                             NHSOCHAService chaService = new NHSOCHAService(itemView.getContext());
-                            chaInfo.setSeq(String.valueOf(visitId));
+                            chaInfo.setSeq(seq);
                             try {
                                 chaInfo.setDate(dateFormat.parse(personInfo.getCreated_date()));
                             } catch (ParseException e) {

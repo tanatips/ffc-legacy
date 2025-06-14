@@ -1,115 +1,248 @@
 <!-- fragment_counseling_sign.xml -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#FAFAFA">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
-        <TextView
+        <!-- Header Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ให้คำปรึกษาและแนะนำปรับเปลี่ยนพฤติกรรมรายบุคคล หากเป็นกลุ่มเสี่ยงให้ประสานส่งต่อหรือนัดพบแพทย์เพื่อวินิจฉัยสั่งการรักษา หรือแนะนำรับบริการตามสิทธิ"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@android:color/white">
 
-        <RadioGroup
-            android:id="@+id/radioGroupCounseling"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ให้คำปรึกษาและแนะนำปรับเปลี่ยนพฤติกรรมรายบุคคล หากเป็นกลุ่มเสี่ยงให้ประสานส่งต่อหรือนัดพบแพทย์เพื่อวินิจฉัยสั่งการรักษา หรือแนะนำรับบริการตามสิทธิ"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#2C3E50"
+                android:padding="16dp"
+                android:lineSpacingExtra="4dp" />
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Counseling Options Card -->
+        <!-- Counseling Options Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@android:color/white">
 
-            <RadioButton
-                android:id="@+id/radioButtonProvideConsult"
+            <RadioGroup
+                android:id="@+id/radioGroupCounseling"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="ให้คำแนะนำ" />
+                android:padding="16dp"
+                android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/editTextConsultDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="4dp"
-                android:hint="รายละเอียดคำแนะนำ"
-                android:minLines="3"
-                android:gravity="top"
-                android:inputType="textMultiLine" />
+                <RadioButton
+                    android:id="@+id/radioButtonProvideConsult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ให้คำแนะนำ"
+                    android:textSize="16sp"
+                    android:textColor="#34495E"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="8dp"
+                    android:buttonTint="#3498DB"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackground" />
 
-            <RadioButton
-                android:id="@+id/radioButtonSendToDoctor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="ส่งต่อแพทย์/รับบริการตามสิทธิ" />
-        </RadioGroup>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="28dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="#F8F9FA">
 
+                    <EditText
+                        android:id="@+id/editTextConsultDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="รายละเอียดคำแนะนำ"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textColorHint="#7F8C8D"
+                        android:background="@android:color/transparent"
+                        android:visibility="gone" />
+
+                </androidx.cardview.widget.CardView>
+
+                <RadioButton
+                    android:id="@+id/radioButtonSendToDoctor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ส่งต่อแพทย์/รับบริการตามสิทธิ"
+                    android:textSize="16sp"
+                    android:textColor="#34495E"
+                    android:paddingVertical="12dp"
+                    android:paddingHorizontal="8dp"
+                    android:buttonTint="#3498DB"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:background="?android:attr/selectableItemBackground" />
+
+            </RadioGroup>
+
+        </androidx.cardview.widget.CardView>
+        <!-- Signature Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="24dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ลงชื่อผู้รับบริการ"
-                android:layout_gravity="end"
-                android:textStyle="bold" />
-
-            <FrameLayout
+            <!-- Patient Signature Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="8dp"
-                android:background="#EFEFEF">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@android:color/white">
 
-                <th.in.ffc.widget.SignatureView
-                    android:id="@+id/signatureViewPatient"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <Button
-                android:id="@+id/btnClearPatientSignature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ล้างลายเซ็น"
-                android:layout_gravity="end"
-                android:layout_marginTop="4dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ลงชื่อผู้รับบริการ"
+                        android:layout_gravity="end"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50"
+                        android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ลงชื่อผู้ให้บริการ"
-                android:layout_gravity="end"
-                android:layout_marginTop="24dp"
-                android:textStyle="bold" />
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        android:background="#F8F9FA"
+                        android:layout_marginBottom="8dp">
 
-            <FrameLayout
+                        <th.in.ffc.widget.SignatureView
+                            android:id="@+id/signatureViewPatient"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <!-- Signature hint -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="กรุณาลงลายเซ็นในพื้นที่นี้"
+                            android:layout_gravity="center"
+                            android:textColor="#BDC3C7"
+                            android:textSize="14sp"
+                            android:alpha="0.7" />
+
+                    </FrameLayout>
+
+                    <Button
+                        android:id="@+id/btnClearPatientSignature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ล้างลายเซ็น"
+                        android:layout_gravity="end"
+                        android:backgroundTint="#E74C3C"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Provider Signature Card -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="8dp"
-                android:background="#EFEFEF">
-
-                <th.in.ffc.widget.SignatureView
-                    android:id="@+id/signatureViewProvider"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
-
-            <Button
-                android:id="@+id/btnClearProviderSignature"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ล้างลายเซ็น"
-                android:layout_gravity="end"
-                android:layout_marginTop="4dp" />
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@android:color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ลงชื่อผู้ให้บริการ"
+                        android:layout_gravity="end"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50"
+                        android:layout_marginBottom="12dp" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="140dp"
+                        android:background="#F8F9FA"
+                        android:layout_marginBottom="8dp">
+
+                        <th.in.ffc.widget.SignatureView
+                            android:id="@+id/signatureViewProvider"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <!-- Signature hint -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="กรุณาลงลายเซ็นในพื้นที่นี้"
+                            android:layout_gravity="center"
+                            android:textColor="#BDC3C7"
+                            android:textSize="14sp"
+                            android:alpha="0.7" />
+
+                    </FrameLayout>
+
+                    <Button
+                        android:id="@+id/btnClearProviderSignature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ล้างลายเซ็น"
+                        android:layout_gravity="end"
+                        android:backgroundTint="#E74C3C"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
         </LinearLayout>
 
-
     </LinearLayout>
+
 </androidx.core.widget.NestedScrollView>

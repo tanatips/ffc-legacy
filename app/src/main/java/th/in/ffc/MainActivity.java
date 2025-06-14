@@ -82,6 +82,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import th.in.ffc.api.nhso.ApiUrlHelper;
 import th.in.ffc.api.nhso.NhsoApiCaller;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.FFCGridActivity;
@@ -155,6 +156,17 @@ public class MainActivity extends FFCGridActivity {
             super.doCheckDateSetting();
         }
         showDialogPDPA();
+        ApiUrlHelper.initializeAllApiUrls(this);
+
+        // ตรวจสอบการตั้งค่าปัจจุบัน
+        ApiUrlHelper.logCurrentConfiguration(this);
+
+
+        // ตรวจสอบว่า APIs พร้อมใช้งานหรือไม่
+        boolean allReady = ApiUrlHelper.areAllApisReady(this);
+        Log.i(TAG, "All APIs ready: " + allReady);
+
+        Log.i(TAG, "Application initialization completed");
     }
 
     private void showDialogPDPA(){

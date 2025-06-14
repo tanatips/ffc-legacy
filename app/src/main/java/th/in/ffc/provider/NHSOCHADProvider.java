@@ -52,11 +52,46 @@ public class NHSOCHADProvider extends ContentProvider {
             SQLiteDatabase db = mOpenHelper.getWritableDatabase();
             db.execSQL(NHSOCHAD.CREATE_TABLE);
 
+            // Migrate database - เพิ่ม column claim_amount หากยังไม่มี
+            migrateDatabase(db);
+
             Log.i(TAG, "NHSO CHAD Provider created successfully");
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Error creating NHSO CHAD Provider", e);
             return false;
+        }
+    }
+
+    /**
+     * Migration สำหรับอัพเกรด database
+     */
+    private void migrateDatabase(SQLiteDatabase db) {
+        try {
+            // ตรวจสอบว่ามี column claim_amount หรือไม่
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + NHSOCHAD.TABLENAME + ")", null);
+            boolean hasClaimAmount = false;
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String columnName = cursor.getString(cursor.getColumnIndex("name"));
+                    if (NHSOCHAD.CLAIM_AMOUNT.equals(columnName)) {
+                        hasClaimAmount = true;
+                        break;
+                    }
+                }
+                cursor.close();
+            }
+
+            // ถ้ายังไม่มี column claim_amount ให้เพิ่ม
+            if (!hasClaimAmount) {
+                Log.i(TAG, "Adding claim_amount column to " + NHSOCHAD.TABLENAME);
+                db.execSQL(NHSOCHAD.ALTER_TABLE_ADD_CLAIM_AMOUNT);
+                Log.i(TAG, "Successfully added claim_amount column");
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error during database migration", e);
         }
     }
 

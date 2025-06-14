@@ -22,6 +22,7 @@ import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import th.in.ffc.R;
+import th.in.ffc.api.nhso.ApiUrlHelper;
 import th.in.ffc.app.form.screening.dao.SfApiUrlDao;
 import th.in.ffc.app.form.screening.model.SfApiUrl;
 import th.in.ffc.provider.ApiUrlProvider;
@@ -53,6 +54,9 @@ public class ApiUrlListActivity extends AppCompatActivity {
         // ตั้งค่า DAO
         apiUrlDao = new SfApiUrlDao(this);
 
+        // ตรวจสอบและเพิ่ม APIs ที่ขาดหายไป (เผื่อมีการอัปเดตแอป)
+        ensureAllApisExist();
+
         // ตั้งค่า ListView
         listView = findViewById(R.id.list_api_urls);
         setupListView();
@@ -70,6 +74,23 @@ public class ApiUrlListActivity extends AppCompatActivity {
         // ตั้งค่า Switch สำหรับเลือกสภาพแวดล้อม
         switchEnvironment = findViewById(R.id.switch_environment);
         setupEnvironmentSwitch();
+    }
+
+    /**
+     * ตรวจสอบและเพิ่ม APIs ที่ขาดหายไป
+     */
+    private void ensureAllApisExist() {
+        try {
+            // ใช้ ApiUrlHelper ตรวจสอบ
+            if (!ApiUrlHelper.areAllApisReady(this)) {
+                // ถ้ามี API ขาดหายไป ให้เพิ่มเข้าไป
+                apiUrlDao.syncApis();
+                Toast.makeText(this, "อัปเดต API URLs เรียบร้อยแล้ว", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "เกิดข้อผิดพลาดในการตรวจสอบ APIs", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -132,6 +153,13 @@ public class ApiUrlListActivity extends AppCompatActivity {
                     int envType = cursor.getInt(columnIndex);
                     String envText = envType == SfApiUrl.ENV_PRODUCTION ? "Production" : "Test";
                     ((android.widget.TextView) view).setText(envText);
+
+                    // เปลี่ยนสีตามสภาพแวดล้อม
+                    if (envType == SfApiUrl.ENV_PRODUCTION) {
+                        ((android.widget.TextView) view).setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    } else {
+                        ((android.widget.TextView) view).setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+                    }
                     return true;
                 }
                 return false;
@@ -189,11 +217,10 @@ public class ApiUrlListActivity extends AppCompatActivity {
         switchEnvironment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                int envType = isChecked ? SfApiUrl.ENV_PRODUCTION : SfApiUrl.ENV_TEST;
                 switchEnvironment.setText(isChecked ? "Production" : "Test");
 
-                // อัปเดตสภาพแวดล้อมของ API ทั้งหมด
-                apiUrlDao.updateAllEnvironment(envType);
+                // ใช้ ApiUrlHelper เพื่อเปลี่ยน environment
+                ApiUrlHelper.switchAllEnvironments(ApiUrlListActivity.this, isChecked);
 
                 // รีเฟรชข้อมูลใน ListView
                 refreshListView();
@@ -201,6 +228,9 @@ public class ApiUrlListActivity extends AppCompatActivity {
                 // แสดงข้อความแจ้งเตือน
                 String message = "เปลี่ยนสภาพแวดล้อมเป็น " + (isChecked ? "Production" : "Test") + " แล้ว";
                 Toast.makeText(ApiUrlListActivity.this, message, Toast.LENGTH_SHORT).show();
+
+                // แสดงการตั้งค่าปัจจุบันใน Log
+                ApiUrlHelper.logCurrentConfiguration(ApiUrlListActivity.this);
             }
         });
     }
@@ -209,6 +239,17 @@ public class ApiUrlListActivity extends AppCompatActivity {
      * แสดง Dialog ยืนยันการลบ API URL
      */
     private void showDeleteConfirmationDialog(final long id) {
+        // ตรวจสอบว่าเป็น API ที่สำคัญหรือไม่
+        SfApiUrl apiUrl = apiUrlDao.findById(id);
+        if (apiUrl != null && isSystemApi(apiUrl.getApiCode())) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("ไม่สามารถลบได้");
+            builder.setMessage("API นี้เป็น API หลักของระบบ ไม่สามารถลบได้");
+            builder.setPositiveButton("ตกลง", null);
+            builder.show();
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("ยืนยันการลบ");
         builder.setMessage("คุณต้องการลบ API URL นี้หรือไม่?");
@@ -220,6 +261,26 @@ public class ApiUrlListActivity extends AppCompatActivity {
         });
         builder.setNegativeButton("ยกเลิก", null);
         builder.show();
+    }
+
+    /**
+     * ตรวจสอบว่าเป็น System API หรือไม่
+     */
+    private boolean isSystemApi(String apiCode) {
+        String[] systemApis = {
+                "AUTHEN_CODE",
+                "CREATE_FS_DATA",
+                "REAL_PERSON",
+                "STATUS_TRACKS",
+                "STATUS_TRACKS_V2"
+        };
+
+        for (String systemApi : systemApis) {
+            if (systemApi.equals(apiCode)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -291,9 +352,63 @@ public class ApiUrlListActivity extends AppCompatActivity {
         } else if (id == R.id.action_refresh) {
             refreshListView();
             return true;
+        } else if (id == R.id.action_sync_apis) {
+            // เพิ่ม menu item ใหม่สำหรับ sync APIs
+            syncAllApis();
+            return true;
+        } else if (id == R.id.action_test_apis) {
+            // เพิ่ม menu item ใหม่สำหรับทดสอบ APIs
+            testCurrentApis();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * ซิงค์ APIs ทั้งหมด
+     */
+    private void syncAllApis() {
+        try {
+            apiUrlDao.syncApis();
+            refreshListView();
+            Toast.makeText(this, "ซิงค์ APIs เรียบร้อยแล้ว", Toast.LENGTH_SHORT).show();
+            ApiUrlHelper.logCurrentConfiguration(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "เกิดข้อผิดพลาดในการซิงค์ APIs", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * ทดสอบ APIs ปัจจุบัน
+     */
+    private void testCurrentApis() {
+        StringBuilder result = new StringBuilder();
+        result.append("การตรวจสอบ APIs:\n\n");
+
+        String[] testApis = {
+                "AUTHEN_CODE",
+                "CREATE_FS_DATA",
+                "REAL_PERSON",
+                "STATUS_TRACKS",
+                "STATUS_TRACKS_V2"
+        };
+
+        for (String apiCode : testApis) {
+            String url = ApiUrlHelper.getCurrentApiUrl(this, apiCode);
+            boolean isProduction = ApiUrlHelper.isProductionEnvironment(this, apiCode);
+
+            result.append(apiCode).append(":\n");
+            result.append("  URL: ").append(url != null ? url : "ไม่พบ").append("\n");
+            result.append("  ENV: ").append(isProduction ? "Production" : "Test").append("\n\n");
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("ผลการตรวจสอบ APIs");
+        builder.setMessage(result.toString());
+        builder.setPositiveButton("ตกลง", null);
+        builder.show();
     }
 
     @Override

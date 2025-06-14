@@ -41,7 +41,9 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
 
     private Spinner spinnerFiscalYear;
     private TextView textDateRange;
-    private TextView textTotalAmount;
+    private TextView textTotalChargeAmount;  // จำนวนเงินที่ส่งเบิก
+    private TextView textTotalClaimAmount;   // จำนวนเงินที่เบิกได้
+    private TextView textTotalDifference;    // ส่วนต่าง
     private TextView textTotalClaims;
     private RecyclerView recyclerChargeItems;
     private PieChart pieChart;
@@ -78,7 +80,9 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
         // เชื่อมต่อ Views
         spinnerFiscalYear = findViewById(R.id.spinner_fiscal_year);
         textDateRange = findViewById(R.id.text_date_range);
-        textTotalAmount = findViewById(R.id.text_total_amount);
+        textTotalChargeAmount = findViewById(R.id.text_total_charge_amount);  // จำนวนเงินที่ส่งเบิก
+        textTotalClaimAmount = findViewById(R.id.text_total_claim_amount);    // จำนวนเงินที่เบิกได้
+        textTotalDifference = findViewById(R.id.text_total_difference);       // ส่วนต่าง
         textTotalClaims = findViewById(R.id.text_total_claims);
         recyclerChargeItems = findViewById(R.id.recycler_charge_items);
         pieChart = findViewById(R.id.pie_chart);
@@ -130,7 +134,7 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
         pieChart.setTransparentCircleRadius(61f);
         pieChart.setHoleRadius(58f);
         pieChart.setDrawCenterText(true);
-        pieChart.setCenterText("สัดส่วนรายการ");
+        pieChart.setCenterText("สัดส่วนรายการ\n(จำนวนเงินที่เบิกได้)");
         pieChart.setRotationAngle(0);
         pieChart.setRotationEnabled(true);
         pieChart.setHighlightPerTapEnabled(true);
@@ -191,10 +195,20 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
         }
 
         // แสดงข้อมูลสรุปรวม
-        double totalAmount = (double) yearSummary.get("totalAmount");
-        int totalClaims = (int) yearSummary.get("totalCount");
+        double totalChargeAmount = yearSummary.containsKey("totalAmount") ?
+                (double) yearSummary.get("totalAmount") : 0.0;  // จำนวนเงินที่ส่งเบิก (chargeamt)
+        double totalClaimAmount = yearSummary.containsKey("totalClaimAmount") ?
+                (double) yearSummary.get("totalClaimAmount") : 0.0;   // จำนวนเงินที่เบิกได้ (claim_amount)
+        int totalClaims = yearSummary.containsKey("totalCount") ?
+                (int) yearSummary.get("totalCount") : 0;
 
-        textTotalAmount.setText(currencyFormat.format(totalAmount).replace("฿", "") + " บาท");
+        // คำนวณส่วนต่าง
+        double difference = totalChargeAmount - totalClaimAmount;
+
+        // แสดงผลในหน้าจอ
+        textTotalChargeAmount.setText(currencyFormat.format(totalChargeAmount).replace("฿", "") + " บาท");
+        textTotalClaimAmount.setText(currencyFormat.format(totalClaimAmount).replace("฿", "") + " บาท");
+        textTotalDifference.setText(currencyFormat.format(difference).replace("฿", "") + " บาท");
         textTotalClaims.setText(numberFormat.format(totalClaims) + " รายการ");
 
         // แสดงข้อมูลสรุปตามประเภทรายการ
@@ -208,7 +222,7 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
                 adapter.updateData(chargeItemSummary);
             }
 
-            // อัปเดต PieChart
+            // อัปเดต PieChart - ใช้ข้อมูล claim_amount แทน chargeamt
             updatePieChart(chargeItemSummary);
         }
     }
@@ -216,10 +230,12 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
     private void updatePieChart(List<Map<String, Object>> chargeItemSummary) {
         List<PieEntry> entries = new ArrayList<>();
 
-        // สร้างข้อมูลสำหรับแผนภูมิวงกลม
+        // สร้างข้อมูลสำหรับแผนภูมิวงกลม โดยใช้จำนวนเงินที่เบิกได้ (claim_amount)
         for (Map<String, Object> item : chargeItemSummary) {
             String chrgitem = (String) item.get("chrgitem");
-            double amount = (double) item.get("amount");
+            // ใช้ claim_amount แทน chargeamt สำหรับแผนภูมิ
+            double amount = item.containsKey("amount") ?
+                    (double) item.get("amount") : 0.0;
 
             if (amount > 0) {
                 entries.add(new PieEntry((float) amount, chrgitem));
@@ -234,7 +250,7 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
         }
 
         // สร้างชุดข้อมูลพร้อมสี
-        PieDataSet dataSet = new PieDataSet(entries, "ประเภทรายการ");
+        PieDataSet dataSet = new PieDataSet(entries, "ประเภทรายการ (จำนวนเงินที่เบิกได้)");
         dataSet.setSliceSpace(3f);
         dataSet.setSelectionShift(5f);
 

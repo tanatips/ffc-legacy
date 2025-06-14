@@ -346,6 +346,12 @@ public class NHSOCHADao {
             chaInfo.setTotal(cursor.getDouble(totalIndex));
         }
 
+        // เพิ่มการดึงข้อมูล claim_total
+        int claimTotalIndex = cursor.getColumnIndex(NHSOCHA.CLAIM_TOTAL);
+        if (claimTotalIndex != -1 && !cursor.isNull(claimTotalIndex)) {
+            chaInfo.setClaimAmount(cursor.getDouble(claimTotalIndex));
+        }
+
         int opdMemoIndex = cursor.getColumnIndex(NHSOCHA.OPD_MEMO);
         if (opdMemoIndex != -1) {
             chaInfo.setOpdMemo(cursor.getString(opdMemoIndex));
@@ -353,6 +359,7 @@ public class NHSOCHADao {
 
         return chaInfo;
     }
+
 
     /**
      * ตรวจสอบว่ามีข้อมูลทางการเงินหรือไม่
@@ -706,15 +713,17 @@ public class NHSOCHADao {
             default: return "";
         }
     }
+
+
     /**
-     * สรุปข้อมูลการเบิกจ่ายตามปีงบประมาณ
-     * @param fiscalYear ปีงบประมาณที่ต้องการสรุป
-     * @return ข้อมูลสรุปของปีงบประมาณ
+     * สรุปข้อมูลการเบิกจ่ายตามปีงบประมาณ (อัพเดตเพื่อรองรับ claim_total)
      */
     public Map<String, Object> getYearlySummaryByFiscalYear(String fiscalYear) {
         Map<String, Object> result = new HashMap<>();
         result.put("fiscalYear", fiscalYear);
         result.put("totalAmount", 0.0);
+        result.put("totalChargeAmount", 0.0);  // เพิ่มสำหรับ total (ยอดที่ส่งเบิก)
+        result.put("totalClaimAmount", 0.0);   // เพิ่มสำหรับ claim_total (ยอดที่เบิกได้)
         result.put("totalCount", 0);
 
         try {
@@ -743,13 +752,21 @@ public class NHSOCHADao {
                     if (cursor.moveToFirst()) {
                         int totalCountIndex = cursor.getColumnIndex("total_count");
                         int totalAmountIndex = cursor.getColumnIndex("total_amount");
+                        int totalClaimAmountIndex = cursor.getColumnIndex("total_claim_amount");
 
                         if (totalCountIndex != -1 && totalAmountIndex != -1) {
                             int totalCount = cursor.getInt(totalCountIndex);
                             double totalAmount = cursor.getDouble(totalAmountIndex);
+                            double totalClaimAmount = 0.0;
+
+                            if (totalClaimAmountIndex != -1) {
+                                totalClaimAmount = cursor.getDouble(totalClaimAmountIndex);
+                            }
 
                             result.put("totalCount", totalCount);
-                            result.put("totalAmount", totalAmount);
+                            result.put("totalAmount", totalAmount);          // backward compatibility
+                            result.put("totalChargeAmount", totalAmount);    // ยอดที่ส่งเบิก
+                            result.put("totalClaimAmount", totalClaimAmount); // ยอดที่เบิกได้
                         } else {
                             Log.e(TAG, "Required columns not found in yearly summary cursor.");
                         }
@@ -766,7 +783,11 @@ public class NHSOCHADao {
 
                 Cursor dataCursor = mResolver.query(
                         NHSOCHA.CONTENT_URI,
-                        new String[]{"COUNT(*) AS count", "SUM(" + NHSOCHA.TOTAL + ") AS amount"},
+                        new String[]{
+                                "COUNT(*) AS count",
+                                "SUM(" + NHSOCHA.TOTAL + ") AS charge_amount",
+                                "COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS claim_amount"
+                        },
                         selection,
                         selectionArgs,
                         null
@@ -776,10 +797,13 @@ public class NHSOCHADao {
                     try {
                         if (dataCursor.moveToFirst()) {
                             int count = dataCursor.getInt(dataCursor.getColumnIndex("count"));
-                            double amount = dataCursor.getDouble(dataCursor.getColumnIndex("amount"));
+                            double chargeAmount = dataCursor.getDouble(dataCursor.getColumnIndex("charge_amount"));
+                            double claimAmount = dataCursor.getDouble(dataCursor.getColumnIndex("claim_amount"));
 
                             result.put("totalCount", count);
-                            result.put("totalAmount", amount);
+                            result.put("totalAmount", chargeAmount);        // backward compatibility
+                            result.put("totalChargeAmount", chargeAmount);  // ยอดที่ส่งเบิก
+                            result.put("totalClaimAmount", claimAmount);    // ยอดที่เบิกได้
                         }
                     } finally {
                         dataCursor.close();
@@ -791,13 +815,14 @@ public class NHSOCHADao {
             List<Map<String, Object>> chargeItemSummary = getSummaryByChargeItemAndFiscalYear(fiscalYear);
             result.put("chargeItemSummary", chargeItemSummary);
 
-            // คำนวณสัดส่วนร้อยละของแต่ละประเภทรายการ
+            // คำนวณสัดส่วนร้อยละของแต่ละประเภทรายการ (ใช้ claim_amount)
             if (!chargeItemSummary.isEmpty()) {
-                double totalAmount = (double) result.get("totalAmount");
-                if (totalAmount > 0) {
+                double totalClaimAmount = (double) result.get("totalClaimAmount");
+                if (totalClaimAmount > 0) {
                     for (Map<String, Object> item : chargeItemSummary) {
-                        double itemAmount = (double) item.get("amount");
-                        double percentage = (itemAmount / totalAmount) * 100;
+                        double itemClaimAmount = item.containsKey("claimAmount") ?
+                                (double) item.get("claimAmount") : 0.0;
+                        double percentage = (itemClaimAmount / totalClaimAmount) * 100;
                         item.put("percentage", percentage);
                     }
                 }
@@ -811,9 +836,7 @@ public class NHSOCHADao {
     }
 
     /**
-     * สรุปข้อมูลการเบิกจ่ายตามประเภทรายการในปีงบประมาณ
-     * @param fiscalYear ปีงบประมาณที่ต้องการสรุป
-     * @return รายการสรุปตามประเภทรายการ
+     * สรุปข้อมูลการเบิกจ่ายตามประเภทรายการในปีงบประมาณ (อัพเดตเพื่อรองรับ claim_total)
      */
     public List<Map<String, Object>> getSummaryByChargeItemAndFiscalYear(String fiscalYear) {
         List<Map<String, Object>> results = new ArrayList<>();
@@ -840,16 +863,24 @@ public class NHSOCHADao {
                         int chrgitemIndex = cursor.getColumnIndex("chrgitem");
                         int itemCountIndex = cursor.getColumnIndex("item_count");
                         int itemAmountIndex = cursor.getColumnIndex("item_amount");
+                        int itemClaimAmountIndex = cursor.getColumnIndex("item_claim_amount");
 
                         if (chrgitemIndex != -1 && itemCountIndex != -1 && itemAmountIndex != -1) {
                             String chrgitem = cursor.getString(chrgitemIndex);
                             int count = cursor.getInt(itemCountIndex);
                             double amount = cursor.getDouble(itemAmountIndex);
+                            double claimAmount = 0.0;
+
+                            if (itemClaimAmountIndex != -1) {
+                                claimAmount = cursor.getDouble(itemClaimAmountIndex);
+                            }
 
                             Map<String, Object> itemData = new HashMap<>();
                             itemData.put("chrgitem", chrgitem);
                             itemData.put("count", count);
-                            itemData.put("amount", amount);
+                            itemData.put("amount", amount);           // backward compatibility
+                            itemData.put("chargeAmount", amount);     // ยอดที่ส่งเบิก
+                            itemData.put("claimAmount", claimAmount); // ยอดที่เบิกได้
 
                             results.add(itemData);
                         } else {
@@ -883,6 +914,13 @@ public class NHSOCHADao {
                             String chrgitem = dataCursor.getString(dataCursor.getColumnIndex(NHSOCHA.CHRGITEM));
                             double amount = dataCursor.getDouble(dataCursor.getColumnIndex(NHSOCHA.TOTAL));
 
+                            // ดึงข้อมูล claim_total
+                            double claimAmount = 0.0;
+                            int claimTotalIndex = dataCursor.getColumnIndex(NHSOCHA.CLAIM_TOTAL);
+                            if (claimTotalIndex != -1 && !dataCursor.isNull(claimTotalIndex)) {
+                                claimAmount = dataCursor.getDouble(claimTotalIndex);
+                            }
+
                             // ดึงหรือสร้างข้อมูลสำหรับ chrgitem นี้
                             Map<String, Object> itemData = chargeItemMap.get(chrgitem);
                             if (itemData == null) {
@@ -890,15 +928,20 @@ public class NHSOCHADao {
                                 itemData.put("chrgitem", chrgitem);
                                 itemData.put("count", 0);
                                 itemData.put("amount", 0.0);
+                                itemData.put("chargeAmount", 0.0);
+                                itemData.put("claimAmount", 0.0);
                                 chargeItemMap.put(chrgitem, itemData);
                             }
 
                             // อัปเดตข้อมูล
                             int count = (int) itemData.get("count");
                             double totalAmount = (double) itemData.get("amount");
+                            double totalClaimAmount = (double) itemData.get("claimAmount");
 
                             itemData.put("count", count + 1);
                             itemData.put("amount", totalAmount + amount);
+                            itemData.put("chargeAmount", totalAmount + amount);
+                            itemData.put("claimAmount", totalClaimAmount + claimAmount);
                         }
 
                         // เพิ่มข้อมูลสรุปลงในผลลัพธ์
@@ -961,5 +1004,59 @@ public class NHSOCHADao {
         monthSummary.put("details", monthDetails);
 
         return monthSummary;
+    }
+
+    /**
+     * คำนวณผลรวมของจำนวนเงินที่เบิกได้ตามรหัสการรับบริการ
+     * @param seq รหัสการรับบริการ
+     * @return ผลรวมของจำนวนเงินที่เบิกได้
+     */
+    public double getTotalClaimAmountBySeq(String seq) {
+        double total = 0.0;
+
+        try {
+            String selection = NHSOCHA.SEQ + "=?";
+            String[] selectionArgs = {seq};
+
+            // ใช้ URI สำหรับ claim_total
+            Uri uri = Uri.withAppendedPath(NHSOCHA.CONTENT_URI, "sum_claim_total");
+
+            Cursor cursor = mResolver.query(uri,
+                    new String[]{"COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS total"},
+                    selection, selectionArgs, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                total = cursor.getDouble(0);
+                cursor.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error calculating total claim amount by SEQ: " + e.getMessage(), e);
+        }
+
+        return total;
+    }
+
+
+    /**
+     * อัพเดต claim_total สำหรับ seq ที่ระบุ
+     * @param seq รหัสการรับบริการ
+     * @param claimTotal จำนวนเงินที่เบิกได้
+     * @return จำนวนรายการที่อัพเดต
+     */
+    public int updateClaimTotalBySeq(String seq, double claimTotal) {
+        try {
+            ContentValues values = new ContentValues();
+            values.put(NHSOCHA.CLAIM_TOTAL, claimTotal);
+            values.put(NHSOCHA.UPDATE, "1");
+            values.put(NHSOCHA.DATEUPDATE, System.currentTimeMillis());
+
+            String selection = NHSOCHA.SEQ + "=?";
+            String[] selectionArgs = {seq};
+
+            return mResolver.update(NHSOCHA.CONTENT_URI, values, selection, selectionArgs);
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating claim total by SEQ", e);
+            return 0;
+        }
     }
 }

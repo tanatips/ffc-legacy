@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- ประเภทรายการ -->
+    <TextView
+        android:id="@+id/tv_chrg_item"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="ประเภทรายการ"
+        android:textSize="12sp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:gravity="start|center_vertical" />
+
+    <!-- จำนวนรายการ -->
+    <TextView
+        android:id="@+id/tv_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="0"
+        android:textSize="12sp"
+        android:gravity="center" />
+
+    <!-- จำนวนเงินที่ส่งเบิก -->
+    <TextView
+        android:id="@+id/tv_charge_amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="0.00"
+        android:textSize="12sp"
+        android:gravity="end|center_vertical"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <!-- จำนวนเงินที่เบิกได้ -->
+    <TextView
+        android:id="@+id/tv_claim_amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="0.00"
+        android:textSize="12sp"
+        android:gravity="end|center_vertical"
+        android:textColor="@android:color/holo_green_dark" />
+
+    <!-- เปอร์เซ็นต์ -->
+    <TextView
+        android:id="@+id/tv_percentage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:text="0.0%"
+        android:textSize="12sp"
+        android:gravity="center" />
+
+</LinearLayout>

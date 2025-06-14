@@ -32,7 +32,7 @@ public class NHSOCHAD implements BaseColumns {
     public static final String DESCRIPT = "descript";          // ชื่อรายการที่สถานพยาบาลกำหนด
     public static final String QTY = "qty";                    // จำนวนหน่วยที่ใช้
     public static final String UNITPRICE = "unitprice";        // ราคาต่อหน่วยของ รพ.
-    public static final String CHARGEAMT = "chargeamt";        // จำนวนเงินเรียกเก็บ
+    public static final String CHARGEAMT = "chargeamt";        // จำนวนเงินเรียกเก็บ (จำนวนเงินที่ส่งเบิก)
     public static final String BILLGRCS = "billgrcs";          // หมวดค่าใช้จ่าย
     public static final String CODESYS = "codesys";            // ระบบรหัสที่ใช้กับ STDCODE
     public static final String LAB_RESULT = "lab_result";      // ผลของการตรวจของห้องปฏิบัติการ
@@ -44,6 +44,7 @@ public class NHSOCHAD implements BaseColumns {
     public static final String PCUCODE = "pcucode";            // รหัส PCU
     public static final String UPDATE = "update_status";       // สถานะการอัพเดท
     public static final String DATEUPDATE = "dateupdate";      // วันเวลาที่อัพเดท
+    public static final String CLAIM_AMOUNT = "claim_amount";  // จำนวนเงินที่เบิกได้ (จำนวนเงินที่อนุมัติ)
 
     // ตาราง NHSO CHAD
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " ("
@@ -67,8 +68,13 @@ public class NHSOCHAD implements BaseColumns {
             + USER + " TEXT, "
             + PCUCODE + " TEXT, "
             + UPDATE + " TEXT, "
-            + DATEUPDATE + " INTEGER"
+            + DATEUPDATE + " INTEGER, "
+            + CLAIM_AMOUNT + " REAL DEFAULT 0"  // เพิ่ม column claim_amount
             + ");";
+
+    // SQL สำหรับอัพเกรดตาราง - เพิ่ม column claim_amount หากยังไม่มี
+    public static final String ALTER_TABLE_ADD_CLAIM_AMOUNT =
+            "ALTER TABLE " + TABLENAME + " ADD COLUMN " + CLAIM_AMOUNT + " REAL DEFAULT 0";
 
     public static final HashMap<String, String> PROJECTION_MAP = new HashMap<>();
 
@@ -94,6 +100,7 @@ public class NHSOCHAD implements BaseColumns {
         PROJECTION_MAP.put(PCUCODE, PCUCODE);
         PROJECTION_MAP.put(UPDATE, UPDATE);
         PROJECTION_MAP.put(DATEUPDATE, DATEUPDATE);
+        PROJECTION_MAP.put(CLAIM_AMOUNT, CLAIM_AMOUNT);  // เพิ่ม claim_amount
     }
 
     public static Uri getContentUri(long id) {

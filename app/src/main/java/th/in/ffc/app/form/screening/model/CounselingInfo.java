@@ -11,6 +11,9 @@ public class CounselingInfo {
     private String createdDate;
     private String updatedBy;
     private String updatedDate;
+    private String pcuCode;
+
+    private String updateStatus;
 
     public CounselingInfo() {
     }
@@ -102,5 +105,21 @@ public class CounselingInfo {
 
     public void setUpdatedDate(String updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    public String getPcuCode() {
+        return pcuCode;
+    }
+
+    public void setPcuCode(String pcuCode) {
+        this.pcuCode = pcuCode;
+    }
+
+    public String getUpdateStatus() {
+        return updateStatus;
+    }
+
+    public void setUpdateStatus(String updateStatus) {
+        this.updateStatus = updateStatus;
     }
 }

@@ -58,6 +58,7 @@ public class ClaimInfoDao {
                     claim.setClaimMessage(person.getClaim_message());
                     claim.setClaimDate(person.getClaim_date());
                     claim.setVisitId(person.getVisitId());
+                    claim.setSeq(person.getSeq());
 
                     // ข้อมูลวันที่รับบริการ
                     claim.setServiceDate(person.getAuthen_date());

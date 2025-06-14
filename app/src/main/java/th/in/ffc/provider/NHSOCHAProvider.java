@@ -45,6 +45,7 @@ public class NHSOCHAProvider extends ContentProvider {
     // เพิ่มสำหรับการคำนวณผลรวม
     private static final int NHSO_CHA_SUM_AMOUNT = 8;
     private static final int NHSO_CHA_SUM_TOTAL = 9;
+    private static final int NHSO_CHA_SUM_CLAIM_TOTAL = 10; // เพิ่มสำหรับ claim_total
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/vnd.ffc.nhsocha";
@@ -73,6 +74,7 @@ public class NHSOCHAProvider extends ContentProvider {
         // เพิ่ม URI สำหรับการคำนวณผลรวม
         mUriMatcher.addURI(AUTHORITY, "nhso_cha/sum_amount", NHSO_CHA_SUM_AMOUNT);
         mUriMatcher.addURI(AUTHORITY, "nhso_cha/sum_total", NHSO_CHA_SUM_TOTAL);
+        mUriMatcher.addURI(AUTHORITY, "nhso_cha/sum_claim_total", NHSO_CHA_SUM_CLAIM_TOTAL); // เพิ่ม URI สำหรับ claim_total
     }
 
     // SimpleDateFormat สำหรับเปลี่ยนรูปแบบวันที่
@@ -87,11 +89,46 @@ public class NHSOCHAProvider extends ContentProvider {
             SQLiteDatabase db = mOpenHelper.getWritableDatabase();
             db.execSQL(NHSOCHA.CREATE_TABLE);
 
+            // Migrate database - เพิ่ม column claim_total หากยังไม่มี
+            migrateDatabase(db);
+
             Log.i(TAG, "NHSO CHA Provider created successfully");
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Error creating NHSO CHA Provider", e);
             return false;
+        }
+    }
+
+    /**
+     * Migration สำหรับอัพเกรด database
+     */
+    private void migrateDatabase(SQLiteDatabase db) {
+        try {
+            // ตรวจสอบว่ามี column claim_total หรือไม่
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + NHSOCHA.TABLENAME + ")", null);
+            boolean hasClaimTotal = false;
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String columnName = cursor.getString(cursor.getColumnIndex("name"));
+                    if (NHSOCHA.CLAIM_TOTAL.equals(columnName)) {
+                        hasClaimTotal = true;
+                        break;
+                    }
+                }
+                cursor.close();
+            }
+
+            // ถ้ายังไม่มี column claim_total ให้เพิ่ม
+            if (!hasClaimTotal) {
+                Log.i(TAG, "Adding claim_total column to " + NHSOCHA.TABLENAME);
+                db.execSQL(NHSOCHA.ALTER_TABLE_ADD_CLAIM_TOTAL);
+                Log.i(TAG, "Successfully added claim_total column");
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error during database migration", e);
         }
     }
 
@@ -168,6 +205,16 @@ public class NHSOCHAProvider extends ContentProvider {
                 }
                 break;
 
+            case NHSO_CHA_SUM_CLAIM_TOTAL:
+                // เพิ่มการสนับสนุนการสรุปผลรวมของ CLAIM_TOTAL โดยตรง
+                builder.setTables(NHSOCHA.TABLENAME);
+
+                // ตรวจสอบว่ามีการกำหนด projection หรือไม่
+                if (projection == null || projection.length == 0) {
+                    projection = new String[]{"COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS total"};
+                }
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -177,6 +224,7 @@ public class NHSOCHAProvider extends ContentProvider {
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
+
     private Cursor getMonthlyDetails(SQLiteDatabase db, String fiscalYear, String fiscalMonth) {
         try {
             int year = Integer.parseInt(fiscalYear) - 1;
@@ -211,6 +259,7 @@ public class NHSOCHAProvider extends ContentProvider {
             return null;
         }
     }
+
     /**
      * คำนวณปีงบประมาณจากวันที่
      * @param date วันที่
@@ -308,7 +357,7 @@ public class NHSOCHAProvider extends ContentProvider {
     private Cursor getMonthlySummary(SQLiteDatabase db, String fiscalYear) {
         // สร้าง cursor แบบ in-memory สำหรับข้อมูลรายเดือน
         MatrixCursor result = new MatrixCursor(new String[] {
-                "_id", "fiscal_month", "month_name", "total_count", "total_amount"
+                "_id", "fiscal_month", "month_name", "total_count", "total_amount", "total_claim_amount"
         });
 
         try {
@@ -319,13 +368,13 @@ public class NHSOCHAProvider extends ContentProvider {
             String startDateStr = dateFormat.format(startDate);
             String endDateStr = dateFormat.format(endDate);
 
-            // ดึงข้อมูลทั้งหมดในปีงบประมาณ
+            // ดึงข้อมูลทั้งหมดในปีงบประมาณ รวม claim_total
             String selection = NHSOCHA.DATE + " BETWEEN ? AND ?";
             String[] selectionArgs = {startDateStr, endDateStr};
 
             Cursor cursor = db.query(
                     NHSOCHA.TABLENAME,
-                    new String[]{NHSOCHA.ID, NHSOCHA.DATE, NHSOCHA.TOTAL},
+                    new String[]{NHSOCHA.ID, NHSOCHA.DATE, NHSOCHA.TOTAL, NHSOCHA.CLAIM_TOTAL},
                     selection,
                     selectionArgs,
                     null,
@@ -347,6 +396,7 @@ public class NHSOCHAProvider extends ContentProvider {
                     while (cursor.moveToNext()) {
                         String dateStr = cursor.getString(cursor.getColumnIndex(NHSOCHA.DATE));
                         double amount = cursor.getDouble(cursor.getColumnIndex(NHSOCHA.TOTAL));
+                        double claimAmount = cursor.getDouble(cursor.getColumnIndex(NHSOCHA.CLAIM_TOTAL));
 
                         try {
                             Date date = dateFormat.parse(dateStr);
@@ -356,6 +406,7 @@ public class NHSOCHAProvider extends ContentProvider {
 
                                 data.count++;
                                 data.amount += amount;
+                                data.claimAmount += claimAmount;
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error parsing date: " + dateStr, e);
@@ -370,7 +421,8 @@ public class NHSOCHAProvider extends ContentProvider {
                                 String.format("%02d", i),  // fiscal_month
                                 data.monthName,      // month_name
                                 data.count,          // total_count
-                                data.amount          // total_amount
+                                data.amount,         // total_amount
+                                data.claimAmount     // total_claim_amount
                         });
                     }
                 } finally {
@@ -393,7 +445,7 @@ public class NHSOCHAProvider extends ContentProvider {
     private Cursor getYearlySummary(SQLiteDatabase db, String fiscalYear) {
         // สร้าง cursor แบบ in-memory สำหรับข้อมูลรายปี
         MatrixCursor result = new MatrixCursor(new String[] {
-                "_id", "fiscal_year", "total_count", "total_amount"
+                "_id", "fiscal_year", "total_count", "total_amount", "total_claim_amount"
         });
 
         try {
@@ -404,10 +456,11 @@ public class NHSOCHAProvider extends ContentProvider {
             String startDateStr = dateFormat.format(startDate);
             String endDateStr = dateFormat.format(endDate);
 
-            // สร้าง SQL สำหรับดึงข้อมูลสรุปรายปี
+            // สร้าง SQL สำหรับดึงข้อมูลสรุปรายปี รวม claim_total
             String sql = "SELECT " +
                     "COUNT(*) AS count, " +
-                    "SUM(" + NHSOCHA.TOTAL + ") AS amount " +
+                    "SUM(" + NHSOCHA.TOTAL + ") AS amount, " +
+                    "COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS claim_amount " +
                     "FROM " + NHSOCHA.TABLENAME + " " +
                     "WHERE " + NHSOCHA.DATE + " BETWEEN ? AND ?";
 
@@ -418,12 +471,14 @@ public class NHSOCHAProvider extends ContentProvider {
                     if (cursor.moveToFirst()) {
                         int count = cursor.getInt(cursor.getColumnIndex("count"));
                         double amount = cursor.getDouble(cursor.getColumnIndex("amount"));
+                        double claimAmount = cursor.getDouble(cursor.getColumnIndex("claim_amount"));
 
                         result.addRow(new Object[]{
                                 1,            // _id
                                 fiscalYear,   // fiscal_year
                                 count,        // total_count
-                                amount        // total_amount
+                                amount,       // total_amount
+                                claimAmount   // total_claim_amount
                         });
                     }
                 } finally {
@@ -446,7 +501,7 @@ public class NHSOCHAProvider extends ContentProvider {
     private Cursor getSummaryByChargeItem(SQLiteDatabase db, String fiscalYear) {
         // สร้าง cursor แบบ in-memory สำหรับข้อมูลตามประเภทรายการ
         MatrixCursor result = new MatrixCursor(new String[] {
-                "_id", "chrgitem", "item_count", "item_amount"
+                "_id", "chrgitem", "item_count", "item_amount", "item_claim_amount"
         });
 
         try {
@@ -457,11 +512,12 @@ public class NHSOCHAProvider extends ContentProvider {
             String startDateStr = dateFormat.format(startDate);
             String endDateStr = dateFormat.format(endDate);
 
-            // สร้าง SQL สำหรับดึงข้อมูลสรุปตามประเภทรายการ
+            // สร้าง SQL สำหรับดึงข้อมูลสรุปตามประเภทรายการ รวม claim_total
             String sql = "SELECT " +
                     NHSOCHA.CHRGITEM + " AS chrgitem, " +
                     "COUNT(*) AS count, " +
-                    "SUM(" + NHSOCHA.TOTAL + ") AS amount " +
+                    "SUM(" + NHSOCHA.TOTAL + ") AS amount, " +
+                    "COALESCE(SUM(" + NHSOCHA.CLAIM_TOTAL + "), 0) AS claim_amount " +
                     "FROM " + NHSOCHA.TABLENAME + " " +
                     "WHERE " + NHSOCHA.DATE + " BETWEEN ? AND ? " +
                     "GROUP BY " + NHSOCHA.CHRGITEM + " " +
@@ -476,12 +532,14 @@ public class NHSOCHAProvider extends ContentProvider {
                         String chrgitem = cursor.getString(cursor.getColumnIndex("chrgitem"));
                         int count = cursor.getInt(cursor.getColumnIndex("count"));
                         double amount = cursor.getDouble(cursor.getColumnIndex("amount"));
+                        double claimAmount = cursor.getDouble(cursor.getColumnIndex("claim_amount"));
 
                         result.addRow(new Object[]{
                                 id++,        // _id
                                 chrgitem,    // chrgitem
                                 count,       // item_count
-                                amount       // item_amount
+                                amount,      // item_amount
+                                claimAmount  // item_claim_amount
                         });
                     }
                 } finally {
@@ -502,6 +560,7 @@ public class NHSOCHAProvider extends ContentProvider {
             case NHSOCHAProvider.NHSO_CHA_ITEMS:
             case NHSOCHAProvider.NHSO_CHA_SUM_AMOUNT:
             case NHSOCHAProvider.NHSO_CHA_SUM_TOTAL:
+            case NHSOCHAProvider.NHSO_CHA_SUM_CLAIM_TOTAL:  // เพิ่ม case สำหรับ claim_total
                 return NHSOCHA.CONTENT_DIR_TYPE;
             case NHSOCHAProvider.NHSO_CHA_ITEM_ID:
                 return NHSOCHA.CONTENT_ITEM_TYPE;
@@ -601,12 +660,14 @@ public class NHSOCHAProvider extends ContentProvider {
         String monthName;
         int count;
         double amount;
+        double claimAmount;  // เพิ่ม field สำหรับ claim_total
 
         MonthData(int fiscalMonth, String monthName) {
             this.fiscalMonth = fiscalMonth;
             this.monthName = monthName;
             this.count = 0;
             this.amount = 0.0;
+            this.claimAmount = 0.0;  // เริ่มต้นด้วย 0
         }
     }
 }
