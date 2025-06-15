@@ -107,7 +107,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -119,7 +119,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (1 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -183,7 +183,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -195,7 +195,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (2 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -259,7 +259,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -271,7 +271,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (6 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -308,7 +308,7 @@
                             android:background="@drawable/radio_button_selector"
                             android:buttonTint="@color/suicide_secondary"
                             android:padding="6dp"
-                            android:text="ได้"
+                            android:text="ได้ (0 คะแนน)"
                             android:textColor="@color/text_medium"
                             android:textSize="13sp" />
 
@@ -320,7 +320,7 @@
                             android:background="@drawable/radio_button_selector"
                             android:buttonTint="@color/suicide_secondary"
                             android:padding="6dp"
-                            android:text="ไม่ได้"
+                            android:text="ไม่ได้ (8 คะแนน)"
                             android:textColor="@color/text_medium"
                             android:textSize="13sp" />
                     </RadioGroup>
@@ -385,7 +385,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -397,7 +397,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (8 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -461,7 +461,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -473,7 +473,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (9 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -537,7 +537,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -549,7 +549,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (4 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -613,7 +613,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -625,7 +625,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (10 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
@@ -689,7 +689,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="ไม่มี"
+                        android:text="ไม่มี (0 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
 
@@ -701,7 +701,7 @@
                         android:background="@drawable/radio_button_selector"
                         android:buttonTint="@color/suicide_primary"
                         android:padding="8dp"
-                        android:text="มี"
+                        android:text="มี (4 คะแนน)"
                         android:textColor="@color/text_dark"
                         android:textSize="14sp" />
                 </RadioGroup>
