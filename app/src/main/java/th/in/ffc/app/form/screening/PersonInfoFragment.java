@@ -457,7 +457,7 @@ public class PersonInfoFragment extends Fragment {
         house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                personInfo.setVillageNo(String.valueOf(house.getSelectedItemId()));
+                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
                 dataPasser.onPersonInfo(personInfo);
             }
             @Override

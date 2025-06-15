@@ -81,4 +81,5 @@ public class NHSODiagnosis implements BaseColumns {
     public static Uri getContentUri(long id) {
         return ContentUris.withAppendedId(CONTENT_URI, id);
     }
+    public static String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLENAME;
 }

@@ -83,6 +83,7 @@ import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
+import th.in.ffc.app.form.screening.model.PersonData;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
@@ -163,6 +164,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
     private AssistScore assistScoreInfo;
 
+    private SharedViewModel sharedViewModel;
+
+    private boolean isUpdatingPersonData = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,6 +176,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         View personInfoHeader = findViewById(R.id.personInfoHeader);
         final FrameLayout personInfoContainer = findViewById(R.id.personInfoContainer);
         final ImageView personInfoExpandIcon = findViewById(R.id.personInfoExpandIcon);
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
         personInfoHeader.setOnClickListener(new View.OnClickListener() {
@@ -308,6 +314,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
                         checkExistingData(personInfo.getId());
 
+                        // อัพเดต PersonData หลังจากบันทึกข้อมูลทั้งหมดแล้ว
+                        // updatePersonDataFromCurrentInfo();
+
                         Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -317,6 +326,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
             }
         });
+
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -342,6 +352,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 btnOk.setEnabled(true);
             }
         }
+    }
+    public void updatePersonDataAfterFormSave() {
+        updatePersonDataFromCurrentInfo();
     }
     // เพิ่มเมธอดใหม่สำหรับแสดง Dialog
     private void showFormDialog(String formName) {
@@ -1219,11 +1232,54 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         String msg = "====> "+data.getBirthday()+" "+data.getIdcard()+ " "+data.getFname()+" "+data.getLname()+" "+data.getGender();
         System.out.println(msg);
         this.personInfo = data;
+
+        // ป้องกัน infinite loop - อัพเดต PersonData เฉพาะเมื่อไม่ใช่การ auto-select
+        if (sharedViewModel != null && !isUpdatingPersonData) {
+            isUpdatingPersonData = true;
+
+            try {
+                // คำนวณอายุจากวันเกิด
+                Integer age = null;
+                if (data.getBirthday() != null && !data.getBirthday().isEmpty()) {
+                    age = AgeCalculator.calculateAge(data.getBirthday());
+                }
+
+                // คำนวณ BMI จากน้ำหนักและส่วนสูง
+                Double bmi = null;
+                if (data.getWeight() > 0 && data.getHeight() > 0) {
+                    double heightInMeters = data.getHeight() / 100.0; // แปลงจาก cm เป็น m
+                    bmi = data.getWeight() / (heightInMeters * heightInMeters);
+                }
+
+                // ตรวจสอบความดันโลหิตสูง
+                Boolean hasHypertension = null;
+                if (data.getSystolic_pressure() > 0 && data.getDiastolic_pressure() > 0) {
+                    // เกณฑ์ความดันโลหิตสูง: Systolic >= 140 หรือ Diastolic >= 90
+                    hasHypertension = (data.getSystolic_pressure() >= 140 || data.getDiastolic_pressure() >= 90);
+                }
+
+                // อัพเดต PersonData ใน SharedViewModel
+                sharedViewModel.updatePersonDataFromScreening(
+                        age,                              // age
+                        data.getGender(),                 // gender
+                        bmi,                             // bmi
+                        (double) data.getWaist_size(),   // waistCircumference
+                        hasHypertension,                 // hasHypertension
+                        null,                            // hasFamilyDiabetesHistory (จะได้จาก HealthRiskAssessment)
+                        null,                            // fcbg (จะได้จาก HealthRiskAssessment)
+                        null                             // fpg (จะได้จาก HealthRiskAssessment)
+                );
+            } catch (Exception e) {
+                System.out.println("Error updating PersonData from PersonInfo: " + e.getMessage());
+            } finally {
+                isUpdatingPersonData = false;
+            }
+        }
+
         if (this.personInfo.getSend_to_claim() != null) {
             btnOk.setEnabled(!this.personInfo.getSend_to_claim().equals(1));
         }
     }
-
     @Override
     public void onSmokerInfo(SmokerInfo data) {
         this.smokerInfo = data;
@@ -1427,8 +1483,50 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         if(this.healthRiskAssessmentInfo==null){
             this.healthRiskAssessmentInfo = data;
         }
+
+        // ป้องกัน infinite loop - อัพเดต PersonData เฉพาะเมื่อไม่ใช่การ auto-select
+        if (sharedViewModel != null && !isUpdatingPersonData) {
+            isUpdatingPersonData = true;
+
+            try {
+                // แปลงค่า Q6 (ประวัติครอบครัว) เป็น Boolean
+                Boolean hasFamilyDiabetesHistory = null;
+                if (data.getHealthRiskQ6() != null && !data.getHealthRiskQ6().equals("0")) {
+                    hasFamilyDiabetesHistory = data.getHealthRiskQ6().equals("2"); // "2" = มี, "1" = ไม่มี
+                }
+
+                // แปลงค่า FCBG และ FPG
+                Double fcbg = null;
+                Double fpg = null;
+                try {
+                    if (data.getFcbg() != null && !data.getFcbg().isEmpty()) {
+                        fcbg = Double.parseDouble(data.getFcbg());
+                    }
+                    if (data.getFpg() != null && !data.getFpg().isEmpty()) {
+                        fpg = Double.parseDouble(data.getFpg());
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error parsing glucose values: " + e.getMessage());
+                }
+
+                sharedViewModel.updatePersonDataFromScreening(
+                        null,                        // age (ไม่เปลี่ยน)
+                        null,                        // gender (ไม่เปลี่ยน)
+                        null,                        // bmi (ไม่เปลี่ยน)
+                        null,                        // waistCircumference (ไม่เปลี่ยน)
+                        null,                        // hasHypertension (ไม่เปลี่ยน)
+                        hasFamilyDiabetesHistory,    // hasFamilyDiabetesHistory
+                        fcbg,                        // fcbg
+                        fpg                          // fpg
+                );
+            } catch (Exception e) {
+                System.out.println("Error updating PersonData from HealthRiskAssessment: " + e.getMessage());
+            } finally {
+                isUpdatingPersonData = false;
+            }
+        }
+
         System.out.println(msg);
-        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
     /**
      * เมธอดสำหรับตรวจสอบสถานะ SuicideAssessment8qFragment
@@ -1532,9 +1630,49 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onCardiovascularRiskInfo(CardiovascularRiskInfo data) {
         this.cardiovascularRiskInfo = data;
+
+        // ป้องกัน infinite loop - อัพเดต PersonData เฉพาะเมื่อไม่ใช่การ auto-select
+        if (sharedViewModel != null && data != null && !isUpdatingPersonData) {
+            isUpdatingPersonData = true;
+
+            try {
+                // ตรวจสอบความดันโลหิตจาก CardiovascularRisk
+                Boolean hasHypertension = null;
+                if (data.getBloodPressure() != null && !data.getBloodPressure().isEmpty()) {
+                    // แปลงข้อมูลความดันโลหิตตามรูปแบบที่เก็บใน CardiovascularRisk
+                    try {
+                        String[] bpParts = data.getBloodPressure().split("/");
+                        if (bpParts.length == 2) {
+                            int systolic = Integer.parseInt(bpParts[0]);
+                            int diastolic = Integer.parseInt(bpParts[1]);
+                            hasHypertension = (systolic >= 140 || diastolic >= 90);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error parsing blood pressure from CardiovascularRisk: " + e.getMessage());
+                    }
+                }
+
+                if (hasHypertension != null) {
+                    sharedViewModel.updatePersonDataFromScreening(
+                            null,           // age (ไม่เปลี่ยน)
+                            null,           // gender (ไม่เปลี่ยน)
+                            null,           // bmi (ไม่เปลี่ยน)
+                            null,           // waistCircumference (ไม่เปลี่ยน)
+                            hasHypertension, // hasHypertension (อัพเดตจาก CardiovascularRisk)
+                            null,           // hasFamilyDiabetesHistory (ไม่เปลี่ยน)
+                            null,           // fcbg (ไม่เปลี่ยน)
+                            null            // fpg (ไม่เปลี่ยน)
+                    );
+                }
+            } catch (Exception e) {
+                System.out.println("Error updating PersonData from CardiovascularRisk: " + e.getMessage());
+            } finally {
+                isUpdatingPersonData = false;
+            }
+        }
+
         String msg = "====> "+data;
         System.out.println(msg);
-        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -1576,7 +1714,89 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             e.printStackTrace();
         }
     }
+    // เพิ่มเมธอดใหม่สำหรับอัพเดตข้อมูลทั้งหมดใน PersonData
+    private void updatePersonDataFromCurrentInfo() {
+        if (sharedViewModel == null || isUpdatingPersonData) return;
 
+        isUpdatingPersonData = true;
+
+        try {
+            PersonData personData = new PersonData();
+
+            // ข้อมูลจาก PersonInfo
+            if (personInfo != null) {
+                // อายุ
+                if (personInfo.getBirthday() != null && !personInfo.getBirthday().isEmpty()) {
+                    Integer age = AgeCalculator.calculateAge(personInfo.getBirthday());
+                    personData.setAge(age);
+                }
+
+                // เพศ
+                personData.setGender(personInfo.getGender());
+
+                // BMI
+                if (personInfo.getWeight() > 0 && personInfo.getHeight() > 0) {
+                    double heightInMeters = personInfo.getHeight() / 100.0;
+                    Double bmi = personInfo.getWeight() / (heightInMeters * heightInMeters);
+                    personData.setBmi(bmi);
+                }
+
+                // รอบเอว
+                if (personInfo.getWaist_size() > 0) {
+                    personData.setWaistCircumference((double) personInfo.getWaist_size());
+                }
+
+                // ความดันโลหิต
+                if (personInfo.getSystolic_pressure() > 0 && personInfo.getDiastolic_pressure() > 0) {
+                    Boolean hasHypertension = (personInfo.getSystolic_pressure() >= 140 ||
+                            personInfo.getDiastolic_pressure() >= 90);
+                    personData.setHasHypertension(hasHypertension);
+                }
+            }
+
+            // ข้อมูลจาก HealthRiskAssessmentInfo
+            if (healthRiskAssessmentInfo != null) {
+                // ประวัติครอบครัว
+                if (healthRiskAssessmentInfo.getHealthRiskQ6() != null &&
+                        !healthRiskAssessmentInfo.getHealthRiskQ6().equals("0")) {
+                    Boolean hasFamilyDiabetes = healthRiskAssessmentInfo.getHealthRiskQ6().equals("2");
+                    personData.setHasFamilyDiabetesHistory(hasFamilyDiabetes);
+                }
+
+                // FCBG
+                try {
+                    if (healthRiskAssessmentInfo.getFcbg() != null &&
+                            !healthRiskAssessmentInfo.getFcbg().isEmpty()) {
+                        Double fcbg = Double.parseDouble(healthRiskAssessmentInfo.getFcbg());
+                        personData.setFcbg(fcbg);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error parsing FCBG: " + e.getMessage());
+                }
+
+                // FPG
+                try {
+                    if (healthRiskAssessmentInfo.getFpg() != null &&
+                            !healthRiskAssessmentInfo.getFpg().isEmpty()) {
+                        Double fpg = Double.parseDouble(healthRiskAssessmentInfo.getFpg());
+                        personData.setFpg(fpg);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error parsing FPG: " + e.getMessage());
+                }
+            }
+
+            // ส่งข้อมูลไปยัง SharedViewModel
+            sharedViewModel.setPersonData(personData);
+
+            System.out.println("PersonData updated: " + personData.toString());
+
+        } catch (Exception e) {
+            System.out.println("Error in updatePersonDataFromCurrentInfo: " + e.getMessage());
+        } finally {
+            isUpdatingPersonData = false;
+        }
+    }
     /**
      * บันทึกลายเซ็นเป็นไฟล์รูปภาพในโฟลเดอร์ของแอป
      * @param signatureBytes ข้อมูลลายเซ็นแบบ byte array
@@ -1680,12 +1900,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         } else if (formData instanceof StressDepressionInfo) {
             stressDepressionInfo = (StressDepressionInfo) formData;
             saveStressDepression();
-            // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
             updateStressDepressionStatus();
         }
         else if (formData instanceof HealthRiskAssessmentInfo) {
             healthRiskAssessmentInfo = (HealthRiskAssessmentInfo) formData;
             saveHealthRiskAssessment();
+            // ไม่ต้องเรียก updatePersonDataFromCurrentInfo() ที่นี่ เพราะจะทำใน onHealthRiskAssessmentInfo แล้ว
         }
         else if (formData instanceof NicotineInfo) {
             nicotineInfo = (NicotineInfo) formData;
@@ -1694,37 +1914,28 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         else if (formData instanceof StressDepression2qInfo) {
             stressDepression2qInfo = (StressDepression2qInfo) formData;
             saveStressDepression2q();
-            // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
             updateStressDepression2qStatus();
         }
         else if (formData instanceof StressDepression9qInfo) {
             stressDepression9qInfo = (StressDepression9qInfo) formData;
             saveStressDepression9q();
-
             updateStressDepression9qStatus();
         }
         else if (formData instanceof SuicideAssessment8qInfo) {
             suicideAssessment8qInfo = (SuicideAssessment8qInfo) formData;
             saveSuicideAssessment8q();
-            // ตรวจสอบและอัปเดตสถานะเพิ่มเติม
             updateSuicideAssessment8qStatus();
         }
         else if (formData instanceof CardiovascularRiskInfo) {
             cardiovascularRiskInfo = (CardiovascularRiskInfo) formData;
             saveCardiovascularRisk();
+            // ไม่ต้องเรียก updatePersonDataFromCurrentInfo() ที่นี่ เพราะจะทำใน onCardiovascularRiskInfo แล้ว
         }
         else if (formData instanceof AssistScore) {
             assistScoreInfo = (AssistScore) formData;
-            // บันทึกข้อมูล AssistScore
-            //saveAssistScore();
         } else if (formData instanceof CounselingInfo) {
             counselingInfo = (CounselingInfo) formData;
-
-            // บันทึกข้อมูล AssistScore
-            //saveAssistScore();
         }
-
-        // และอื่นๆ ตามประเภทข้อมูล...
 
         // อัปเดตสถานะการกรอกข้อมูล
         updateFormStatus(formName, true);

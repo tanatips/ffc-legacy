@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -18,24 +17,17 @@ import android.widget.RadioGroup;
 import java.util.List;
 
 import th.in.ffc.R;
-import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSmokerInfoDao;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
-import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.util.Log;
 import android.widget.TextView;
 import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import java.util.Map;
-import java.util.HashMap;
 
 // เพิ่มในส่วน import
-import android.widget.TextView;
-import th.in.ffc.app.form.screening.dao.SfDrugsDao;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SmookingFragment#newInstance} factory method to

@@ -1,6 +1,5 @@
 package th.in.ffc.person;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;

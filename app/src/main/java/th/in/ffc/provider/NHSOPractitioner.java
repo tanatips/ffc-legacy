@@ -184,4 +184,5 @@ public class NHSOPractitioner implements BaseColumns {
             return values;
         }
     }
+    public static String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLENAME;
 }

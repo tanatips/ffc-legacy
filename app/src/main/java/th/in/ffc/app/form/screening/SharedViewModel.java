@@ -18,6 +18,7 @@ import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
+import th.in.ffc.app.form.screening.model.PersonData;
 
 public class SharedViewModel extends ViewModel {
 
@@ -48,6 +49,7 @@ public class SharedViewModel extends ViewModel {
 
     private final MutableLiveData<CounselingLiveData> counselingLiveData = new MutableLiveData<>();
 
+    private MutableLiveData<PersonData> personDataMutableLiveData = new MutableLiveData<>();
     public void setCounselingLiveData(CounselingLiveData data) {
         counselingLiveData.setValue(data);
     }
@@ -174,7 +176,36 @@ public class SharedViewModel extends ViewModel {
     public void setCardiovascularRiskLiveDataMutableLiveData(CardiovascularRiskLiveData value) {
         this.cardiovascularRiskLiveDataMutableLiveData.setValue(value);
     }
+    public MutableLiveData<PersonData> getPersonDataLiveData() {
+        return personDataMutableLiveData;
+    }
 
+    public void setPersonData(PersonData personData) {
+        personDataMutableLiveData.setValue(personData);
+    }
+
+    /**
+     * Method สำหรับอัพเดตข้อมูลบุคคลจากหน้าต่างๆ
+     */
+    public void updatePersonDataFromScreening(Integer age, String gender, Double bmi,
+                                              Double waistCircumference, Boolean hasHypertension,
+                                              Boolean hasFamilyDiabetesHistory, Double fcbg, Double fpg) {
+        PersonData currentData = personDataMutableLiveData.getValue();
+        if (currentData == null) {
+            currentData = new PersonData();
+        }
+
+        if (age != null) currentData.setAge(age);
+        if (gender != null) currentData.setGender(gender);
+        if (bmi != null) currentData.setBmi(bmi);
+        if (waistCircumference != null) currentData.setWaistCircumference(waistCircumference);
+        if (hasHypertension != null) currentData.setHasHypertension(hasHypertension);
+        if (hasFamilyDiabetesHistory != null) currentData.setHasFamilyDiabetesHistory(hasFamilyDiabetesHistory);
+        if (fcbg != null) currentData.setFcbg(fcbg);
+        if (fpg != null) currentData.setFpg(fpg);
+
+        personDataMutableLiveData.setValue(currentData);
+    }
 
 //    public void updateDrugsInfo(DrugsInfo drugsInfo) {
 //        DrugsLiveData currentValue = drugsLiveDataMutableLiveData.getValue();

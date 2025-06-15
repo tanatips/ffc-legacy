@@ -1,13 +1,9 @@
 package th.in.ffc.person;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import static th.in.ffc.util.Log.TAG;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +18,6 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +29,6 @@ import th.in.ffc.api.nhso.FSDataResponse;
 import th.in.ffc.api.nhso.NHSOFSDataApiCaller;
 import th.in.ffc.api.nhso.NhsoApiCaller;
 import th.in.ffc.app.form.nhso.dao.NHSOCHADao;
-import th.in.ffc.app.form.nhso.dao.NHSOOPDDao;
 import th.in.ffc.app.form.nhso.model.NHSOCHADInfo;
 import th.in.ffc.app.form.nhso.model.NHSOCHAInfo;
 import th.in.ffc.app.form.nhso.model.NHSODiagnosisInfo;
@@ -62,7 +56,6 @@ import th.in.ffc.dao.VisitDao;
 import th.in.ffc.security.LoginActivity;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
-import th.in.ffc.util.DateTime;
 import th.in.ffc.util.InvoiceNumberGenerator;
 import th.in.ffc.util.Log;
 

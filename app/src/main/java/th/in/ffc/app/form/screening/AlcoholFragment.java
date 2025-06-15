@@ -18,17 +18,13 @@ import android.widget.RadioGroup;
 
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrugsDao;
-import th.in.ffc.app.form.screening.dao.SfNicotineInfoDao;
 import th.in.ffc.app.form.screening.datalive.DrinkingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
-import th.in.ffc.app.form.screening.model.NicotineInfo;
-import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.util.Log;
 
