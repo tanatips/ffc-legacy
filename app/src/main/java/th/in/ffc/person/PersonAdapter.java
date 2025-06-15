@@ -351,7 +351,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                                         FSDataResponse fsResponse = fsResponses[0];
                                         if (fsResponse.isSuccess()) {
                                             // กรณีสำเร็จ
-                                            showMessage("ส่งข้อมูลสำเร็จ! Visit ID: " + fsResponse.getVisitId());
+                                            showMessage("ส่งข้อมูลสำเร็จ! seq no: " + fsResponse.getSeq());
 
                                             // อัพเดทสถานะการส่งข้อมูลในฐานข้อมูล
                                             updateSyncStatus(String.valueOf(visitId), true);

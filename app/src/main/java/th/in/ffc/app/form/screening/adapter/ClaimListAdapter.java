@@ -86,15 +86,16 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
 
         // ดึงจำนวนเงินการเบิกจาก NHSOCHADao โดยใช้ visitId (seq)
         String visitId = claim.getVisitId();
+        String seq = claim.getSeq();
         double claimAmount = 0.0;
 
-        if (visitId != null && !visitId.isEmpty()) {
+        if (seq != null && !seq.isEmpty()) {
             // ดึงจำนวนเงินจาก NHSOCHADao โดยใช้ seq (visitId)
-            claimAmount = nhsochaDao.getTotalClaimAmountBySeq(visitId);
+            claimAmount = nhsochaDao.getTotalClaimAmountBySeq(seq);
 
             // กรณีไม่พบข้อมูล หรือเป็น 0 ให้ลองดึงจาก total
             if (claimAmount == 0.0) {
-                claimAmount = nhsochaDao.getTotalSumBySeq(visitId);
+                claimAmount = nhsochaDao.getTotalSumBySeq(seq);
             }
 
             // ถ้ายังไม่พบข้อมูล ใช้ค่าจาก claim.getAmount()

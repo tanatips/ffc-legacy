@@ -87,9 +87,7 @@ public class FSDataResponse {
         this.id = id;
     }
 
-    public String getSeq() {
-        return seq;
-    }
+
 
     public void setSeq(String seq) {
         this.seq = seq;
@@ -151,7 +149,7 @@ public class FSDataResponse {
      * ดึง Visit ID (ใช้ SEQ แทน visitId)
      * @return รหัสการเข้ารับบริการ
      */
-    public String getVisitId() {
+    public String getSeq() {
         return seq;
     }
 

@@ -1170,52 +1170,86 @@ public class SmartCardReaderActivity extends AppCompatActivity {
             StringBuilder result = new StringBuilder();
             String[] fields = rawData.split("#");
 
+            // Debug: แสดงจำนวน fields และเนื้อหา
+            // Log.d("IDCard", "Total fields: " + fields.length);
+            // for (int i = 0; i < fields.length; i++) {
+            //     Log.d("IDCard", "Field " + i + ": '" + fields[i] + "'");
+            // }
+
             // ตรวจสอบว่ามีข้อมูลเพียงพอ
-            if (fields.length < 15) {
+            if (fields.length < 20) {
                 return rawData; // คืนค่าข้อมูลเดิมหากรูปแบบไม่ถูกต้อง
             }
 
             try {
-                // หมายเลขบัตรประชาชน
+                // หมายเลขบัตรประชาชน (field 0)
                 result.append("เลขประจำตัวประชาชน: ").append(fields[0]).append("\n\n");
 
-                // ชื่อ-นามสกุล ภาษาไทย
-                result.append("ชื่อ-สกุล: ").append(fields[1]).append(fields[2]);
+                // ชื่อ-นามสกุล ภาษาไทย (fields 1-4)
+                result.append("ชื่อ-สกุล: ").append(fields[1]); // คำนำหน้า
+                if (!fields[2].isEmpty()) {
+                    result.append(" ").append(fields[2]); // ชื่อ
+                }
                 if (!fields[3].isEmpty()) {
-                    result.append(" ").append(fields[3]);
+                    result.append(" ").append(fields[3]); // ชื่อกลาง
                 }
-                result.append(" ").append(fields[4]).append("\n");
+                if (!fields[4].isEmpty()) {
+                    result.append(" ").append(fields[4]); // นามสกุล
+                }
+                result.append("\n");
 
-                // ชื่อ-นามสกุล ภาษาอังกฤษ
-                result.append("Name: ").append(fields[5]).append(fields[6]);
+                // ชื่อ-นามสกุล ภาษาอังกฤษ (fields 5-8)
+                result.append("Name: ").append(fields[5]); // คำนำหน้า
+                if (!fields[6].isEmpty()) {
+                    result.append(" ").append(fields[6]); // ชื่อ
+                }
                 if (!fields[7].isEmpty()) {
-                    result.append(" ").append(fields[7]);
+                    result.append(" ").append(fields[7]); // ชื่อกลาง
                 }
-                result.append(" ").append(fields[8]).append("\n\n");
+                if (!fields[8].isEmpty()) {
+                    result.append(" ").append(fields[8]); // นามสกุล
+                }
+                result.append("\n\n");
 
-                // ที่อยู่
-                result.append("ที่อยู่: ").append(fields[9]);
-                // ตรวจสอบว่ามีหมู่บ้านหรือไม่
+                // ที่อยู่ (fields 9-18)
+                result.append("ที่อยู่: ");
+                if (!fields[9].isEmpty()) {
+                    result.append(fields[9]); // บ้านเลขที่
+                }
                 if (!fields[10].isEmpty()) {
-                    result.append(" ").append(fields[10]);
+                    result.append(" ").append(fields[10]); // หมู่บ้าน
                 }
-                // ตรวจสอบว่ามีถนนหรือไม่
                 if (!fields[11].isEmpty()) {
-                    result.append(" ").append(fields[11]);
+                    result.append(" ").append(fields[11]); // ถนน
                 }
-                // ซอย
                 if (!fields[12].isEmpty()) {
-                    result.append(" ").append(fields[12]);
+                    result.append(" ").append(fields[12]); // ซอย
+                }
+                if (!fields[13].isEmpty()) {
+                    result.append(" ").append(fields[13]); // ซอยเพิ่มเติม
                 }
 
-                // แขวง/ตำบล, เขต/อำเภอ, จังหวัด
-                result.append("\n      แขวง/ตำบล").append(fields[13])
-                        .append(" เขต/อำเภอ").append(fields[14])
-                        .append(" ").append(fields[15]).append("\n\n");
+                result.append("\n      ");
+                if (!fields[16].isEmpty()) {
+                    result.append("แขวง/ตำบล").append(fields[16]);
+                }
+//                if (!fields[17].isEmpty()) {
+//                    result.append(" เขต/อำเภอ").append(fields[17]);
+//                }
+//                if (!fields[18].isEmpty()) {
+//                    result.append(" ").append(fields[18]); // จังหวัด
+//                }
+                result.append("\n\n");
 
-                // วันเดือนปีเกิด
-                if (fields.length > 17 && fields[17].length() == 8) {
-                    String birthDate = fields[17];
+                // เพศ (field 19)
+//                if (fields.length > 19 && !fields[19].isEmpty()) {
+//                    String gender = fields[19].equals("1") ? "ชาย" : "หญิง";
+//                    result.append("เพศ: ").append(gender).append("\n");
+//                }
+
+                // วันเดือนปีเกิด (field 20)
+                if (fields.length > 20 && fields[18].length() == 8) {
+                    String birthDate = fields[18];
                     String year = birthDate.substring(0, 4);
                     String month = birthDate.substring(4, 6);
                     String day = birthDate.substring(6, 8);
@@ -1223,18 +1257,18 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                     // แปลงปี พ.ศ. เป็น ค.ศ.
                     int yearCE = Integer.parseInt(year) - 543;
 
-                    result.append("วันเกิด: ").append(day).append("/").append(month).append("/").append(year)
-                            .append(" (").append(day).append("/").append(month).append("/").append(yearCE).append(")").append("\n");
+                    result.append("วันเกิด: ").append(day).append("/").append(month).append("/").append(year).append("\n");
+//                            .append(" (").append(day).append("/").append(month).append("/").append(yearCE).append(")").append("\n");
                 }
 
-                // ข้อมูลอื่นๆ
-                if (fields.length > 18) {
-                    result.append("ออกให้โดย: ").append(fields[18]).append("\n");
+                // ออกให้โดย (field 21)
+                if (fields.length > 21 && !fields[19].isEmpty()) {
+                    result.append("ออกให้โดย: ").append(fields[19]).append("\n");
                 }
 
-                // วันออกบัตร
-                if (fields.length > 19 && fields[19].length() == 8) {
-                    String issueDate = fields[19];
+                // วันออกบัตร (field 22)
+                if (fields.length > 21 && fields[20].length() == 8) {
+                    String issueDate = fields[20];
                     String issueYear = issueDate.substring(0, 4);
                     String issueMonth = issueDate.substring(4, 6);
                     String issueDay = issueDate.substring(6, 8);
@@ -1242,9 +1276,9 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                     result.append("วันออกบัตร: ").append(issueDay).append("/").append(issueMonth).append("/").append(issueYear).append("\n");
                 }
 
-                // วันบัตรหมดอายุ
-                if (fields.length > 20 && fields[20].length() == 8) {
-                    String expireDate = fields[20];
+                // วันบัตรหมดอายุ (field 23)
+                if (fields.length > 21 && fields[21].length() == 8) {
+                    String expireDate = fields[21];
                     String expireYear = expireDate.substring(0, 4);
                     String expireMonth = expireDate.substring(4, 6);
                     String expireDay = expireDate.substring(6, 8);
@@ -1252,9 +1286,9 @@ public class SmartCardReaderActivity extends AppCompatActivity {
                     result.append("วันบัตรหมดอายุ: ").append(expireDay).append("/").append(expireMonth).append("/").append(expireYear).append("\n");
                 }
 
-                // เลขลำดับบัตร (ถ้ามี)
-                if (fields.length > 21) {
-                    result.append("เลขลำดับบัตร: ").append(fields[21]);
+                // เลขลำดับบัตร/รหัสใต้รูป (field 24)
+                if (fields.length > 21 && !fields[22].isEmpty()) {
+                    result.append("เลขลำดับบัตร: ").append(fields[22]);
                 }
 
             } catch (Exception e) {

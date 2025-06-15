@@ -152,7 +152,7 @@ public class ClaimDetailActivity extends AppCompatActivity {
 
         tvDetailVisitId.setText("รหัสการเข้ารับบริการ: " + (claim.getVisitId() != null ? claim.getVisitId() : "-"));
 
-        Double total =  nhsochaDao.getTotalAmountBySeq(claim.getVisitId());
+        Double total =  nhsochaDao.getTotalAmountBySeq(claim.getSeq());
         String amountText = decimalFormat.format(total) + " บาท";
         tvDetailAmount.setText("จำนวนเงิน: " + amountText);
 
