@@ -205,8 +205,9 @@ public class ScreeningFormProvider extends ContentProvider {
     public static void ReCreateTable(Context context){
         mOpenHelper = new DbOpenHelper(context);
 //        mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
+
+//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
@@ -229,8 +230,8 @@ public class ScreeningFormProvider extends ContentProvider {
 
 
 //        mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
+//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);

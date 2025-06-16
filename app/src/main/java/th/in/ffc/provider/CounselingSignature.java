@@ -29,6 +29,7 @@ public class CounselingSignature implements BaseColumns {
     public static final String PERSON_ID = "person_id";               // รหัสบุคคล
     public static final String COUNSELING_TYPE = "counseling_type";   // ประเภทการให้คำปรึกษา (1=ให้คำแนะนำ, 2=ส่งต่อแพทย์)
     public static final String DETAIL = "detail";                     // รายละเอียดของคำแนะนำ
+    public static final String REFERRAL_DETAIL = "referral_detail"; // เพิ่มใหม่
     public static final String PATIENT_SIGNATURE = "patient_signature"; // ลายเซ็นของผู้รับบริการ
     public static final String PROVIDER_SIGNATURE = "provider_signature"; // ลายเซ็นของผู้ให้บริการ
     public static final String CREATED_BY = "created_by";             // ผู้บันทึกข้อมูล
@@ -45,6 +46,7 @@ public class CounselingSignature implements BaseColumns {
             + PERSON_ID + " TEXT NOT NULL, "
             + COUNSELING_TYPE + " INTEGER NOT NULL, "
             + DETAIL + " TEXT, "
+            + REFERRAL_DETAIL + " TEXT, "
             + PATIENT_SIGNATURE + " BLOB, "
             + PROVIDER_SIGNATURE + " BLOB, "
             + CREATED_BY + " TEXT, "
@@ -64,6 +66,7 @@ public class CounselingSignature implements BaseColumns {
         PROJECTION_MAP.put(PERSON_ID, PERSON_ID);
         PROJECTION_MAP.put(COUNSELING_TYPE, COUNSELING_TYPE);
         PROJECTION_MAP.put(DETAIL, DETAIL);
+        PROJECTION_MAP.put(REFERRAL_DETAIL, REFERRAL_DETAIL);
         PROJECTION_MAP.put(PATIENT_SIGNATURE, PATIENT_SIGNATURE);
         PROJECTION_MAP.put(PROVIDER_SIGNATURE, PROVIDER_SIGNATURE);
         PROJECTION_MAP.put(CREATED_BY, CREATED_BY);

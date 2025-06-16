@@ -455,7 +455,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="ผลรวมคะแนน"
+                            android:text="ความเสี่ยง (%)"
                             android:textColor="@color/white"
                             android:textStyle="bold"
                             android:textSize="14sp"
@@ -472,9 +472,9 @@
                             android:gravity="center"/>
                     </TableRow>
 
-                    <!-- Row 1 -->
+                    <!-- Row 1 - Low Risk -->
                     <TableRow
-                        android:id="@+id/headerRow"
+                        android:id="@+id/lowRiskRow"
                         android:background="@drawable/table_row_background"
                         android:padding="12dp">
 
@@ -482,7 +482,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="น้อยกว่าหรือเท่ากับ 2"
+                            android:text="น้อยกว่า 10%"
                             android:textSize="14sp"
                             android:gravity="center"
                             android:textColor="@color/text_primary"/>
@@ -498,8 +498,9 @@
                             android:textStyle="bold"/>
                     </TableRow>
 
-                    <!-- Row 2 -->
+                    <!-- Row 2 - Medium Risk -->
                     <TableRow
+                        android:id="@+id/mediumRiskRow"
                         android:background="@drawable/table_row_alt_background"
                         android:padding="12dp">
 
@@ -507,7 +508,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="3-5"
+                            android:text="10% - 20%"
                             android:textSize="14sp"
                             android:gravity="center"
                             android:textColor="@color/text_primary"/>
@@ -523,8 +524,9 @@
                             android:textStyle="bold"/>
                     </TableRow>
 
-                    <!-- Row 3 -->
+                    <!-- Row 3 - High Risk -->
                     <TableRow
+                        android:id="@+id/highRiskRow"
                         android:background="@drawable/table_row_background"
                         android:padding="12dp">
 
@@ -532,7 +534,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="6-8"
+                            android:text="มากกว่า 20%"
                             android:textSize="14sp"
                             android:gravity="center"
                             android:textColor="@color/text_primary"/>

@@ -34,6 +34,7 @@ public class CounselingSignatureDao {
             values.put(CounselingSignature.PERSON_ID, counseling.getPersonId());
             values.put(CounselingSignature.COUNSELING_TYPE, counseling.getCounselingType());
             values.put(CounselingSignature.DETAIL, counseling.getDetail());
+            values.put(CounselingSignature.REFERRAL_DETAIL, counseling.getReferralDetail());
             values.put(CounselingSignature.CREATED_BY, counseling.getCreatedBy());
             values.put(CounselingSignature.CREATED_DATE, getCurrentDateTime());
             values.put(CounselingSignature.PCUCODE, counseling.getPcuCode());
@@ -107,6 +108,7 @@ public class CounselingSignatureDao {
             // ข้อมูลพื้นฐาน
             values.put(CounselingSignature.COUNSELING_TYPE, counseling.getCounselingType());
             values.put(CounselingSignature.DETAIL, counseling.getDetail());
+            values.put(CounselingSignature.REFERRAL_DETAIL, counseling.getReferralDetail());
             values.put(CounselingSignature.UPDATED_BY, counseling.getUpdatedBy());
             values.put(CounselingSignature.UPDATED_DATE, getCurrentDateTime());
             values.put(CounselingSignature.UPDATE_STATUS, "U");
@@ -243,6 +245,7 @@ public class CounselingSignatureDao {
         counseling.setPersonId(cursor.getString(cursor.getColumnIndex(CounselingSignature.PERSON_ID)));
         counseling.setCounselingType(cursor.getInt(cursor.getColumnIndex(CounselingSignature.COUNSELING_TYPE)));
         counseling.setDetail(cursor.getString(cursor.getColumnIndex(CounselingSignature.DETAIL)));
+        counseling.setReferralDetail(cursor.getString(cursor.getColumnIndex(CounselingSignature.REFERRAL_DETAIL)));
         counseling.setCreatedBy(cursor.getString(cursor.getColumnIndex(CounselingSignature.CREATED_BY)));
         counseling.setCreatedDate(cursor.getString(cursor.getColumnIndex(CounselingSignature.CREATED_DATE)));
         counseling.setUpdatedBy(cursor.getString(cursor.getColumnIndex(CounselingSignature.UPDATED_BY)));

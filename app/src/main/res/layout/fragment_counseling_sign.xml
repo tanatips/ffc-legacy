@@ -104,8 +104,34 @@
                     android:focusable="true"
                     android:clickable="true"
                     android:background="?android:attr/selectableItemBackground" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="28dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="#F8F9FA">
+
+                    <EditText
+                        android:id="@+id/editTextReferralDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="รายละเอียดการส่งต่อ เช่น โรงพยาบาล, แผนก, เหตุผล"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textColorHint="#7F8C8D"
+                        android:background="@android:color/transparent"
+                        android:visibility="gone" />
+
+                </androidx.cardview.widget.CardView>
 
             </RadioGroup>
+
 
         </androidx.cardview.widget.CardView>
         <!-- Signature Section -->

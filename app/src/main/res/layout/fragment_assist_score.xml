@@ -2,8 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/assistScrollView"
-    >
+    android:id="@+id/assistScrollView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +17,8 @@
             android:text="สรุปคะแนนแบบคัดกรอง ASSIST"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" android:visibility="gone"/>
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
 
         <TableLayout
             android:layout_width="match_parent"
@@ -27,82 +27,113 @@
 
             <!-- Header Row -->
             <TableRow
-                android:background="@color/header_purple"
-                android:padding="5dp">
+                android:padding="0dp"
+                android:layout_height="wrap_content"
+                >
 
                 <TextView
                     android:layout_width="0px"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="2"
                     android:text=" "
                     android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:background="@color/header_purple"
+                    android:padding="8dp"
+                    android:gravity="center" />
 
                 <TextView
                     android:layout_width="0px"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="บันทึกคะแนน\nเฉพาะชนิดสาร"
                     android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#5D4E75"
+                    android:padding="8dp" />
 
                 <TextView
                     android:layout_width="0px"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="ไม่ต้องบำบัด"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp" />
 
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="ได้รับการบำบัดอย่างย่อ"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp" />
 
                 <TextView
                     android:layout_width="0px"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="ได้รับการบำบัดรักษา\nเข้มข้นมากขึ้น"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold" />
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp" />
             </TableRow>
 
-            <!-- Data Rows -->
+            <!-- Data Rows with Background Colors -->
+
+            <!-- Row 1: ยาสูบ -->
             <TableRow android:padding="5dp">
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="a. ยาสูบ" />
+                    android:text="a. ยาสูบ"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:id="@+id/tvScoreA" />
+                    android:id="@+id/tvScoreA"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 2: แอลกอฮอล์ -->
             <TableRow
                 android:padding="5dp"
                 android:background="#EEEEEE">
@@ -110,63 +141,89 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="b. แอลกอฮอล์" />
+                    android:text="b. แอลกอฮอล์"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreB"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-10"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="11-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 3: กัญชา -->
             <TableRow android:padding="5dp">
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="c. กัญชา" />
+                    android:text="c. กัญชา"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreC"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 4: โคเคน -->
             <TableRow
                 android:padding="5dp"
                 android:background="#EEEEEE">
@@ -174,63 +231,89 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="d. โคเคน" />
+                    android:text="d. โคเคน"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreD"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 5: แอมเฟตามีน -->
             <TableRow android:padding="5dp">
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="e. แอมเฟตามีน" />
+                    android:text="e. แอมเฟตามีน"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreE"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 6: สารระเหย -->
             <TableRow
                 android:padding="5dp"
                 android:background="#EEEEEE">
@@ -238,63 +321,89 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="f. สารระเหย" />
+                    android:text="f. สารระเหย"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreF"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 7: ยากล่อมประสาท -->
             <TableRow android:padding="5dp">
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="g. ยากล่อมประสาท" />
+                    android:text="g. ยากล่อมประสาท"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreG"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 8: ยาหลอนประสาท -->
             <TableRow
                 android:padding="5dp"
                 android:background="#EEEEEE">
@@ -302,63 +411,89 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="h. ยาหลอนประสาท" />
+                    android:text="h. ยาหลอนประสาท"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreH"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 9: สารกลุ่มฝิ่น -->
             <TableRow android:padding="5dp">
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="i. สารกลุ่มฝิ่น" />
+                    android:text="i. สารกลุ่มฝิ่น"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreI"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 10: ใบกระท่อม -->
             <TableRow
                 android:padding="5dp"
                 android:background="#EEEEEE">
@@ -366,63 +501,89 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="j. ใบกระท่อม" />
+                    android:text="j. ใบกระท่อม"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreJ"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 11: สารผสมนำในกระท่อม -->
             <TableRow android:padding="5dp">
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="k. สารผสมนำในกระท่อม" />
+                    android:text="k. สารผสมนำในกระท่อม"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreK"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
+            <!-- Row 12: สารอื่น ๆ -->
             <TableRow
                 android:padding="5dp"
                 android:background="#EEEEEE">
@@ -430,30 +591,42 @@
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="l. สารอื่น ๆ ระบุ........" />
+                    android:text="l. สารอื่น ๆ ระบุ........"
+                    android:padding="8dp" />
                 <TextView
                     android:id="@+id/tvScoreL"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="8dp" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0-3"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#C8E6C9"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="4-26"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFF9C4"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
                 <TextView
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="27+"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:background="#FFCDD2"
+                    android:padding="8dp"
+                    android:textStyle="bold" />
             </TableRow>
 
         </TableLayout>

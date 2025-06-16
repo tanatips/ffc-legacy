@@ -47,7 +47,7 @@
             android:text="แบบทดสอบการติดบุหรี่"
             android:visibility="gone" />
 
-        <!-- คำถามที่ 1 -->
+        <!-- คำถามที่ 1 - แก้ไขคะแนนตามตาราง -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,65 +71,64 @@
                     android:textColor="#2C3E50"
                     android:padding="8dp" />
 
-                <LinearLayout
+                <RadioGroup
+                    android:id="@+id/rdoNicotineQ1"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
 
-                    <RadioGroup
-                        android:id="@+id/rdoNicotineQ1"
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ1_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="20dp">
+                        android:text="10 มวนหรือน้อยกว่า (0 คะแนน)"
+                        android:tag="0"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ1_1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="10 มวนหรือน้อยกว่า"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ1_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="11-20 มวน (1 คะแนน)"
+                        android:tag="1"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ1_2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="11-20 มวน"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ1_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="21-30 มวน (2 คะแนน)"
+                        android:tag="2"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ1_3"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="21-30 มวน"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
-
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ1_4"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="มากกว่า 31 มวน"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp" />
-                    </RadioGroup>
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ1_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="มากกว่า 31 มวน (3 คะแนน)"
+                        android:tag="3"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp" />
+                </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- คำถามที่ 2 -->
+        <!-- คำถามที่ 2 - แก้ไขคะแนนตามตาราง -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -153,65 +152,64 @@
                     android:textColor="#2C3E50"
                     android:padding="8dp" />
 
-                <LinearLayout
+                <RadioGroup
+                    android:id="@+id/rdoNicotineQ2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
 
-                    <RadioGroup
-                        android:id="@+id/rdoNicotineQ2"
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ2_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="20dp">
+                        android:text="ภายใน 5 นาทีหลังตื่นนอน (3 คะแนน)"
+                        android:tag="3"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ2_1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="ภายใน 5 นาทีหลังตื่นนอน"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ2_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="6-30 นาที หลังตื่นนอน (2 คะแนน)"
+                        android:tag="2"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ2_2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="6-30 นาที หลังตื่นนอน"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ2_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="31-60 นาที หลังตื่นนอน (1 คะแนน)"
+                        android:tag="1"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ2_3"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="31-60 นาที หลังตื่นนอน"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
-
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ2_4"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="มากกว่า 60 นาที"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp" />
-                    </RadioGroup>
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ2_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="มากกว่า 60 นาที (0 คะแนน)"
+                        android:tag="0"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp" />
+                </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- คำถามที่ 3 -->
+        <!-- คำถามที่ 3 - แก้ไขคะแนนตามตาราง -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -235,43 +233,40 @@
                     android:textColor="#2C3E50"
                     android:padding="8dp" />
 
-                <LinearLayout
+                <RadioGroup
+                    android:id="@+id/rdoNicotineQ3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
 
-                    <RadioGroup
-                        android:id="@+id/rdoNicotineQ3"
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ3_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="20dp">
+                        android:text="ใช่ (1 คะแนน)"
+                        android:tag="1"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ3_1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="ใช่"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
-
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ3_2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="ไม่ใช่"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp" />
-                    </RadioGroup>
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ3_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ไม่ใช่ (0 คะแนน)"
+                        android:tag="0"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp" />
+                </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- คำถามที่ 4 -->
+        <!-- คำถามที่ 4 - คะแนนเดิมถูกต้องแล้ว -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -295,45 +290,40 @@
                     android:textColor="#2C3E50"
                     android:padding="8dp" />
 
-                <LinearLayout
+                <RadioGroup
+                    android:id="@+id/rdoNicotineQ4"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
 
-                    <RadioGroup
-                        android:id="@+id/rdoNicotineQ4"
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ4_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="20dp">
+                        android:text="มวนแรกตอนเช้า (1 คะแนน)"
+                        android:tag="1"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ4_1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:tag="1"
-                            android:text="มวนแรกตอนเช้า"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
-
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ4_2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:tag="0"
-                            android:text="มวนอื่นๆ"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp" />
-                    </RadioGroup>
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ4_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="มวนอื่นๆ (0 คะแนน)"
+                        android:tag="0"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp" />
+                </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- คำถามที่ 5 -->
+        <!-- คำถามที่ 5 - คะแนนเดิมถูกต้องแล้ว -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -357,45 +347,40 @@
                     android:textColor="#2C3E50"
                     android:padding="8dp" />
 
-                <LinearLayout
+                <RadioGroup
+                    android:id="@+id/rdoNicotineQ5"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
 
-                    <RadioGroup
-                        android:id="@+id/rdoNicotineQ5"
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ5_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="20dp">
+                        android:text="รู้สึกลำบาก (1 คะแนน)"
+                        android:tag="1"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ5_1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:tag="1"
-                            android:text="รู้สึกลำบาก"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
-
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ5_2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:tag="0"
-                            android:text="ไม่รู้สึกลำบาก"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp" />
-                    </RadioGroup>
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ5_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ไม่รู้สึกลำบาก (0 คะแนน)"
+                        android:tag="0"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp" />
+                </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- คำถามที่ 6 -->
+        <!-- คำถามที่ 6 - คะแนนเดิมถูกต้องแล้ว -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -419,44 +404,38 @@
                     android:textColor="#2C3E50"
                     android:padding="8dp" />
 
-                <LinearLayout
+                <RadioGroup
+                    android:id="@+id/rdoNicotineQ6"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="20dp">
 
-                    <RadioGroup
-                        android:id="@+id/rdoNicotineQ6"
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ6_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="20dp">
+                        android:text="ใช่ (1 คะแนน)"
+                        android:tag="1"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp"
+                        android:layout_marginBottom="4dp" />
 
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ6_1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:tag="1"
-                            android:text="ใช่"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp"
-                            android:layout_marginBottom="4dp" />
-
-                        <RadioButton
-                            android:id="@+id/rdoNicotineQ6_2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:tag="0"
-                            android:text="ไม่ใช่"
-                            android:textSize="15sp"
-                            android:textColor="#2C3E50"
-                            android:buttonTint="#E74C3C"
-                            android:padding="12dp" />
-                    </RadioGroup>
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/rdoNicotineQ6_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ไม่ใช่ (0 คะแนน)"
+                        android:tag="0"
+                        android:textSize="15sp"
+                        android:textColor="#2C3E50"
+                        android:buttonTint="#E74C3C"
+                        android:padding="12dp" />
+                </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
         <!-- ส่วนผลการประเมิน (รูปแบบเดิม) -->
         <LinearLayout
             android:layout_width="match_parent"

@@ -43,6 +43,9 @@ public class CounselingSignFragment extends Fragment {
     private RadioButton radioButtonProvideConsult;
     private RadioButton radioButtonSendToDoctor;
     private EditText editTextConsultDetail;
+
+    private EditText editTextReferralDetail;
+
     private SignatureView signatureViewPatient;
     private SignatureView signatureViewProvider;
     private Button btnClearPatientSignature;
@@ -275,10 +278,13 @@ public class CounselingSignFragment extends Fragment {
                 radioButtonProvideConsult.setChecked(true);
                 editTextConsultDetail.setText(counseling.getDetail());
                 editTextConsultDetail.setVisibility(View.VISIBLE);
+                editTextReferralDetail.setVisibility(View.GONE);
                 Log.d("CounselingSign", "Set radio to provide consult");
             } else if (counseling.getCounselingType() == 2) {
                 radioButtonSendToDoctor.setChecked(true);
+                editTextReferralDetail.setText(counseling.getReferralDetail());
                 editTextConsultDetail.setVisibility(View.GONE);
+                editTextReferralDetail.setVisibility(View.VISIBLE);
                 Log.d("CounselingSign", "Set radio to send to doctor");
             }
 
@@ -304,21 +310,29 @@ public class CounselingSignFragment extends Fragment {
                 editTextConsultDetail.setVisibility(View.VISIBLE);
                 currentCounseling.setCounselingType(1);
                 Log.d("CounselingSign", "Selected: Provide consult");
+
+                // อัพเดท detail ที่มีอยู่ใน EditText
+                updateConsultDetail();
             } else if (checkedId == R.id.radioButtonSendToDoctor) {
                 editTextConsultDetail.setVisibility(View.GONE);
                 editTextConsultDetail.setText("");
                 currentCounseling.setCounselingType(2);
                 currentCounseling.setDetail("");
                 Log.d("CounselingSign", "Selected: Send to doctor");
+
+                // ล้างข้อมูล detail
+                counselingLiveData.setConsultDetail("");
+                sharedViewModel.setCounselingLiveData(counselingLiveData);
+                dataPasser.onCounselingDataPass(currentCounseling);
             } else {
                 return;
             }
 
             // อัพเดทข้อมูล
+//            counselingLiveData.setCounselingType(currentCounseling.getCounselingType());
+//            counselingLiveData.setConsultDetail(currentCounseling.getDetail());
             counselingLiveData.setCounselingType(currentCounseling.getCounselingType());
-            counselingLiveData.setConsultDetail(currentCounseling.getDetail());
             sharedViewModel.setCounselingLiveData(counselingLiveData);
-            dataPasser.onCounselingDataPass(currentCounseling);
         });
     }
 
@@ -620,6 +634,7 @@ public class CounselingSignFragment extends Fragment {
         radioButtonProvideConsult = view.findViewById(R.id.radioButtonProvideConsult);
         radioButtonSendToDoctor = view.findViewById(R.id.radioButtonSendToDoctor);
         editTextConsultDetail = view.findViewById(R.id.editTextConsultDetail);
+        editTextReferralDetail = view.findViewById(R.id.editTextReferralDetail);
         signatureViewPatient = view.findViewById(R.id.signatureViewPatient);
         signatureViewProvider = view.findViewById(R.id.signatureViewProvider);
         btnClearPatientSignature = view.findViewById(R.id.btnClearPatientSignature);
@@ -636,13 +651,17 @@ public class CounselingSignFragment extends Fragment {
             if (checkedId == R.id.radioButtonProvideConsult) {
                 editTextConsultDetail.setVisibility(View.VISIBLE);
                 currentCounseling.setCounselingType(1);
+                currentCounseling.setReferralDetail("");
+                editTextReferralDetail.setVisibility(View.GONE);
                 Log.d("CounselingSign", "Selected: Provide consult");
             } else if (checkedId == R.id.radioButtonSendToDoctor) {
                 editTextConsultDetail.setVisibility(View.GONE);
                 editTextConsultDetail.setText(""); // ล้างข้อความเมื่อเลือกส่งต่อแพทย์
                 currentCounseling.setCounselingType(2);
                 currentCounseling.setDetail("");
+                editTextReferralDetail.setVisibility(View.VISIBLE);
                 Log.d("CounselingSign", "Selected: Send to doctor");
+                updateReferralDetail();
             } else {
                 Log.w("CounselingSign", "Unknown or no selection: " + checkedId);
                 return;
@@ -653,6 +672,24 @@ public class CounselingSignFragment extends Fragment {
             counselingLiveData.setConsultDetail(currentCounseling.getDetail());
             sharedViewModel.setCounselingLiveData(counselingLiveData);
             dataPasser.onCounselingDataPass(currentCounseling);
+        });
+        editTextReferralDetail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                updateReferralDetail();
+            }
+        });
+
+        editTextReferralDetail.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                updateReferralDetail();
+            }
         });
 
         // ลบ Individual RadioButton OnClickListeners ออกทั้งหมด
@@ -710,20 +747,58 @@ public class CounselingSignFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 // ไม่ต้องบันทึกทุกครั้งที่พิมพ์
+                String detail = editable.toString().trim();
+                currentCounseling.setDetail(detail);
+
+                // ส่งข้อมูลไปยัง LiveData และ dataPasser ทันที
+                counselingLiveData.setConsultDetail(detail);
+                sharedViewModel.setCounselingLiveData(counselingLiveData);
+                dataPasser.onCounselingDataPass(currentCounseling);
+
+                Log.d("CounselingSign", "EditText changed, detail updated: " + detail);
             }
         });
 
         editTextConsultDetail.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
+                // เมื่อ lose focus ให้อัพเดทข้อมูลอีกครั้งเพื่อให้แน่ใจ
                 String detail = editTextConsultDetail.getText().toString().trim();
                 currentCounseling.setDetail(detail);
                 counselingLiveData.setConsultDetail(detail);
                 sharedViewModel.setCounselingLiveData(counselingLiveData);
                 dataPasser.onCounselingDataPass(currentCounseling);
+
+                Log.d("CounselingSign", "EditText lost focus, detail updated: " + detail);
             }
         });
     }
+    private void updateReferralDetail() {
+        String referralDetail = editTextReferralDetail.getText().toString().trim();
+        currentCounseling.setReferralDetail(referralDetail);
 
+        // อัพเดท LiveData
+        counselingLiveData.setReferralDetail(referralDetail);
+        sharedViewModel.setCounselingLiveData(counselingLiveData);
+
+        // ส่งข้อมูลไปยัง Activity ผ่าน dataPasser
+        dataPasser.onCounselingDataPass(currentCounseling);
+
+        Log.d("CounselingSign", "Referral detail updated: " + referralDetail);
+    }
+    // เพิ่มเมธอดสำหรับอัพเดทข้อมูล Detail เมื่อมีการเปลี่ยนแปลง
+    private void updateConsultDetail() {
+        String detail = editTextConsultDetail.getText().toString().trim();
+        currentCounseling.setDetail(detail);
+
+        // อัพเดท LiveData
+        counselingLiveData.setConsultDetail(detail);
+        sharedViewModel.setCounselingLiveData(counselingLiveData);
+
+        // ส่งข้อมูลไปยัง Activity ผ่าน dataPasser
+        dataPasser.onCounselingDataPass(currentCounseling);
+
+        Log.d("CounselingSign", "Consult detail updated: " + detail);
+    }
     public void testRadioButtonInteraction() {
         Log.d("CounselingSign", "=== TESTING RADIO BUTTON INTERACTION ===");
 
@@ -1265,6 +1340,20 @@ public class CounselingSignFragment extends Fragment {
             Log.w("CounselingSign", "Validation failed: No radio button selected");
             return false;
         }
+        // ตรวจสอบ detail ตามประเภทที่เลือก
+        if (radioButtonProvideConsult.isChecked()) {
+            if (editTextConsultDetail.getText().toString().trim().isEmpty()) {
+                Toast.makeText(getContext(), "กรุณากรอกรายละเอียดคำแนะนำ", Toast.LENGTH_SHORT).show();
+                editTextConsultDetail.requestFocus();
+                return false;
+            }
+        } else if (radioButtonSendToDoctor.isChecked()) {
+            if (editTextReferralDetail.getText().toString().trim().isEmpty()) {
+                Toast.makeText(getContext(), "กรุณากรอกรายละเอียดการส่งต่อ", Toast.LENGTH_SHORT).show();
+                editTextReferralDetail.requestFocus();
+                return false;
+            }
+        }
 
         if (radioButtonProvideConsult.isChecked() && editTextConsultDetail.getText().toString().trim().isEmpty()) {
             Toast.makeText(getContext(), "กรุณากรอกรายละเอียดคำแนะนำ", Toast.LENGTH_SHORT).show();
@@ -1317,10 +1406,12 @@ public class CounselingSignFragment extends Fragment {
         if (radioButtonProvideConsult.isChecked()) {
             currentCounseling.setCounselingType(1);
             currentCounseling.setDetail(editTextConsultDetail.getText().toString().trim());
+            currentCounseling.setReferralDetail("");
             Log.d("CounselingSign", "Counseling type: 1, Detail: " + currentCounseling.getDetail());
         } else {
             currentCounseling.setCounselingType(2);
             currentCounseling.setDetail("");
+            currentCounseling.setReferralDetail(editTextReferralDetail.getText().toString().trim());
             Log.d("CounselingSign", "Counseling type: 2");
         }
 

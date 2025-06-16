@@ -195,7 +195,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="จำนวนมวนต่อวัน"
+                            android:text="ให้คำแนะนำ/ปรึกษา"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:textColor="#856404"

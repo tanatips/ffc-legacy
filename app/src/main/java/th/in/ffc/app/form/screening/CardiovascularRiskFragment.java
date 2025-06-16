@@ -95,7 +95,7 @@ public class CardiovascularRiskFragment extends Fragment {
         loadData();
     }
     private void initViews(View view) {
-        // ผูกตัวแปรกับ View elements
+        // ผูกตัวแปรกับ View elements เดิม
         edtAge = view.findViewById(R.id.edtAge);
         edtBP = view.findViewById(R.id.edtBP);
         edtWaist = view.findViewById(R.id.edtWaist);
@@ -106,19 +106,16 @@ public class CardiovascularRiskFragment extends Fragment {
         cbDiabetes = view.findViewById(R.id.cbDiabetes);
 
         edtRecommendation = view.findViewById(R.id.edtRecommendation);
-//        tvRiskScore = view.findViewById(R.id.tvTotalScore); // ปรับตาม layout ที่มี
 
         rgGender = view.findViewById(R.id.rgGender);
         rbMale = view.findViewById(R.id.rbMale);
         rbFemale = view.findViewById(R.id.rbFemale);
 
-        // เพิ่ม fields ตาม layout
         edtRiskPercentage = view.findViewById(R.id.edtRiskPercentage);
         edtRiskLevel = view.findViewById(R.id.editRickLevel);
 
         // เพิ่ม Listeners
         setupListeners();
-//        setupEditTextClickListeners();
     }
     private void loadData() {
         try {
@@ -201,56 +198,103 @@ public class CardiovascularRiskFragment extends Fragment {
             Log.e("CardiovascularRiskFragment", "Error loading data: " + e.getMessage());
         }
     }
-//    private void showRiskLevel(double score) {
-//        highlightRiskRow((int)Math.ceil(score));
-//    }
-    private void highlightRiskRow(int score) {
-        // หาแถวที่ต้องการไฮไลท์
+    private void highlightRiskRowByPercentage(double riskPercentage) {
         View view = getView();
         if (view == null) return;
 
         try {
             // ดึงอ้างอิงถึง TableRow ทั้งหมด
-            TableRow row1 = view.findViewById(R.id.headerRow); // Row เริ่มต้น
-            if (row1 == null) {
-                Log.e("CardiovascularRiskFragment", "Cannot find headerRow");
-                return;
-            }
+            TableRow lowRiskRow = view.findViewById(R.id.lowRiskRow);
+            TableRow mediumRiskRow = view.findViewById(R.id.mediumRiskRow);
+            TableRow highRiskRow = view.findViewById(R.id.highRiskRow);
 
-            ViewGroup parent = (ViewGroup) row1.getParent();
-            if (parent == null || parent.getChildCount() < 4) {
-                Log.e("CardiovascularRiskFragment", "Parent is null or does not have enough children");
-                return;
-            }
-
-            TableRow row2 = (TableRow) parent.getChildAt(2); // Row ที่ 2
-            TableRow row3 = (TableRow) parent.getChildAt(3); // Row ที่ 3
-
-            if (row2 == null || row3 == null) {
-                Log.e("CardiovascularRiskFragment", "Cannot find row2 or row3");
+            if (lowRiskRow == null || mediumRiskRow == null || highRiskRow == null) {
+                Log.e("CardiovascularRiskFragment", "Cannot find risk rows");
                 return;
             }
 
             // สีที่ใช้ในการไฮไลท์
             int highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+            int normalColor1 = Color.WHITE;
+            int normalColor2 = ContextCompat.getColor(requireContext(), R.color.light_gray);
 
             // กำหนดสีให้ทุกแถวเป็นปกติก่อน
-            row1.setBackgroundColor(Color.WHITE);
-            row2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray));
-            row3.setBackgroundColor(Color.WHITE);
+            lowRiskRow.setBackgroundColor(normalColor1);
+            mediumRiskRow.setBackgroundColor(normalColor2);
+            highRiskRow.setBackgroundColor(normalColor1);
 
-            // ไฮไลท์แถวตามระดับความเสี่ยง
-            if (score <= 2) {
-                row1.setBackgroundColor(highlightColor);
-            } else if (score >= 3 && score <= 5) {
-                row2.setBackgroundColor(highlightColor);
-            } else if (score >= 6) {
-                row3.setBackgroundColor(highlightColor);
+            // ไฮไลท์แถวตามระดับความเสี่ยง (%)
+            if (riskPercentage < 10.0) {
+                // กลุ่มเสี่ยงน้อย
+                lowRiskRow.setBackgroundColor(highlightColor);
+//                updateRecommendation("low");
+            } else if (riskPercentage >= 10.0 && riskPercentage <= 20.0) {
+                // กลุ่มเสี่ยงปานกลาง
+                mediumRiskRow.setBackgroundColor(highlightColor);
+//                updateRecommendation("medium");
+            } else if (riskPercentage > 20.0) {
+                // กลุ่มเสี่ยงสูง
+                highRiskRow.setBackgroundColor(highlightColor);
+//                updateRecommendation("high");
             }
+
+            Log.d("CardiovascularRiskFragment", "Highlighted risk row for percentage: " + riskPercentage + "%");
+
         } catch (Exception e) {
             Log.e("CardiovascularRiskFragment", "Error highlighting risk row: " + e.getMessage());
         }
     }
+//    private void showRiskLevel(double score) {
+//        highlightRiskRow((int)Math.ceil(score));
+//    }
+//    private void highlightRiskRow(int score) {
+//        // หาแถวที่ต้องการไฮไลท์
+//        View view = getView();
+//        if (view == null) return;
+//
+//        try {
+//            // ดึงอ้างอิงถึง TableRow ทั้งหมด
+//            TableRow row1 = view.findViewById(R.id.headerRow); // Row เริ่มต้น
+//            if (row1 == null) {
+//                Log.e("CardiovascularRiskFragment", "Cannot find headerRow");
+//                return;
+//            }
+//
+//            ViewGroup parent = (ViewGroup) row1.getParent();
+//            if (parent == null || parent.getChildCount() < 4) {
+//                Log.e("CardiovascularRiskFragment", "Parent is null or does not have enough children");
+//                return;
+//            }
+//
+//            TableRow row2 = (TableRow) parent.getChildAt(2); // Row ที่ 2
+//            TableRow row3 = (TableRow) parent.getChildAt(3); // Row ที่ 3
+//
+//            if (row2 == null || row3 == null) {
+//                Log.e("CardiovascularRiskFragment", "Cannot find row2 or row3");
+//                return;
+//            }
+//
+//            // สีที่ใช้ในการไฮไลท์
+//            int highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+//
+//            // กำหนดสีให้ทุกแถวเป็นปกติก่อน
+//            row1.setBackgroundColor(Color.WHITE);
+//            row2.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray));
+//            row3.setBackgroundColor(Color.WHITE);
+//
+//            // ไฮไลท์แถวตามระดับความเสี่ยง
+//            if (score <= 2) {
+//                row1.setBackgroundColor(highlightColor);
+//            } else if (score >= 3 && score <= 5) {
+//                row2.setBackgroundColor(highlightColor);
+//            } else if (score >= 6) {
+//                row3.setBackgroundColor(highlightColor);
+//            }
+//        } catch (Exception e) {
+//            Log.e("CardiovascularRiskFragment", "Error highlighting risk row: " + e.getMessage());
+//        }
+//    }
+//
     public void setCardiovascularRiskInfo(CardiovascularRiskInfo info) {
         this.cardiovascularRiskInfo = info;
         loadExistingData();
@@ -342,11 +386,21 @@ public class CardiovascularRiskFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 // ป้องกันการเกิด loop โดยไม่เรียก calculateRisk() อีก
                 if (!TextUtils.isEmpty(s)) {
-                    cardiovascularRiskInfo.setRiskPercentage(s.toString());
-                    cardiovascularRiskLiveData.setRiskPercentage(Double.valueOf(s.toString()));
-                    shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
-                    dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
-                    // ไม่เรียก calculateRisk() ที่นี่
+                    try {
+                        double percentage = Double.parseDouble(s.toString());
+
+                        // อัพเดท Model
+                        cardiovascularRiskInfo.setRiskPercentage(s.toString());
+                        cardiovascularRiskLiveData.setRiskPercentage(percentage);
+                        shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
+                        dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+
+                        // ไฮไลท์แถวตาม %
+                        highlightRiskRowByPercentage(percentage);
+
+                    } catch (NumberFormatException e) {
+                        Log.e("CardiovascularRiskFragment", "Invalid percentage format: " + s.toString());
+                    }
                 }
             }
         });
@@ -359,13 +413,19 @@ public class CardiovascularRiskFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                // ป้องกันการเกิด loop โดยไม่เรียก calculateRisk() อีก
                 if (!TextUtils.isEmpty(s)) {
-                    cardiovascularRiskInfo.setRiskLevel(s.toString());
-                    cardiovascularRiskLiveData.setRiskLevel(Double.valueOf(s.toString()));
-                    shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
-                    dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
-                    calculateRisk(); // ไม่เรียก calculateRisk() ที่นี่
+                    try {
+                        double level = Double.parseDouble(s.toString());
+
+                        // อัพเดท Model
+                        cardiovascularRiskInfo.setRiskLevel(s.toString());
+                        cardiovascularRiskLiveData.setRiskLevel(level);
+                        shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
+                        dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+
+                    } catch (NumberFormatException e) {
+                        Log.e("CardiovascularRiskFragment", "Invalid level format: " + s.toString());
+                    }
                 }
             }
         });
@@ -526,20 +586,67 @@ public class CardiovascularRiskFragment extends Fragment {
             }
         });
     }
+    private TextWatcher createTextWatcher(Runnable onTextChanged) {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s)) {
+                    // อัพเดท model ตามฟิลด์ที่เกี่ยวข้อง
+                    // (ต้องระบุแยกแต่ละฟิลด์)
+
+                    if (onTextChanged != null) {
+                        onTextChanged.run();
+                    }
+                }
+            }
+        };
+    }
     private void calculateRisk() {
         try {
-            // ตรวจสอบว่ามีข้อมูลครบหรือไม่
-            double riskScore = edtRiskLevel.getText().toString().isEmpty() ? 0 : Double.parseDouble(edtRiskLevel.getText().toString());
-            highlightRiskRow((int)Math.ceil(riskScore));
+            // ตรวจสอบว่ามี Risk Percentage กรอกไว้หรือไม่
+            String riskPercentageStr = edtRiskPercentage.getText().toString().trim();
+
+            if (!riskPercentageStr.isEmpty()) {
+                double riskPercentage = Double.parseDouble(riskPercentageStr);
+
+                // ไฮไลท์แถวตาม %
+                highlightRiskRowByPercentage(riskPercentage);
+
+                Log.d("CardiovascularRiskFragment", "Risk calculated: " + riskPercentage + "%");
+            } else {
+                // ถ้าไม่มี % ให้ล้างการไฮไลท์
+                clearRiskHighlight();
+            }
 
         } catch (NumberFormatException e) {
-            // จัดการกรณีที่ข้อมูลไม่ถูกต้อง
             Log.e("CardiovascularRiskFragment", "Error calculating risk: " + e.getMessage());
-            Toast.makeText(getContext(), "กรุณากรอกข้อมูลให้ถูกต้อง", Toast.LENGTH_SHORT).show();
+            clearRiskHighlight();
         }
     }
+    private void clearRiskHighlight() {
+        View view = getView();
+        if (view == null) return;
 
+        try {
+            TableRow lowRiskRow = view.findViewById(R.id.lowRiskRow);
+            TableRow mediumRiskRow = view.findViewById(R.id.mediumRiskRow);
+            TableRow highRiskRow = view.findViewById(R.id.highRiskRow);
+
+            if (lowRiskRow != null && mediumRiskRow != null && highRiskRow != null) {
+                lowRiskRow.setBackgroundColor(Color.WHITE);
+                mediumRiskRow.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray));
+                highRiskRow.setBackgroundColor(Color.WHITE);
+            }
+        } catch (Exception e) {
+            Log.e("CardiovascularRiskFragment", "Error clearing risk highlight: " + e.getMessage());
+        }
+    }
     private boolean validateInput(String... inputs) {
         for (String input : inputs) {
             if (TextUtils.isEmpty(input)) {
@@ -616,16 +723,59 @@ public class CardiovascularRiskFragment extends Fragment {
         return score;
     }
 
-    private void updateRecommendation(int checkedId) {
+    private void updateRecommendation(String riskLevel) {
         String recommendation = "";
-//        if (checkedId == R.id.rbLowRisk) {
-//            recommendation = "แนะนำให้ควบคุมปัจจัยเสี่ยงและตรวจสุขภาพประจำปี";
-//        } else if (checkedId == R.id.rbMediumRisk) {
-//            recommendation = "แนะนำให้ปรับเปลี่ยนพฤติกรรมและติดตามผลทุก 6 เดือน";
-//        } else if (checkedId == R.id.rbHighRisk) {
-//            recommendation = "แนะนำให้พบแพทย์เพื่อประเมินและวางแผนการรักษา";
-//        }
-        edtRecommendation.setText(recommendation);
+
+        switch (riskLevel) {
+            case "low":
+                recommendation = "ความเสี่ยงน้อย (< 10%): แนะนำให้ควบคุมปัจจัยเสี่ยงและตรวจสุขภาพประจำปี รักษาพฤติกรรมสุขภาพที่ดี";
+                break;
+            case "medium":
+                recommendation = "ความเสี่ยงปานกลาง (10-20%): แนะนำให้ปรับเปลี่ยนพฤติกรรมสุขภาพ ติดตามผลทุก 6 เดือน และปรึกษาแพทย์";
+                break;
+            case "high":
+                recommendation = "ความเสี่ยงสูง (> 20%): แนะนำให้พบแพทย์เพื่อประเมินและวางแผนการรักษาอย่างเร่งด่วน พิจารณาการใช้ยา";
+                break;
+            default:
+                recommendation = "";
+                break;
+        }
+
+        if (!recommendation.isEmpty()) {
+            cardiovascularRiskInfo.setRecommendation(recommendation);
+            edtRecommendation.setText(recommendation);
+
+            // อัพเดท LiveData
+            cardiovascularRiskLiveData.setRecommendation(recommendation);
+            shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
+            dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+        }
+    }
+    public String getRiskLevelFromPercentage(double percentage) {
+        if (percentage < 10.0) {
+            return "กลุ่มเสี่ยงน้อย";
+        } else if (percentage >= 10.0 && percentage <= 20.0) {
+            return "กลุ่มเสี่ยงปานกลาง";
+        } else {
+            return "กลุ่มเสี่ยงสูง";
+        }
+    }
+    public boolean isFormComplete() {
+        try {
+            // ตรวจสอบว่ามีข้อมูล Risk Percentage หรือไม่
+            String riskPercentageStr = edtRiskPercentage.getText().toString().trim();
+
+            return !riskPercentageStr.isEmpty() &&
+                    cardiovascularRiskInfo != null &&
+                    cardiovascularRiskInfo.getAge() != null &&
+                    !cardiovascularRiskInfo.getAge().isEmpty() &&
+                    cardiovascularRiskInfo.getGender() != null &&
+                    !cardiovascularRiskInfo.getGender().isEmpty();
+
+        } catch (Exception e) {
+            Log.e("CardiovascularRiskFragment", "Error checking form completion: " + e.getMessage());
+            return false;
+        }
     }
 
 }

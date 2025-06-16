@@ -9,6 +9,7 @@ public class CounselingLiveData {
     private String visitId;
     private int counselingType;
     private String consultDetail;
+    private String referralDetail;
     private byte[] patientSignature;
     private byte[] providerSignature;
 
@@ -46,6 +47,14 @@ public class CounselingLiveData {
 
     public void setConsultDetail(String consultDetail) {
         this.consultDetail = consultDetail;
+    }
+
+    public String getReferralDetail() {
+        return referralDetail;
+    }
+
+    public void setReferralDetail(String referralDetail) {
+        this.referralDetail = referralDetail;
     }
 
     public byte[] getPatientSignature() {

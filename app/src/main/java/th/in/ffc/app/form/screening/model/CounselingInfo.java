@@ -5,6 +5,7 @@ public class CounselingInfo {
     private String personId;
     private int counselingType; // 1=ให้คำแนะนำ, 2=ส่งต่อแพทย์
     private String detail;
+    private String referralDetail; // รายละเอียดการส่งต่อ (เมื่อ counselingType = 2) - เพิ่มใหม่
     private byte[] patientSignature;
     private byte[] providerSignature;
     private String createdBy;
@@ -57,6 +58,13 @@ public class CounselingInfo {
 
     public void setDetail(String detail) {
         this.detail = detail;
+    }
+    public String getReferralDetail() {
+        return referralDetail;
+    }
+
+    public void setReferralDetail(String referralDetail) {
+        this.referralDetail = referralDetail;
     }
 
     public byte[] getPatientSignature() {

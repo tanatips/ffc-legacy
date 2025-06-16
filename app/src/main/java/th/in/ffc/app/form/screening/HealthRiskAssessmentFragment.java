@@ -49,6 +49,22 @@ public class HealthRiskAssessmentFragment extends Fragment {
     private boolean isLoadingExistingData = false;
     private boolean isUpdatingFromTextWatcher = false;
 
+    // เพิ่มตัวแปรสำหรับ RadioGroups
+    private RadioGroup rdoHealthRiskQ1;
+    private RadioGroup rdoHealthRiskQ2;
+    private RadioGroup rdoHealthRiskQ3;
+    private RadioGroup rdoHealthRiskQ4;
+    private RadioGroup rdoHealthRiskQ5;
+    private RadioGroup rdoHealthRiskQ6;
+
+    // เพิ่มตัวแปรสำหรับติดตามการเลือกของผู้ใช้
+    private boolean userHasSelectedQ1 = false;
+    private boolean userHasSelectedQ2 = false;
+    private boolean userHasSelectedQ3 = false;
+    private boolean userHasSelectedQ4 = false;
+    private boolean userHasSelectedQ5 = false;
+    private boolean userHasSelectedQ6 = false;
+
     public HealthRiskAssessmentFragment() {
         // Required empty public constructor
     }
@@ -110,102 +126,118 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void setupRadioGroups(View view) {
-        RadioGroup rdoHealthRiskQ1 = view.findViewById(R.id.rdoHealthRiskQ1);
-        RadioGroup rdoHealthRiskQ2 = view.findViewById(R.id.rdoHealthRiskQ2);
-        RadioGroup rdoHealthRiskQ3 = view.findViewById(R.id.rdoHealthRiskQ3);
-        RadioGroup rdoHealthRiskQ4 = view.findViewById(R.id.rdoHealthRiskQ4);
-        RadioGroup rdoHealthRiskQ5 = view.findViewById(R.id.rdoHealthRiskQ5);
-        RadioGroup rdoHealthRiskQ6 = view.findViewById(R.id.rdoHealthRiskQ6);
+        rdoHealthRiskQ1 = view.findViewById(R.id.rdoHealthRiskQ1);
+        rdoHealthRiskQ2 = view.findViewById(R.id.rdoHealthRiskQ2);
+        rdoHealthRiskQ3 = view.findViewById(R.id.rdoHealthRiskQ3);
+        rdoHealthRiskQ4 = view.findViewById(R.id.rdoHealthRiskQ4);
+        rdoHealthRiskQ5 = view.findViewById(R.id.rdoHealthRiskQ5);
+        rdoHealthRiskQ6 = view.findViewById(R.id.rdoHealthRiskQ6);
 
         // Q1 - Age
         rdoHealthRiskQ1.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            if (isAutoSelecting || isLoadingExistingData) return;
+            if (checkedId == -1) return;
 
             String data = getSelectedValue(checkedId, "rdoHealthRiskQ1_");
             if (!data.isEmpty()) {
+                userHasSelectedQ1 = true; // ผู้ใช้เลือกเอง
                 healthRiskAssessmentLiveData.setSelectHealthRiskQ1(checkedId);
                 updateSharedViewModel();
                 healthRiskAssessmentInfo.setHealthRiskQ1(data);
                 notifyDataPasser();
                 updateScoreAndHighlight();
+                Log.d("HealthRiskAssessment", "Q1 selected by user: " + data);
             }
         });
 
         // Q2 - Gender
         rdoHealthRiskQ2.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            if (isAutoSelecting || isLoadingExistingData) return;
+            if (checkedId == -1) return;
 
             String data = getSelectedValue(checkedId, "rdoHealthRiskQ2_");
             if (!data.isEmpty()) {
+                userHasSelectedQ2 = true; // ผู้ใช้เลือกเอง
                 healthRiskAssessmentLiveData.setSelectHealthRiskQ2(checkedId);
                 updateSharedViewModel();
                 healthRiskAssessmentInfo.setHealthRiskQ2(data);
                 notifyDataPasser();
                 updateScoreAndHighlight();
+                Log.d("HealthRiskAssessment", "Q2 selected by user: " + data);
             }
         });
 
         // Q3 - BMI
         rdoHealthRiskQ3.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            if (isAutoSelecting || isLoadingExistingData) return;
+            if (checkedId == -1) return;
 
             String data = getSelectedValue(checkedId, "rdoHealthRiskQ3_");
             if (!data.isEmpty()) {
+                userHasSelectedQ3 = true; // ผู้ใช้เลือกเอง
                 healthRiskAssessmentLiveData.setSelectHealthRiskQ3(checkedId);
                 updateSharedViewModel();
                 healthRiskAssessmentInfo.setHealthRiskQ3(data);
                 notifyDataPasser();
                 updateScoreAndHighlight();
+                Log.d("HealthRiskAssessment", "Q3 selected by user: " + data);
             }
         });
 
         // Q4 - Waist
         rdoHealthRiskQ4.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            if (isAutoSelecting || isLoadingExistingData) return;
+            if (checkedId == -1) return;
 
             String data = getSelectedValue(checkedId, "rdoHealthRiskQ4_");
             if (!data.isEmpty()) {
+                userHasSelectedQ4 = true; // ผู้ใช้เลือกเอง
                 healthRiskAssessmentLiveData.setSelectHealthRiskQ4(checkedId);
                 updateSharedViewModel();
                 healthRiskAssessmentInfo.setHealthRiskQ4(data);
                 notifyDataPasser();
                 updateScoreAndHighlight();
+                Log.d("HealthRiskAssessment", "Q4 selected by user: " + data);
             }
         });
 
         // Q5 - Blood Pressure
         rdoHealthRiskQ5.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            if (isAutoSelecting || isLoadingExistingData) return;
+            if (checkedId == -1) return;
 
             String data = getSelectedValue(checkedId, "rdoHealthRiskQ5_");
             if (!data.isEmpty()) {
+                userHasSelectedQ5 = true; // ผู้ใช้เลือกเอง
                 healthRiskAssessmentLiveData.setSelectHealthRiskQ5(checkedId);
                 updateSharedViewModel();
                 healthRiskAssessmentInfo.setHealthRiskQ5(data);
                 notifyDataPasser();
                 updateScoreAndHighlight();
+                Log.d("HealthRiskAssessment", "Q5 selected by user: " + data);
             }
         });
 
         // Q6 - Family History
         rdoHealthRiskQ6.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-            if (isAutoSelecting || isLoadingExistingData) return;
+            if (checkedId == -1) return;
 
             String data = getSelectedValue(checkedId, "rdoHealthRiskQ6_");
             if (!data.isEmpty()) {
+                userHasSelectedQ6 = true; // ผู้ใช้เลือกเอง
                 healthRiskAssessmentLiveData.setSelectHealthRiskQ6(checkedId);
                 updateSharedViewModel();
                 healthRiskAssessmentInfo.setHealthRiskQ6(data);
                 notifyDataPasser();
                 updateScoreAndHighlight();
+                Log.d("HealthRiskAssessment", "Q6 selected by user: " + data);
             }
         });
     }
 
     private String getSelectedValue(int checkedId, String prefix) {
-        String resourceName = getResources().getResourceEntryName(checkedId);
-        if (resourceName.startsWith(prefix)) {
-            return resourceName.substring(prefix.length());
+        try {
+            String resourceName = getResources().getResourceEntryName(checkedId);
+            if (resourceName.startsWith(prefix)) {
+                return resourceName.substring(prefix.length());
+            }
+        } catch (Exception e) {
+            Log.e("HealthRiskAssessment", "Error getting selected value: " + e.getMessage());
         }
         return "";
     }
@@ -227,7 +259,8 @@ public class HealthRiskAssessmentFragment extends Fragment {
         viewModel.getPersonDataLiveData().observe(getViewLifecycleOwner(), personData -> {
             if (personData != null && !isLoadingExistingData) {
                 Log.d("HealthRiskAssessment", "Received PersonData: " + personData.toString());
-                autoSelectFromPersonData(personData);
+                // แสดงความคิดเห็น: ไม่ auto-select หากผู้ใช้เลือกแล้ว
+                // autoSelectFromPersonData(personData);
             }
         });
     }
@@ -260,6 +293,9 @@ public class HealthRiskAssessmentFragment extends Fragment {
         isLoadingExistingData = true;
 
         try {
+            // Clear all selections first ก่อนที่จะ load ข้อมูลใหม่
+            clearAllRadioSelections();
+
             // Load all questions silently
             loadQuestionSilently("rdoHealthRiskQ1_", healthRiskAssessmentInfo.getHealthRiskQ1());
             loadQuestionSilently("rdoHealthRiskQ2_", healthRiskAssessmentInfo.getHealthRiskQ2());
@@ -268,49 +304,61 @@ public class HealthRiskAssessmentFragment extends Fragment {
             loadQuestionSilently("rdoHealthRiskQ5_", healthRiskAssessmentInfo.getHealthRiskQ5());
             loadQuestionSilently("rdoHealthRiskQ6_", healthRiskAssessmentInfo.getHealthRiskQ6());
 
-            // Load glucose values - ใช้ method ใหม่ที่รองรับ empty string
+            // Load glucose values
             setTextSilently(editFcbg, healthRiskAssessmentInfo.getFcbg());
             setTextSilently(editFpg, healthRiskAssessmentInfo.getFpg());
 
             updateScoreAndHighlight();
-            updateGlucoseHighlightFromCurrentData(); // อัพเดต glucose highlight
+            updateGlucoseHighlightFromCurrentData();
 
         } finally {
             isLoadingExistingData = false;
         }
     }
+
+    private void clearAllRadioSelections() {
+        // รีเซ็ต user selection flags
+        userHasSelectedQ1 = false;
+        userHasSelectedQ2 = false;
+        userHasSelectedQ3 = false;
+        userHasSelectedQ4 = false;
+        userHasSelectedQ5 = false;
+        userHasSelectedQ6 = false;
+
+        if (rdoHealthRiskQ1 != null) rdoHealthRiskQ1.clearCheck();
+        if (rdoHealthRiskQ2 != null) rdoHealthRiskQ2.clearCheck();
+        if (rdoHealthRiskQ3 != null) rdoHealthRiskQ3.clearCheck();
+        if (rdoHealthRiskQ4 != null) rdoHealthRiskQ4.clearCheck();
+        if (rdoHealthRiskQ5 != null) rdoHealthRiskQ5.clearCheck();
+        if (rdoHealthRiskQ6 != null) rdoHealthRiskQ6.clearCheck();
+    }
+
     private void loadQuestionSilently(String prefix, String value) {
-        if (value != null && !value.equals("0")) {
+        if (value != null && !value.equals("0") && !value.isEmpty()) {
             selectRadioButtonSilently(prefix + value);
         }
     }
 
     private void setTextSilently(EditText editText, String value) {
+        if (editText == null) return;
+
         isUpdatingFromTextWatcher = true;
         try {
-            // บันทึกตำแหน่ง cursor ปัจจุบัน
             int cursorPosition = editText.getSelectionStart();
-
             String currentText = editText.getText().toString();
             String newText = (value != null) ? value : "";
 
-            // ตั้งค่าข้อความใหม่เฉพาะเมื่อมีการเปลี่ยนแปลง
             if (!currentText.equals(newText)) {
                 editText.setText(newText);
-
-                // คำนวณตำแหน่ง cursor ใหม่
                 int newCursorPosition = Math.min(cursorPosition, newText.length());
-
-                // ตั้งตำแหน่ง cursor ให้ถูกต้อง
                 if (newCursorPosition >= 0 && newCursorPosition <= newText.length()) {
                     editText.setSelection(newCursorPosition);
                 }
             }
         } catch (Exception e) {
-            // กรณีมีข้อผิดพลาด ให้ตั้งค่าแบบปกติ
             String newText = (value != null) ? value : "";
             editText.setText(newText);
-            editText.setSelection(newText.length()); // ย้าย cursor ไปท้ายสุด
+            editText.setSelection(newText.length());
         } finally {
             isUpdatingFromTextWatcher = false;
         }
@@ -324,28 +372,14 @@ public class HealthRiskAssessmentFragment extends Fragment {
         try {
             Log.d("HealthRiskAssessment", "Starting auto-selection from PersonData");
 
-            // Auto-select Age
             autoSelectAge(personData);
-
-            // Auto-select Gender
             autoSelectGender(personData);
-
-            // Auto-select BMI
             autoSelectBMI(personData);
-
-            // Auto-select Waist Circumference
             autoSelectWaist(personData);
-
-            // Auto-select Hypertension
             autoSelectHypertension(personData);
-
-            // Auto-select Family History
             autoSelectFamilyHistory(personData);
-
-            // Auto-fill glucose values
             autoFillGlucoseValues(personData);
 
-            // Update score and notify
             updateScoreAndHighlight();
             notifyDataPasser();
 
@@ -357,7 +391,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoSelectAge(PersonData personData) {
-        if (personData.getAge() != null) {
+        if (personData.getAge() != null && !userHasSelectedQ1) { // เฉพาะเมื่อผู้ใช้ยังไม่เลือกเอง
             int age = personData.getAge();
             String ageCategory = "";
 
@@ -375,14 +409,14 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoSelectGender(PersonData personData) {
-        if (personData.getGender() != null) {
+        if (personData.getGender() != null && !userHasSelectedQ2) { // เฉพาะเมื่อผู้ใช้ยังไม่เลือกเอง
             String gender = personData.getGender().toLowerCase();
             String genderCategory = "";
 
             if (gender.equals("female") || gender.equals("หญิง") || gender.equals("f") || gender.equals("2")) {
-                genderCategory = "1"; // หญิง
+                genderCategory = "1";
             } else if (gender.equals("male") || gender.equals("ชาย") || gender.equals("m") || gender.equals("1")) {
-                genderCategory = "2"; // ชาย
+                genderCategory = "2";
             }
 
             if (!genderCategory.isEmpty()) {
@@ -394,7 +428,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoSelectBMI(PersonData personData) {
-        if (personData.getBmi() != null) {
+        if (personData.getBmi() != null && !userHasSelectedQ3) { // เฉพาะเมื่อผู้ใช้ยังไม่เลือกเอง
             double bmi = personData.getBmi();
             String bmiCategory = "";
 
@@ -411,7 +445,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoSelectWaist(PersonData personData) {
-        if (personData.getWaistCircumference() != null && personData.getGender() != null) {
+        if (personData.getWaistCircumference() != null && personData.getGender() != null && !userHasSelectedQ4) { // เฉพาะเมื่อผู้ใช้ยังไม่เลือกเอง
             double waist = personData.getWaistCircumference();
             String gender = personData.getGender().toLowerCase();
             String waistCategory = "";
@@ -431,7 +465,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoSelectHypertension(PersonData personData) {
-        if (personData.hasHypertension() != null) {
+        if (personData.hasHypertension() != null && !userHasSelectedQ5) { // เฉพาะเมื่อผู้ใช้ยังไม่เลือกเอง
             String bpCategory = personData.hasHypertension() ? "2" : "1";
             healthRiskAssessmentInfo.setHealthRiskQ5(bpCategory);
             selectRadioButtonSilently("rdoHealthRiskQ5_" + bpCategory);
@@ -440,7 +474,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoSelectFamilyHistory(PersonData personData) {
-        if (personData.hasFamilyDiabetesHistory() != null) {
+        if (personData.hasFamilyDiabetesHistory() != null && !userHasSelectedQ6) { // เฉพาะเมื่อผู้ใช้ยังไม่เลือกเอง
             String familyHistoryCategory = personData.hasFamilyDiabetesHistory() ? "2" : "1";
             healthRiskAssessmentInfo.setHealthRiskQ6(familyHistoryCategory);
             selectRadioButtonSilently("rdoHealthRiskQ6_" + familyHistoryCategory);
@@ -449,11 +483,9 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void autoFillGlucoseValues(PersonData personData) {
-        // ตรวจสอบว่า EditText กำลัง focus อยู่หรือไม่
         boolean fcbgHasFocus = editFcbg.hasFocus();
         boolean fpgHasFocus = editFpg.hasFocus();
 
-        // Handle FCBG - ไม่ auto-fill ถ้าผู้ใช้กำลังพิมพ์อยู่
         if (!fcbgHasFocus) {
             if (personData.getFcbg() != null) {
                 String fcbgValue = String.valueOf(personData.getFcbg());
@@ -466,7 +498,6 @@ public class HealthRiskAssessmentFragment extends Fragment {
             }
         }
 
-        // Handle FPG - ไม่ auto-fill ถ้าผู้ใช้กำลังพิมพ์อยู่
         if (!fpgHasFocus) {
             if (personData.getFpg() != null) {
                 String fpgValue = String.valueOf(personData.getFpg());
@@ -479,39 +510,34 @@ public class HealthRiskAssessmentFragment extends Fragment {
             }
         }
 
-        // Update glucose highlighting based on current values
         updateGlucoseHighlightFromCurrentData();
     }
+
     private String validateAndFormatNumber(String input) {
         if (input == null || input.trim().isEmpty()) {
             return "";
         }
 
         try {
-            // ลบช่องว่างและตัวอักษรที่ไม่ใช่ตัวเลขหรือจุดทศนิยม
             String cleaned = input.replaceAll("[^0-9.]", "");
-
-            // ตรวจสอบว่ามีจุดทศนิยมมากกว่า 1 จุดหรือไม่
             String[] parts = cleaned.split("\\.");
             if (parts.length > 2) {
-                // มีจุดทศนิยมมากกว่า 1 จุด ให้เก็บแค่ 2 ส่วนแรก
                 cleaned = parts[0] + "." + parts[1];
             }
 
-            // ตรวจสอบว่าเป็นตัวเลขที่ถูกต้องหรือไม่
             if (!cleaned.isEmpty()) {
                 Double.parseDouble(cleaned);
             }
 
             return cleaned;
         } catch (NumberFormatException e) {
-            return input; // คืนค่าเดิมถ้าไม่สามารถ format ได้
+            return input;
         }
     }
+
     private void setupFocusListeners() {
         editFcbg.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                // เมื่อผู้ใช้พิมพ์เสร็จแล้ว ให้ validate ค่า
                 String text = editFcbg.getText().toString().trim();
                 String validatedText = validateAndFormatNumber(text);
 
@@ -524,7 +550,6 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
         editFpg.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                // เมื่อผู้ใช้พิมพ์เสร็จแล้ว ให้ validate ค่า
                 String text = editFpg.getText().toString().trim();
                 String validatedText = validateAndFormatNumber(text);
 
@@ -535,19 +560,18 @@ public class HealthRiskAssessmentFragment extends Fragment {
             }
         });
     }
+
     private void updateGlucoseHighlightFromCurrentData() {
-        // ตรวจสอบค่า FCBG และ FPG ปัจจุบัน
         String fcbgStr = healthRiskAssessmentInfo.getFcbg();
         String fpgStr = healthRiskAssessmentInfo.getFpg();
 
         Double glucoseValue = null;
 
-        // ใช้ค่าที่มีข้อมูลสำหรับ highlight (ให้ความสำคัญกับ FPG ก่อน)
         if (fpgStr != null && !fpgStr.isEmpty()) {
             try {
                 glucoseValue = Double.parseDouble(fpgStr);
             } catch (NumberFormatException e) {
-                // ถ้า FPG ไม่ใช่ตัวเลข ให้ลอง FCBG
+                // Ignore
             }
         }
 
@@ -555,7 +579,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             try {
                 glucoseValue = Double.parseDouble(fcbgStr);
             } catch (NumberFormatException e) {
-                // ถ้าทั้งคู่ไม่ใช่ตัวเลข ให้ clear highlight
+                // Ignore
             }
         }
 
@@ -713,12 +737,9 @@ public class HealthRiskAssessmentFragment extends Fragment {
         }
     }
 
-
     private void setupGlucoseInputListeners() {
         // FCBG Listener
         editFcbg.addTextChangedListener(new TextWatcher() {
-            private boolean isInternalUpdate = false;
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -727,17 +748,13 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isUpdatingFromTextWatcher || isAutoSelecting || isLoadingExistingData || isInternalUpdate) {
+                if (isUpdatingFromTextWatcher || isAutoSelecting || isLoadingExistingData) {
                     return;
                 }
 
                 String text = s.toString().trim();
 
-                // บันทึกตำแหน่ง cursor ปัจจุบัน
-                int cursorPosition = editFcbg.getSelectionStart();
-
                 if (text.isEmpty()) {
-                    // กรณีลบข้อความหมด - clear ข้อมูล
                     healthRiskAssessmentInfo.setFcbg("");
                     clearGlucoseHighlight();
                     notifyDataPasser();
@@ -748,7 +765,6 @@ public class HealthRiskAssessmentFragment extends Fragment {
                         highlightGlucoseRow(fcbgValue);
                         notifyDataPasser();
                     } catch (NumberFormatException e) {
-                        // กรณีกรอกข้อมูลไม่ถูกต้อง - เก็บข้อความเอาไว้แต่ไม่ highlight
                         healthRiskAssessmentInfo.setFcbg(text);
                         clearGlucoseHighlight();
                         notifyDataPasser();
@@ -759,8 +775,6 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
         // FPG Listener
         editFpg.addTextChangedListener(new TextWatcher() {
-            private boolean isInternalUpdate = false;
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -769,17 +783,13 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isUpdatingFromTextWatcher || isAutoSelecting || isLoadingExistingData || isInternalUpdate) {
+                if (isUpdatingFromTextWatcher || isAutoSelecting || isLoadingExistingData) {
                     return;
                 }
 
                 String text = s.toString().trim();
 
-                // บันทึกตำแหน่ง cursor ปัจจุบัน
-                int cursorPosition = editFpg.getSelectionStart();
-
                 if (text.isEmpty()) {
-                    // กรณีลบข้อความหมด - clear ข้อมูล
                     healthRiskAssessmentInfo.setFpg("");
                     clearGlucoseHighlight();
                     notifyDataPasser();
@@ -790,7 +800,6 @@ public class HealthRiskAssessmentFragment extends Fragment {
                         highlightGlucoseRow(fpgValue);
                         notifyDataPasser();
                     } catch (NumberFormatException e) {
-                        // กรณีกรอกข้อมูลไม่ถูกต้อง - เก็บข้อความเอาไว้แต่ไม่ highlight
                         healthRiskAssessmentInfo.setFpg(text);
                         clearGlucoseHighlight();
                         notifyDataPasser();
@@ -799,7 +808,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             }
         });
     }
-    // เพิ่ม method ใหม่สำหรับ clear glucose highlight
+
     private void clearGlucoseHighlight() {
         TableRow row1 = getView().findViewById(R.id.glucoseRow1);
         TableRow row2 = getView().findViewById(R.id.glucoseRow2);
@@ -808,13 +817,8 @@ public class HealthRiskAssessmentFragment extends Fragment {
         int white = ContextCompat.getColor(requireContext(), R.color.white);
         int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
 
-        // รีเซ็ตสีพื้นหลังเป็นสีเดิม
         row1.setBackgroundColor(white);
         row2.setBackgroundColor(light_gray);
         row3.setBackgroundColor(white);
     }
-
-
-
-    // ลบ method setPersonDataAndAutoSelect() และ selectRadioButton() ที่ซ้ำออก
 }
