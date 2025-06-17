@@ -189,6 +189,7 @@ public class PersonProvider extends ContentProvider {
     private static final int PERSON_NCD_BALL_ITEM = 797;
 
     private static final int PERSON_SUMMARY_BY_VILLAGE = 800;
+    private static final int VISIT_DIAG_DIRECT = 999;
 
     private DbOpenHelper mOpenHelper;
     private static UriMatcher mUriMatcher;
@@ -307,6 +308,7 @@ public class PersonProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "person/personncdball/#", PERSON_NCD_BALL_ITEM);
 
         mUriMatcher.addURI(AUTHORITY, "person/summary/village", PERSON_SUMMARY_BY_VILLAGE);
+        mUriMatcher.addURI(AUTHORITY, "visitdiag", VISIT_DIAG_DIRECT);
     }
 
     @Override
@@ -323,6 +325,9 @@ public class PersonProvider extends ContentProvider {
                         new String[]{uri.getLastPathSegment()});
                 break;
             case VISIT_DIAG:
+                delete = db.delete(VisitDiag.TABLENAME, selection, selectionArgs);
+                break;
+            case VISIT_DIAG_DIRECT:
                 delete = db.delete(VisitDiag.TABLENAME, selection, selectionArgs);
                 break;
             case VISIT_DIAG_ID:
@@ -620,6 +625,14 @@ public class PersonProvider extends ContentProvider {
                     uriReturn = VisitDiag.getContentUriId(
                             values.getAsLong(VisitDiag.NO),
                             values.getAsString(VisitDiag.CODE));
+                break;
+            case VISIT_DIAG_DIRECT:
+                id = db.insert("visitdiag", null, values);
+                if (id > 0) {
+                    uriReturn = VisitDiag.getContentUriId(
+                            values.getAsLong("visitno"),
+                            values.getAsString("diagcode"));
+                }
                 break;
             case VISIT_DRUG:
                 id = db.insert(VisitDrug.TABLENAME, null, values);
@@ -1293,6 +1306,11 @@ public class PersonProvider extends ContentProvider {
                     sortOrder = "village.villno ASC";
 
                 break;
+            case VISIT_DIAG_DIRECT:
+                builder.setTables(VisitDiag.TABLENAME); // ไม่ JOIN
+                sortOrder = "visitno, diagcode"; // กำหนดการเรียงลำดับ
+                // ไม่ใช้ PROJECTION_MAP
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI : "
                         + uri.toString());
@@ -1392,7 +1410,9 @@ public class PersonProvider extends ContentProvider {
                 where = "visitno=" + visitdrug + " AND drugcode='" + drugcode + "'";
                 count = db.update(VisitDrug.TABLENAME, values, where, null);
                 break;
-
+            case VISIT_DIAG_DIRECT:
+                count = db.update("visitdiag", values, selection, selectionArgs);
+                break;
             case VISITHOMEHEALTHINDIVIDUAL:
                 count = db.update(VisitIndividual.TABLENAME, values, selection,
                         selectionArgs);

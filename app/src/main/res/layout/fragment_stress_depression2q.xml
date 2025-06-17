@@ -328,7 +328,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="ปกติ"
+                                android:text="ปกติ\n(1B0210)"
                                 android:textSize="15sp"
                                 android:textColor="#27AE60"
                                 android:textStyle="bold"
@@ -356,7 +356,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="ผิดปกติ และส่งต่อเจ้าหน้าที่"
+                                android:text="ผิดปกติ และส่งต่อเจ้าหน้าที่\n(1B0211)"
                                 android:textSize="15sp"
                                 android:textColor="#E74C3C"
                                 android:textStyle="bold"
@@ -382,7 +382,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp" android:visibility="gone">
 
                 <TextView
                     android:layout_width="match_parent"

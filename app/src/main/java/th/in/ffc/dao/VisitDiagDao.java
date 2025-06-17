@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import th.in.ffc.app.form.screening.model.VisitDiagInfo;
+import th.in.ffc.provider.PersonProvider;
 import th.in.ffc.provider.PersonProvider.VisitDiag;
 
 /**
@@ -42,27 +43,37 @@ public class VisitDiagDao {
     public static Uri getVisitDiagUri() {
         return VisitDiag.CONTENT_URI;
     }
+    public static Uri getVisitDiagDirectUri() {
+        return Uri.parse("content://" + PersonProvider.AUTHORITY + "/visitdiag");
+    }
 
     /**
      * ดึงข้อมูลการวินิจฉัยทั้งหมด
      */
     public static List<VisitDiagInfo> getAllVisitDiag() {
-        Cursor cursor = mContext.getContentResolver().query(getVisitDiagUri(), null, null, null, VisitDiag.DEFAULT_SORTING);
+        Cursor cursor = mContext.getContentResolver().query(
+                getVisitDiagDirectUri(),  // ใช้ Direct URI
+                null,
+                null,
+                null,
+                VisitDiag.DEFAULT_SORTING
+        );
+
         List<VisitDiagInfo> diagList = new ArrayList<>();
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 VisitDiagInfo diag = new VisitDiagInfo();
-                diag.setVisitno(getStringFromCursor(cursor, VisitDiag.NO));
-                diag.setPcucode(getStringFromCursor(cursor, VisitDiag.PCUCODE));
-                diag.setDiagcode(getStringFromCursor(cursor, VisitDiag.CODE));
-                diag.setDxtype(getStringFromCursor(cursor, VisitDiag.TYPE));
-                diag.setClinic(getStringFromCursor(cursor, VisitDiag.CLINIC));
-                diag.setContinue(getStringFromCursor(cursor, VisitDiag.CONTINUE));
-                diag.setAppointdate(getStringFromCursor(cursor, VisitDiag.APPOINT_DATE));
-                diag.setAppointtype(getStringFromCursor(cursor, VisitDiag.APPOINT_TYPE));
-                diag.setDoctor(getStringFromCursor(cursor, VisitDiag.DOCTOR));
-                diag.setDateupdate(getStringFromCursor(cursor, VisitDiag.DATEUPDATE));
+                diag.setVisitno(getStringFromCursor(cursor, "visitno"));
+                diag.setPcucode(getStringFromCursor(cursor, "pcucode"));
+                diag.setDiagcode(getStringFromCursor(cursor, "diagcode"));
+                diag.setDxtype(getStringFromCursor(cursor, "dxtype"));
+                diag.setClinic(getStringFromCursor(cursor, "clinic"));
+                diag.setContinue(getStringFromCursor(cursor, "conti"));
+                diag.setAppointdate(getStringFromCursor(cursor, "appointdate"));
+                diag.setAppointtype(getStringFromCursor(cursor, "appointtype"));
+                diag.setDoctor(getStringFromCursor(cursor, "doctordiag"));
+                diag.setDateupdate(getStringFromCursor(cursor, "dateupdate"));
                 diagList.add(diag);
             }
             cursor.close();
@@ -97,6 +108,50 @@ public class VisitDiagDao {
         }
         return diag;
     }
+    public static VisitDiagInfo getVisitDiagByVisitNoAndPcucode(String visitno, String pcucode) {
+        return getVisitDiagByVisitNoAndPcucodeSimple(visitno, pcucode);
+    }
+    public static VisitDiagInfo getVisitDiagByVisitNoAndPcucodeSimple(String visitno, String pcucode) {
+        String select = "visitno = ? AND pcucode = ?";
+        String[] selectionArgs = new String[]{visitno, pcucode};
+
+        Cursor cursor = null;
+        VisitDiagInfo diag = null;
+
+        try {
+            // ใช้ Direct URI แทน
+            cursor = mContext.getContentResolver().query(
+                    getVisitDiagDirectUri(),  // เปลี่ยนจาก getVisitDiagUri()
+                    null,  // ดึงทุกคอลัมน์
+                    select,
+                    selectionArgs,
+                    "visitno ASC, pcucode ASC"  // เรียงลำดับตาม visitno และ pcucode
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                diag = new VisitDiagInfo();
+                diag.setVisitno(getStringFromCursor(cursor, "visitno"));
+                diag.setPcucode(getStringFromCursor(cursor, "pcucode"));
+                diag.setDiagcode(getStringFromCursor(cursor, "diagcode"));
+                diag.setDxtype(getStringFromCursor(cursor, "dxtype"));
+                diag.setClinic(getStringFromCursor(cursor, "clinic"));
+                diag.setContinue(getStringFromCursor(cursor, "conti"));
+                diag.setAppointdate(getStringFromCursor(cursor, "appointdate"));
+                diag.setAppointtype(getStringFromCursor(cursor, "appointtype"));
+                diag.setDoctor(getStringFromCursor(cursor, "doctordiag"));
+                diag.setDateupdate(getStringFromCursor(cursor, "dateupdate"));
+            }
+        } catch (Exception e) {
+            System.out.println("Error in simple query: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return diag;
+    }
 
     /**
      * ค้นหาข้อมูลการวินิจฉัยทั้งหมดของการเข้าเยี่ยมหนึ่งครั้ง
@@ -104,22 +159,29 @@ public class VisitDiagDao {
     public static List<VisitDiagInfo> getVisitDiagByVisitNo(String visitno) {
         String select = "visitno = ?";
         String[] selectionArgs = new String[]{visitno};
-        Cursor cursor = mContext.getContentResolver().query(getVisitDiagUri(), null, select, selectionArgs, VisitDiag.DEFAULT_SORTING);
+        Cursor cursor = mContext.getContentResolver().query(
+                getVisitDiagDirectUri(),  // ใช้ Direct URI
+                null,
+                select,
+                selectionArgs,
+                VisitDiag.DEFAULT_SORTING
+        );
+
         List<VisitDiagInfo> diagList = new ArrayList<>();
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 VisitDiagInfo diag = new VisitDiagInfo();
-                diag.setVisitno(getStringFromCursor(cursor, VisitDiag.NO));
-                diag.setPcucode(getStringFromCursor(cursor, VisitDiag.PCUCODE));
-                diag.setDiagcode(getStringFromCursor(cursor, VisitDiag.CODE));
-                diag.setDxtype(getStringFromCursor(cursor, VisitDiag.TYPE));
-                diag.setClinic(getStringFromCursor(cursor, VisitDiag.CLINIC));
-                diag.setContinue(getStringFromCursor(cursor, VisitDiag.CONTINUE));
-                diag.setAppointdate(getStringFromCursor(cursor, VisitDiag.APPOINT_DATE));
-                diag.setAppointtype(getStringFromCursor(cursor, VisitDiag.APPOINT_TYPE));
-                diag.setDoctor(getStringFromCursor(cursor, VisitDiag.DOCTOR));
-                diag.setDateupdate(getStringFromCursor(cursor, VisitDiag.DATEUPDATE));
+                diag.setVisitno(getStringFromCursor(cursor, "visitno"));
+                diag.setPcucode(getStringFromCursor(cursor, "pcucode"));
+                diag.setDiagcode(getStringFromCursor(cursor, "diagcode"));
+                diag.setDxtype(getStringFromCursor(cursor, "dxtype"));
+                diag.setClinic(getStringFromCursor(cursor, "clinic"));
+                diag.setContinue(getStringFromCursor(cursor, "conti"));
+                diag.setAppointdate(getStringFromCursor(cursor, "appointdate"));
+                diag.setAppointtype(getStringFromCursor(cursor, "appointtype"));
+                diag.setDoctor(getStringFromCursor(cursor, "doctordiag"));
+                diag.setDateupdate(getStringFromCursor(cursor, "dateupdate"));
                 diagList.add(diag);
             }
             cursor.close();
@@ -134,10 +196,10 @@ public class VisitDiagDao {
         try {
             ContentValues values = new ContentValues();
             values = getPutValueVisitDiag(data, values);
-            Uri uri = mContext.getContentResolver().insert(VisitDiag.CONTENT_URI, values);
+            // ใช้ URI เดิมสำหรับ insert เพราะ insert ต้องผ่าน PersonProvider
+            Uri uri = mContext.getContentResolver().insert(getVisitDiagDirectUri(), values);
             String id = "";
 
-            // ดึง ID ที่ได้จากการ insert (ในกรณีนี้คือ visitno)
             if (uri != null) {
                 id = data.getVisitno();
             }
@@ -156,8 +218,9 @@ public class VisitDiagDao {
             String[] selectionArgs = {data.getVisitno(), data.getDiagcode()};
             ContentValues values = new ContentValues();
             values = getPutValueVisitDiag(data, values);
+            // ใช้ URI เดิมสำหรับ update
             Uri uri = getVisitDiagUriById(data.getVisitno(), data.getDiagcode());
-            mContext.getContentResolver().update(uri, values, select, selectionArgs);
+            mContext.getContentResolver().update(getVisitDiagDirectUri(), values, select, selectionArgs);
             return 1;
         } catch (Exception e) {
             return 0;
@@ -167,11 +230,12 @@ public class VisitDiagDao {
     /**
      * ลบข้อมูลการวินิจฉัย
      */
-    public static long delete(String visitno, String diagcode) {
+    public static long delete(String visitno, String pcucode) {
         try {
-            String select = "visitno=? AND diagcode=?";
-            String[] selectionArgs = {visitno, diagcode};
-            mContext.getContentResolver().delete(getVisitDiagUri(), select, selectionArgs);
+            String select = "visitno=? AND pcucode=?";
+            String[] selectionArgs = {visitno, pcucode};
+            // ใช้ Direct URI สำหรับ delete เพื่อหลีกเลี่ยงปัญหา JOIN
+            mContext.getContentResolver().delete(getVisitDiagDirectUri(), select, selectionArgs);
             return 1;
         } catch (Exception e) {
             return 0;
@@ -185,12 +249,55 @@ public class VisitDiagDao {
         try {
             String select = "visitno=?";
             String[] selectionArgs = {visitno};
-            int count = mContext.getContentResolver().delete(getVisitDiagUri(), select, selectionArgs);
+            int count = mContext.getContentResolver().delete(getVisitDiagDirectUri(), select, selectionArgs);
             return count;
         } catch (Exception e) {
             return 0;
         }
     }
+    public static void debugVisitDiagColumns() {
+        Cursor cursor = null;
+        try {
+            System.out.println("===== Testing Original URI =====");
+            cursor = mContext.getContentResolver().query(
+                    getVisitDiagUri(),
+                    null, null, null, null
+            );
+
+            if (cursor != null) {
+                String[] columnNames = cursor.getColumnNames();
+                System.out.println("Original URI: " + getVisitDiagUri());
+                for (int i = 0; i < columnNames.length; i++) {
+                    System.out.println("Column " + i + ": " + columnNames[i]);
+                }
+                cursor.close();
+            }
+
+            System.out.println("===== Testing Direct URI =====");
+            cursor = mContext.getContentResolver().query(
+                    getVisitDiagDirectUri(),
+                    null, null, null, null
+            );
+
+            if (cursor != null) {
+                String[] columnNames = cursor.getColumnNames();
+                System.out.println("Direct URI: " + getVisitDiagDirectUri());
+                for (int i = 0; i < columnNames.length; i++) {
+                    System.out.println("Column " + i + ": " + columnNames[i]);
+                }
+                cursor.close();
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error debugging columns: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
 
     /**
      * ค้นหาข้อมูลการวินิจฉัยตามเงื่อนไขต่างๆ

@@ -196,6 +196,9 @@ public class SubstanceOneAdapter extends RecyclerView.Adapter<SubstanceOneAdapte
                             item.setOtherDrugs(newText);
                             // เพิ่มการเรียก listener
                             if (listener != null) {
+                                if(item.isHasUsed() == null) {
+                                    item.setHasUsed(false); // กำหนดค่าเริ่มต้นถ้ายังไม่ถูกกำหนด
+                                }
                                 listener.onAnswerChanged(item.getId(), item.isHasUsed(), newText);
                             }
                             requestLayout(); // ขอให้ปรับขนาด

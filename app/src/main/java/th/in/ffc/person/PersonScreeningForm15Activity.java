@@ -153,7 +153,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private List<DrugsInfo> drugsSixInfos;
     private List<DrugsInfo> drugsSevenInfos;
     private List<DrugsInfo> drugsEightInfos;
-    CardiovascularRiskInfo  cardiovascularRiskInfo;
+    CardiovascularRiskInfo cardiovascularRiskInfo;
     private ExpandableListView expandableListView;
     private ScreeningExpandableListAdapter expandableListAdapter;
     private List<String> categoryList; // หัวข้อหลัก
@@ -290,7 +290,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             public void onClick(View view) {
                 try {
                     savePerson();
-                    if(personInfo.getId()!=null) {
+                    if (personInfo.getId() != null) {
                         saveSmoker();
                         saveStressDepression();
                         saveNicotine();
@@ -319,8 +319,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
                         Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
                     }
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                 }
 
@@ -336,6 +335,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         btnReCreateTable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                VisitDiagDao visitDiagDao = new VisitDiagDao(mContext);
+                visitDiagDao.delete("11","08671");
                 ScreeningFormProvider.ReCreateTable(mContext);
                 CounselingSignatureProvider.ReCreateTable(mContext);
                 Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
@@ -344,27 +345,27 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 //        SfTokenDao tokenDao = new SfTokenDao(getBaseContext());
 //        tokenDao.insertDefaultTokenIfEmpty();
         getPersonInfoDetail();
-        if(this.personInfo!= null) {
-            if(this.personInfo.getSend_to_claim().equals(1)) {
+        if (this.personInfo != null) {
+            if (this.personInfo.getSend_to_claim().equals(1)) {
                 btnOk.setEnabled(false);
-            }
-            else {
+            } else {
                 btnOk.setEnabled(true);
             }
         }
     }
+
     public void updatePersonDataAfterFormSave() {
         updatePersonDataFromCurrentInfo();
     }
+
     // เพิ่มเมธอดใหม่สำหรับแสดง Dialog
     private void showFormDialog(String formName) {
         Fragment fragment = fragmentMap.get(formName);
         if (fragment != null) {
-            if(this.personInfo!=null) {
+            if (this.personInfo != null) {
                 FormDialogFragment dialogFragment = FormDialogFragment.newInstance(formName, fragment, this.personInfo.getSend_to_claim());
                 dialogFragment.show(getSupportFragmentManager(), "FormDialog");
-            }
-            else {
+            } else {
                 Toast.makeText(this, "โปรดกรอกข้อมูลผู้ส่วนตัวก่อนทำแบบคัดกรอง", Toast.LENGTH_SHORT).show();
             }
 
@@ -384,6 +385,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 //            }, 700); // ลองเพิ่มเวลารอเป็น 700ms
         }
     }
+
     private void adjustExpandableListViewHeight() {
         ViewGroup.LayoutParams params = expandableListView.getLayoutParams();
         int totalHeight = 0;
@@ -408,14 +410,15 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         expandableListView.setLayoutParams(params);
         expandableListView.requestLayout();
     }
-    private void getPersonInfoDetail(){
+
+    private void getPersonInfoDetail() {
 
         String personId = getIntent().getStringExtra("person_id");
         String visitId = getIntent().getStringExtra("visit_id");
-        if(personId!=null) {
+        if (personId != null) {
             // ใน Activity
             SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-            QuestionsStateViewModel questionsStateViewModel =  new ViewModelProvider(this).get(QuestionsStateViewModel.class);
+            QuestionsStateViewModel questionsStateViewModel = new ViewModelProvider(this).get(QuestionsStateViewModel.class);
             PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
             personInfoLiveData.setId(personId);
             viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
@@ -468,6 +471,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             checkExistingData(personId);
         }
     }
+
     private void checkExistingData(String personId) {
         // สร้าง Map เพื่อเก็บสถานะการกรอกข้อมูล
         Map<String, Boolean> formStatus = new HashMap<>();
@@ -608,15 +612,17 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         // expandableListAdapter = new ScreeningExpandableListAdapter(this, categoryList, subcategoryMap);
         // expandableListView.setAdapter(expandableListAdapter);
     }
+
     public void updateFormStatus(String formName, boolean status) {
         if (expandableListAdapter != null) {
             ((ScreeningExpandableListAdapter) expandableListAdapter).updateCompletionStatus(formName, status);
         }
     }
-    private String savePerson(){
+
+    private String savePerson() {
         SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
         UserSessionManager userSessionManager = new UserSessionManager(mContext);
-        if(this.personInfo.getId()==null) {
+        if (this.personInfo.getId() == null) {
 
             this.personInfo.setCreated_by(userSessionManager.getUser());
             this.personInfo.setCreated_date(DateConverter.getCurrentThaiBuddhistDateTime());
@@ -630,83 +636,86 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
         List<PersonInfo> personInfos1 = sfPersonInfoDao.getSfPersonInfoById(Integer.parseInt(this.personInfo.getId()));
         System.out.println("===== Start get data by id ======");
-        for(PersonInfo p: personInfos1){
-            System.out.println(p.getId()+" "+p.getFname());
+        for (PersonInfo p : personInfos1) {
+            System.out.println(p.getId() + " " + p.getFname());
         }
         System.out.println("===== End get data by id ======");
         return this.personInfo.getId();
 
     }
-    private void saveSmoker(){
+
+    private void saveSmoker() {
         SfSmokerInfoDao sfSmokerInfoDao = new SfSmokerInfoDao(mContext);
-        if(smokerInfo!=null) {
+        if (smokerInfo != null) {
             smokerInfo.setIdcard(this.personInfo.getIdcard());
             smokerInfo.setPersonId(this.personInfo.getId());
             smokerInfo.setCreated_by("SYSTEM");
             smokerInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            if(this.smokerInfo.getId()==null) {
+            if (this.smokerInfo.getId() == null) {
                 String id = sfSmokerInfoDao.insert(smokerInfo);
                 this.smokerInfo.setId(id);
             } else {
                 sfSmokerInfoDao.update(this.smokerInfo);
             }
             SmokerInfo smokerInfo = sfSmokerInfoDao.getById(Integer.parseInt(this.smokerInfo.getId()));
-            if(smokerInfo!=null){
-                System.out.println("smoker:"+smokerInfo.getId()+" "+smokerInfo.getPersonId());
+            if (smokerInfo != null) {
+                System.out.println("smoker:" + smokerInfo.getId() + " " + smokerInfo.getPersonId());
                 // อัปเดตสถานะหลังบันทึกข้อมูลสำเร็จ
                 updateFormStatus("คัดกรองความเสี่ยงจากการสูบบุหรี่", true);
             }
         }
     }
-    private void saveDrinking(){
+
+    private void saveDrinking() {
         SfDrinkingInfoDao sfDrinkingInfoDao = new SfDrinkingInfoDao(mContext);
-        if(drinkingInfo!=null) {
+        if (drinkingInfo != null) {
             drinkingInfo.setIdcard(this.personInfo.getIdcard());
             drinkingInfo.setPersonId(this.personInfo.getId());
             drinkingInfo.setCreated_by("SYSTEM");
             drinkingInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            if(this.drinkingInfo.getId()==null) {
+            if (this.drinkingInfo.getId() == null) {
                 String id = sfDrinkingInfoDao.insert(drinkingInfo);
                 this.drinkingInfo.setId(id);
             } else {
                 sfDrinkingInfoDao.update(drinkingInfo);
             }
             DrinkingInfo drinkingInfo = sfDrinkingInfoDao.getById(Integer.parseInt(this.drinkingInfo.getId()));
-            if(drinkingInfo!=null){
-                System.out.println("drinking:"+drinkingInfo.getId()+" "+drinkingInfo.getPersonId());
+            if (drinkingInfo != null) {
+                System.out.println("drinking:" + drinkingInfo.getId() + " " + drinkingInfo.getPersonId());
             }
         }
     }
-    private void saveNicotine(){
+
+    private void saveNicotine() {
         SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(mContext);
-        if(nicotineInfo!=null) {
+        if (nicotineInfo != null) {
             nicotineInfo.setIdcard(this.personInfo.getIdcard());
             nicotineInfo.setPersonId(this.personInfo.getId());
             nicotineInfo.setCreated_by("SYSTEM");
             nicotineInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            if(this.nicotineInfo.getId()==null) {
+            if (this.nicotineInfo.getId() == null) {
                 String id = sfNicotineInfoDao.insert(nicotineInfo);
                 this.nicotineInfo.setId(id);
             } else {
                 sfNicotineInfoDao.update(nicotineInfo);
             }
             NicotineInfo nicotineInfo = sfNicotineInfoDao.getById(Integer.parseInt(this.nicotineInfo.getId()));
-            if(nicotineInfo!=null){
-                System.out.println("smoker:"+nicotineInfo.getId()+" "+nicotineInfo.getPersonId());
+            if (nicotineInfo != null) {
+                System.out.println("smoker:" + nicotineInfo.getId() + " " + nicotineInfo.getPersonId());
             }
         }
     }
-    private void saveStressDepression(){
-        if(stressDepressionInfo!=null) {
+
+    private void saveStressDepression() {
+        if (stressDepressionInfo != null) {
             SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(mContext);
             stressDepressionInfo.setPersonId(this.personInfo.getId());
             stressDepressionInfo.setIdcard(this.personInfo.getIdcard());
 
-            if(this.stressDepressionInfo.getId()==null) {
+            if (this.stressDepressionInfo.getId() == null) {
                 String id = sfStressDepressionInfoDao.insert(stressDepressionInfo);
                 this.stressDepressionInfo.setId(id);
-            }
-            else {
+            } else {
                 sfStressDepressionInfoDao.update(stressDepressionInfo);
             }
 
@@ -718,6 +727,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
+
     // เพิ่มเมธอดใหม่สำหรับตรวจสอบสถานะ StressDepressionFragment
     public void updateStressDepressionStatus() {
         // ค้นหา Fragment จากหน้าจอปัจจุบัน
@@ -737,15 +747,15 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     // ปรับปรุงเมธอด saveStressDepression2q() เพื่อเพิ่มการอัปเดตสถานะ
-    private void saveStressDepression2q(){
-        if(stressDepression2qInfo!=null) {
+    private void saveStressDepression2q() {
+        if (stressDepression2qInfo != null) {
             SfStressDepression2qInfoDao sfStressDepression2qInfoDao = new SfStressDepression2qInfoDao(mContext);
             stressDepression2qInfo.setPersonId(this.personInfo.getId());
             stressDepression2qInfo.setIdcard(personInfo.getIdcard());
-            if(this.stressDepression2qInfo.getId()==null) {
+            if (this.stressDepression2qInfo.getId() == null) {
                 String id = sfStressDepression2qInfoDao.insert(stressDepression2qInfo);
                 stressDepression2qInfo.setId(id);
-            }else {
+            } else {
                 sfStressDepression2qInfoDao.update(stressDepression2qInfo);
             }
             StressDepression2qInfo stressDepression2qInfo = sfStressDepression2qInfoDao.getById(Integer.parseInt(this.stressDepression2qInfo.getId()));
@@ -756,16 +766,16 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
-    private void saveStressDepression9q(){
-        if(this.stressDepression9qInfo!=null) {
+
+    private void saveStressDepression9q() {
+        if (this.stressDepression9qInfo != null) {
             SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(mContext);
             this.stressDepression9qInfo.setPersonId(this.personInfo.getId());
             this.stressDepression9qInfo.setIdcard(this.personInfo.getIdcard());
-            if(stressDepression9qInfo.getId()==null) {
+            if (stressDepression9qInfo.getId() == null) {
                 String id = sfStressDepression9qInfoDao.insert(this.stressDepression9qInfo);
                 this.stressDepression9qInfo.setId(id);
-            }
-            else {
+            } else {
                 sfStressDepression9qInfoDao.update(this.stressDepression9qInfo);
             }
             StressDepression9qInfo stressDepression9qInfo = sfStressDepression9qInfoDao.getById(Integer.parseInt(this.stressDepression9qInfo.getId()));
@@ -776,16 +786,16 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
-    private void saveSuicideAssessment8q(){
-        if(this.suicideAssessment8qInfo!=null) {
+
+    private void saveSuicideAssessment8q() {
+        if (this.suicideAssessment8qInfo != null) {
             SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(mContext);
             this.suicideAssessment8qInfo.setPersonId(this.personInfo.getId());
             this.suicideAssessment8qInfo.setIdcard(this.personInfo.getIdcard());
-            if(this.suicideAssessment8qInfo.getId()==null) {
+            if (this.suicideAssessment8qInfo.getId() == null) {
                 String id = sfSuicideAssessment8qInfoDao.insert(this.suicideAssessment8qInfo);
                 this.suicideAssessment8qInfo.setId(id);
-            }
-            else {
+            } else {
                 sfSuicideAssessment8qInfoDao.update(this.suicideAssessment8qInfo);
             }
             SuicideAssessment8qInfo suicideAssessment8qInfo = sfSuicideAssessment8qInfoDao.getById(Integer.parseInt(this.suicideAssessment8qInfo.getId()));
@@ -796,16 +806,16 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
-    private void saveHealthRiskAssessment(){
-        if(this.healthRiskAssessmentInfo!=null) {
+
+    private void saveHealthRiskAssessment() {
+        if (this.healthRiskAssessmentInfo != null) {
             SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
             this.healthRiskAssessmentInfo.setPersonId(this.personInfo.getId());
             this.healthRiskAssessmentInfo.setIdcard(this.personInfo.getIdcard());
-            if(this.healthRiskAssessmentInfo.getId()==null) {
+            if (this.healthRiskAssessmentInfo.getId() == null) {
                 String id = sfHealthRiskAssessmentInfoDao.insert(this.healthRiskAssessmentInfo);
                 this.healthRiskAssessmentInfo.setId(id);
-            }
-            else {
+            } else {
                 sfHealthRiskAssessmentInfoDao.update(this.healthRiskAssessmentInfo);
             }
             HealthRiskAssessmentInfo healthRiskAssessmentInfo = sfHealthRiskAssessmentInfoDao.getById(Integer.parseInt(this.healthRiskAssessmentInfo.getId()));
@@ -814,19 +824,20 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
+
     private void saveDrugsOne() {
-        if(this.drugsOneInfos != null) {
+        if (this.drugsOneInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsOneInfos) {
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-               if (drugsInfo.getId() == null) {
-                   drugsInfo.setCreatedBy("SYSTEM");
-                   drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                   // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                   String id = sfDrugsDao.insert(drugsInfo);
-                   drugsInfo.setId(id);
+                if (drugsInfo.getId() == null) {
+                    drugsInfo.setCreatedBy("SYSTEM");
+                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                    String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
                 } else {
                     // กำหนดค่าสำหรับการอัพเดต
                     drugsInfo.setUpdatedBy("SYSTEM");
@@ -844,7 +855,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsTwo() {
-        if(this.drugsTwoInfos != null) {
+        if (this.drugsTwoInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsTwoInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -873,7 +884,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsThree() {
-        if(this.drugsThreeInfos != null) {
+        if (this.drugsThreeInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsThreeInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -902,7 +913,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsFour() {
-        if(this.drugsFourInfos != null) {
+        if (this.drugsFourInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsFourInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -931,7 +942,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsFive() {
-        if(this.drugsFiveInfos != null) {
+        if (this.drugsFiveInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsFiveInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -960,7 +971,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsSix() {
-        if(this.drugsSixInfos != null) {
+        if (this.drugsSixInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsSixInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -989,7 +1000,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsSeven() {
-        if(this.drugsSevenInfos != null) {
+        if (this.drugsSevenInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsSevenInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -1018,7 +1029,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void saveDrugsEight() {
-        if(this.drugsEightInfos != null) {
+        if (this.drugsEightInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
             for (DrugsInfo drugsInfo : this.drugsEightInfos) {
                 // กำหนดค่าที่จำเป็น
@@ -1045,6 +1056,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             }
         }
     }
+
     private void saveCardiovascularRisk() {
         if (this.cardiovascularRiskInfo != null) {
             // เพิ่ม import สำหรับ SfCardiovascularRiskInfoDao
@@ -1111,79 +1123,83 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
     }
 
-    private void saveVisit(){
+    private void saveVisit() {
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
-                VisitDao visitDao = new VisitDao(getContentResolver());
-                if(this.personInfo.getVisitId() == null) { // insert
-                    long visitId = visitDao.saveNewVisitWithVitalSigns(
-                            userSessionManager.getPcuCode(),                     // pcucode
-                            userSessionManager.getPcuCode(),                     // pcucodePerson
-                            personInfo.getIdcard(),                              // pid
-                            personInfo.getCreated_date(),                        // visitDate
-                            (float) personInfo.getWeight(),                       // weight
-                            (float) personInfo.getHeight(),                       // height
-                            personInfo.getBp(),                                  // pressure
-                            (float) personInfo.getTemperature(),                  // temperature
-                            Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"),                               // pluse
-                            (float) personInfo.getWaist_size(),                   // waist
-                            String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
-                            String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
-                            userSessionManager.getUsername()                     // username
-                    );
-                    if(visitId>0) {
-                        this.personInfo.setVisitId(String.valueOf(visitId));
-                        String seq = GenerateSeq.generateSeq(userSessionManager.getPcuCode());
-                        SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(),String.valueOf(visitId),seq);
-                    }
-                }
-                else {
-                    visitDao.updateVisit(
-                            Long.parseLong(personInfo.getVisitId()),            // visitNo
-                            (float) personInfo.getWeight(),                      // weight
-                            (float) personInfo.getHeight(),                      // height
-                            personInfo.getBp(),                                  // pressure
-                            (float) personInfo.getTemperature(),                 // temperature
-                            Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"), // pulse
-                            (float) personInfo.getWaist_size(),                  // waist
-                            String.valueOf(personInfo.getSystolic_pressure()),   // symptoms (ในที่นี้ใช้ systolic แทน)
-                            String.valueOf(personInfo.getDiastolic_pressure())   // diagnote (ในที่นี้ใช้ diastolic แทน)
-                    );
+        VisitDao visitDao = new VisitDao(getContentResolver());
+        if (this.personInfo.getVisitId() == null) { // insert
+            long visitId = visitDao.saveNewVisitWithVitalSigns(
+                    userSessionManager.getPcuCode(),                     // pcucode
+                    userSessionManager.getPcuCode(),                     // pcucodePerson
+                    personInfo.getIdcard(),                              // pid
+                    personInfo.getCreated_date(),                        // visitDate
+                    (float) personInfo.getWeight(),                       // weight
+                    (float) personInfo.getHeight(),                       // height
+                    personInfo.getBp(),                                  // pressure
+                    (float) personInfo.getTemperature(),                  // temperature
+                    Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"),                               // pluse
+                    (float) personInfo.getWaist_size(),                   // waist
+                    String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
+                    String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
+                    userSessionManager.getUsername()                     // username
+            );
+            if (visitId > 0) {
+                this.personInfo.setVisitId(String.valueOf(visitId));
+                String seq = GenerateSeq.generateSeq(userSessionManager.getPcuCode());
+                SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
+            }
+        } else {
+            visitDao.updateVisit(
+                    Long.parseLong(personInfo.getVisitId()),            // visitNo
+                    (float) personInfo.getWeight(),                      // weight
+                    (float) personInfo.getHeight(),                      // height
+                    personInfo.getBp(),                                  // pressure
+                    (float) personInfo.getTemperature(),                 // temperature
+                    Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"), // pulse
+                    (float) personInfo.getWaist_size(),                  // waist
+                    String.valueOf(personInfo.getSystolic_pressure()),   // symptoms (ในที่นี้ใช้ systolic แทน)
+                    String.valueOf(personInfo.getDiastolic_pressure())   // diagnote (ในที่นี้ใช้ diastolic แทน)
+            );
 
-                }
+        }
     }
-    private String getDiagCode (){
+
+    private String getDiagCode() {
         int age = th.in.ffc.util.AgeCalculator.calculateAge(personInfo.getBirthday());
         SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(mContext);
         SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
         List<CardiovascularRiskInfo> cardiovascularRiskInfos = sfCardiovascularRiskInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
-        List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos =  sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
-        double fpg= 0.0;
+        List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos = sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+        double fpg = 0.0;
         double choresteral = 0.0;
-        if(!healthRiskAssessmentInfos.isEmpty())
-        {
-            if(healthRiskAssessmentInfos.size()>0) {
-                fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+        if (!healthRiskAssessmentInfos.isEmpty()) {
+            if (healthRiskAssessmentInfos.size() > 0) {
+                if (healthRiskAssessmentInfos.get(0).getFpg() != null && !healthRiskAssessmentInfos.get(0).getFpg().isEmpty()) {
+                    fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+                }
             }
         }
-        if(cardiovascularRiskInfos.isEmpty()) {
+        if (cardiovascularRiskInfos.isEmpty()) {
             if (cardiovascularRiskInfos.size() > 0) {
-                choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol() != null ? cardiovascularRiskInfos.get(0).getCholesterol() : "0");
+                if (cardiovascularRiskInfos.get(0).getCholesterol() != null && !cardiovascularRiskInfos.get(0).getCholesterol().isEmpty()) {
+                    choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol() != null ? cardiovascularRiskInfos.get(0).getCholesterol() : "0");
+                }
             }
         }
         String diagCode = "";
-        if(15<=age && age<=34){  // DX=Z13.3, Z13.6
+        if (15 <= age && age <= 34) {  // DX=Z13.3, Z13.6
             diagCode = "DX=Z13.3,Z13.6";
-        } else if(35<=age && age<=59){ // DX=Z13.1, Z13.3
+        } else if (35 <= age && age <= 59) { // DX=Z13.1, Z13.3
             diagCode = "DX=Z13.1,Z13.3";
-            if(fpg>0) {
+            if (fpg > 0) {
                 diagCode = "DX=Z13.1";
             }
-            if(choresteral>0){
+            if (choresteral > 0) {
                 diagCode = "DX=213.1";
             }
         }
         return diagCode;
     }
+
     private void saveVisitDiag() {
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
 
@@ -1193,11 +1209,17 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         visitDiagInfo.setVisitno(this.personInfo.getVisitId());
         visitDiagInfo.setDiagcode(getDiagCode());
         if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
-            visitDiagDao.update(visitDiagInfo);
+            VisitDiagInfo savedVisitDiagInfo = visitDiagDao.getVisitDiagByVisitNoAndPcucode(visitDiagInfo.getVisitno(), visitDiagInfo.getPcucode());
+            if (savedVisitDiagInfo != null) {
+                // ถ้ามีข้อมูลอยู่แล้ว ให้ทำการอัพเดต
+                visitDiagDao.update(visitDiagInfo);
 
-        } else {
-            visitDiagDao.insert(visitDiagInfo);
+            } else {
+                // ถ้ายังไม่มีข้อมูล ให้สร้างใหม่
+                visitDiagDao.insert(visitDiagInfo);
+            }
         }
+
     }
     private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter) {
         Fragment fragment = adapter.getFragmentAt(position);
