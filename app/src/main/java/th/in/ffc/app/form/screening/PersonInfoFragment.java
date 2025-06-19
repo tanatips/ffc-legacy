@@ -66,6 +66,7 @@ import th.in.ffc.api.nhso.ApiResponse;
 import th.in.ffc.api.nhso.AuthenCodeRequest;
 import th.in.ffc.api.nhso.NhsoApiCaller;
 import th.in.ffc.app.form.screening.dao.DistrictDao;
+import th.in.ffc.app.form.screening.dao.PersonDao;
 import th.in.ffc.app.form.screening.dao.ProvinceDao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
@@ -450,21 +451,24 @@ public class PersonInfoFragment extends Fragment {
 //        dateTextView = view.findViewById(R.id.dateTextView);
         selectDateButton = view.findViewById(R.id.selectDateButton);
         txtBirthDay = view.findViewById(R.id.txtBirthDay);
-        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
-        house.setDialog(getActivity().getSupportFragmentManager(),
-                HouseListDialog.class, "house");
 
-        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
-                dataPasser.onPersonInfo(personInfo);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+// ค้นหาข้อมูล
+//        PersonDao.PersonInfo person = personDao.getPersonByIdcard("1234567890123");
+//        house = (SearchableSpinner) view.findViewById(R.id.spinnerHcode);
+//        house.setDialog(getActivity().getSupportFragmentManager(),
+//                HouseListDialog.class, "house");
+// =
+//        house.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                personInfo.setHcode(String.valueOf(house.getSelectedItemId()));
+//                dataPasser.onPersonInfo(personInfo);
+//            }
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
 
 
@@ -561,17 +565,115 @@ public class PersonInfoFragment extends Fragment {
                 apiCaller.testRealPersonApi(citizenIdString, tokenAuth, new NhsoApiCaller.RealPersonApiCallback() {
                     @Override
                     public void onSuccess(String response) {
-//                        String formattedResponse = formatResponseData(response);
                         // สร้าง custom view สำหรับแสดงข้อมูล
                         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_permission_info, null);
                         TextView tvPermissionInfo = dialogView.findViewById(R.id.tvPermissionInfo);
                         tvPermissionInfo.setText(response);
 
+                        // Parse ข้อมูลจาก response สำหรับนำมาใส่ใน form
+                        String fullName = "";
+                        String birthDate = "";
+                        String firstName = "";
+                        String lastName = "";
+                        String gender = "";
+
+                        try {
+                            // แยกข้อมูลจากข้อความที่มีรูปแบบเป็น text
+                            String[] lines = response.split("\n");
+
+                            for (String line : lines) {
+                                line = line.trim();
+
+                                // ดึงชื่อ-นามสกุล
+                                if (line.startsWith("ชื่อ-นามสกุล:")) {
+                                    fullName = line.substring("ชื่อ-นามสกุล:".length()).trim();
+                                    // แยกชื่อและนามสกุล
+                                    String[] nameParts = fullName.trim().split("\\s+");
+                                    if (nameParts.length >= 2) {
+                                        firstName = nameParts[0];
+                                        // รวมส่วนที่เหลือเป็นนามสกุล
+                                        StringBuilder lastNameBuilder = new StringBuilder();
+                                        for (int i = 1; i < nameParts.length; i++) {
+                                            if (i > 1) lastNameBuilder.append(" ");
+                                            lastNameBuilder.append(nameParts[i]);
+                                        }
+                                        lastName = lastNameBuilder.toString();
+                                    } else if (nameParts.length == 1) {
+                                        firstName = nameParts[0];
+                                        lastName = "";
+                                    }
+                                }
+
+                                // ดึงเพศ
+                                if (line.startsWith("เพศ:")) {
+                                    gender = line.substring("เพศ:".length()).trim();
+                                }
+
+                                // ดึงวันเกิด
+                                if (line.startsWith("วันเกิด:")) {
+                                    birthDate = line.substring("วันเกิด:".length()).trim();
+                                }
+                            }
+
+                        } catch (Exception e) {
+                            Log.e("Permission Check", "Error parsing response: " + e.getMessage());
+                        }
+
+                        // เก็บข้อมูลไว้ใน final variables เพื่อใช้ใน onClick
+                        final String finalFirstName = firstName;
+                        final String finalLastName = lastName;
+                        final String finalBirthDate = birthDate;
+                        final String finalGender = gender;
+
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext(), R.style.AlertDialog_AppCompat)
                                 .setTitle("ตรวจสอบสิทธิ์")
                                 .setView(dialogView)
                                 .setIcon(R.drawable.permission)
-                                .setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+                                .setPositiveButton("ตกลง", (dialog, which) -> {
+                                    // นำข้อมูลมาใส่ใน form เมื่อกดตกลง
+                                    if (!finalFirstName.isEmpty()) {
+                                        fname.setText(finalFirstName);
+                                        personInfo.setFname(finalFirstName);
+                                    }
+
+                                    if (!finalLastName.isEmpty()) {
+                                        lname.setText(finalLastName);
+                                        personInfo.setLname(finalLastName);
+                                    }
+
+                                    // ตั้งค่าเพศ
+                                    if (!finalGender.isEmpty()) {
+                                        if (finalGender.equals("ชาย")) {
+                                            rdoMale.setChecked(true);
+                                            personInfo.setGender("M");
+                                        } else if (finalGender.equals("หญิง")) {
+                                            rdoFemale.setChecked(true);
+                                            personInfo.setGender("F");
+                                        }
+                                    }
+
+                                    if (!finalBirthDate.isEmpty()) {
+                                        try {
+                                            // แปลงวันที่จากรูปแบบไทย "21 พฤษภาคม 2520" เป็นรูปแบบ dd/MM/yyyy
+                                            String thaiBirthDate = convertToThaiBuddhistDate(finalBirthDate);
+                                            txtBirthDay.setText(thaiBirthDate);
+
+                                            // แปลงเป็น Western date สำหรับเก็บใน PersonInfo
+                                            String westernDate = convertThaiDateToWestern(finalBirthDate);
+                                            if (westernDate != null) {
+                                                personInfo.setBirthday(westernDate);
+                                            }
+                                        } catch (Exception e) {
+                                            Log.e("Date Conversion", "Error converting birth date: " + e.getMessage());
+                                        }
+                                    }
+
+                                    // อัพเดท personInfo ใน dataPasser
+                                    dataPasser.onPersonInfo(personInfo);
+
+                                    dialog.dismiss();
+                                })
+                                .setNegativeButton("ยกเลิก", (dialog, which) -> dialog.dismiss());
 
                         // แสดง dialog บน UI thread
                         if (getActivity() != null) {
@@ -600,83 +702,87 @@ public class PersonInfoFragment extends Fragment {
                             getActivity().runOnUiThread(() -> builder.show());
                         }
                     }
-                    // ฟังก์ชันสำหรับจัดรูปแบบข้อมูลที่ได้จาก API ให้อ่านง่ายขึ้น
-                    private String formatResponseData(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            StringBuilder formattedData = new StringBuilder();
+                });
+            }
 
-                            // ข้อมูลส่วนบุคคล
-                            formattedData.append("ข้อมูลส่วนตัว\n");
-                            formattedData.append("-----------------------------------------\n");
+            // Method สำหรับแปลงวันที่เป็นรูปแบบไทย
+            private String convertToThaiBuddhistDate(String thaiDateString) {
+                try {
+                    // รูปแบบวันที่ที่ได้จาก API: "21 พฤษภาคม 2520"
+                    String[] months = {
+                            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+                    };
 
-                            if (jsonObject.has("pid")) {
-                                formattedData.append("เลขประจำตัวประชาชน: ").append(jsonObject.getString("pid")).append("\n");
+                    String[] dateParts = thaiDateString.trim().split("\\s+");
+                    if (dateParts.length == 3) {
+                        String day = dateParts[0];
+                        String monthThai = dateParts[1];
+                        String yearBE = dateParts[2];
+
+                        // หาเดือนในรูปแบบตัวเลข
+                        int monthNumber = 0;
+                        for (int i = 0; i < months.length; i++) {
+                            if (months[i].equals(monthThai)) {
+                                monthNumber = i + 1;
+                                break;
                             }
+                        }
 
-                            if (jsonObject.has("fullName")) {
-                                formattedData.append("ชื่อ-นามสกุล: ").append(jsonObject.getString("fullName")).append("\n");
-                            }
-
-                            if (jsonObject.has("sex")) {
-                                formattedData.append("เพศ: ").append(jsonObject.getString("sex")).append("\n");
-                            }
-
-                            if (jsonObject.has("age")) {
-                                formattedData.append("อายุ: ").append(jsonObject.getString("age")).append("\n");
-                            }
-
-                            if (jsonObject.has("birthDate")) {
-                                formattedData.append("วันเกิด: ").append(jsonObject.getString("birthDate")).append("\n");
-                            }
-
-                            if (jsonObject.has("nationDescription")) {
-                                formattedData.append("สัญชาติ: ").append(jsonObject.getString("nationDescription")).append("\n");
-                            }
-
-                            if (jsonObject.has("provinceName")) {
-                                formattedData.append("จังหวัด: ").append(jsonObject.getString("provinceName")).append("\n");
-                            }
-
-                            // ข้อมูลสิทธิ์การรักษา
-                            formattedData.append("ข้อมูลสิทธิ์การรักษา\n");
-                            formattedData.append("-----------------------------------------\n");
-
-                            if (jsonObject.has("mainInscl")) {
-                                formattedData.append("สิทธิหลัก: ").append(jsonObject.getString("mainInscl")).append("\n");
-                            }
-
-                            if (jsonObject.has("subInscl")) {
-                                formattedData.append("สิทธิย่อย: ").append(jsonObject.getString("subInscl")).append("\n");
-                            }
-
-                            // ข้อมูลสถานพยาบาล
-                            formattedData.append("ข้อมูลสถานพยาบาล\n");
-                            formattedData.append("-----------------------------------------\n");
-
-                            if (jsonObject.has("hospMain")) {
-                                formattedData.append("สถานพยาบาลหลัก: ").append(jsonObject.getString("hospMain")).append("\n");
-                            }
-
-                            if (jsonObject.has("hospSub")) {
-                                formattedData.append("สถานพยาบาลรอง: ").append(jsonObject.getString("hospSub")).append("\n");
-                            }
-
-                            if (jsonObject.has("hospMainOp")) {
-                                formattedData.append("สถานพยาบาลประจำ: ").append(jsonObject.getString("hospMainOp")).append("\n");
-                            }
-
-                            return formattedData.toString();
-                        } catch (JSONException e) {
-                            // กรณีไม่สามารถแปลงเป็น JSON ได้ ให้แสดงข้อมูลเดิม
-                            Log.e("API_FORMAT", "Error formatting JSON: " + e.getMessage());
-                            return response;
+                        if (monthNumber > 0) {
+                            // แปลงเป็นรูปแบบ dd/MM/yyyy (พุทธศักราช)
+                            return String.format(Locale.US, "%02d/%02d/%s",
+                                    Integer.parseInt(day), monthNumber, yearBE);
                         }
                     }
-                });
 
+                    return thaiDateString; // คืนค่าเดิมหากแปลงไม่ได้
+                } catch (Exception e) {
+                    Log.e("Date Conversion", "Error converting date: " + e.getMessage());
+                    return thaiDateString; // คืนค่าเดิมหากแปลงไม่ได้
+                }
+            }
+
+            // Method สำหรับแปลงวันที่ไทยเป็นรูปแบบ Western สำหรับเก็บใน PersonInfo
+            private String convertThaiDateToWestern(String thaiDateString) {
+                try {
+                    String[] months = {
+                            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+                    };
+
+                    String[] dateParts = thaiDateString.trim().split("\\s+");
+                    if (dateParts.length == 3) {
+                        int day = Integer.parseInt(dateParts[0]);
+                        String monthThai = dateParts[1];
+                        int yearBE = Integer.parseInt(dateParts[2]);
+
+                        // หาเดือนในรูปแบบตัวเลข
+                        int monthNumber = 0;
+                        for (int i = 0; i < months.length; i++) {
+                            if (months[i].equals(monthThai)) {
+                                monthNumber = i + 1;
+                                break;
+                            }
+                        }
+
+                        if (monthNumber > 0) {
+                            // แปลงปีพุทธศักราชเป็นคริสต์ศักราช
+                            int yearAD = yearBE - 543;
+
+                            // แปลงเป็นรูปแบบ yyyy-MM-dd
+                            return String.format(Locale.US, "%04d-%02d-%02d", yearAD, monthNumber, day);
+                        }
+                    }
+
+                    return null;
+                } catch (Exception e) {
+                    Log.e("Date Conversion", "Error converting Thai date to Western: " + e.getMessage());
+                    return null;
+                }
             }
         });
+
         spinnerProvince = view.findViewById(R.id.spinnerProvince);
         spinnerDistrict = view.findViewById(R.id.spinnerDistrict);
         spinnerSubDistrict = view.findViewById(R.id.spinnerSubDistrict);
@@ -974,6 +1080,20 @@ public class PersonInfoFragment extends Fragment {
                                 }
                             }
                         }
+                        if(editText == citizenId){
+                            String idCard = editText.getText().toString();
+                            if (idCard.length() == 13) {
+                                PersonDao personDao = new PersonDao(getContext());
+                                PersonDao.PersonInfo person = personDao.getPersonByIdcard(personInfo.getIdcard());
+                                if(person!=null){
+                                    personInfo.setHcode(person.getHcode());
+                                }
+                                personInfo.setIdcard(idCard);
+                                dataPasser.onPersonInfo(personInfo);
+                            } else {
+                                Toast.makeText(getContext(), "กรุณากรอกหมายเลขบัตรประชาชนให้ครบ 13 หลัก", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                         if(editText == txtWeight || editText == txtHeight){
                             if(!txtWeight.getText().toString().equals("") && !txtHeight.getText().toString().equals("")) {
                                 float weight = Float.valueOf(Objects.requireNonNull(txtWeight.getText().toString() != "" ? txtWeight.getText().toString() : "0"));
@@ -1268,11 +1388,6 @@ public class PersonInfoFragment extends Fragment {
                             try {
                                 Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                                 imgPerson.setImageBitmap(bitmap);
-
-                                // เก็บรูปภาพไว้ใน PersonInfo
-//                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//                                byte[] photoData = stream.toByteArray();
                                 personInfo.setPhoto(byteArray);
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -1281,25 +1396,46 @@ public class PersonInfoFragment extends Fragment {
                             }
                         }
                         if(strIdcard!=null && !strIdcard.equals("")){
-
                             String[] idcardInfo = strIdcard.split("#");
                             if(idcardInfo.length>0){
-                            citizenId.setText(idcardInfo[0].toString());
-                            fname.setText(idcardInfo[2].toString());
-                            lname.setText(idcardInfo[4].toString());
+                                citizenId.setText(idcardInfo[0].toString());
+                                fname.setText(idcardInfo[2].toString());
+                                lname.setText(idcardInfo[4].toString());
 
-                            int day,month,year;
-                            year = Integer.parseInt(idcardInfo[18].substring(0,4));
-                            month = Integer.parseInt(idcardInfo[18].substring(4,6))-1;
-                            day = Integer.parseInt(idcardInfo[18].substring(6,8));
-                            txtBirthDay.setText(day+"/"+month+"/"+year);
-                            personInfo.setBirthday(convertToWesternDate(txtBirthDay.getText().toString()));
-                            if(idcardInfo[1].toString().equals("นาย")) {
-                                rdoMale.setChecked(true);
-                            } else {
-                                rdoMale.setChecked(true);
+                                // แก้ไขส่วนการประมวลผลวันเกิด
+                                if(idcardInfo.length > 18 && idcardInfo[18].length() == 8) {
+                                    try {
+                                        int day, month, year;
+                                        year = Integer.parseInt(idcardInfo[18].substring(0,4));
+                                        month = Integer.parseInt(idcardInfo[18].substring(4,6)); // ไม่ต้องลบ 1
+                                        day = Integer.parseInt(idcardInfo[18].substring(6,8));
+
+                                        // จัดรูปแบบวันที่ให้ถูกต้อง (dd/MM/yyyy)
+                                        String formattedBirthDate = String.format(Locale.US, "%02d/%02d/%d", day, month, year);
+                                        txtBirthDay.setText(formattedBirthDate);
+
+                                        // แปลงเป็น Western date สำหรับเก็บใน PersonInfo
+                                        personInfo.setBirthday(convertToWesternDate(formattedBirthDate));
+                                    } catch (NumberFormatException e) {
+                                        Log.e("PersonInfo", "Error parsing birth date: " + e.getMessage());
+                                    }
+                                }
+
+                                // ตั้งค่าเพศ
+                                if(idcardInfo[1].toString().equals("นาย")) {
+                                    rdoMale.setChecked(true);
+                                    personInfo.setGender("M");
+                                } else if(idcardInfo[1].toString().equals("นาง") || idcardInfo[1].toString().equals("นางสาว")) {
+                                    rdoFemale.setChecked(true);
+                                    personInfo.setGender("F");
+                                } else {
+                                    rdoMale.setChecked(true); // default
+                                    personInfo.setGender("M");
+                                }
+
+                                // อัพเดทข้อมูลไปยัง dataPasser
+                                dataPasser.onPersonInfo(personInfo);
                             }
-                        }
                         }
                     }
                     getDataFromDevice(result);

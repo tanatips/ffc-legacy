@@ -203,7 +203,7 @@ public class FiscalYearSummaryActivity extends AppCompatActivity {
                 (int) yearSummary.get("totalCount") : 0;
 
         // คำนวณส่วนต่าง
-        double difference = totalChargeAmount - totalClaimAmount;
+        double difference = totalClaimAmount - totalChargeAmount;
 
         // แสดงผลในหน้าจอ
         textTotalChargeAmount.setText(currencyFormat.format(totalChargeAmount).replace("฿", "") + " บาท");

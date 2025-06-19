@@ -3,14 +3,14 @@
  *                                                               ( _ _  |
  *                                                           _ _ _ _  | |
  *                                                          (_ _ _  | |_|
- *  _     _   _ _ _ _     _ _ _   _ _ _ _ _   _ _ _ _     _ _ _   | | 
+ *  _     _   _ _ _ _     _ _ _   _ _ _ _ _   _ _ _ _     _ _ _   | |
  * |  \  | | |  _ _ _|   /  _ _| |_ _   _ _| |  _ _ _|   /  _ _|  | |
  * | | \ | | | |_ _ _   /  /         | |     | |_ _ _   /  /      |_|
- * | |\ \| | |  _ _ _| (  (          | |     |  _ _ _| (  (    
- * | | \ | | | |_ _ _   \  \_ _      | |     | |_ _ _   \  \_ _ 
- * |_|  \__| |_ _ _ _|   \_ _ _|     |_|     |_ _ _ _|   \_ _ _| 
+ * | |\ \| | |  _ _ _| (  (          | |     |  _ _ _| (  (
+ * | | \ | | | |_ _ _   \  \_ _      | |     | |_ _ _   \  \_ _
+ * |_|  \__| |_ _ _ _|   \_ _ _|     |_|     |_ _ _ _|   \_ _ _|
  *  a member of NSTDA, @Thailand
- *  
+ *
  * ***********************************************************************
  *
  *
@@ -18,10 +18,10 @@
  *
  * Copyright (C) 2010-2012 National Electronics and Computer Technology Center
  * All Rights Reserved.
- * 
+ *
  * This file is subject to the terms and conditions defined in
  * file 'LICENSE.txt', which is part of this source code package.
- * 
+ *
  */
 
 package th.in.ffc.building.house;
@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,6 +57,7 @@ import th.in.ffc.person.PersonListFragment;
 import th.in.ffc.provider.HouseProvider.House;
 import th.in.ffc.provider.HouseProvider.Village;
 import th.in.ffc.provider.PersonProvider.Person;
+import th.in.ffc.util.SafeImageView; // เพิ่ม import นี้
 
 import java.io.*;
 import java.util.Collection;
@@ -71,10 +73,13 @@ import th.in.ffc.security.LoginActivity;
  */
 public class HouseMainActivity extends FFCTabsPagerActivity {
 
+    private static final String TAG = "HouseMainActivity";
+
     PhotoTaker mPhotoTaker;
     ImageView mImage;
     String mPhotoPath;
     String mPhotoThrumb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -112,19 +117,11 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
 
         doSetupActionBar(data.getLastPathSegment());
 
-        // Uri houseUri = Uri.withAppendedPath(House.CONTENT_URI,
-        // data.getLastPathSegment());
-        // Cursor c = getContentResolver().query(houseUri,
-        // new String[] { House.VILLCODE }, null, null,
-        // House.DEFAULT_SORTING);
-        // if (c.moveToFirst()) {
-
-        Toast.makeText(HouseMainActivity.this , getPcuCode()+data.getLastPathSegment(), Toast.LENGTH_LONG).show();
+        Toast.makeText(HouseMainActivity.this, getPcuCode() + data.getLastPathSegment(), Toast.LENGTH_LONG).show();
         doSetupImage(getPcuCode().concat("h" + data.getLastPathSegment())
                 .concat(".jpg"));
         mPhotoThrumb = getPcuCode().concat("h" + data.getLastPathSegment())
                 .concat("_thumb.jpg");
-        // }
     }
 
     private void doSetupActionBar(String hcode) {
@@ -146,7 +143,6 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
                 String villno = villcursor.getString(0);
                 if (villno.equals("0"))
                     mGenogramable = false;
-
             }
 
             TextView code = (TextView) findViewById(R.id.code);
@@ -165,9 +161,20 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
                 if (c2.moveToFirst()) {
                     getSupportActionBar().setSubtitle(c2.getString(0));
                 }
+                if (c2 != null) {
+                    c2.close();
+                }
+            }
+
+            if (villcursor != null) {
+                villcursor.close();
             }
         }
+        if (c1 != null) {
+            c1.close();
+        }
     }
+
     boolean mGenogramable = true;
 
     @Override
@@ -184,13 +191,13 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
         switch (item.getItemId()) {
 
             case R.id.genogram:
-
                 Intent genome = new Intent(Action.GENOGRAM);
                 genome.putExtra(House.HCODE, Integer.parseInt(getIntent().getData()
                         .getLastPathSegment()));
                 genome.putExtra(House.PCUCODE, getPcuCode());
                 startActivity(genome);
                 return true;
+
             case R.id.map:
                 Intent map = new Intent(Action.VIEW);
                 map.addCategory(Category.MAP);
@@ -198,111 +205,210 @@ public class HouseMainActivity extends FFCTabsPagerActivity {
                 map.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(map);
                 return true;
+
             case android.R.id.home:
                 startHomeActivity();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
     private void doSetupImage(String name) {
         mImage = (ImageView) findViewById(R.id.image);
-        if (mImage == null)
-            throw new IllegalArgumentException("Ivalid Resource Layout");
+        if (mImage == null) {
+            throw new IllegalArgumentException("Invalid Resource Layout");
+        }
 
         mImage.setOnLongClickListener(new View.OnLongClickListener() {
-
             @Override
             public boolean onLongClick(View v) {
-                mPhotoTaker.doShowDialog();
+                if (mPhotoTaker != null) {
+                    mPhotoTaker.doShowDialog();
+                }
                 return true;
             }
         });
 
-        File pick = new File(FamilyFolderCollector.PHOTO_DIR_HOUSE, name.indexOf("tmp_")>0?name:"tmp_"+name);
+        // === แก้ไขส่วนนี้ - ใช้ SafeImageView แทน ===
+        File pick = new File(FamilyFolderCollector.PHOTO_DIR_HOUSE,
+                name.indexOf("tmp_") > 0 ? name : "tmp_" + name);
         mPhotoPath = pick.getAbsolutePath();
+
         if (pick.exists()) {
-            mImage.setImageDrawable(Drawable.createFromPath(mPhotoPath));
-            if (getResources().getBoolean(R.bool.landscape))
-                mImage.setScaleType(ScaleType.FIT_CENTER);
-            else
-                mImage.setScaleType(ScaleType.CENTER_CROP);
+            try {
+                // ใช้ SafeImageView เพื่อโหลดรูปภาพอย่างปลอดภัย
+                SafeImageView.loadImageAsync(mImage, mPhotoPath, R.drawable.ic_house);
+
+                // ตั้งค่า ScaleType หลังโหลดเสร็จ
+                mImage.post(() -> {
+                    ImageView.ScaleType scaleType = getResources().getBoolean(R.bool.landscape)
+                            ? ImageView.ScaleType.FIT_CENTER
+                            : ImageView.ScaleType.CENTER_CROP;
+                    SafeImageView.setScaleTypeSafely(mImage, scaleType);
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading house image: " + mPhotoPath, e);
+                mImage.setImageResource(R.drawable.ic_house);
+            }
+        } else {
+            // ถ้าไม่มีไฟล์รูปภาพ ให้แสดงรูปดีฟอลต์
+            mImage.setImageResource(R.drawable.ic_house);
         }
 
-        mPhotoTaker = new PhotoTaker(this,
-                FamilyFolderCollector.PHOTO_DIR_HOUSE, name.indexOf("tmp_")>0?name:"tmp_"+name);
-
+        // สร้าง PhotoTaker
+        try {
+            mPhotoTaker = new PhotoTaker(this,
+                    FamilyFolderCollector.PHOTO_DIR_HOUSE,
+                    name.indexOf("tmp_") > 0 ? name : "tmp_" + name);
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating PhotoTaker", e);
+        }
     }
 
     @Override
     protected void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
-        if (mImage != null) {
 
+        if (mImage != null && mPhotoPath != null) {
             File pic = new File(mPhotoPath);
             if (pic.exists()) {
-                mImage.setImageDrawable(Drawable.createFromPath(mPhotoPath));
-                File thumb = new File(FamilyFolderCollector.PHOTO_DIR_HOUSE,
-                        mPhotoThrumb);
+                try {
+                    // === แก้ไขส่วนนี้ - ใช้ SafeImageView แทน ===
+                    SafeImageView.loadImageAsync(mImage, mPhotoPath, R.drawable.ic_house);
 
-                copyFile(pic, thumb);
+                    // ตั้งค่า ScaleType
+                    mImage.post(() -> {
+                        ImageView.ScaleType scaleType = getResources().getBoolean(R.bool.landscape)
+                                ? ImageView.ScaleType.FIT_CENTER
+                                : ImageView.ScaleType.CENTER_CROP;
+                        SafeImageView.setScaleTypeSafely(mImage, scaleType);
+                    });
 
+                    // สร้าง thumbnail
+                    File thumb = new File(FamilyFolderCollector.PHOTO_DIR_HOUSE, mPhotoThrumb);
+                    copyFilesSafely(pic, thumb);
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Error loading image in onResume: " + mPhotoPath, e);
+                    mImage.setImageResource(R.drawable.ic_house);
+                }
+            } else {
+                // ถ้าไม่มีไฟล์ ให้แสดงรูปดีฟอลต์
+                mImage.setImageResource(R.drawable.ic_house);
             }
-        }
-
-        Drawable img = Drawable.createFromPath(mPhotoPath);
-        if (img != null) {
-            mImage.setImageDrawable(img);
-            if (getResources().getBoolean(R.bool.landscape))
-                mImage.setScaleType(ScaleType.FIT_CENTER);
-            else
-                mImage.setScaleType(ScaleType.CENTER_CROP);
         }
     }
 
-    public void copyFile(File afile, File bfile) {
+    /**
+     * คัดลอกไฟล์อย่างปลอดภัย พร้อมจัดการ exceptions
+     */
+    private void copyFilesSafely(File sourceFile, File destFile) {
         InputStream inStream = null;
         OutputStream outStream = null;
 
         try {
-
-            inStream = new FileInputStream(afile);
-            outStream = new FileOutputStream(bfile);
-
-            byte[] buffer = new byte[1024];
-
-            int length;
-            // copy the file content in bytes
-            while ((length = inStream.read(buffer)) > 0) {
-
-                outStream.write(buffer, 0, length);
-
+            if (!sourceFile.exists() || !sourceFile.canRead()) {
+                Log.w(TAG, "Source file does not exist or cannot be read: " + sourceFile.getPath());
+                return;
             }
 
-            inStream.close();
-            outStream.close();
+            // สร้างโฟลเดอร์ปลายทางถ้ายังไม่มี
+            File parentDir = destFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
 
-            System.out.println("File is copied successful!");
+            inStream = new FileInputStream(sourceFile);
+            outStream = new FileOutputStream(destFile);
 
+            byte[] buffer = new byte[4096]; // เพิ่มขนาด buffer สำหรับประสิทธิภาพ
+            int length;
+
+            while ((length = inStream.read(buffer)) > 0) {
+                outStream.write(buffer, 0, length);
+            }
+
+            outStream.flush();
+            Log.d(TAG, "File copied successfully: " + destFile.getPath());
+
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "File not found during copy operation", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "IO Error during file copy", e);
+        } catch (SecurityException e) {
+            Log.e(TAG, "Security error during file copy", e);
+        } finally {
+            // ปิด streams ใน finally block
+            try {
+                if (inStream != null) {
+                    inStream.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error closing input stream", e);
+            }
+
+            try {
+                if (outStream != null) {
+                    outStream.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error closing output stream", e);
+            }
         }
     }
 
+    /**
+     * เวอร์ชันเก่าของ copyFile - deprecated
+     * @deprecated ใช้ copyFilesSafely() แทน
+     */
+    @Deprecated
+    public void copyFile(File afile, File bfile) {
+        copyFilesSafely(afile, bfile);
+    }
 
     @Override
-    protected void onActivityResult(int arg0, int arg1, Intent arg2) {
-        super.onActivityResult(arg0, arg1, arg2);
-        mPhotoTaker.setContext(getBaseContext());
-        mPhotoTaker.onActivityResult(arg0, arg1, arg2);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (mPhotoTaker != null) {
+            try {
+                mPhotoTaker.setContext(getBaseContext());
+                mPhotoTaker.onActivityResult(requestCode, resultCode, data);
+            } catch (Exception e) {
+                Log.e(TAG, "Error handling photo result", e);
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        // ล้างข้อมูลเพื่อป้องกัน memory leak
+        if (mImage != null) {
+            mImage.setImageDrawable(null);
+        }
+
         mPhotoTaker = null;
+        mImage = null;
+        mPhotoPath = null;
+        mPhotoThrumb = null;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // ลดการใช้หน่วยความจำเมื่อแอปไม่แสดงผล
+        if (mImage != null) {
+            // เก็บ drawable ปัจจุบันไว้ แต่ลด quality
+            Drawable currentDrawable = mImage.getDrawable();
+            if (currentDrawable != null) {
+                // ไม่ต้องทำอะไร เพราะ SafeImageView จัดการแล้ว
+            }
+        }
     }
 }
