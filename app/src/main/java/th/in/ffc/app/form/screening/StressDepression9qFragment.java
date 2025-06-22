@@ -684,6 +684,413 @@ public class StressDepression9qFragment extends Fragment {
         checkAnsweredStatus();
         validateAndSaveData();
     }
+    // เพิ่มเมธอด validation ใน StressDepression9qFragment class
 
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอก
+     */
+    public String getValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        // ตรวจสอบว่าตอบคำถามครบหรือไม่
+        ArrayList<Integer> unansweredQuestions = getUnansweredQuestions();
+
+        if (!unansweredQuestions.isEmpty()) {
+            message.append("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q): ยังไม่ได้ตอบข้อ ");
+
+            // แสดงรายการข้อที่ยังไม่ได้ตอบ
+            for (int i = 0; i < unansweredQuestions.size(); i++) {
+                if (i > 0) {
+                    message.append(", ");
+                }
+                message.append(unansweredQuestions.get(i));
+            }
+        }
+
+        return message.toString();
+    }
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอกแบบละเอียด
+     */
+    public String getDetailedValidationMessage() {
+        if (stressDepression9qInfo == null) {
+            return "คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q):\n• ยังไม่ได้กรอกข้อมูลใดๆ";
+        }
+
+        ArrayList<String> missingQuestions = new ArrayList<>();
+
+        // ตรวจสอบแต่ละคำถาม
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value == null || value.equals("0") || value.isEmpty()) {
+                missingQuestions.add("ข้อ " + i + ": " + getQuestionDescription(i));
+            }
+        }
+
+        if (!missingQuestions.isEmpty()) {
+            StringBuilder message = new StringBuilder("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q):\n");
+            message.append("กรุณาตอบคำถามที่ยังไม่ได้ตอบ:\n");
+            for (String question : missingQuestions) {
+                message.append("• ").append(question).append("\n");
+            }
+            return message.toString().trim();
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+
+    /**
+     * รีเซ็ตฟอร์มกลับเป็นค่าเริ่มต้น
+     */
+    public void resetForm() {
+        // ล้างการเลือกทั้งหมด
+        View view = getView();
+        if (view != null) {
+            for (int i = 1; i <= 9; i++) {
+                int radioGroupId = getResources().getIdentifier("rdoStress9qQ" + i, "id", requireContext().getPackageName());
+                RadioGroup radioGroup = view.findViewById(radioGroupId);
+                if (radioGroup != null) {
+                    radioGroup.clearCheck();
+                }
+            }
+        }
+
+        // รีเซ็ต stressDepression9qInfo
+        stressDepression9qInfo = new StressDepression9qInfo();
+
+        // รีเซ็ต points
+        points = new ArrayList<>();
+        points.addAll(Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0));
+
+        // รีเซ็ตสถานะการตรวจสอบ
+        resetValidation();
+
+        // รีเซ็ตการแสดงผล
+        if (depression9result != null) {
+            depression9result.setText("คะแนนที่ได้: - คะแนน");
+        }
+
+        // ล้าง highlight ในตาราง
+        clearTableHighlight();
+    }
+
+    /**
+     * ล้าง highlight ในตาราง
+     */
+    private void clearTableHighlight() {
+        if (depression9resultTable != null) {
+            int lightGreen = Color.parseColor("#E8F5E8");
+            int lightYellow = Color.parseColor("#FFF3CD");
+            int lightRed = Color.parseColor("#F8D7DA");
+            int darkRed = Color.parseColor("#F5C6CB");
+
+            for (int i = 1; i < depression9resultTable.getChildCount(); i++) {
+                TableRow row = (TableRow) depression9resultTable.getChildAt(i);
+                if (row != null) {
+                    if (i == 1) row.setBackgroundColor(lightGreen);
+                    else if (i == 2) row.setBackgroundColor(lightYellow);
+                    else if (i == 3) row.setBackgroundColor(lightRed);
+                    else if (i == 4) row.setBackgroundColor(darkRed);
+                }
+            }
+        }
+    }
+
+    /**
+     * ตรวจสอบว่ามีการเปลี่ยนแปลงข้อมูลหรือไม่
+     */
+    public boolean hasDataChanged() {
+        if (stressDepression9qInfo == null) {
+            return false;
+        }
+
+        // ตรวจสอบว่ามีการตอบคำถามอย่างน้อย 1 ข้อหรือไม่
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value != null && !value.equals("0") && !value.isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * ดึงสถานะการกรอกข้อมูลเป็นเปอร์เซ็นต์
+     */
+    public int getCompletionPercentage() {
+        if (stressDepression9qInfo == null) {
+            return 0;
+        }
+
+        int completedQuestions = 0;
+        int totalQuestions = 9;
+
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value != null && !value.equals("0") && !value.isEmpty()) {
+                completedQuestions++;
+            }
+        }
+
+        return (completedQuestions * 100) / totalQuestions;
+    }
+
+    /**
+     * แสดงสถานะการกรอกข้อมูล
+     */
+    public void showCompletionStatus() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+
+            // แสดงระดับความรุนแรงด้วย
+            String severity = getDepressionSeverity();
+            message += " - " + severity;
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("StressDepression9q", "Completion Status: " + message);
+
+        // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
+        // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * ดึงรายชื่อคำถามที่ยังไม่ได้ตอบ
+     */
+    public ArrayList<Integer> getUnansweredQuestions() {
+        ArrayList<Integer> unanswered = new ArrayList<>();
+
+        if (stressDepression9qInfo == null) {
+            for (int i = 1; i <= 9; i++) {
+                unanswered.add(i);
+            }
+            return unanswered;
+        }
+
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value == null || value.equals("0") || value.isEmpty()) {
+                unanswered.add(i);
+            }
+        }
+
+        return unanswered;
+    }
+
+    /**
+     * ดึงคำอธิบายของคำถามแต่ละข้อ
+     */
+    private String getQuestionDescription(int questionNumber) {
+        switch (questionNumber) {
+            case 1:
+                return "เบื่อ ไม่สนใจอยากทำอะไร";
+            case 2:
+                return "ไม่สบายใจ ซึมเศร้า ท้อแท้";
+            case 3:
+                return "หลับยาก หรือหลับๆ ตื่นๆ หรือหลับมากไป";
+            case 4:
+                return "เหนื่อยง่าย หรือไม่ค่อยมีแรง";
+            case 5:
+                return "เบื่ออาหาร หรือกินมากเกินไป";
+            case 6:
+                return "รู้สึกไม่ดีกับตัวเอง คิดว่าตัวเองล้มเหลว";
+            case 7:
+                return "สมาธิไม่ดีเวลาทำอะไร";
+            case 8:
+                return "พูดช้า ทำอะไรช้าลง หรือกระสับกระส่าย";
+            case 9:
+                return "คิดทำร้ายตนเอง หรือคิดว่าถ้าตายไปคงจะดี";
+            default:
+                return "คำถามที่ " + questionNumber;
+        }
+    }
+
+    /**
+     * ตรวจสอบและเลื่อนไปยังคำถามแรกที่ยังไม่ได้ตอบ
+     */
+    public void scrollToFirstUnansweredQuestion() {
+        ArrayList<Integer> unanswered = getUnansweredQuestions();
+        if (!unanswered.isEmpty() && getView() != null) {
+            int firstUnanswered = unanswered.get(0);
+
+            int radioGroupId = getResources().getIdentifier(
+                    "rdoStress9qQ" + firstUnanswered,
+                    "id",
+                    requireContext().getPackageName()
+            );
+
+            RadioGroup targetGroup = getView().findViewById(radioGroupId);
+            if (targetGroup != null) {
+                targetGroup.requestFocus();
+                // สามารถเพิ่มการ scroll ไปยัง view ได้ที่นี่
+            }
+        }
+    }
+
+    /**
+     * ดึงระดับความรุนแรงของภาวะซึมเศร้า
+     */
+    public String getDepressionSeverity() {
+        if (!isFormComplete()) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        int totalScore = getTotalScore();
+
+        if (totalScore < 7) {
+            return "ไม่มีอาการของโรคซึมเศร้า";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return "มีอาการของโรคซึมเศร้าระดับน้อย";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return "มีอาการของโรคซึมเศร้าระดับปานกลาง";
+        } else if (totalScore >= 19) {
+            return "มีอาการของโรคซึมเศร้าระดับรุนแรง";
+        }
+
+        return "";
+    }
+
+    /**
+     * ดึงคะแนนรวม
+     */
+    public int getTotalScore() {
+        if (!isFormComplete() || points == null) {
+            return -1;
+        }
+
+        int totalScore = 0;
+        for (Integer point : points) {
+            if (point != null) {
+                totalScore += point;
+            }
+        }
+
+        return totalScore;
+    }
+
+    /**
+     * ตรวจสอบว่ามีความเสี่ยงสูงหรือไม่ (คะแนน >= 19 หรือข้อ 9 >= 1)
+     */
+    public boolean isHighRisk() {
+        if (!isFormComplete()) {
+            return false;
+        }
+
+        // ตรวจสอบคะแนนรวม
+        if (getTotalScore() >= 19) {
+            return true;
+        }
+
+        // ตรวจสอบข้อ 9 (คิดทำร้ายตนเอง)
+        String q9Value = getQuestionValue(9);
+        if (q9Value != null && !q9Value.equals("1") && !q9Value.equals("0")) { // ถ้าตอบมากกว่า "ไม่มีเลย"
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * ตรวจสอบความเสี่ยงการฆ่าตัวตาย (ข้อ 9)
+     */
+    public boolean hasSuicidalRisk() {
+        String q9Value = getQuestionValue(9);
+        return q9Value != null && !q9Value.equals("1") && !q9Value.equals("0");
+    }
+
+    /**
+     * แสดงคำแนะนำตามระดับความรุนแรง
+     */
+    public String getRecommendation() {
+        if (!isFormComplete()) {
+            return "กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int totalScore = getTotalScore();
+
+        if (hasSuicidalRisk()) {
+            return "⚠️ พบความเสี่ยงในการทำร้ายตนเอง ควรพบแพทย์โดยด่วน!";
+        }
+
+        if (totalScore < 7) {
+            return "ไม่มีอาการของโรคซึมเศร้า ควรดูแลสุขภาพจิตให้ดีต่อไป";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return "มีอาการซึมเศร้าระดับน้อย ควรพักผ่อนให้เพียงพอ ออกกำลังกาย และทำกิจกรรมที่ชื่นชอบ";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return "มีอาการซึมเศร้าระดับปานกลาง ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิต";
+        } else if (totalScore >= 19) {
+            return "มีอาการซึมเศร้าระดับรุนแรง ควรพบแพทย์เพื่อรับการรักษาโดยเร็ว";
+        }
+
+        return "";
+    }
+
+    /**
+     * ดึงข้อมูลสรุปแบบสั้น
+     */
+    public String getSummaryText() {
+        if (!isFormComplete()) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        int score = getTotalScore();
+        String severity = getDepressionSeverity();
+
+        String summary = String.format("คะแนน: %d - %s", score, severity);
+
+        if (hasSuicidalRisk()) {
+            summary += " (⚠️ เสี่ยงทำร้ายตนเอง)";
+        }
+
+        return summary;
+    }
+
+    /**
+     * ตรวจสอบว่าควรทำแบบประเมิน 8Q ต่อหรือไม่
+     */
+    public boolean shouldDo8QAssessment() {
+        return isFormComplete() && hasSuicidalRisk();
+    }
+
+    /**
+     * ดึงข้อความแนะนำให้ทำ 8Q
+     */
+    public String get8QRecommendationText() {
+        if (shouldDo8QAssessment()) {
+            return "⚠️ แนะนำให้ทำแบบประเมินการฆ่าตัวตาย 8Q เพิ่มเติม เนื่องจากพบความเสี่ยงในการทำร้ายตนเอง";
+        }
+        return "";
+    }
+
+    /**
+     * ดึงรายการคำถามที่ตอบว่ามีอาการบ่อย (คะแนน >= 2)
+     */
+    public ArrayList<String> getFrequentSymptoms() {
+        ArrayList<String> symptoms = new ArrayList<>();
+
+        if (!isFormComplete()) {
+            return symptoms;
+        }
+
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value != null) {
+                int score = Integer.parseInt(value) - 1; // แปลงเป็นคะแนน 0-3
+                if (score >= 2) { // บ่อยครั้ง หรือ เกือบทุกวัน
+                    symptoms.add("ข้อ " + i + ": " + getQuestionDescription(i));
+                }
+            }
+        }
+
+        return symptoms;
+    }
 
 }

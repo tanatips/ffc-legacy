@@ -5,9 +5,9 @@ public class SmokerInfo {
     private String id;
     private String personId;
     private String idcard;
-    private String SmokerGroup = "0";
-    private String SmokerAssist = "0";
-    private String SmokerRegularly = "0";
+    private String SmokerGroup = null;
+    private String SmokerAssist = null;
+    private String SmokerRegularly = null;
     private String created_by;
     private String created_date;
     private String updated_by;

@@ -47,7 +47,7 @@ public class SearchPersonActivity extends AppCompatActivity {
 
         // Initialize DAO
         personInfoDao = new SfPersonInfoDao(this);
-
+        performSearch(); // Initial search to populate the list
         // Setup search button
         findViewById(R.id.btnSearch).setOnClickListener(v -> performSearch());
 

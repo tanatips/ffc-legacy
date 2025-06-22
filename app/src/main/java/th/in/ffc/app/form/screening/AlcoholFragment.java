@@ -1,6 +1,7 @@
 package th.in.ffc.app.form.screening;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -338,9 +339,29 @@ public class AlcoholFragment extends Fragment {
      * @param score Alcohol score from ASSIST
      */
     private void updateAlcoholScore(int score) {
-        // Display score in TextView
+        // Display score in TextView with color
         if (tvAlcoholScore != null) {
             tvAlcoholScore.setText(String.valueOf(score));
+
+            // เปลี่ยนสีพื้นหลังตามช่วงคะแนน
+            if (score == 0) {
+                // ไม่ดื่ม - สีเขียว
+                tvAlcoholScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            } else if (score >= 1 && score <= 10) {
+                // ความเสี่ยงต่ำ - สีเขียว
+                tvAlcoholScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            } else if (score >= 11 && score <= 26) {
+                // ความเสี่ยงปานกลาง - สีส้ม
+                tvAlcoholScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            } else if (score >= 27) {
+                // ความเสี่ยงสูง - สีแดง
+                tvAlcoholScore.setBackground(createGradientDrawable("#E74C3C", "#700e03"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            }
+
             Log.d(TAG, "อัพเดตคะแนนแอลกอฮอล์ใน UI: " + score);
         }
 
@@ -410,6 +431,26 @@ public class AlcoholFragment extends Fragment {
             String currentScore = tvAlcoholScore.getText().toString();
             if (!currentScore.equals(String.valueOf(score))) {
                 tvAlcoholScore.setText(String.valueOf(score));
+
+                // เปลี่ยนสีพื้นหลังตามช่วงคะแนน
+                if (score == 0) {
+                    // ไม่ดื่ม - สีเขียว
+                    tvAlcoholScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                    tvAlcoholScore.setTextColor(Color.WHITE);
+                } else if (score >= 1 && score <= 10) {
+                    // ความเสี่ยงต่ำ - สีเขียว
+                    tvAlcoholScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                    tvAlcoholScore.setTextColor(Color.WHITE);
+                } else if (score >= 11 && score <= 26) {
+                    // ความเสี่ยงปานกลาง - สีส้ม
+                    tvAlcoholScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
+                    tvAlcoholScore.setTextColor(Color.WHITE);
+                } else if (score >= 27) {
+                    // ความเสี่ยงสูง - สีแดง
+                    tvAlcoholScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
+                    tvAlcoholScore.setTextColor(Color.WHITE);
+                }
+
                 Log.d(TAG, "ซิงค์คะแนนจาก AssistScoreFragment ใน tvAlcoholScore: " + score);
             }
         }
@@ -545,6 +586,24 @@ public class AlcoholFragment extends Fragment {
                 return;
             }
             tvAlcoholScore.setText(String.valueOf(score));
+            // เปลี่ยนสีพื้นหลังตามช่วงคะแนน
+            if (score == 0) {
+                // ไม่ดื่ม - สีเขียว
+                tvAlcoholScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            } else if (score >= 1 && score <= 10) {
+                // ความเสี่ยงต่ำ - สีเขียว
+                tvAlcoholScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            } else if (score >= 11 && score <= 26) {
+                // ความเสี่ยงปานกลาง - สีส้ม
+                tvAlcoholScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            } else if (score >= 27) {
+                // ความเสี่ยงสูง - สีแดง
+                tvAlcoholScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
+                tvAlcoholScore.setTextColor(Color.WHITE);
+            }
         }
 
         if (tvAlcoholRiskLevel != null) {
@@ -756,9 +815,12 @@ public class AlcoholFragment extends Fragment {
     private void displayScoreError() {
         if (tvAlcoholScore != null) {
             tvAlcoholScore.setText("-");
+            tvAlcoholScore.setBackgroundResource(R.color.light_gray);
+            tvAlcoholScore.setTextColor(getResources().getColor(R.color.darker_gray));
         }
         if (tvAlcoholRiskLevel != null) {
             tvAlcoholRiskLevel.setText("ไม่สามารถคำนวณได้");
+            tvAlcoholRiskLevel.setBackgroundResource(R.color.light_gray);
         }
     }
 
@@ -997,5 +1059,312 @@ public class AlcoholFragment extends Fragment {
         public void setStressDepression9qLiveData(StressDepression9qLiveData stressDepression9qLiveData) {
             this.stressDepression9qLiveData = stressDepression9qLiveData;
         }
+    }
+    // เพิ่มเมธอด validation ใน AlcoholFragment class
+
+    /**
+     * ตรวจสอบว่าข้อมูลครบถ้วนหรือไม่
+     */
+    public boolean isFormComplete() {
+        // ตรวจสอบว่าได้เลือกสถานะการดื่มแล้วหรือไม่
+        if (drinkingInfo == null || drinkingInfo.getDrinking() == null ||
+                drinkingInfo.getDrinking().isEmpty() || drinkingInfo.getDrinking().equals("0")) {
+            return false;
+        }
+
+        // ถ้าเลือก "ดื่ม" (option 3) ต้องเลือกความถี่ด้วย
+        if ("3".equals(drinkingInfo.getDrinking())) {
+            if (drinkingInfo.getDrinkingFrequency() == null ||
+                    drinkingInfo.getDrinkingFrequency().isEmpty() ||
+                    drinkingInfo.getDrinkingFrequency().equals("0")) {
+                return false;
+            }
+
+            // ถ้าเลือก "ดื่มเป็นประจำ" (option 3 ใน frequency) ต้องเลือกการบำบัดด้วย
+            if ("3".equals(drinkingInfo.getDrinkingFrequency())) {
+                if (drinkingInfo.getDrinkingAlway() == null ||
+                        drinkingInfo.getDrinkingAlway().isEmpty() ||
+                        drinkingInfo.getDrinkingAlway().equals("0")) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอก
+     */
+    public String getValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        // ตรวจสอบว่าได้เลือกสถานะการดื่มหรือไม่
+        if (drinkingInfo == null || drinkingInfo.getDrinking() == null ||
+                drinkingInfo.getDrinking().isEmpty() || drinkingInfo.getDrinking().equals("0")) {
+            message.append("แบบประเมินการดื่มสุรา: ยังไม่ได้เลือกสถานะการดื่มสุรา");
+            return message.toString();
+        }
+
+        // ถ้าเลือก "ดื่ม" แต่ยังไม่ได้เลือกความถี่
+        if ("3".equals(drinkingInfo.getDrinking())) {
+            if (drinkingInfo.getDrinkingFrequency() == null ||
+                    drinkingInfo.getDrinkingFrequency().isEmpty() ||
+                    drinkingInfo.getDrinkingFrequency().equals("0")) {
+                message.append("แบบประเมินการดื่มสุรา: ยังไม่ได้เลือกความถี่ในการดื่ม");
+                return message.toString();
+            }
+
+            // ถ้าเลือก "ดื่มเป็นประจำ" แต่ยังไม่ได้เลือกการบำบัด
+            if ("3".equals(drinkingInfo.getDrinkingFrequency())) {
+                if (drinkingInfo.getDrinkingAlway() == null ||
+                        drinkingInfo.getDrinkingAlway().isEmpty() ||
+                        drinkingInfo.getDrinkingAlway().equals("0")) {
+                    message.append("แบบประเมินการดื่มสุรา: ยังไม่ได้เลือกการให้คำแนะนำ/บำบัด");
+                    return message.toString();
+                }
+            }
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอกแบบละเอียด
+     */
+    public String getDetailedValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        // ตรวจสอบว่าได้เลือกสถานะการดื่มหรือไม่
+        if (drinkingInfo == null || drinkingInfo.getDrinking() == null ||
+                drinkingInfo.getDrinking().isEmpty() || drinkingInfo.getDrinking().equals("0")) {
+            message.append("แบบประเมินการดื่มสุรา:\n");
+            message.append("• ยังไม่ได้เลือกสถานะการดื่มสุรา (ไม่ดื่ม/เคยดื่ม/ดื่ม)");
+            return message.toString();
+        }
+
+        // ตรวจสอบการเลือกความถี่ (สำหรับผู้ที่ดื่ม)
+        if ("3".equals(drinkingInfo.getDrinking())) {
+            if (drinkingInfo.getDrinkingFrequency() == null ||
+                    drinkingInfo.getDrinkingFrequency().isEmpty() ||
+                    drinkingInfo.getDrinkingFrequency().equals("0")) {
+                message.append("แบบประเมินการดื่มสุรา:\n");
+                message.append("• เลือกว่า 'ดื่ม' แล้ว\n");
+                message.append("• ยังไม่ได้เลือกความถี่ในการดื่ม (นานๆครั้ง/ครั้งคราว/เป็นประจำ)");
+                return message.toString();
+            }
+
+            // ตรวจสอบการให้คำแนะนำ/บำบัด (สำหรับผู้ที่ดื่มเป็นประจำ)
+            if ("3".equals(drinkingInfo.getDrinkingFrequency())) {
+                if (drinkingInfo.getDrinkingAlway() == null ||
+                        drinkingInfo.getDrinkingAlway().isEmpty() ||
+                        drinkingInfo.getDrinkingAlway().equals("0")) {
+                    message.append("แบบประเมินการดื่มสุรา:\n");
+                    message.append("• เลือกว่า 'ดื่ม' แล้ว\n");
+                    message.append("• เลือกว่า 'ดื่มเป็นประจำ' แล้ว\n");
+                    message.append("• ยังไม่ได้เลือกการให้คำแนะนำ/บำบัด");
+                    return message.toString();
+                }
+            }
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+
+    /**
+     * รีเซ็ตฟอร์มกลับเป็นค่าเริ่มต้น
+     */
+    public void resetForm() {
+        isUpdatingFromScore = true;
+        try {
+            // ล้างการเลือกทั้งหมด
+            if (rdoDrinking != null) {
+                rdoDrinking.clearCheck();
+            }
+            if (rdoDrinkingFrequency != null) {
+                rdoDrinkingFrequency.clearCheck();
+            }
+            if (rdoDrinkingAlway != null) {
+                rdoDrinkingAlway.clearCheck();
+            }
+
+            // รีเซ็ต drinkingInfo
+            drinkingInfo = new DrinkingInfo();
+
+            // รีเซ็ตคะแนนและระดับความเสี่ยง
+            if (tvAlcoholScore != null) {
+                tvAlcoholScore.setText("-");
+                tvAlcoholScore.setBackgroundResource(R.color.light_gray);
+                tvAlcoholScore.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            if (tvAlcoholRiskLevel != null) {
+                tvAlcoholRiskLevel.setText("ยังไม่ได้ประเมิน");
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            // ล้างข้อมูลใน LiveData
+            if (drinkingLiveData != null) {
+                drinkingLiveData.setSelectedRdoDriking(null);
+                drinkingLiveData.setSelectedRdoDrikingFrequency(null);
+                drinkingLiveData.setSelectedRdoDrikingAlway(null);
+            }
+        } finally {
+            isUpdatingFromScore = false;
+        }
+    }
+
+    /**
+     * ตรวจสอบว่ามีการเปลี่ยนแปลงข้อมูลหรือไม่
+     */
+    public boolean hasDataChanged() {
+        if (drinkingInfo == null) {
+            return false;
+        }
+
+        return (drinkingInfo.getDrinking() != null && !drinkingInfo.getDrinking().isEmpty() && !drinkingInfo.getDrinking().equals("0")) ||
+                (drinkingInfo.getDrinkingFrequency() != null && !drinkingInfo.getDrinkingFrequency().isEmpty() && !drinkingInfo.getDrinkingFrequency().equals("0")) ||
+                (drinkingInfo.getDrinkingAlway() != null && !drinkingInfo.getDrinkingAlway().isEmpty() && !drinkingInfo.getDrinkingAlway().equals("0"));
+    }
+
+    /**
+     * ดึงสถานะการกรอกข้อมูลเป็นเปอร์เซ็นต์
+     */
+    public int getCompletionPercentage() {
+        if (drinkingInfo == null || drinkingInfo.getDrinking() == null ||
+                drinkingInfo.getDrinking().isEmpty() || drinkingInfo.getDrinking().equals("0")) {
+            return 0;
+        }
+
+        // หากเลือก "ไม่ดื่ม" หรือ "เคยดื่ม" ถือว่าครบ 100%
+        if ("1".equals(drinkingInfo.getDrinking()) || "2".equals(drinkingInfo.getDrinking())) {
+            return 100;
+        }
+
+        // หากเลือก "ดื่ม" ต้องตรวจสอบขั้นตอนต่อไป
+        if ("3".equals(drinkingInfo.getDrinking())) {
+            if (drinkingInfo.getDrinkingFrequency() == null ||
+                    drinkingInfo.getDrinkingFrequency().isEmpty() ||
+                    drinkingInfo.getDrinkingFrequency().equals("0")) {
+                return 33; // กรอก 1/3
+            }
+
+            // หากเลือก "นานๆครั้ง" หรือ "ครั้งคราว" ถือว่าครบ 100%
+            if ("1".equals(drinkingInfo.getDrinkingFrequency()) || "2".equals(drinkingInfo.getDrinkingFrequency())) {
+                return 100;
+            }
+
+            // หากเลือก "เป็นประจำ" ต้องเลือกการบำบัดด้วย
+            if ("3".equals(drinkingInfo.getDrinkingFrequency())) {
+                if (drinkingInfo.getDrinkingAlway() == null ||
+                        drinkingInfo.getDrinkingAlway().isEmpty() ||
+                        drinkingInfo.getDrinkingAlway().equals("0")) {
+                    return 66; // กรอก 2/3
+                } else {
+                    return 100; // กรอกครบทุกขั้นตอน
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * แสดงสถานะการกรอกข้อมูล
+     */
+    public void showCompletionStatus() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d(TAG, "Completion Status: " + message);
+
+        // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
+        // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * ดึงข้อมูลที่กรอกแล้ว
+     */
+    public DrinkingInfo getFormData() {
+        return this.drinkingInfo;
+    }
+
+    /**
+     * ตรวจสอบระดับความเสี่ยงจากคะแนน
+     */
+    public String getRiskLevelFromScore() {
+        if (tvAlcoholScore == null || tvAlcoholScore.getText().toString().equals("-")) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        try {
+            int score = Integer.parseInt(tvAlcoholScore.getText().toString());
+
+            if (score == 0) {
+                return "ไม่ดื่ม";
+            } else if (score >= 1 && score <= 10) {
+                return "ไม่ต้องบำบัด (ความเสี่ยงต่ำ)";
+            } else if (score >= 11 && score <= 26) {
+                return "บำบัดอย่างย่อ (ความเสี่ยงปานกลาง)";
+            } else if (score >= 27) {
+                return "บำบัดเข้มข้น (ความเสี่ยงสูง)";
+            }
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ไม่สามารถแปลงคะแนนเป็นตัวเลขได้");
+        }
+
+        return "ยังไม่ได้ประเมิน";
+    }
+
+    /**
+     * ตรวจสอบว่าข้อมูลที่กรอกสอดคล้องกับคะแนนหรือไม่
+     */
+    public boolean isDataConsistentWithScore() {
+        if (tvAlcoholScore == null || tvAlcoholScore.getText().toString().equals("-")) {
+            return true; // ถ้ายังไม่มีคะแนน ถือว่าสอดคล้อง
+        }
+
+        try {
+            int score = Integer.parseInt(tvAlcoholScore.getText().toString());
+
+            // ตรวจสอบความสอดคล้อง
+            if (score == 0 && !"1".equals(drinkingInfo.getDrinking())) {
+                Log.w(TAG, "คะแนน 0 แต่ไม่ได้เลือก 'ไม่ดื่ม'");
+                return false;
+            }
+
+            if (score > 0 && "1".equals(drinkingInfo.getDrinking())) {
+                Log.w(TAG, "มีคะแนนแต่เลือก 'ไม่ดื่ม'");
+                return false;
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ไม่สามารถตรวจสอบความสอดคล้องได้");
+        }
+
+        return true;
+    }
+    private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
+        android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        Color.parseColor(startColor),
+                        Color.parseColor(endColor)
+                }
+        );
+
+        // ตั้งค่ามุมโค้ง
+        gradient.setCornerRadius(20f);
+
+        return gradient;
     }
 }

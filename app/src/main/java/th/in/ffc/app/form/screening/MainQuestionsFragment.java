@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import th.in.ffc.R;
@@ -407,42 +408,113 @@ public class MainQuestionsFragment extends Fragment {
         }
     }
     // เพิ่มเมธอดนี้ใน MainQuestionsFragment.java
+//    public boolean isAllDataComplete() {
+//        boolean isComplete = true;
+//
+//        // ตรวจสอบความครบถ้วนของแต่ละ Fragment
+//        if (questionOneFragment != null && !questionOneFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionTwoFragment != null && !questionTwoFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionThreeFragment != null && !questionThreeFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionFourFragment != null && !questionFourFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionFiveFragment != null && !questionFiveFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionSixFragment != null && !questionSixFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionSevenFragment != null && !questionSevenFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        if (questionEightFragment != null && !questionEightFragment.validateAllQuestionsAnswered()) {
+//            isComplete = false;
+//        }
+//
+//        return isComplete;
+//    }
+//
+    public String getDetailedValidationMessage() {
+        List<String> allMessages = new ArrayList<>();
+
+        // ตรวจสอบแต่ละ Fragment และรวบรวมข้อความ
+        if (questionOneFragment != null) {
+            String message = questionOneFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionTwoFragment != null) {
+            String message = questionTwoFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionThreeFragment != null) {
+            String message = questionThreeFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionFourFragment != null) {
+            String message = questionFourFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionFiveFragment != null) {
+            String message = questionFiveFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionSixFragment != null) {
+            String message = questionSixFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionSevenFragment != null) {
+            String message = questionSevenFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (questionEightFragment != null) {
+            String message = questionEightFragment.getValidationMessage();
+            if (!message.isEmpty()) {
+                allMessages.add(message);
+            }
+        }
+
+        if (allMessages.isEmpty()) {
+            return ""; // ไม่มีข้อผิดพลาด
+        }
+
+        return "กรุณากรอกข้อมูลให้ครบถ้วน:\n\n" + String.join("\n\n", allMessages);
+    }
+
     public boolean isAllDataComplete() {
-        boolean isComplete = true;
-
-        // ตรวจสอบความครบถ้วนของแต่ละ Fragment
-        if (questionOneFragment != null && !questionOneFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionTwoFragment != null && !questionTwoFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionThreeFragment != null && !questionThreeFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionFourFragment != null && !questionFourFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionFiveFragment != null && !questionFiveFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionSixFragment != null && !questionSixFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionSevenFragment != null && !questionSevenFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        if (questionEightFragment != null && !questionEightFragment.validateAllQuestionsAnswered()) {
-            isComplete = false;
-        }
-
-        return isComplete;
+        return getDetailedValidationMessage().isEmpty();
     }
 }

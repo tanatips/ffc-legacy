@@ -620,4 +620,285 @@ public class StressDepressionFragment extends Fragment {
             return null;
         }
     }
+    // เพิ่มเมธอด validation ใน StressDepressionFragment class
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอก
+     */
+    public String getValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        // ตรวจสอบว่าตอบคำถามครบหรือไม่
+        ArrayList<Integer> unansweredQuestions = getUnansweredQuestions();
+
+        if (!unansweredQuestions.isEmpty()) {
+            message.append("ประเมินภาวะเครียด-ซึมเศร้า(ST 5): ยังไม่ได้ตอบข้อ ");
+
+            // แสดงรายการข้อที่ยังไม่ได้ตอบ
+            for (int i = 0; i < unansweredQuestions.size(); i++) {
+                if (i > 0) {
+                    message.append(", ");
+                }
+                message.append(unansweredQuestions.get(i));
+            }
+        }
+
+        return message.toString();
+    }
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอกแบบละเอียด
+     */
+    public String getDetailedValidationMessage() {
+        if (stressDepressionInfo == null) {
+            return "ประเมินภาวะเครียด-ซึมเศร้า(ST 5):\n• ยังไม่ได้กรอกข้อมูลใดๆ";
+        }
+
+        ArrayList<String> missingQuestions = new ArrayList<>();
+
+        if (stressDepressionInfo.getQ1() == null || stressDepressionInfo.getQ1().equals("0") || stressDepressionInfo.getQ1().isEmpty()) {
+            missingQuestions.add("ข้อ 1: นอนไม่หลับเพราะคิดมากหรือกังวล");
+        }
+
+        if (stressDepressionInfo.getQ2() == null || stressDepressionInfo.getQ2().equals("0") || stressDepressionInfo.getQ2().isEmpty()) {
+            missingQuestions.add("ข้อ 2: รู้สึกหงุดหงิด ร่าเริงไม่ขึ้น");
+        }
+
+        if (stressDepressionInfo.getQ3() == null || stressDepressionInfo.getQ3().equals("0") || stressDepressionInfo.getQ3().isEmpty()) {
+            missingQuestions.add("ข้อ 3: รู้สึกเบื่อ ไม่อยากพบปะผู้คน");
+        }
+
+        if (stressDepressionInfo.getQ4() == null || stressDepressionInfo.getQ4().equals("0") || stressDepressionInfo.getQ4().isEmpty()) {
+            missingQuestions.add("ข้อ 4: รู้สึกว่าชีวิตตนเองไม่มีคุณค่า");
+        }
+
+        if (stressDepressionInfo.getQ5() == null || stressDepressionInfo.getQ5().equals("0") || stressDepressionInfo.getQ5().isEmpty()) {
+            missingQuestions.add("ข้อ 5: ไม่อยากดูแลตัวเองหรือแต่งตัว");
+        }
+
+        if (!missingQuestions.isEmpty()) {
+            StringBuilder message = new StringBuilder("ประเมินภาวะเครียด-ซึมเศร้า(ST 5):\n");
+            message.append("กรุณาตอบคำถามที่ยังไม่ได้ตอบ:\n");
+            for (String question : missingQuestions) {
+                message.append("• ").append(question).append("\n");
+            }
+            return message.toString().trim();
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+
+    /**
+     * รีเซ็ตฟอร์มกลับเป็นค่าเริ่มต้น
+     */
+    public void resetForm() {
+        // ล้างการเลือกทั้งหมด
+        if (rdoObesityQ1 != null) rdoObesityQ1.clearCheck();
+        if (rdoObesityQ2 != null) rdoObesityQ2.clearCheck();
+        if (rdoObesityQ3 != null) rdoObesityQ3.clearCheck();
+        if (rdoObesityQ4 != null) rdoObesityQ4.clearCheck();
+        if (rdoObesityQ5 != null) rdoObesityQ5.clearCheck();
+
+        // รีเซ็ต stressDepressionInfo
+        stressDepressionInfo = new StressDepressionInfo();
+
+        // รีเซ็ต points
+        points = new ArrayList<>();
+        points.addAll(Arrays.asList(0, 0, 0, 0, 0, 0));
+
+        // รีเซ็ตสถานะการตรวจสอบ
+        resetValidation();
+
+        // รีเซ็ตการแสดงผล
+        currentScore = -1;
+        updateTableHighlight();
+
+        TextView resultTextView = getView() != null ? getView().findViewById(R.id.resultStressDepressionScore) : null;
+        if (resultTextView != null) {
+            resultTextView.setText("คะแนนที่ได้: - คะแนน");
+        }
+    }
+
+    /**
+     * ตรวจสอบว่ามีการเปลี่ยนแปลงข้อมูลหรือไม่
+     */
+    public boolean hasDataChanged() {
+        if (stressDepressionInfo == null) {
+            return false;
+        }
+
+        return (!stressDepressionInfo.getQ1().equals("0") && !stressDepressionInfo.getQ1().isEmpty()) ||
+                (!stressDepressionInfo.getQ2().equals("0") && !stressDepressionInfo.getQ2().isEmpty()) ||
+                (!stressDepressionInfo.getQ3().equals("0") && !stressDepressionInfo.getQ3().isEmpty()) ||
+                (!stressDepressionInfo.getQ4().equals("0") && !stressDepressionInfo.getQ4().isEmpty()) ||
+                (!stressDepressionInfo.getQ5().equals("0") && !stressDepressionInfo.getQ5().isEmpty());
+    }
+
+    /**
+     * ดึงสถานะการกรอกข้อมูลเป็นเปอร์เซ็นต์
+     */
+    public int getCompletionPercentage() {
+        if (stressDepressionInfo == null) {
+            return 0;
+        }
+
+        int completedQuestions = 0;
+        int totalQuestions = 5;
+
+        if (!stressDepressionInfo.getQ1().equals("0") && !stressDepressionInfo.getQ1().isEmpty()) completedQuestions++;
+        if (!stressDepressionInfo.getQ2().equals("0") && !stressDepressionInfo.getQ2().isEmpty()) completedQuestions++;
+        if (!stressDepressionInfo.getQ3().equals("0") && !stressDepressionInfo.getQ3().isEmpty()) completedQuestions++;
+        if (!stressDepressionInfo.getQ4().equals("0") && !stressDepressionInfo.getQ4().isEmpty()) completedQuestions++;
+        if (!stressDepressionInfo.getQ5().equals("0") && !stressDepressionInfo.getQ5().isEmpty()) completedQuestions++;
+
+        return (completedQuestions * 100) / totalQuestions;
+    }
+
+    /**
+     * แสดงสถานะการกรอกข้อมูล
+     */
+    public void showCompletionStatus() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+
+            // แสดงระดับความเครียดด้วย
+            int score = stressDepressionInfo.getSum();
+            String stressLevel = getStressLevelText(score);
+            message += " - " + stressLevel;
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("StressDepression", "Completion Status: " + message);
+
+        // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
+        // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * ดึงรายชื่อคำถามที่ยังไม่ได้ตอบ
+     */
+    public ArrayList<Integer> getUnansweredQuestions() {
+        ArrayList<Integer> unanswered = new ArrayList<>();
+
+        if (stressDepressionInfo == null) {
+            for (int i = 1; i <= 5; i++) {
+                unanswered.add(i);
+            }
+            return unanswered;
+        }
+
+        if (stressDepressionInfo.getQ1() == null || stressDepressionInfo.getQ1().equals("0") || stressDepressionInfo.getQ1().isEmpty()) unanswered.add(1);
+        if (stressDepressionInfo.getQ2() == null || stressDepressionInfo.getQ2().equals("0") || stressDepressionInfo.getQ2().isEmpty()) unanswered.add(2);
+        if (stressDepressionInfo.getQ3() == null || stressDepressionInfo.getQ3().equals("0") || stressDepressionInfo.getQ3().isEmpty()) unanswered.add(3);
+        if (stressDepressionInfo.getQ4() == null || stressDepressionInfo.getQ4().equals("0") || stressDepressionInfo.getQ4().isEmpty()) unanswered.add(4);
+        if (stressDepressionInfo.getQ5() == null || stressDepressionInfo.getQ5().equals("0") || stressDepressionInfo.getQ5().isEmpty()) unanswered.add(5);
+
+        return unanswered;
+    }
+
+    /**
+     * ดึงคำอธิบายของคำถามแต่ละข้อ
+     */
+    private String getQuestionDescription(int questionNumber) {
+        switch (questionNumber) {
+            case 1:
+                return "นอนไม่หลับเพราะคิดมากหรือกังวล";
+            case 2:
+                return "รู้สึกหงุดหงิด ร่าเริงไม่ขึ้น";
+            case 3:
+                return "รู้สึกเบื่อ ไม่อยากพบปะผู้คน";
+            case 4:
+                return "รู้สึกว่าชีวิตตนเองไม่มีคุณค่า";
+            case 5:
+                return "ไม่อยากดูแลตัวเองหรือแต่งตัว";
+            default:
+                return "คำถามที่ " + questionNumber;
+        }
+    }
+
+    /**
+     * ตรวจสอบและเลื่อนไปยังคำถามแรกที่ยังไม่ได้ตอบ
+     */
+    public void scrollToFirstUnansweredQuestion() {
+        ArrayList<Integer> unanswered = getUnansweredQuestions();
+        if (!unanswered.isEmpty()) {
+            int firstUnanswered = unanswered.get(0);
+            RadioGroup targetGroup = null;
+
+            switch (firstUnanswered) {
+                case 1:
+                    targetGroup = rdoObesityQ1;
+                    break;
+                case 2:
+                    targetGroup = rdoObesityQ2;
+                    break;
+                case 3:
+                    targetGroup = rdoObesityQ3;
+                    break;
+                case 4:
+                    targetGroup = rdoObesityQ4;
+                    break;
+                case 5:
+                    targetGroup = rdoObesityQ5;
+                    break;
+            }
+
+            if (targetGroup != null) {
+                targetGroup.requestFocus();
+                // สามารถเพิ่มการ scroll ไปยัง view ได้ที่นี่
+            }
+        }
+    }
+
+    /**
+     * ตรวจสอบระดับความเครียดจากคะแนน
+     */
+    public String getStressLevelFromScore() {
+        if (stressDepressionInfo == null) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        int score = stressDepressionInfo.getSum();
+        return getStressLevelText(score) + " (คะแนน: " + score + ")";
+    }
+
+    /**
+     * ตรวจสอบว่ามีความเสี่ยงสูงหรือไม่ (คะแนน >= 8)
+     */
+    public boolean isHighRisk() {
+        if (stressDepressionInfo == null || !isFormComplete()) {
+            return false;
+        }
+
+        return stressDepressionInfo.getSum() >= 8;
+    }
+
+    /**
+     * แสดงคำแนะนำตามระดับความเครียด
+     */
+    public String getRecommendation() {
+        if (!isFormComplete()) {
+            return "กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int score = stressDepressionInfo.getSum();
+
+        if (score >= 0 && score <= 4) {
+            return "ระดับความเครียดของคุณอยู่ในเกณฑ์ปกติ ควรรักษาสุขภาพจิตที่ดีต่อไป";
+        } else if (score >= 5 && score <= 7) {
+            return "คุณมีความเครียดระดับปานกลาง ควรหาวิธีผ่อนคลายความเครียด เช่น ออกกำลังกาย ทำสมาธิ หรือทำกิจกรรมที่ชื่นชอบ";
+        } else if (score >= 8 && score <= 9) {
+            return "คุณมีความเครียดระดับมาก ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิตเพื่อรับคำแนะนำที่เหมาะสม";
+        } else if (score >= 10) {
+            return "คุณมีความเครียดระดับมากที่สุด ควรพบแพทย์หรือผู้เชี่ยวชาญด้านสุขภาพจิตโดยเร็วที่สุด";
+        }
+
+        return "";
+    }
 }

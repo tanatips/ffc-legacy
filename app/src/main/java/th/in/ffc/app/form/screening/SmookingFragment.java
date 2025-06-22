@@ -1,6 +1,7 @@
 package th.in.ffc.app.form.screening;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -60,6 +61,7 @@ public class SmookingFragment extends Fragment {
     // เพิ่มตัวแปรสำหรับแสดงคะแนน
     private TextView tvSmokingScore;
     private TextView tvSmokingRiskLevel;
+    private boolean isUpdatingFromCode = false;
 
     // ตัวแปรเดิมทั้งหมด...
 
@@ -157,91 +159,131 @@ public class SmookingFragment extends Fragment {
         rdoSmokerGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-//                if(checkedId == R.id.rdoSmokerGroup3){
-////                    rdoSmokerAssist.setVisibility(View.VISIBLE);
-//                }
-//                else {
-////                    rdoSmokerAssist.setVisibility(View.INVISIBLE);
-//                    rdoSmokerAssist1.setChecked(false);
-//                    rdoSmokerAssist2.setChecked(false);
-//                    rdoSmokerAssist3.setChecked(false);
-//                }
+                // หยุดการทำงานหาก isUpdatingFromCode เป็น true
+                if (isUpdatingFromCode) return;
+
                 String data = "";
                 if(checkedId == R.id.rdoSmokerGroup1) {
                     data = "1";
-                } else  if(checkedId == R.id.rdoSmokerGroup2)
-                {
+                    // ล้างการเลือกขั้นตอนต่อไป
+                    isUpdatingFromCode = true;
+                    rdoSmokerAssist.clearCheck();
+                    rdoSmokerRegularly.clearCheck();
+                    isUpdatingFromCode = false;
+                    smokerInfo.setSmokerAssist("");
+                    smokerInfo.setSmokerRegularly("");
+                } else if(checkedId == R.id.rdoSmokerGroup2) {
                     data = "2";
-                } else if(checkedId == R.id.rdoSmokerGroup3)
-                {
+                    // ล้างการเลือกขั้นตอนต่อไป
+                    isUpdatingFromCode = true;
+                    rdoSmokerAssist.clearCheck();
+                    rdoSmokerRegularly.clearCheck();
+                    isUpdatingFromCode = false;
+                    smokerInfo.setSmokerAssist("");
+                    smokerInfo.setSmokerRegularly("");
+                } else if(checkedId == R.id.rdoSmokerGroup3) {
                     data = "3";
+                    // เก็บการเลือกเดิมไว้ แต่ล้าง SmokerRegularly
+                    isUpdatingFromCode = true;
+                    rdoSmokerRegularly.clearCheck();
+                    isUpdatingFromCode = false;
+                    smokerInfo.setSmokerRegularly("");
                 }
+
+                smokerInfo.setSmokerGroup(data);
                 smookingLiveData.setSelectedRdoSmokerGroup(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
-                smokerInfo.setSmokerGroup(data);
+                // คำนวณคะแนนแบบ real-time
+//                calculateAndUpdateScore();
+
                 dataPasser.onSmokerInfo(smokerInfo);
+
+                Log.d("SmookingFragment", "Selected SmokerGroup: " + data + ", Form Complete: " + isFormComplete());
             }
         });
         rdoSmokerAssist.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-//                if(checkedId == R.id.rdoSmokerAssist3){
-////                    rdoSmokerRegularly.setVisibility(View.VISIBLE);
-//                }
-//                else {
-////                    rdoSmokerRegularly.setVisibility(View.INVISIBLE);
-//                    rdoSmokerRegularly1.setChecked(false);
-//                    rdoSmokerRegularly2.setChecked(false);
-//                    rdoSmokerRegularly3.setChecked(false);
-//                }
+                // หยุดการทำงานหาก isUpdatingFromCode เป็น true
+                if (isUpdatingFromCode) return;
+
                 String data = "";
                 if(checkedId == R.id.rdoSmokerAssist1) {
                     data = "1";
-                } else  if(checkedId == R.id.rdoSmokerAssist2)
-                {
+                    // ล้าง SmokerRegularly เพราะไม่ต้องตอบขั้นตอนต่อไป
+                    isUpdatingFromCode = true;
+                    rdoSmokerRegularly.clearCheck();
+                    isUpdatingFromCode = false;
+                    smokerInfo.setSmokerRegularly("");
+                } else if(checkedId == R.id.rdoSmokerAssist2) {
                     data = "2";
-                } else if(checkedId == R.id.rdoSmokerAssist3)
-                {
+                    // ล้าง SmokerRegularly เพราะไม่ต้องตอบขั้นตอนต่อไป
+                    isUpdatingFromCode = true;
+                    rdoSmokerRegularly.clearCheck();
+                    isUpdatingFromCode = false;
+                    smokerInfo.setSmokerRegularly("");
+                } else if(checkedId == R.id.rdoSmokerAssist3) {
                     data = "3";
+                    // เก็บการเลือกเดิมไว้ หรือล้างก็ได้
                 }
+
+                smokerInfo.setSmokerAssist(data);
                 smookingLiveData.setSelectedRdoSmokerAssist(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
-                smokerInfo.setSmokerAssist(data);
+
+                // คำนวณคะแนนแบบ real-time
+//                calculateAndUpdateScore();
+
                 dataPasser.onSmokerInfo(smokerInfo);
+
+                Log.d("SmookingFragment", "Selected SmokerAssist: " + data + ", Form Complete: " + isFormComplete());
             }
         });
 
         rdoSmokerRegularly.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                smookingLiveData.setSelectedRdoSmokerRegularly(checkedId);
-                shareViewModel.setSmookingMutableLiveData(smookingLiveData);
+                // หยุดการทำงานหาก isUpdatingFromCode เป็น true
+                if (isUpdatingFromCode) return;
+
                 String data = "";
                 if(checkedId == R.id.rdoSmokerRegularly1) {
                     data = "1";
-                } else  if(checkedId == R.id.rdoSmokerRegularly2)
-                {
+                } else if(checkedId == R.id.rdoSmokerRegularly2) {
                     data = "2";
-                } else if(checkedId == R.id.rdoSmokerRegularly3)
-                {
+                } else if(checkedId == R.id.rdoSmokerRegularly3) {
                     data = "3";
                 }
+
                 smokerInfo.setSmokerRegularly(data);
+                smookingLiveData.setSelectedRdoSmokerRegularly(checkedId);
+                shareViewModel.setSmookingMutableLiveData(smookingLiveData);
+
+                // คำนวณคะแนนแบบ real-time
+//                calculateAndUpdateScore();
+
                 dataPasser.onSmokerInfo(smokerInfo);
+
+                Log.d("SmookingFragment", "Selected SmokerRegularly: " + data + ", Form Complete: " + isFormComplete());
             }
         });
 
         shareViewModel.getSmookingMutableLiveData().observe(getViewLifecycleOwner(), smookingLiveData -> {
-            if(smookingLiveData != null){
-                if(smookingLiveData.getSelectedRdoSmokerGroup()!=null) {
-                    rdoSmokerGroup.check(smookingLiveData.getSelectedRdoSmokerGroup());
-                }
-                if(smookingLiveData.getSelectedRdoSmokerAssist()!=null) {
-                    rdoSmokerAssist.check(smookingLiveData.getSelectedRdoSmokerAssist());
-                }
-                if(smookingLiveData.getSelectedRdoSmokerRegularly()!=null) {
-                    rdoSmokerRegularly.check(smookingLiveData.getSelectedRdoSmokerRegularly());
+            if(smookingLiveData != null && !isUpdatingFromCode){
+                isUpdatingFromCode = true;
+                try {
+                    if(smookingLiveData.getSelectedRdoSmokerGroup() != null) {
+                        rdoSmokerGroup.check(smookingLiveData.getSelectedRdoSmokerGroup());
+                    }
+                    if(smookingLiveData.getSelectedRdoSmokerAssist() != null) {
+                        rdoSmokerAssist.check(smookingLiveData.getSelectedRdoSmokerAssist());
+                    }
+                    if(smookingLiveData.getSelectedRdoSmokerRegularly() != null) {
+                        rdoSmokerRegularly.check(smookingLiveData.getSelectedRdoSmokerRegularly());
+                    }
+                } finally {
+                    isUpdatingFromCode = false;
                 }
             }
         });
@@ -335,6 +377,21 @@ public class SmookingFragment extends Fragment {
     private void updateSmokingScore(int score) {
         if (tvSmokingScore != null) {
             tvSmokingScore.setText(String.valueOf(score));
+
+            // เปลี่ยนสี background และ text color ของ tvSmokingScore ตามระดับคะแนน
+            if (score >= 0 && score <= 3) {
+                // ไม่มีความเสี่ยง - สีเขียว
+                tvSmokingScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvSmokingScore.setTextColor(Color.WHITE);
+            } else if (score >= 4 && score <= 26) {
+                // ความเสี่ยงปานกลาง - สีส้ม
+                tvSmokingScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
+                tvSmokingScore.setTextColor(Color.WHITE);
+            } else {
+                // ความเสี่ยงสูง - สีแดง
+                tvSmokingScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
+                tvSmokingScore.setTextColor(Color.WHITE);
+            }
         }
 
         if (tvSmokingRiskLevel != null) {
@@ -358,7 +415,20 @@ public class SmookingFragment extends Fragment {
             tvSmokingRiskLevel.setText(riskLevel);
         }
     }
+    private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
+        android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        Color.parseColor(startColor),
+                        Color.parseColor(endColor)
+                }
+        );
 
+        // ตั้งค่ามุมโค้ง
+        gradient.setCornerRadius(20f);
+
+        return gradient;
+    }
     private void loadData(){
 
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -381,59 +451,272 @@ public class SmookingFragment extends Fragment {
 
     }
     public void setSmokerInfo(SmokerInfo info) {
+        Log.d("SmookingFragment", "setSmokerInfo called with: " +
+                (info != null ? "Group=" + info.getSmokerGroup() + ", Assist=" + info.getSmokerAssist() + ", Regularly=" + info.getSmokerRegularly() : "null"));
+
         this.smokerInfo = info;
         updateUI();
-//        calculateAndUpdateScore();
     }
     private void updateUI() {
         if (this.smokerInfo != null) {
-            // Set SmokerGroup
-            switch (this.smokerInfo.getSmokerGroup()) {
-                case "1":
-                    rdoSmokerGroup1.setChecked(true);
-//                    hideAssistAndRegularly();
-                    break;
-                case "2":
-                    rdoSmokerGroup2.setChecked(true);
-//                    hideAssistAndRegularly();
-                    break;
-                case "3":
-                    rdoSmokerGroup3.setChecked(true);
-//                    showAssistGroup();
+            // ตั้งค่าป้องกัน loop
+            isUpdatingFromCode = true;
 
-                    // Set SmokerAssist if SmokerGroup is 3
-                    switch (this.smokerInfo.getSmokerAssist()) {
+            try {
+                // Set SmokerGroup
+                String smokerGroup = this.smokerInfo.getSmokerGroup();
+                if (smokerGroup != null && !smokerGroup.isEmpty()) {
+                    switch (smokerGroup) {
                         case "1":
-                            rdoSmokerAssist1.setChecked(true);
-//                            hideRegularly();
+                            rdoSmokerGroup1.setChecked(true);
                             break;
                         case "2":
-                            rdoSmokerAssist2.setChecked(true);
-//                            hideRegularly();
+                            rdoSmokerGroup2.setChecked(true);
                             break;
                         case "3":
-                            rdoSmokerAssist3.setChecked(true);
-//                            showRegularly();
+                            rdoSmokerGroup3.setChecked(true);
 
-                            // Set SmokerRegularly if SmokerAssist is 3
-                            switch (this.smokerInfo.getSmokerRegularly()) {
-                                case "1":
-                                    rdoSmokerRegularly1.setChecked(true);
-                                    break;
-                                case "2":
-                                    rdoSmokerRegularly2.setChecked(true);
-                                    break;
-                                case "3":
-                                    rdoSmokerRegularly3.setChecked(true);
-                                    break;
+                            // Set SmokerAssist if SmokerGroup is 3
+                            String smokerAssist = this.smokerInfo.getSmokerAssist();
+                            if (smokerAssist != null && !smokerAssist.isEmpty()) {
+                                switch (smokerAssist) {
+                                    case "1":
+                                        rdoSmokerAssist1.setChecked(true);
+                                        break;
+                                    case "2":
+                                        rdoSmokerAssist2.setChecked(true);
+                                        break;
+                                    case "3":
+                                        rdoSmokerAssist3.setChecked(true);
+
+                                        // Set SmokerRegularly if SmokerAssist is 3
+                                        String smokerRegularly = this.smokerInfo.getSmokerRegularly();
+                                        if (smokerRegularly != null && !smokerRegularly.isEmpty()) {
+                                            switch (smokerRegularly) {
+                                                case "1":
+                                                    rdoSmokerRegularly1.setChecked(true);
+                                                    break;
+                                                case "2":
+                                                    rdoSmokerRegularly2.setChecked(true);
+                                                    break;
+                                                case "3":
+                                                    rdoSmokerRegularly3.setChecked(true);
+                                                    break;
+                                            }
+                                        }
+                                        break;
+                                }
                             }
                             break;
                     }
-                    break;
+                }
+            } finally {
+                // ปิดการป้องกัน loop
+                isUpdatingFromCode = false;
             }
+
+            // คำนวณคะแนนหลังจากอัปเดต UI เสร็จแล้ว
+            calculateAndUpdateScore();
         }
     }
     public SmokerInfo getFormData() {
         return  this.smokerInfo;
+    }
+    // เพิ่มเมธอดเหล่านี้ใน SmookingFragment.java
+
+    /**
+     * ตรวจสอบว่าข้อมูลครบถ้วนหรือไม่
+     */
+    public boolean isFormComplete() {
+        // ตรวจสอบว่าได้เลือก SmokerGroup แล้วหรือไม่
+        if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
+            return false;
+        }
+
+        // ถ้าเลือก "สูบบุหรี่เป็นประจำ" (option 3) ต้องเลือก SmokerAssist ด้วย
+        if ("3".equals(smokerInfo.getSmokerGroup())) {
+            if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
+                return false;
+            }
+
+            // ถ้าเลือก "สูบเป็นประจำ" (option 3 ใน SmokerAssist) ต้องเลือก SmokerRegularly ด้วย
+            if ("3".equals(smokerInfo.getSmokerAssist())) {
+                if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอก
+     */
+    public String getValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        // ตรวจสอบว่าได้เลือกสถานะการสูบบุหรี่หรือไม่
+        if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
+            message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่: ยังไม่ได้เลือกสถานะการสูบบุหรี่");
+            return message.toString();
+        }
+
+        // ถ้าเลือก "สูบบุหรี่เป็นประจำ" แต่ยังไม่ได้เลือกความถี่
+        if ("3".equals(smokerInfo.getSmokerGroup())) {
+            if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
+                message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่: ยังไม่ได้เลือกความถี่ในการสูบ");
+                return message.toString();
+            }
+
+            // ถ้าเลือก "สูบเป็นประจำ" แต่ยังไม่ได้เลือกระดับการให้คำแนะนำ
+            if ("3".equals(smokerInfo.getSmokerAssist())) {
+                if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
+                    message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่: ยังไม่ได้เลือกการให้คำแนะนำ/ปรึกษา");
+                    return message.toString();
+                }
+            }
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+
+    /**
+     * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอกแบบละเอียด
+     */
+    public String getDetailedValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        // ตรวจสอบว่าได้เลือกสถานะการสูบบุหรี่หรือไม่
+        if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
+            message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่:\n");
+            message.append("• ยังไม่ได้เลือกสถานะการสูบบุหรี่ (ไม่เคยสูบ/เคยสูบ/สูบเป็นประจำ)");
+            return message.toString();
+        }
+
+        // ตรวจสอบการเลือกความถี่ (สำหรับผู้ที่สูบเป็นประจำ)
+        if ("3".equals(smokerInfo.getSmokerGroup())) {
+            if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
+                message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่:\n");
+                message.append("• ยังไม่ได้เลือกความถี่ในการสูบ (บางครั้ง/บางคราว/เป็นประจำ)");
+                return message.toString();
+            }
+
+            // ตรวจสอบการให้คำแนะนำ (สำหรับผู้ที่สูบเป็นประจำ)
+            if ("3".equals(smokerInfo.getSmokerAssist())) {
+                if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
+                    message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่:\n");
+                    message.append("• ยังไม่ได้เลือกการให้คำแนะนำ/ปรึกษา");
+                    return message.toString();
+                }
+            }
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+
+    /**
+     * รีเซ็ตฟอร์มกลับเป็นค่าเริ่มต้น
+     */
+    public void resetForm() {
+        isUpdatingFromCode = true;
+        try {
+            if (rdoSmokerGroup != null) {
+                rdoSmokerGroup.clearCheck();
+            }
+            if (rdoSmokerAssist != null) {
+                rdoSmokerAssist.clearCheck();
+            }
+            if (rdoSmokerRegularly != null) {
+                rdoSmokerRegularly.clearCheck();
+            }
+
+            // รีเซ็ต smokerInfo
+            smokerInfo = new SmokerInfo();
+
+            // รีเซ็ตคะแนน
+            if (tvSmokingScore != null) {
+                tvSmokingScore.setText("-");
+                tvSmokingScore.setBackgroundResource(R.color.light_gray);
+                tvSmokingScore.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            if (tvSmokingRiskLevel != null) {
+                tvSmokingRiskLevel.setText("ยังไม่ได้ประเมิน");
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+        } finally {
+            isUpdatingFromCode = false;
+        }
+    }
+
+    /**
+     * ตรวจสอบว่ามีการเปลี่ยนแปลงข้อมูลหรือไม่
+     */
+    public boolean hasDataChanged() {
+        if (smokerInfo == null) {
+            return false;
+        }
+
+        return (smokerInfo.getSmokerGroup() != null && !smokerInfo.getSmokerGroup().isEmpty()) ||
+                (smokerInfo.getSmokerAssist() != null && !smokerInfo.getSmokerAssist().isEmpty()) ||
+                (smokerInfo.getSmokerRegularly() != null && !smokerInfo.getSmokerRegularly().isEmpty());
+    }
+
+    /**
+     * ดึงสถานะการกรอกข้อมูลเป็นเปอร์เซ็นต์
+     */
+    public int getCompletionPercentage() {
+        if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
+            return 0;
+        }
+
+        // หากเลือก "ไม่เคยสูบ" หรือ "เคยสูบแต่ไม่ใช่ใน 3 เดือนที่ผ่านมา" ถือว่าครบ 100%
+        if ("1".equals(smokerInfo.getSmokerGroup()) || "2".equals(smokerInfo.getSmokerGroup())) {
+            return 100;
+        }
+
+        // หากเลือก "สูบเป็นประจำ" ต้องตรวจสอบขั้นตอนต่อไป
+        if ("3".equals(smokerInfo.getSmokerGroup())) {
+            if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
+                return 33; // กรอก 1/3
+            }
+
+            if ("1".equals(smokerInfo.getSmokerAssist()) || "2".equals(smokerInfo.getSmokerAssist())) {
+                return 100; // ไม่ต้องตอบขั้นตอนถัดไป
+            }
+
+            if ("3".equals(smokerInfo.getSmokerAssist())) {
+                if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
+                    return 66; // กรอง 2/3
+                } else {
+                    return 100; // กรอบครบทุกขั้นตอน
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * แสดงสถานะการกรอกข้อมูล
+     */
+    public void showCompletionStatus() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("SmookingFragment", "Completion Status: " + message);
+
+        // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
+        // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }

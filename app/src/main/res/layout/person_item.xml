@@ -26,24 +26,28 @@
             android:textSize="18sp"
             android:textStyle="bold"/>
 
+        <!-- เพิ่ม TextView สำหรับ Visit Number -->
         <TextView
-            android:id="@+id/tvIdcard"
+            android:id="@+id/tvVisitNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"/>
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/holo_blue_dark"/>
 
+        <!-- เพิ่ม TextView สำหรับ Visit Date -->
         <TextView
-            android:id="@+id/tvBirthday"
+            android:id="@+id/tvVisitDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"/>
-
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/holo_green_dark"/>
         <TextView
-            android:id="@+id/tvPhone"
+            android:id="@+id/tvDataStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"/>
-
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
         <Button
             android:id="@+id/btnSubmitClaim"
             android:layout_width="wrap_content"

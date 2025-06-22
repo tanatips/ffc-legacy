@@ -182,4 +182,41 @@ public class DateConverter {
             return null;
         }
     }
+
+    public static String getCurrentWesternDate() {
+        try {
+            // รับวันที่ปัจจุบัน
+            Calendar now = Calendar.getInstance();
+
+            // กำหนดรูปแบบวันที่ output (yyyy-MM-dd)
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+            // แปลงเป็น String ตามรูปแบบที่ต้องการ
+            return outputFormat.format(now.getTime());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * รับวันที่และเวลาปัจจุบันในรูปแบบคริสต์ศักราช (yyyy-MM-dd HH:mm:ss)
+     *
+     * @return วันที่และเวลาปัจจุบันในรูปแบบ yyyy-MM-dd HH:mm:ss
+     */
+    public static String getCurrentWesternDateTime() {
+        try {
+            // รับวันที่และเวลาปัจจุบัน
+            Calendar now = Calendar.getInstance();
+
+            // กำหนดรูปแบบวันที่และเวลา output (yyyy-MM-dd HH:mm:ss)
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+
+            // แปลงเป็น String ตามรูปแบบที่ต้องการ
+            return outputFormat.format(now.getTime());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

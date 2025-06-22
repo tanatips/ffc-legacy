@@ -361,4 +361,20 @@ public class QuestionEightFragment extends Fragment {
         // หากต้องการบังคับให้ผู้ใช้ต้องกดเลือกคำตอบด้วยตัวเอง สามารถเปลี่ยนเงื่อนไขตรงนี้
         return true;
     }
+    public String getValidationMessage() {
+        Map<String, AnswerFrequencyData> currentAnswers = viewModel.getQuestionEightAnswers().getValue();
+
+        if (currentAnswers == null || !currentAnswers.containsKey(INJECTION_KEY)) {
+            return "คำถามที่ 8: ยังไม่ได้เลือกคำตอบเกี่ยวกับการฉีดสารเสพติด";
+        }
+
+        if (radioGroupInjection != null) {
+            int selectedRadioButtonId = radioGroupInjection.getCheckedRadioButtonId();
+            if (selectedRadioButtonId == -1) {
+                return "คำถามที่ 8: ยังไม่ได้เลือกคำตอบเกี่ยวกับการฉีดสารเสพติด";
+            }
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
 }

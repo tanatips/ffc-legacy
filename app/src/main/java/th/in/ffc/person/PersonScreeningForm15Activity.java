@@ -25,6 +25,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.ftsafe.Utility;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -112,6 +114,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+
+import org.slf4j.helpers.Util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -335,8 +339,6 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         btnReCreateTable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                VisitDiagDao visitDiagDao = new VisitDiagDao(mContext);
-                visitDiagDao.delete("11","08671");
                 ScreeningFormProvider.ReCreateTable(mContext);
                 CounselingSignatureProvider.ReCreateTable(mContext);
                 Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
@@ -1127,19 +1129,21 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
         VisitDao visitDao = new VisitDao(getContentResolver());
         if (this.personInfo.getVisitId() == null) { // insert
+            String visitDate = personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
+            String pressure = personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure();
             long visitId = visitDao.saveNewVisitWithVitalSigns(
                     userSessionManager.getPcuCode(),                     // pcucode
                     userSessionManager.getPcuCode(),                     // pcucodePerson
                     personInfo.getIdcard(),                              // pid
-                    personInfo.getCreated_date(),                        // visitDate
+                    visitDate,                        // visitDate
                     (float) personInfo.getWeight(),                       // weight
                     (float) personInfo.getHeight(),                       // height
-                    personInfo.getBp(),                                  // pressure
+                    pressure,                                   // pressure
                     (float) personInfo.getTemperature(),                  // temperature
                     Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"),                               // pluse
                     (float) personInfo.getWaist_size(),                   // waist
                     String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
-                    String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
+                    "",                // diastolic                               // diagnote
                     userSessionManager.getUsername()                     // username
             );
             if (visitId > 0) {
@@ -1152,12 +1156,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     Long.parseLong(personInfo.getVisitId()),            // visitNo
                     (float) personInfo.getWeight(),                      // weight
                     (float) personInfo.getHeight(),                      // height
-                    personInfo.getBp(),                                  // pressure
+                    personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure(), // pressure
                     (float) personInfo.getTemperature(),                 // temperature
                     Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"), // pulse
                     (float) personInfo.getWaist_size(),                  // waist
                     String.valueOf(personInfo.getSystolic_pressure()),   // symptoms (ในที่นี้ใช้ systolic แทน)
-                    String.valueOf(personInfo.getDiastolic_pressure())   // diagnote (ในที่นี้ใช้ diastolic แทน)
+                   ""   // diagnote (ในที่นี้ใช้ diastolic แทน)
             );
 
         }
@@ -1208,6 +1212,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         visitDiagInfo.setPcucode(userSessionManager.getPcuCode());
         visitDiagInfo.setVisitno(this.personInfo.getVisitId());
         visitDiagInfo.setDiagcode(getDiagCode());
+
         if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
             VisitDiagInfo savedVisitDiagInfo = visitDiagDao.getVisitDiagByVisitNoAndPcucode(visitDiagInfo.getVisitno(), visitDiagInfo.getPcucode());
             if (savedVisitDiagInfo != null) {

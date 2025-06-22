@@ -44,7 +44,7 @@ public class CounselingInfo {
         this.personId = personId;
     }
 
-    public int getCounselingType() {
+    public Integer getCounselingType() {
         return counselingType;
     }
 

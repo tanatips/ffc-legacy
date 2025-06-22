@@ -292,7 +292,7 @@ public class SfPersonInfoDao {
                 null,
                 whereClause,
                 selectionArgs,
-                "fname ASC" // เรียงตามชื่อ
+                "created_date desc"
         );
 
         if (cursor != null) {

@@ -466,5 +466,56 @@ public class QuestionFiveFragment extends Fragment implements OnFrequencySelecte
 
         return true;
     }
+    public String getValidationMessage() {
+        List<String> missingAnswers = new ArrayList<>();
+        List<String> missingDetails = new ArrayList<>();
 
+        for (SubstanceItem item : substanceList) {
+            AnswerFrequencyData data = selectedFrequencies.get(item.getId());
+            String itemName = getItemDisplayName(item.getId());
+
+            if (data == null || data.getFrequency() == -1) {
+                missingAnswers.add(itemName);
+            } else if (item.getId().equals("j") && data.getFrequency() > 0 &&
+                    (data.getOtherDrugs() == null || data.getOtherDrugs().trim().isEmpty())) {
+                missingDetails.add(itemName + " (ต้องระบุชื่อสารเสพติด)");
+            }
+        }
+
+        StringBuilder message = new StringBuilder();
+        if (!missingAnswers.isEmpty() || !missingDetails.isEmpty()) {
+            message.append("คำถามที่ 5: ");
+
+            if (!missingAnswers.isEmpty()) {
+                message.append("ยังไม่ได้เลือกความถี่: ");
+                message.append(String.join(", ", missingAnswers));
+            }
+
+            if (!missingDetails.isEmpty()) {
+                if (!missingAnswers.isEmpty()) {
+                    message.append("; ");
+                }
+                message.append("ต้องกรอกข้อมูลเพิ่มเติม: ");
+                message.append(String.join(", ", missingDetails));
+            }
+        }
+
+        return message.toString();
+    }
+
+    private String getItemDisplayName(String id) {
+        // ไม่มี a ในคำถามที่ 5
+        switch (id) {
+            case "b": return "b. เครื่องดื่มแอลกอฮอล์";
+            case "c": return "c. กัญชา";
+            case "d": return "d. โคเคน";
+            case "e": return "e. ยากระตุ้นประสาทกลุ่มแอมเฟตามีน";
+            case "f": return "f. สารระเหย";
+            case "g": return "g. ยากล่อมประสาทหรือยานอนหลับ";
+            case "h": return "h. ยาหลอนประสาท";
+            case "i": return "i. สารกลุ่มฝิ่น";
+            case "j": return "j. สารเสพติดอื่น ๆ";
+            default: return id;
+        }
+    }
 }

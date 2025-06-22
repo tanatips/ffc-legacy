@@ -493,7 +493,7 @@ public class PersonInfoFragment extends Fragment {
             request.setBirthDay(convertToWesternDate(txtBirthDay.getText().toString()));
             request.setHn(txtHn.getText().toString());
             request.setHcode(pcuCode);
-            request.setSourceId("BKKCC");
+            request.setSourceId("A-MED");
             request.setTransId(generateTransId());
             request.setServiceCode("PG0060001");
             showProgressBar("Authenticating...");

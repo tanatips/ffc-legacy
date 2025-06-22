@@ -6,12 +6,12 @@ public class HealthRiskAssessmentInfo {
 
     private String personId;
     private String idcard;
-    private String HealthRiskQ1="0";
-    private String HealthRiskQ2="0";
-    private String HealthRiskQ3="0";
-    private String HealthRiskQ4="0";
-    private String HealthRiskQ5="0";
-    private String HealthRiskQ6="0";
+    private String HealthRiskQ1="-1";
+    private String HealthRiskQ2="-1";
+    private String HealthRiskQ3="-1";
+    private String HealthRiskQ4="-1";
+    private String HealthRiskQ5="-1";
+    private String HealthRiskQ6="-1";
 
     private String fcbg="0";
     private String fpg="0";
