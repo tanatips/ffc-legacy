@@ -6,6 +6,11 @@
     <permission
         android:name="th.in.ffc.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
+    <!-- USB Host permissions -->
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="true" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission
@@ -17,14 +22,17 @@
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
+
     <uses-feature
         android:name="android.hardware.bluetooth"
         android:required="true" />
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
+
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="th.in.ffc.permission.MAPS_RECEIVE" />
@@ -58,7 +66,18 @@
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@style/FFC.Theme.Light">
+        <activity
+            android:name=".ThaiIdSmartcardReader"
+            android:exported="false">
+            <!-- USB device filter for card readers -->
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
 
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
         <activity
             android:name=".app.form.screening.ClaimDetailActivity"
             android:exported="false" />
@@ -264,12 +283,10 @@
             android:authorities="th.in.ffc.provider.NHSOCHAProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".provider.ApiUrlProvider"
             android:authorities="th.in.ffc.provider.ApiUrlProvider"
             android:exported="false" />
-
         <provider
             android:name=".provider.CounselingSignatureProvider"
             android:authorities="th.in.ffc.provider.CounselingSignatureProvider"
@@ -277,14 +294,13 @@
 
         <activity
             android:name=".app.form.screening.ApiUrlListActivity"
-            android:label="@string/api_urls_management"
-            android:exported="true">
-        </activity>
-
+            android:exported="true"
+            android:label="@string/api_urls_management"></activity>
         <activity
             android:name=".app.form.screening.ApiUrlEditActivity"
-            android:label="@string/add_api_url"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/add_api_url" />
+
         <service
             android:name=".security.CryptographerService"
             android:exported="true">

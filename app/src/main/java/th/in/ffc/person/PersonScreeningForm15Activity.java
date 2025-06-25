@@ -1307,6 +1307,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             btnOk.setEnabled(!this.personInfo.getSend_to_claim().equals(1));
         }
     }
+
+    @Override
+    public void onValidationStatusChanged(boolean isValid) {
+
+    }
+
     @Override
     public void onSmokerInfo(SmokerInfo data) {
         this.smokerInfo = data;

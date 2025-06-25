@@ -20,6 +20,7 @@ import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
 public interface OnDataPass {
 //    void onDataPass(PersonInfo data);
     void onPersonInfo(PersonInfo data);
+    void onValidationStatusChanged(boolean isValid);
     void onSmokerInfo(SmokerInfo data);
     void onDrinkingInfo(DrinkingInfo data);
     void onNicotineInfo(NicotineInfo data);

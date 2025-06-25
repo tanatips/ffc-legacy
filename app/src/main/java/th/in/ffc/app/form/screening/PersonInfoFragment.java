@@ -61,6 +61,7 @@ import java.util.List;
 import th.in.ffc.MainActivity;
 import th.in.ffc.R;
 import th.in.ffc.SmartCardReaderActivity;
+import th.in.ffc.ThaiIdSmartcardReader;
 import th.in.ffc.api.nhso.ApiCaller;
 import th.in.ffc.api.nhso.ApiResponse;
 import th.in.ffc.api.nhso.AuthenCodeRequest;
@@ -158,6 +159,7 @@ public class PersonInfoFragment extends Fragment {
     private ImageView imgPerson;
 
     private String pcuCode;
+
 
 
     private interface TextFieldUpdater {
@@ -1091,7 +1093,7 @@ public class PersonInfoFragment extends Fragment {
                                 personInfo.setIdcard(idCard);
                                 dataPasser.onPersonInfo(personInfo);
                             } else {
-                                Toast.makeText(getContext(), "กรุณากรอกหมายเลขบัตรประชาชนให้ครบ 13 หลัก", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(getContext(), "กรุณากรอกหมายเลขบัตรประชาชนให้ครบ 13 หลัก", Toast.LENGTH_SHORT).show();
                             }
                         }
                         if(editText == txtWeight || editText == txtHeight){
@@ -1130,10 +1132,14 @@ public class PersonInfoFragment extends Fragment {
         smartcardReader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(), SmartCardReaderActivity.class);
+                Intent intent = new Intent(getContext(), ThaiIdSmartcardReader.class);
                 activityResultLauncher.launch(intent);
             }
         });
+
+        // ตั้งค่า TextWatcher สำหรับเลขบัตรประชาชนแยกต่างหาก
+        setupCitizenIdTextWatcher();
+
         rdoGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -1150,10 +1156,10 @@ public class PersonInfoFragment extends Fragment {
                 }
             }
         });
+
         txtHomeNo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -1164,13 +1170,12 @@ public class PersonInfoFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
+
         txtVillageNo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -1181,13 +1186,12 @@ public class PersonInfoFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
+
         txtPostalCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -1198,13 +1202,12 @@ public class PersonInfoFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
+
         txtTemperature.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -1220,10 +1223,8 @@ public class PersonInfoFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
-
     }
     private void updatePersonInfo() {
         try {
@@ -1266,62 +1267,6 @@ public class PersonInfoFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    private void validateInputs() {
-        // You can implement validation logic here
-        // For example:
-        boolean isValid = true;
-
-        // Validate Citizen ID
-        String citizenIdText = citizenId.getText().toString().trim();
-        if (citizenIdText.isEmpty()) {
-            citizenId.setError("กรุณากรอกเลขบัตรประชาชน");
-            isValid = false;
-        } else if (citizenIdText.length() != 13) {
-            citizenId.setError("เลขบัตรประชาชนต้องมี 13 หลัก");
-            isValid = false;
-        }
-
-        // Validate Name
-        if (fname.getText().toString().trim().isEmpty()) {
-            fname.setError("กรุณากรอกชื่อ");
-            isValid = false;
-        }
-        else {
-            fname.setError(null);
-        }
-
-        if (lname.getText().toString().trim().isEmpty()) {
-            lname.setError("กรุณากรอกนามสกุล");
-            isValid = false;
-        }
-        else {
-            lname.setError(null);
-        }
-
-        // Validate numeric fields
-        try {
-            if (!txtWeight.getText().toString().trim().isEmpty()) {
-                double weight = Double.parseDouble(txtWeight.getText().toString());
-                if (weight <= 0 || weight > 300) {
-                    txtWeight.setError("น้ำหนักไม่ถูกต้อง");
-                    isValid = false;
-                }
-            }
-
-            if (!txtHeight.getText().toString().trim().isEmpty()) {
-                double height = Double.parseDouble(txtHeight.getText().toString());
-                if (height <= 0 || height > 250) {
-                    txtHeight.setError("ส่วนสูงไม่ถูกต้อง");
-                    isValid = false;
-                }
-            }
-        } catch (NumberFormatException e) {
-            isValid = false;
-        }
-
-        // You might want to enable/disable a submit button based on validation
-        // submitButton.setEnabled(isValid);
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -1374,6 +1319,77 @@ public class PersonInfoFragment extends Fragment {
             }
         }
     }
+//    private ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+//            new ActivityResultContracts.StartActivityForResult(),
+//            new ActivityResultCallback<ActivityResult>() {
+//                @Override
+//                public void onActivityResult(ActivityResult result) {
+//                    if (result.getResultCode() == Activity.RESULT_OK) {
+//                        Intent data = result.getData();
+//                        byte[] byteArray = data.getByteArrayExtra("image");
+//                        String strIdcard = data.getStringExtra("result");
+//                        // แสดงรูปภาพที่ได้จากบัตร
+//                        if (byteArray != null) {
+//                            try {
+//                                Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+//                                imgPerson.setImageBitmap(bitmap);
+//                                personInfo.setPhoto(byteArray);
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                                // หากมีข้อผิดพลาดให้ใช้รูปภาพดีฟอลต์
+//                                imgPerson.setImageResource(R.drawable.ic_person);
+//                            }
+//                        }
+//                        if(strIdcard!=null && !strIdcard.equals("")){
+//                            String[] idcardInfo = strIdcard.split("#");
+//                            if(idcardInfo.length>0){
+//                                citizenId.setText(idcardInfo[0].toString());
+//                                fname.setText(idcardInfo[2].toString());
+//                                lname.setText(idcardInfo[4].toString());
+//
+//                                // แก้ไขส่วนการประมวลผลวันเกิด
+//                                if(idcardInfo.length > 18 && idcardInfo[18].length() == 8) {
+//                                    try {
+//                                        int day, month, year;
+//                                        year = Integer.parseInt(idcardInfo[18].substring(0,4));
+//                                        month = Integer.parseInt(idcardInfo[18].substring(4,6)); // ไม่ต้องลบ 1
+//                                        day = Integer.parseInt(idcardInfo[18].substring(6,8));
+//
+//                                        // จัดรูปแบบวันที่ให้ถูกต้อง (dd/MM/yyyy)
+//                                        String formattedBirthDate = String.format(Locale.US, "%02d/%02d/%d", day, month, year);
+//                                        txtBirthDay.setText(formattedBirthDate);
+//
+//                                        // แปลงเป็น Western date สำหรับเก็บใน PersonInfo
+//                                        personInfo.setBirthday(convertToWesternDate(formattedBirthDate));
+//                                    } catch (NumberFormatException e) {
+//                                        Log.e("PersonInfo", "Error parsing birth date: " + e.getMessage());
+//                                    }
+//                                }
+//
+//                                // ตั้งค่าเพศ
+//                                if(idcardInfo[1].toString().equals("นาย")) {
+//                                    rdoMale.setChecked(true);
+//                                    personInfo.setGender("M");
+//                                } else if(idcardInfo[1].toString().equals("นาง") || idcardInfo[1].toString().equals("นางสาว")) {
+//                                    rdoFemale.setChecked(true);
+//                                    personInfo.setGender("F");
+//                                } else {
+//                                    rdoMale.setChecked(true); // default
+//                                    personInfo.setGender("M");
+//                                }
+//
+//                                // อัพเดทข้อมูลไปยัง dataPasser
+//                                dataPasser.onPersonInfo(personInfo);
+//                            }
+//                        }
+//                    }
+//                    getDataFromDevice(result);
+//                }
+//            }
+//    );
+// ส่วนที่ต้องอัปเดตใน PersonInfoFragment.java
+// แทนที่ activityResultLauncher ที่มีอยู่เดิม
+
     private ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -1381,8 +1397,22 @@ public class PersonInfoFragment extends Fragment {
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
+
+                        // รับข้อมูลรูปภาพ
                         byte[] byteArray = data.getByteArrayExtra("image");
+
+                        // รับข้อมูลบัตรในรูปแบบเดิม (สำหรับ backward compatibility)
                         String strIdcard = data.getStringExtra("result");
+
+                        // รับข้อมูลแยกชิ้นใหม่
+                        String citizenId = data.getStringExtra("citizenId");
+                        String titleThai = data.getStringExtra("titleThai");
+                        String firstNameThai = data.getStringExtra("firstNameThai");
+                        String middleNameThai = data.getStringExtra("middleNameThai");
+                        String lastNameThai = data.getStringExtra("lastNameThai");
+                        String genderCode = data.getStringExtra("gender");
+                        String birthDate = data.getStringExtra("birthDate");
+
                         // แสดงรูปภาพที่ได้จากบัตร
                         if (byteArray != null) {
                             try {
@@ -1395,20 +1425,77 @@ public class PersonInfoFragment extends Fragment {
                                 imgPerson.setImageResource(R.drawable.ic_person);
                             }
                         }
-                        if(strIdcard!=null && !strIdcard.equals("")){
+
+                        // ใช้ข้อมูลแยกชิ้นใหม่ที่มีความแม่นยำสูง
+                        if (citizenId != null && !citizenId.isEmpty()) {
+                            PersonInfoFragment.this.citizenId.setText(citizenId);
+                            personInfo.setIdcard(citizenId);
+                        }
+
+                        if (firstNameThai != null && !firstNameThai.isEmpty()) {
+                            fname.setText(firstNameThai);
+                            personInfo.setFname(firstNameThai);
+                        }
+
+                        if (lastNameThai != null && !lastNameThai.isEmpty()) {
+                            lname.setText(lastNameThai);
+                            personInfo.setLname(lastNameThai);
+                        }
+
+                        // ตั้งค่าเพศ
+                        if (genderCode != null && !genderCode.isEmpty()) {
+                            if (genderCode.equals("1")) {
+                                rdoMale.setChecked(true);
+                                personInfo.setGender("M");
+                            } else if (genderCode.equals("2")) {
+                                rdoFemale.setChecked(true);
+                                personInfo.setGender("F");
+                            }
+                        }
+
+                        // แปลงและตั้งค่าวันเกิด
+                        if (birthDate != null && birthDate.length() == 8) {
+                            try {
+                                int day, month, year;
+                                year = Integer.parseInt(birthDate.substring(0, 4));
+                                month = Integer.parseInt(birthDate.substring(4, 6));
+                                day = Integer.parseInt(birthDate.substring(6, 8));
+
+                                // จัดรูปแบบวันที่ให้ถูกต้อง (dd/MM/yyyy) - พ.ศ.
+                                String formattedBirthDate = String.format(Locale.US, "%02d/%02d/%d", day, month, year);
+                                txtBirthDay.setText(formattedBirthDate);
+
+                                // แปลงเป็น Western date สำหรับเก็บใน PersonInfo
+                                personInfo.setBirthday(convertToWesternDate(formattedBirthDate));
+                            } catch (NumberFormatException e) {
+                                Log.e("PersonInfo", "Error parsing birth date: " + e.getMessage());
+                            }
+                        }
+
+                        // Fallback: ใช้วิธีเดิมถ้าข้อมูลแยกชิ้นไม่สมบูรณ์
+                        if ((citizenId == null || citizenId.isEmpty()) && strIdcard != null && !strIdcard.equals("")) {
                             String[] idcardInfo = strIdcard.split("#");
-                            if(idcardInfo.length>0){
-                                citizenId.setText(idcardInfo[0].toString());
-                                fname.setText(idcardInfo[2].toString());
-                                lname.setText(idcardInfo[4].toString());
+                            if (idcardInfo.length > 0) {
+                                PersonInfoFragment.this.citizenId.setText(idcardInfo[0].toString());
+                                personInfo.setIdcard(idcardInfo[0].toString());
+
+                                if (idcardInfo.length > 2) {
+                                    fname.setText(idcardInfo[2].toString());
+                                    personInfo.setFname(idcardInfo[2].toString());
+                                }
+
+                                if (idcardInfo.length > 4) {
+                                    lname.setText(idcardInfo[4].toString());
+                                    personInfo.setLname(idcardInfo[4].toString());
+                                }
 
                                 // แก้ไขส่วนการประมวลผลวันเกิด
-                                if(idcardInfo.length > 18 && idcardInfo[18].length() == 8) {
+                                if (idcardInfo.length > 18 && idcardInfo[18].length() == 8) {
                                     try {
                                         int day, month, year;
-                                        year = Integer.parseInt(idcardInfo[18].substring(0,4));
-                                        month = Integer.parseInt(idcardInfo[18].substring(4,6)); // ไม่ต้องลบ 1
-                                        day = Integer.parseInt(idcardInfo[18].substring(6,8));
+                                        year = Integer.parseInt(idcardInfo[18].substring(0, 4));
+                                        month = Integer.parseInt(idcardInfo[18].substring(4, 6));
+                                        day = Integer.parseInt(idcardInfo[18].substring(6, 8));
 
                                         // จัดรูปแบบวันที่ให้ถูกต้อง (dd/MM/yyyy)
                                         String formattedBirthDate = String.format(Locale.US, "%02d/%02d/%d", day, month, year);
@@ -1421,28 +1508,33 @@ public class PersonInfoFragment extends Fragment {
                                     }
                                 }
 
-                                // ตั้งค่าเพศ
-                                if(idcardInfo[1].toString().equals("นาย")) {
-                                    rdoMale.setChecked(true);
-                                    personInfo.setGender("M");
-                                } else if(idcardInfo[1].toString().equals("นาง") || idcardInfo[1].toString().equals("นางสาว")) {
-                                    rdoFemale.setChecked(true);
-                                    personInfo.setGender("F");
-                                } else {
-                                    rdoMale.setChecked(true); // default
-                                    personInfo.setGender("M");
+                                // ตั้งค่าเพศ (วิธีเดิม)
+                                if (idcardInfo.length > 1) {
+                                    if (idcardInfo[1].toString().equals("นาย")) {
+                                        rdoMale.setChecked(true);
+                                        personInfo.setGender("M");
+                                    } else if (idcardInfo[1].toString().equals("นาง") || idcardInfo[1].toString().equals("นางสาว")) {
+                                        rdoFemale.setChecked(true);
+                                        personInfo.setGender("F");
+                                    } else {
+                                        rdoMale.setChecked(true); // default
+                                        personInfo.setGender("M");
+                                    }
                                 }
-
-                                // อัพเดทข้อมูลไปยัง dataPasser
-                                dataPasser.onPersonInfo(personInfo);
                             }
                         }
+
+                        // อัพเดทข้อมูลไปยัง dataPasser
+                        dataPasser.onPersonInfo(personInfo);
+
+                        Toast.makeText(getContext(), "นำเข้าข้อมูลจากบัตรประชาชนเรียบร้อยแล้ว", Toast.LENGTH_SHORT).show();
                     }
+
+                    // เรียกฟังก์ชันเดิมสำหรับข้อมูลจากอุปกรณ์วัดสุขภาพ
                     getDataFromDevice(result);
                 }
             }
     );
-
    private void getDataFromDevice(ActivityResult result){
        if (result.getResultCode() == Activity.RESULT_OK) {
            Intent data = result.getData();
@@ -1484,4 +1576,264 @@ public class PersonInfoFragment extends Fragment {
            }
        }
    }
+    // เพิ่ม Method ใหม่ใน PersonInfoFragment.java
+
+    /**
+     * ตรวจสอบเลขบัตรประชาชนซ้ำในปีงบประมาณปัจจุบัน
+     * @param idCard เลขบัตรประชาชน
+     * @return true ถ้าไม่ซ้ำ (สามารถใช้ได้), false ถ้าซ้ำ (ไม่สามารถใช้ได้)
+     */
+    private boolean validateIdCardDuplicate(String idCard) {
+        if (idCard == null || idCard.length() != 13) {
+            return false;
+        }
+        SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(getContext());
+        // ตรวจสอบว่าเคยทำแบบสำรวจในปีงบประมาณปัจจุบันหรือไม่
+        boolean isDuplicate = sfPersonInfoDao.isIdCardExistInCurrentFiscalYear(idCard);
+
+        if (isDuplicate) {
+            // ดึงข้อมูลการสำรวจล่าสุด
+            PersonInfo existingSurvey = sfPersonInfoDao.getLatestSurveyByIdCard(idCard);
+
+            if (existingSurvey != null) {
+                showDuplicateIdCardDialog(existingSurvey);
+            } else {
+                Toast.makeText(getContext(),
+                        "เลขบัตรประชาชนนี้เคยทำแบบสำรวจในปีงบประมาณปัจจุบันแล้ว",
+                        Toast.LENGTH_LONG).show();
+            }
+
+            return false; // ไม่อนุญาตให้ใช้
+        }
+
+        return true; // อนุญาตให้ใช้
+    }
+
+    /**
+     * แสดง Dialog แจ้งเตือนเมื่อพบเลขบัตรประชาชนซ้ำ
+     * @param existingSurvey ข้อมูลการสำรวจที่มีอยู่แล้ว
+     */
+    private void showDuplicateIdCardDialog(PersonInfo existingSurvey) {
+        // สร้าง custom view สำหรับ dialog
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_duplicate_warning, null);
+
+        // หา views ใน dialog
+        TextView tvMessage = dialogView.findViewById(R.id.tvDuplicateMessage);
+        TextView tvExistingInfo = dialogView.findViewById(R.id.tvExistingInfo);
+
+        // จัดรูปแบบข้อความ
+        String message = "เลขบัตรประชาชนนี้เคยทำแบบสำรวจในปีงบประมาณปัจจุบันแล้ว\n\n" +
+                "ไม่สามารถทำแบบสำรวจซ้ำได้";
+
+        String existingInfo = "ข้อมูลการสำรวจที่มีอยู่:\n" +
+                "ชื่อ: " + existingSurvey.getFname() + " " + existingSurvey.getLname() + "\n" +
+                "วันที่ทำแบบสำรวจ: " + formatDateForDisplay(existingSurvey.getCreated_date());
+
+        tvMessage.setText(message);
+        tvExistingInfo.setText(existingInfo);
+
+        // สร้างและแสดง dialog
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("พบข้อมูลซ้ำ")
+                .setView(dialogView)
+                .setIcon(R.drawable.ic_warning) // ใช้ icon เตือน
+                .setPositiveButton("ตกลง", (dialog, which) -> {
+                    // เคลียร์ข้อมูลในฟอร์ม
+                    clearForm();
+                    dialog.dismiss();
+                })
+                .setCancelable(false); // ไม่ให้ปิด dialog โดยการกดข้างนอก
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     * แปลงวันที่เป็นรูปแบบที่อ่านง่าย
+     * @param dateString วันที่ในรูปแบบ yyyy-MM-dd HH:mm:ss
+     * @return วันที่ในรูปแบบไทย
+     */
+    private String formatDateForDisplay(String dateString) {
+        try {
+            if (dateString == null || dateString.isEmpty()) {
+                return "ไม่ระบุ";
+            }
+
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", new Locale("th", "TH"));
+
+            Date date = inputFormat.parse(dateString);
+            if (date != null) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(Calendar.YEAR, 543); // แปลงเป็นพุทธศักราช
+
+                return outputFormat.format(cal.getTime());
+            }
+
+            return dateString;
+        } catch (Exception e) {
+            Log.e("PersonInfoFragment", "Error formatting date: " + e.getMessage());
+            return dateString;
+        }
+    }
+
+    /**
+     * เคลียร์ข้อมูลในฟอร์ม
+     */
+    private void clearForm() {
+        citizenId.setText("");
+        fname.setText("");
+        lname.setText("");
+        txtBirthDay.setText("");
+        rdoMale.setChecked(false);
+        rdoFemale.setChecked(false);
+        txtPhoneNo.setText("");
+        txtHn.setText("");
+        txtAuthenDate.setText("");
+        txtAuthenNo.setText("");
+        txtWeight.setText("");
+        txtHeight.setText("");
+        txtWaistCircumference.setText("");
+        txtBp.setText("");
+        txtBmi.setText("");
+        txtSymptomsPressure.setText("");
+        txtDiastolicPressure.setText("");
+        txtHomeNo.setText("");
+        txtVillageNo.setText("");
+        txtPostalCode.setText("");
+        txtTemperature.setText("");
+
+        // เคลียร์ dropdown
+        spinnerProvince.setText("", false);
+        spinnerDistrict.setText("", false);
+        spinnerSubDistrict.setText("", false);
+
+        // เคลียร์รูปภาพ
+        imgPerson.setImageResource(R.drawable.ic_person);
+
+        // รีเซ็ต PersonInfo object
+        personInfo = new PersonInfo();
+
+        // Focus กลับไปที่ช่องเลขบัตรประชาชน
+        citizenId.requestFocus();
+
+        Toast.makeText(getContext(), "เคลียร์ข้อมูลเรียบร้อยแล้ว", Toast.LENGTH_SHORT).show();
+    }
+
+    // อัปเดต Method validateInputs() ที่มีอยู่เดิม
+    private void validateInputs() {
+        boolean isValid = true;
+
+        // Validate Citizen ID
+        String citizenIdText = citizenId.getText().toString().trim();
+        if (citizenIdText.isEmpty()) {
+//            citizenId.setError("กรุณากรอกเลขบัตรประชาชน");
+            isValid = false;
+        } else if (citizenIdText.length() != 13) {
+//            citizenId.setError("เลขบัตรประชาชนต้องมี 13 หลัก");
+            isValid = false;
+        } else {
+            // ตรวจสอบความซ้ำในปีงบประมาณปัจจุบัน
+//            if (!validateIdCardDuplicate(citizenIdText)) {
+//                citizenId.setError("เลขบัตรประชาชนนี้เคยทำแบบสำรวจแล้ว");
+//                isValid = false;
+//            } else {
+//                citizenId.setError(null);
+//            }
+        }
+
+        // Validate Name
+        if (fname.getText().toString().trim().isEmpty()) {
+            fname.setError("กรุณากรอกชื่อ");
+            isValid = false;
+        } else {
+            fname.setError(null);
+        }
+
+        if (lname.getText().toString().trim().isEmpty()) {
+            lname.setError("กรุณากรอกนามสกุล");
+            isValid = false;
+        } else {
+            lname.setError(null);
+        }
+
+        // Validate numeric fields
+        try {
+            if (!txtWeight.getText().toString().trim().isEmpty()) {
+                double weight = Double.parseDouble(txtWeight.getText().toString());
+                if (weight <= 0 || weight > 300) {
+                    txtWeight.setError("น้ำหนักไม่ถูกต้อง");
+                    isValid = false;
+                }
+            }
+
+            if (!txtHeight.getText().toString().trim().isEmpty()) {
+                double height = Double.parseDouble(txtHeight.getText().toString());
+                if (height <= 0 || height > 250) {
+                    txtHeight.setError("ส่วนสูงไม่ถูกต้อง");
+                    isValid = false;
+                }
+            }
+        } catch (NumberFormatException e) {
+            isValid = false;
+        }
+
+        // เก็บสถานะการ validate ไว้ใน PersonInfo สำหรับใช้ตอนบันทึก
+        personInfo.setValidationPassed(isValid);
+
+        // ส่งสัญญาณไปยัง Activity ว่าข้อมูลพร้อมบันทึกหรือไม่
+        if (dataPasser != null) {
+            dataPasser.onValidationStatusChanged(isValid);
+        }
+    }
+
+    // อัปเดต TextWatcher สำหรับ citizenId
+    private void setupCitizenIdTextWatcher() {
+        citizenId.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // ไม่ต้องทำอะไร
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String idCard = s.toString().trim();
+
+                if (idCard.length() == 13) {
+                    // ตรวจสอบความซ้ำ
+                    if (validateIdCardDuplicate(idCard)) {
+                        // ถ้าไม่ซ้ำ ให้ดำเนินการปกติ
+                        PersonDao personDao = new PersonDao(getContext());
+                        PersonDao.PersonInfo person = personDao.getPersonByIdcard(idCard);
+                        if (person != null) {
+                            personInfo.setHcode(person.getHcode());
+                        }
+                        personInfo.setIdcard(idCard);
+                        dataPasser.onPersonInfo(personInfo);
+
+                        citizenId.setError(null);
+                    } else {
+                        // ถ้าซ้ำ ให้หยุดการทำงาน
+                        return;
+                    }
+                } else if (idCard.length() > 0 && idCard.length() < 13) {
+//                    citizenId.setError("กรุณากรอกหมายเลขบัตรประชาชนให้ครบ 13 หลัก");
+                } else {
+                    citizenId.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                validateInputs();
+            }
+        });
+    }
+
+    // เพิ่ม interface สำหรับแจ้งสถานะการ validation
+//    public interface OnDataPass {
+//        void onPersonInfo(PersonInfo personInfo);
+//        void onValidationStatusChanged(boolean isValid); // เพิ่มบรรทัดนี้
+//    }
 }

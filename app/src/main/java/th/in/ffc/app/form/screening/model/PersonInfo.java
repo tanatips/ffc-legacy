@@ -49,6 +49,7 @@ public class PersonInfo {
     private byte[] photo;
 
     private String seq;
+    private boolean validationPassed = false;
 
     public byte[] getPhoto() {
         return photo;
@@ -390,6 +391,21 @@ public class PersonInfo {
     }
     public void setSeq(String seq) {
         this.seq = seq;
+    }
+    public boolean isValidationPassed() {
+        return validationPassed;
+    }
+
+    public void setValidationPassed(boolean validationPassed) {
+        this.validationPassed = validationPassed;
+    }
+
+    // Method สำหรับตรวจสอบว่าข้อมูลพร้อมบันทึกหรือไม่
+    public boolean isReadyToSave() {
+        return validationPassed &&
+                idcard != null && idcard.length() == 13 &&
+                fname != null && !fname.trim().isEmpty() &&
+                lname != null && !lname.trim().isEmpty();
     }
 }
 

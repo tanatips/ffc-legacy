@@ -10,9 +10,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import th.in.ffc.app.form.screening.model.PersonInfo;
@@ -398,5 +400,112 @@ public class SfPersonInfoDao {
             values.put(key, value);
         }
     }
+// เพิ่ม Method ใหม่ใน SfPersonInfoDao.java
 
+    /**
+     * ตรวจสอบว่าเลขบัตรประชาชนนี้เคยทำแบบสำรวจในปีงบประมาณปัจจุบันหรือไม่
+     * @param idcard เลขบัตรประชาชน 13 หลัก
+     * @return true ถ้าเคยทำแล้ว, false ถ้ายังไม่เคยทำ
+     */
+    public static boolean isIdCardExistInCurrentFiscalYear(String idcard) {
+        try {
+            // คำนวณปีงบประมาณปัจจุบัน (ปีงบประมาณเริ่ม 1 ตุลาคม - 30 กันยายน)
+            Calendar cal = Calendar.getInstance();
+            int currentYear = cal.get(Calendar.YEAR);
+            int currentMonth = cal.get(Calendar.MONTH) + 1; // Calendar.MONTH เริ่มจาก 0
+
+            int fiscalYear;
+            if (currentMonth >= 10) { // ตุลาคม-ธันวาคม
+                fiscalYear = currentYear + 1; // ปีงบประมาณถัดไป
+            } else { // มกราคม-กันยายน
+                fiscalYear = currentYear; // ปีงบประมาณปัจจุบัน
+            }
+
+            // กำหนดช่วงวันที่ของปีงบประมาณ
+            String fiscalYearStart = (fiscalYear - 1) + "-10-01"; // 1 ตุลาคม ปีที่แล้ว
+            String fiscalYearEnd = fiscalYear + "-09-30"; // 30 กันยายน ปีปัจจุบัน
+
+            // Query ตรวจสอบข้อมูล
+            String selection = "IDCARD = ? AND created_date >= ? AND created_date <= ?";
+            String[] selectionArgs = new String[]{idcard, fiscalYearStart, fiscalYearEnd};
+
+            Cursor cursor = mContext.getContentResolver().query(
+                    getPersonInfoUriAppend("list"),
+                    new String[]{"COUNT(*) as count"},
+                    selection,
+                    selectionArgs,
+                    null
+            );
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int count = cursor.getInt(0);
+                    cursor.close();
+                    return count > 0;
+                }
+                cursor.close();
+            }
+
+            return false;
+        } catch (Exception e) {
+            Log.e("SfPersonInfoDao", "Error checking duplicate ID card: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * ดึงข้อมูลการสำรวจล่าสุดของเลขบัตรประชาชนในปีงบประมาณปัจจุบัน
+     * @param idcard เลขบัตรประชาชน 13 หลัก
+     * @return ข้อมูลการสำรวจล่าสุด หรือ null ถ้าไม่พบ
+     */
+    public static PersonInfo getLatestSurveyByIdCard(String idcard) {
+        try {
+            // คำนวณปีงบประมาณปัจจุบัน
+            Calendar cal = Calendar.getInstance();
+            int currentYear = cal.get(Calendar.YEAR);
+            int currentMonth = cal.get(Calendar.MONTH) + 1;
+
+            int fiscalYear;
+            if (currentMonth >= 10) {
+                fiscalYear = currentYear + 1;
+            } else {
+                fiscalYear = currentYear;
+            }
+
+            String fiscalYearStart = (fiscalYear - 1) + "-10-01";
+            String fiscalYearEnd = fiscalYear + "-09-30";
+
+            String selection = "IDCARD = ? AND created_date >= ? AND created_date <= ?";
+            String[] selectionArgs = new String[]{idcard, fiscalYearStart, fiscalYearEnd};
+
+            Cursor cursor = mContext.getContentResolver().query(
+                    getPersonInfoUriAppend("list"),
+                    null,
+                    selection,
+                    selectionArgs,
+                    "created_date DESC LIMIT 1"
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                PersonInfo personInfo = new PersonInfo();
+                personInfo.setId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.ID));
+                personInfo.setIdcard(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.IDCARD));
+                personInfo.setFname(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.FNAME));
+                personInfo.setLname(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.LNAME));
+                personInfo.setCreated_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CREATED_DATE));
+
+                cursor.close();
+                return personInfo;
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+            return null;
+        } catch (Exception e) {
+            Log.e("SfPersonInfoDao", "Error getting latest survey: " + e.getMessage());
+            return null;
+        }
+    }
 }
