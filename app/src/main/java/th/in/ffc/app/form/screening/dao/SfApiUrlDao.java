@@ -87,7 +87,7 @@ public class SfApiUrlDao {
             authenCodeApi.setDescription("API สำหรับขอ authen code");
             authenCodeApi.setMethod("POST");
             authenCodeApi.setTestUrl("https://test.nhso.go.th/authencodeapi/api/AuthenCode");
-            authenCodeApi.setProdUrl("https://api.nhso.go.th/authencodeapi/api/AuthenCode");
+            authenCodeApi.setProdUrl("https://pucws.nhso.go.th/authencodeapi/api/AuthenCode");
             authenCodeApi.setParams("");
             authenCodeApi.setRequestFormat("{ \"hcode\": \"11471\", \"pid\": \"1101401424853\", \"serviceCode\": \"PG0060001\", \"sourceId\": \"BKKCC\", \"transId\": \"PHS25000010\" }");
             authenCodeApi.setIsActive(1);
@@ -119,7 +119,7 @@ public class SfApiUrlDao {
             realPersonApi.setDescription("API สำหรับตรวจสอบข้อมูลบุคคล");
             realPersonApi.setMethod("GET");
             realPersonApi.setTestUrl("https://test.nhso.go.th/nhsoendpoint/api/RealPerson");
-            realPersonApi.setProdUrl("https://api.nhso.go.th/nhsoendpoint/api/RealPerson");
+            realPersonApi.setProdUrl("https://nhsoapi.nhso.go.th/nhsoendpoint/api/RealPerson");
             realPersonApi.setParams("SOURCE_ID=BKKCC&PID={PID}");
             realPersonApi.setRequestFormat("");
             realPersonApi.setIsActive(1);
