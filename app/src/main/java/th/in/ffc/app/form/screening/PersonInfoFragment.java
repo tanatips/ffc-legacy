@@ -162,6 +162,9 @@ public class PersonInfoFragment extends Fragment {
     private boolean isDialogShowing = false;
     private boolean isValidatingIdCard = false;
 
+    private boolean isEditMode = false;
+    private String originalIdCard = "";
+
 
 
     private interface TextFieldUpdater {
@@ -187,6 +190,7 @@ public class PersonInfoFragment extends Fragment {
         fieldUpdaters.put(txtBirthDay, value -> personInfo.setBirthday(value));
         fieldUpdaters.put(txtHomeNo, value -> personInfo.setHomeNo(value));
         fieldUpdaters.put(txtVillageNo, value -> personInfo.setVillageNo(value));
+        fieldUpdaters.put(txtTemperature, value -> personInfo.setTemperature(Double.valueOf(value)));
 
         districtInfos  = new ArrayList<>();
         subDistrictInfos = new ArrayList<>();
@@ -1100,7 +1104,7 @@ public class PersonInfoFragment extends Fragment {
                             dataPasser.onPersonInfo(personInfo);
 
                             // แสดงข้อความยืนยัน
-                            Toast.makeText(getContext(), "เลขบัตรประชาชนถูกต้อง", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(), "เลขบัตรประชาชนถูกต้อง", Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -1288,7 +1292,7 @@ public class PersonInfoFragment extends Fragment {
         attachToFields(citizenId, fname, lname, txtPhoneNo, txtHn,
                 txtAuthenDate, txtAuthenNo, txtWeight, txtHeight,
                 txtWaistCircumference, txtBp, txtBmi,
-                txtSymptomsPressure, txtDiastolicPressure,txtBirthDay,txtHomeNo,txtVillageNo,txtPostalCode,txtTemperature);
+                txtSymptomsPressure, txtDiastolicPressure,txtBirthDay,txtHomeNo,txtVillageNo,txtPostalCode, txtTemperature);
 
         // ลบการเรียก setupTextWatchers() เดิม - ใช้แค่ setupEnhancedTextWatchers()
         setupEnhancedTextWatchers();
@@ -1351,16 +1355,31 @@ public class PersonInfoFragment extends Fragment {
 
             if(data.getId()!=null){
                 List<PersonInfo> persons =  SfPersonInfoDao.getSfPersonInfoById(Integer.valueOf(data.getId()));
-//                 Toast.makeText(getContext(),person.getId(),Toast.LENGTH_SHORT);
-                for(PersonInfo personinfo1 :persons){
+
+                for(PersonInfo personinfo1 : persons){
                     this.personInfo = personinfo1;
+
+                    // ตั้งค่าโหมดแก้ไขและเลขบัตรประชาชนต้นฉบับ
+                    if (personinfo1.getIdcard() != null && !personinfo1.getIdcard().isEmpty()) {
+                        setEditMode(true, personinfo1.getIdcard());
+                        Log.d("PersonInfoFragment", "Setting edit mode with ID: " + personinfo1.getIdcard());
+                    }
+
                     setDataToViews(personinfo1);
                     updatePersonInfo();
-//                    dataPasser.onPersonInfo(this.personInfo);
                 }
+            } else {
+                // ถ้าไม่มี ID แสดงว่าเป็นการสร้างใหม่
+//                setEditMode(false, "");
+                resetToCreateMode();
+                Log.d("PersonInfoFragment", "Setting create mode");
             }
         });
 
+    }
+    public void resetToCreateMode() {
+        setEditMode(false, "");
+        clearForm();
     }
     private String getTextFromEditText(EditText editText) {
         return editText != null ? editText.getText().toString().trim() : "";
@@ -1561,6 +1580,12 @@ public class PersonInfoFragment extends Fragment {
     private boolean validateIdCardDuplicate(String idCard) {
         if (idCard == null || idCard.length() != 13 || isDialogShowing) {
             return false;
+        }
+
+        // ถ้าอยู่ในโหมดแก้ไขและเลขบัตรประชาชนเป็นของเดิม ให้ผ่านการตรวจสอบ
+        if (isEditMode && idCard.equals(originalIdCard)) {
+            Log.d("PersonInfoFragment", "Edit mode: Same ID card, skipping duplicate check");
+            return true;
         }
 
         SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(getContext());
@@ -2099,8 +2124,12 @@ public class PersonInfoFragment extends Fragment {
                        personInfo.setIdcard(idCard);
                        dataPasser.onPersonInfo(personInfo);
 
-                       // แสดงข้อความยืนยันว่าเลขบัตรประชาชนถูกต้อง
-                       Toast.makeText(getContext(), "เลขบัตรประชาชนถูกต้อง", Toast.LENGTH_SHORT).show();
+//                       if (!isEditMode || !idCard.equals(originalIdCard)) {
+//                           Toast.makeText(getContext(), "เลขบัตรประชาชนถูกต้อง", Toast.LENGTH_SHORT).show();
+//                       }
+//
+//                       // แสดงข้อความยืนยันว่าเลขบัตรประชาชนถูกต้อง
+//                       Toast.makeText(getContext(), "เลขบัตรประชาชนถูกต้อง", Toast.LENGTH_SHORT).show();
                    }
 
                    // รีเซ็ตสถานะ
@@ -2142,7 +2171,7 @@ public class PersonInfoFragment extends Fragment {
                 SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(getContext());
                 boolean isDuplicate = sfPersonInfoDao.isIdCardExistInCurrentFiscalYear(citizenIdText);
 
-                if (isDuplicate) {
+                if (isDuplicate && !(isEditMode && citizenIdText.equals(originalIdCard))) {
                     citizenId.setError("เลขบัตรประชาชนนี้เคยทำแบบสำรวจแล้ว");
                     isValid = false;
                 } else {
@@ -2377,5 +2406,9 @@ public class PersonInfoFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
+    public void setEditMode(boolean isEditMode, String originalIdCard) {
+        this.isEditMode = isEditMode;
+        this.originalIdCard = originalIdCard != null ? originalIdCard : "";
+        Log.d("PersonInfoFragment", "Edit mode set to: " + isEditMode + ", Original ID: " + originalIdCard);
+    }
 }

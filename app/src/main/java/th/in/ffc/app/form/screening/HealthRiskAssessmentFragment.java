@@ -68,6 +68,9 @@ public class HealthRiskAssessmentFragment extends Fragment {
     private boolean isRestoringData = false;
 
     private boolean isUpdating = false;
+    private boolean hasAutoSelectedOnce = false;
+
+    private boolean fisrtTime = true;
 
     public HealthRiskAssessmentFragment() {
         // Required empty public constructor
@@ -302,11 +305,18 @@ public class HealthRiskAssessmentFragment extends Fragment {
             if (personData != null && !isLoadingExistingData) {
                 Log.d("HealthRiskAssessment", "Received PersonData: " + personData.toString());
                 // แสดงความคิดเห็น: ไม่ auto-select หากผู้ใช้เลือกแล้ว
-//                autoSelectFromPersonData(personData);
+                hasAutoSelectedOnce = true;
+                if(fisrtTime) {
+                    autoSelectFromPersonData(personData);
+                    fisrtTime = false;
+                }
             }
         });
     }
-
+    public void resetAutoSelection() {
+        hasAutoSelectedOnce = false;
+        Log.d("HealthRiskAssessment", "Reset auto-selection flag");
+    }
     private void loadData() {
         SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(getContext());
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -447,7 +457,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         if (personData.getAge() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
             if (userHasSelectedQ1 || (healthRiskAssessmentInfo.getHealthRiskQ1() != null &&
-                    !healthRiskAssessmentInfo.getHealthRiskQ1().equals("0"))) {
+                    !healthRiskAssessmentInfo.getHealthRiskQ1().equals("-1"))) {
                 Log.d("HealthRiskAssessment", "Skip auto-select age: User has already selected");
                 return;
             }
@@ -472,7 +482,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         if (personData.getGender() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
             if (userHasSelectedQ2 || (healthRiskAssessmentInfo.getHealthRiskQ2() != null &&
-                    !healthRiskAssessmentInfo.getHealthRiskQ2().equals("0"))) {
+                    !healthRiskAssessmentInfo.getHealthRiskQ2().equals("-1"))) {
                 Log.d("HealthRiskAssessment", "Skip auto-select gender: User has already selected");
                 return;
             }
@@ -498,7 +508,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         if (personData.getBmi() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
             if (userHasSelectedQ3 || (healthRiskAssessmentInfo.getHealthRiskQ3() != null &&
-                    !healthRiskAssessmentInfo.getHealthRiskQ3().equals("0"))) {
+                    !healthRiskAssessmentInfo.getHealthRiskQ3().equals("-1"))) {
                 Log.d("HealthRiskAssessment", "Skip auto-select BMI: User has already selected");
                 return;
             }
@@ -522,7 +532,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         if (personData.getWaistCircumference() != null && personData.getGender() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
             if (userHasSelectedQ4 || (healthRiskAssessmentInfo.getHealthRiskQ4() != null &&
-                    !healthRiskAssessmentInfo.getHealthRiskQ4().equals("0"))) {
+                    !healthRiskAssessmentInfo.getHealthRiskQ4().equals("-1"))) {
                 Log.d("HealthRiskAssessment", "Skip auto-select waist: User has already selected");
                 return;
             }
@@ -549,7 +559,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         if (personData.hasHypertension() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
             if (userHasSelectedQ5 || (healthRiskAssessmentInfo.getHealthRiskQ5() != null &&
-                    !healthRiskAssessmentInfo.getHealthRiskQ5().equals("0"))) {
+                    !healthRiskAssessmentInfo.getHealthRiskQ5().equals("-1"))) {
                 Log.d("HealthRiskAssessment", "Skip auto-select hypertension: User has already selected");
                 return;
             }
@@ -566,7 +576,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         if (personData.hasFamilyDiabetesHistory() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
             if (userHasSelectedQ6 || (healthRiskAssessmentInfo.getHealthRiskQ6() != null &&
-                    !healthRiskAssessmentInfo.getHealthRiskQ6().equals("0"))) {
+                    !healthRiskAssessmentInfo.getHealthRiskQ6().equals("-1"))) {
                 Log.d("HealthRiskAssessment", "Skip auto-select family history: User has already selected");
                 return;
             }
@@ -1058,6 +1068,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
      */
     public void resetForm() {
         // ล้างการเลือกทั้งหมด
+        resetAutoSelection();
         clearAllRadioSelections();
 
         // ล้างค่าน้ำตาล
@@ -1086,7 +1097,10 @@ public class HealthRiskAssessmentFragment extends Fragment {
         // รีเซ็ต highlight คะแนน
         clearScoreHighlight();
     }
-
+    public void forceRefreshFromPersonData() {
+        resetAutoSelection();
+        // PersonData จะถูกส่งมาใหม่อัตโนมัติจาก Observer
+    }
     /**
      * ล้าง highlight คะแนน
      */
