@@ -1129,8 +1129,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
         VisitDao visitDao = new VisitDao(getContentResolver());
         if (this.personInfo.getVisitId() == null) { // insert
-            String visitDate = DateConverter.getCurrentWesternDateTime(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
+            String visitDate = DateConverter.getCurrentWesternDate(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
             String pressure = personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure();
+            Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
             long visitId = visitDao.saveNewVisitWithVitalSigns(
                     userSessionManager.getPcuCode(),                     // pcucode
                     userSessionManager.getPcuCode(),                     // pcucodePerson
@@ -1140,7 +1141,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     (float) personInfo.getHeight(),                       // height
                     pressure,                                   // pressure
                     (float) personInfo.getTemperature(),                  // temperature
-                    Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"),                               // pluse
+                    pluse,                               // pluse
                     (float) personInfo.getWaist_size(),                   // waist
                     String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
                     "",                // diastolic                               // diagnote
@@ -1152,13 +1153,14 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
             }
         } else {
+            Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
             visitDao.updateVisit(
                     Long.parseLong(personInfo.getVisitId()),            // visitNo
                     (float) personInfo.getWeight(),                      // weight
                     (float) personInfo.getHeight(),                      // height
                     personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure(), // pressure
                     (float) personInfo.getTemperature(),                 // temperature
-                    Integer.valueOf(personInfo.getBp() != null ? personInfo.getBp() : "0"), // pulse
+                    pluse, // pulse
                     (float) personInfo.getWaist_size(),                  // waist
                     String.valueOf(personInfo.getSystolic_pressure()),   // symptoms (ในที่นี้ใช้ systolic แทน)
                    ""   // diagnote (ในที่นี้ใช้ diastolic แทน)
