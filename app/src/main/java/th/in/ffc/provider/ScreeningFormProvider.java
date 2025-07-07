@@ -190,9 +190,9 @@ public class ScreeningFormProvider extends ContentProvider {
                 isFirstRun = false;
 
             }
-            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
-                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
-            }
+//            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
+//                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
+//            }
 
 
 

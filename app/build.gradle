@@ -34,17 +34,17 @@ android {
         versionCode 30002
         versionName "3.0.2"
     }
-    def formattedDate = new Date().format('dd-MM-yyyy_HH-mm-ss')
-    applicationVariants.all { variant ->
-        if (variant.buildType.name == "release") {
-            variant.outputs.all { output ->
-                outputFileName = "ffc-${formattedDate}.aab"
-            }
-        }
-    }
-    bundle {
-        archivesBaseName = "ffc-${formattedDate}"
-    }
+//    def formattedDate = new Date().format('dd-MM-yyyy_HH-mm-ss')
+//    applicationVariants.all { variant ->
+//        if (variant.buildType.name == "release") {
+//            variant.outputs.all { output ->
+//                outputFileName = "ffc-${formattedDate}.aab"
+//            }
+//        }
+//    }
+//    bundle {
+//        archivesBaseName = "ffc-${formattedDate}"
+//    }
     signingConfigs {
 
         debug {

@@ -95,8 +95,11 @@ import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
 import th.in.ffc.app.form.screening.model.VisitDiagInfo;
+import th.in.ffc.dao.PersonDao;
+import th.in.ffc.dao.PersonVillageDao;
 import th.in.ffc.dao.VisitDao;
 import th.in.ffc.dao.VisitDiagDao;
+import th.in.ffc.model.Person;
 import th.in.ffc.provider.CounselingSignatureProvider;
 import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.session.UserSessionManager;
@@ -1128,14 +1131,16 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private void saveVisit() {
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
         VisitDao visitDao = new VisitDao(getContentResolver());
+        PersonDao personDao = new PersonDao(getBaseContext());
+        Person person = personDao.findByIdCard(this.personInfo.getIdcard());
         if (this.personInfo.getVisitId() == null) { // insert
             String visitDate = DateConverter.getCurrentWesternDate(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
-            String pressure = personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure();
+            String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
             Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
             long visitId = visitDao.saveNewVisitWithVitalSigns(
                     userSessionManager.getPcuCode(),                     // pcucode
                     userSessionManager.getPcuCode(),                     // pcucodePerson
-                    personInfo.getIdcard(),                              // pid
+                    person.getPid(),                              // pid
                     visitDate,                        // visitDate
                     (float) personInfo.getWeight(),                       // weight
                     (float) personInfo.getHeight(),                       // height
@@ -1143,7 +1148,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     (float) personInfo.getTemperature(),                  // temperature
                     pluse,                               // pluse
                     (float) personInfo.getWaist_size(),                   // waist
-                    String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
+                    "",                 // systolic
                     "",                // diastolic                               // diagnote
                     userSessionManager.getUsername()                     // username
             );
@@ -1153,17 +1158,18 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
             }
         } else {
+            String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
             Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
             visitDao.updateVisit(
                     Long.parseLong(personInfo.getVisitId()),            // visitNo
                     (float) personInfo.getWeight(),                      // weight
                     (float) personInfo.getHeight(),                      // height
-                    personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure(), // pressure
+                    pressure, // pressure
                     (float) personInfo.getTemperature(),                 // temperature
                     pluse, // pulse
                     (float) personInfo.getWaist_size(),                  // waist
-                    String.valueOf(personInfo.getSystolic_pressure()),   // symptoms (ในที่นี้ใช้ systolic แทน)
-                   ""   // diagnote (ในที่นี้ใช้ diastolic แทน)
+                    "",   // symptoms (ในที่นี้ใช้ systolic แทน)
+                    ""   // diagnote (ในที่นี้ใช้ diastolic แทน)
             );
 
         }

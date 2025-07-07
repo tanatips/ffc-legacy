@@ -207,7 +207,7 @@ public class VisitDao {
         basicValues.put(Visit.PID, pid);
         basicValues.put(Visit.DATE, visitDate);
         basicValues.put(Visit.USERNAME, username);
-        basicValues.put(Visit.TIME_SERIVICE, getCurrentTime());
+        basicValues.put(Visit.TIME_SERIVICE, 1);
 
         // ข้อมูลสิทธิการรักษา
 //        if (rightCode != null && !rightCode.isEmpty()) {
@@ -261,10 +261,10 @@ public class VisitDao {
             }
 
             // คำนวณระดับความดันโลหิต ถ้ามีข้อมูล
-            if (pressure != null && !pressure.isEmpty()) {
-                String pressureLevel = calculatePressureLevel(pressure);
-                vitalValues.put(Visit.PRESSURE_LEVEL, pressureLevel);
-            }
+//            if (pressure != null && !pressure.isEmpty()) {
+//                String pressureLevel = calculatePressureLevel(pressure);
+//                vitalValues.put(Visit.PRESSURE_LEVEL, pressureLevel);
+//            }
 
             // อัพเดทข้อมูลสัญญาณชีพและข้อมูลเพิ่มเติม
             Uri updateUri = Uri.withAppendedPath(Visit.CONTENT_URI, String.valueOf(result));
@@ -324,10 +324,10 @@ public class VisitDao {
         }
 
         // คำนวณระดับความดันโลหิต ถ้ามีข้อมูล
-        if (pressure != null && !pressure.isEmpty()) {
-            String pressureLevel = calculatePressureLevel(pressure);
-            values.put(Visit.PRESSURE_LEVEL, pressureLevel);
-        }
+//        if (pressure != null && !pressure.isEmpty()) {
+//            String pressureLevel = calculatePressureLevel(pressure);
+//            values.put(Visit.PRESSURE_LEVEL, pressureLevel);
+//        }
 
         // อัพเดทเวลาที่มีการแก้ไข
         values.put(Visit.UPDATE, getCurrentDateTime());
