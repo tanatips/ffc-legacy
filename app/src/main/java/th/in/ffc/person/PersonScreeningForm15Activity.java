@@ -627,11 +627,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         if (this.personInfo.getId() == null) {
 
             this.personInfo.setCreated_by(userSessionManager.getUser());
-            this.personInfo.setCreated_date(DateConverter.getCurrentThaiBuddhistDateTime());
+            this.personInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
             String id = sfPersonInfoDao.insert(this.personInfo);
             this.personInfo.setId(id);
         } else {
-            this.personInfo.setUpdated_date(DateConverter.getCurrentThaiBuddhistDateTime());
+            this.personInfo.setUpdated_date(DateConverter.getCurrentWesternDateTime());
             this.personInfo.setUpdated_by(userSessionManager.getUser());
             sfPersonInfoDao.update(this.personInfo);
 
@@ -1129,7 +1129,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
         VisitDao visitDao = new VisitDao(getContentResolver());
         if (this.personInfo.getVisitId() == null) { // insert
-            String visitDate = personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
+            String visitDate = DateConverter.getCurrentWesternDateTime(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
             String pressure = personInfo.getSystolic_pressure()+"/"+personInfo.getDiastolic_pressure();
             long visitId = visitDao.saveNewVisitWithVitalSigns(
                     userSessionManager.getPcuCode(),                     // pcucode

@@ -103,7 +103,7 @@ public class SfApiUrlDao {
             createFsDataApi.setDescription("API สำหรับสร้างข้อมูล FS");
             createFsDataApi.setMethod("POST");
             createFsDataApi.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/create-fs-data");
-            createFsDataApi.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/create-fs-data");
+            createFsDataApi.setProdUrl("https://nhsoapi.nhso.go.th/stddataset/api/create-fs-data");
             createFsDataApi.setParams("");
             createFsDataApi.setRequestFormat("{\"fsDatas\": [{...}]}");
             createFsDataApi.setIsActive(1);
@@ -135,7 +135,7 @@ public class SfApiUrlDao {
             statusTracksApi.setDescription("API สำหรับติดตามสถานะ");
             statusTracksApi.setMethod("POST");
             statusTracksApi.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/status-tracks");
-            statusTracksApi.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/status-tracks");
+            statusTracksApi.setProdUrl("https://nhsoapi.nhso.go.th/stddataset/api/status-tracks");
             statusTracksApi.setParams("");
             statusTracksApi.setRequestFormat("{\"statusTracks\": [{...}]}");
             statusTracksApi.setIsActive(1);
@@ -151,7 +151,7 @@ public class SfApiUrlDao {
             statusTracksV2Api.setDescription("API สำหรับติดตามสถานะ เวอร์ชัน 2");
             statusTracksV2Api.setMethod("POST");
             statusTracksV2Api.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/v2/status-tracks");
-            statusTracksV2Api.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setProdUrl("https://nhsoapi.nhso.go.th/stddataset/api/v2/status-tracks");
             statusTracksV2Api.setParams("");
             statusTracksV2Api.setRequestFormat("{\"trackDatas\": [{\"uid\": \"2eda2961-78e2-4c58-a334-bb141b9fb5f6\"}]}");
             statusTracksV2Api.setIsActive(1);
@@ -175,7 +175,7 @@ public class SfApiUrlDao {
             statusTracksV2Api.setDescription("API สำหรับติดตามสถานะ เวอร์ชัน 2");
             statusTracksV2Api.setMethod("POST");
             statusTracksV2Api.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/v2/status-tracks");
-            statusTracksV2Api.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setProdUrl("https://nhsoapi.nhso.go.th/stddataset/api/v2/status-tracks");
             statusTracksV2Api.setParams("");
             statusTracksV2Api.setRequestFormat("{\"trackDatas\": [{\"uid\": \"2eda2961-78e2-4c58-a334-bb141b9fb5f6\"}]}");
             statusTracksV2Api.setIsActive(1);
@@ -203,7 +203,7 @@ public class SfApiUrlDao {
         SfApiUrl createFsDataApi = findByApiCode("CREATE_FS_DATA");
         if (createFsDataApi != null) {
             createFsDataApi.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/create-fs-data");
-            createFsDataApi.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/create-fs-data");
+            createFsDataApi.setProdUrl("https://nhsoapi.nhso.go.th/stddataset/api/create-fs-data");
             createFsDataApi.setUpdatedAt(currentTime);
             update(createFsDataApi);
         }
@@ -212,7 +212,7 @@ public class SfApiUrlDao {
         SfApiUrl statusTracksV2Api = findByApiCode("STATUS_TRACKS_V2");
         if (statusTracksV2Api != null) {
             statusTracksV2Api.setTestUrl("https://testgdcc.nhso.go.th/stddataset/api/v2/status-tracks");
-            statusTracksV2Api.setProdUrl("https://gdcc.nhso.go.th/stddataset/api/v2/status-tracks");
+            statusTracksV2Api.setProdUrl("https://nhsoapi.nhso.go.th/stddataset/api/v2/status-tracks");
             statusTracksV2Api.setUpdatedAt(currentTime);
             update(statusTracksV2Api);
         }
