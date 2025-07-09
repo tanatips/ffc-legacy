@@ -69,7 +69,7 @@ public class VisitDiagDao {
                 diag.setDiagcode(getStringFromCursor(cursor, "diagcode"));
                 diag.setDxtype(getStringFromCursor(cursor, "dxtype"));
                 diag.setClinic(getStringFromCursor(cursor, "clinic"));
-                diag.setContinue(getStringFromCursor(cursor, "conti"));
+                diag.setConti(getStringFromCursor(cursor, "conti"));
                 diag.setAppointdate(getStringFromCursor(cursor, "appointdate"));
                 diag.setAppointtype(getStringFromCursor(cursor, "appointtype"));
                 diag.setDoctor(getStringFromCursor(cursor, "doctordiag"));
@@ -98,7 +98,7 @@ public class VisitDiagDao {
                 diag.setDiagcode(getStringFromCursor(cursor, VisitDiag.CODE));
                 diag.setDxtype(getStringFromCursor(cursor, VisitDiag.TYPE));
                 diag.setClinic(getStringFromCursor(cursor, VisitDiag.CLINIC));
-                diag.setContinue(getStringFromCursor(cursor, VisitDiag.CONTINUE));
+                diag.setConti(getStringFromCursor(cursor, VisitDiag.CONTINUE));
                 diag.setAppointdate(getStringFromCursor(cursor, VisitDiag.APPOINT_DATE));
                 diag.setAppointtype(getStringFromCursor(cursor, VisitDiag.APPOINT_TYPE));
                 diag.setDoctor(getStringFromCursor(cursor, VisitDiag.DOCTOR));
@@ -135,7 +135,7 @@ public class VisitDiagDao {
                 diag.setDiagcode(getStringFromCursor(cursor, "diagcode"));
                 diag.setDxtype(getStringFromCursor(cursor, "dxtype"));
                 diag.setClinic(getStringFromCursor(cursor, "clinic"));
-                diag.setContinue(getStringFromCursor(cursor, "conti"));
+                diag.setConti(getStringFromCursor(cursor, "conti"));
                 diag.setAppointdate(getStringFromCursor(cursor, "appointdate"));
                 diag.setAppointtype(getStringFromCursor(cursor, "appointtype"));
                 diag.setDoctor(getStringFromCursor(cursor, "doctordiag"));
@@ -177,7 +177,7 @@ public class VisitDiagDao {
                 diag.setDiagcode(getStringFromCursor(cursor, "diagcode"));
                 diag.setDxtype(getStringFromCursor(cursor, "dxtype"));
                 diag.setClinic(getStringFromCursor(cursor, "clinic"));
-                diag.setContinue(getStringFromCursor(cursor, "conti"));
+                diag.setConti(getStringFromCursor(cursor, "conti"));
                 diag.setAppointdate(getStringFromCursor(cursor, "appointdate"));
                 diag.setAppointtype(getStringFromCursor(cursor, "appointtype"));
                 diag.setDoctor(getStringFromCursor(cursor, "doctordiag"));
@@ -350,7 +350,7 @@ public class VisitDiagDao {
                 diag.setDiagcode(getStringFromCursor(cursor, VisitDiag.CODE));
                 diag.setDxtype(getStringFromCursor(cursor, VisitDiag.TYPE));
                 diag.setClinic(getStringFromCursor(cursor, VisitDiag.CLINIC));
-                diag.setContinue(getStringFromCursor(cursor, VisitDiag.CONTINUE));
+                diag.setConti(getStringFromCursor(cursor, VisitDiag.CONTINUE));
                 diag.setAppointdate(getStringFromCursor(cursor, VisitDiag.APPOINT_DATE));
                 diag.setAppointtype(getStringFromCursor(cursor, VisitDiag.APPOINT_TYPE));
                 diag.setDoctor(getStringFromCursor(cursor, VisitDiag.DOCTOR));
@@ -385,7 +385,7 @@ public class VisitDiagDao {
                 diag.setDiagcode(getStringFromCursor(cursor, VisitDiag.CODE));
                 diag.setDxtype(getStringFromCursor(cursor, VisitDiag.TYPE));
                 diag.setClinic(getStringFromCursor(cursor, VisitDiag.CLINIC));
-                diag.setContinue(getStringFromCursor(cursor, VisitDiag.CONTINUE));
+                diag.setConti(getStringFromCursor(cursor, VisitDiag.CONTINUE));
                 diag.setAppointdate(getStringFromCursor(cursor, VisitDiag.APPOINT_DATE));
                 diag.setAppointtype(getStringFromCursor(cursor, VisitDiag.APPOINT_TYPE));
                 diag.setDoctor(getStringFromCursor(cursor, VisitDiag.DOCTOR));
@@ -406,7 +406,7 @@ public class VisitDiagDao {
         putString(values, VisitDiag.CODE, data.getDiagcode());
         putString(values, VisitDiag.TYPE, data.getDxtype());
         putString(values, VisitDiag.CLINIC, data.getClinic());
-        putString(values, VisitDiag.CONTINUE, data.getContinue());
+        putString(values, VisitDiag.CONTINUE, data.getConti());
         putString(values, VisitDiag.APPOINT_DATE, data.getAppointdate());
         putString(values, VisitDiag.APPOINT_TYPE, data.getAppointtype());
         putString(values, VisitDiag.DOCTOR, data.getDoctor());

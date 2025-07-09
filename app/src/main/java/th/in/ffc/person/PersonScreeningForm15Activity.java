@@ -1175,7 +1175,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
     }
 
-    private String getDiagCode() {
+    private List<DiagCode> getDiagCode() {
         int age = th.in.ffc.util.AgeCalculator.calculateAge(personInfo.getBirthday());
         SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(mContext);
         SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
@@ -1197,41 +1197,82 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 }
             }
         }
+        List<DiagCode> diagCodes = new ArrayList<>();
         String diagCode = "";
         if (15 <= age && age <= 34) {  // DX=Z13.3, Z13.6
-            diagCode = "DX=Z13.3,Z13.6";
+//            diagCode = "DX=Z13.3,Z13.6";
+            diagCodes.add(new DiagCode("Z13.3", "01", "ผ")); // Z13.3 - ผ
+            diagCodes.add(new DiagCode("Z13.6", "04", "ช")); // Z13.6 - ช
+            // "Z13.3" dxtype= 01   conti = ผ
+            // "Z13.6" dxtype= 04   conti = ช
+
         } else if (35 <= age && age <= 59) { // DX=Z13.1, Z13.3
-            diagCode = "DX=Z13.1,Z13.3";
-            if (fpg > 0) {
-                diagCode = "DX=Z13.1";
+            diagCodes.add(new DiagCode("Z13.1", "01", "ผ"));
+            diagCodes.add(new DiagCode("Z13.3", "04", "ช"));
+            if (fpg > 0 ) {
+                diagCodes.add(new DiagCode("Z13.1", "04", "ผ"));
             }
             if (choresteral > 0) {
-                diagCode = "DX=213.1";
+                diagCodes.add(new DiagCode("Z13.1", "04", "ผ"));
             }
         }
-        return diagCode;
+        return diagCodes;
     }
+    class DiagCode {
+        String code;
+        String dxtype;
+        String conti;
 
+        public DiagCode(String code, String dxtype, String conti) {
+            this.code = code;
+            this.dxtype = dxtype;
+            this.conti = conti;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDxtype() {
+            return dxtype;
+        }
+
+        public String getConti() {
+            return conti;
+        }
+    }
     private void saveVisitDiag() {
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
+        List<DiagCode> diagCodes = getDiagCode();
 
-        VisitDiagDao visitDiagDao = new VisitDiagDao(getBaseContext());
-        VisitDiagInfo visitDiagInfo = new VisitDiagInfo();
-        visitDiagInfo.setPcucode(userSessionManager.getPcuCode());
-        visitDiagInfo.setVisitno(this.personInfo.getVisitId());
-        visitDiagInfo.setDiagcode(getDiagCode());
+        if( !diagCodes.isEmpty()) {
+            VisitDiagDao visitDiagDao = new VisitDiagDao(getBaseContext());
+            long result =  visitDiagDao.deleteAllByVisitNo(this.personInfo.getVisitId());
+            for (DiagCode diagCode : diagCodes) {
 
-        if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
-            VisitDiagInfo savedVisitDiagInfo = visitDiagDao.getVisitDiagByVisitNoAndPcucode(visitDiagInfo.getVisitno(), visitDiagInfo.getPcucode());
-            if (savedVisitDiagInfo != null) {
-                // ถ้ามีข้อมูลอยู่แล้ว ให้ทำการอัพเดต
-                visitDiagDao.update(visitDiagInfo);
-
-            } else {
-                // ถ้ายังไม่มีข้อมูล ให้สร้างใหม่
+                VisitDiagInfo visitDiagInfo = new VisitDiagInfo();
+                visitDiagInfo.setPcucode(userSessionManager.getPcuCode());
+                visitDiagInfo.setVisitno(this.personInfo.getVisitId());
+                visitDiagInfo.setDiagcode(diagCode.getCode());
+                visitDiagInfo.setDxtype(diagCode.getDxtype());
+                visitDiagInfo.setConti(diagCode.getConti());
                 visitDiagDao.insert(visitDiagInfo);
+//                if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
+//                    VisitDiagInfo savedVisitDiagInfo = visitDiagDao.getVisitDiagByVisitNoAndPcucode(visitDiagInfo.getVisitno(), visitDiagInfo.getPcucode());
+//                    if (savedVisitDiagInfo != null) {
+//                        // ถ้ามีข้อมูลอยู่แล้ว ให้ทำการอัพเดต
+//                        visitDiagDao.update(visitDiagInfo);
+//
+//                    } else {
+//                        // ถ้ายังไม่มีข้อมูล ให้สร้างใหม่
+//                        visitDiagDao.insert(visitDiagInfo);
+//                    }
+//                }
             }
+        } else {
+            System.out.println("No DiagCode found for the person.");
         }
+
 
     }
     private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter) {

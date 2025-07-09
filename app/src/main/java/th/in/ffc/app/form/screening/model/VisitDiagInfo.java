@@ -6,7 +6,7 @@ public  class VisitDiagInfo {
     private String diagcode;
     private String dxtype;
     private String clinic;
-    private String continue_field;  // ใช้ continue_field แทน continue เนื่องจาก continue เป็น keyword
+    private String conti;  // ใช้ continue_field แทน continue เนื่องจาก continue เป็น keyword
     private String appointdate;
     private String appointtype;
     private String doctor;
@@ -52,12 +52,12 @@ public  class VisitDiagInfo {
         this.clinic = clinic;
     }
 
-    public String getContinue() {
-        return continue_field;
+    public String getConti() {
+        return conti;
     }
 
-    public void setContinue(String continue_field) {
-        this.continue_field = continue_field;
+    public void setConti(String conti) {
+        this.conti = conti;
     }
 
     public String getAppointdate() {
@@ -91,4 +91,6 @@ public  class VisitDiagInfo {
     public void setDateupdate(String dateupdate) {
         this.dateupdate = dateupdate;
     }
+
+
 }

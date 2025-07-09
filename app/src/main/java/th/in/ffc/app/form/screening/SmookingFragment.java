@@ -181,9 +181,6 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
 
-                    rdoSmokerRegularly1.setEnabled(false);
-                    rdoSmokerRegularly2.setEnabled(false);
-                    rdoSmokerRegularly3.setEnabled(false);
                     isUpdatingFromCode = false;
                     smokerInfo.setSmokerAssist("");
                     smokerInfo.setSmokerRegularly("");
@@ -207,9 +204,6 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
 
-                    rdoSmokerRegularly1.setEnabled(false);
-                    rdoSmokerRegularly2.setEnabled(false);
-                    rdoSmokerRegularly3.setEnabled(false);
                     isUpdatingFromCode = false;
                     smokerInfo.setSmokerAssist("");
                     smokerInfo.setSmokerRegularly("");
@@ -234,10 +228,6 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly1.setChecked(false);
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
-
-                    rdoSmokerRegularly1.setEnabled(true);
-                    rdoSmokerRegularly2.setEnabled(true);
-                    rdoSmokerRegularly3.setEnabled(true);
 
                     isUpdatingFromCode = false;
                     smokerInfo.setSmokerRegularly("");
@@ -272,10 +262,6 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
 
-                    rdoSmokerRegularly1.setEnabled(false);
-                    rdoSmokerRegularly2.setEnabled(false);
-                    rdoSmokerRegularly3.setEnabled(false);
-
                     smookingLiveData.setSelectedRdoSmokerRegularly(null);
                     smokerInfo.setSmokerRegularly("");
                 } else if(checkedId == R.id.rdoSmokerAssist2) {
@@ -288,10 +274,6 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
 
-                    rdoSmokerRegularly1.setEnabled(false);
-                    rdoSmokerRegularly2.setEnabled(false);
-                    rdoSmokerRegularly3.setEnabled(false);
-
                     smokerInfo.setSmokerRegularly("");
                     smookingLiveData.setSelectedRdoSmokerRegularly(null);
                 } else if(checkedId == R.id.rdoSmokerAssist3) {
@@ -299,10 +281,6 @@ public class SmookingFragment extends Fragment {
                     rdoSmokerRegularly1.setChecked(false);
                     rdoSmokerRegularly2.setChecked(false);
                     rdoSmokerRegularly3.setChecked(false);
-
-                    rdoSmokerRegularly1.setEnabled(true);
-                    rdoSmokerRegularly2.setEnabled(true);
-                    rdoSmokerRegularly3.setEnabled(true);
                     // เก็บการเลือกเดิมไว้ หรือล้างก็ได้
                 }
 

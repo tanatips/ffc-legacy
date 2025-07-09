@@ -97,11 +97,11 @@ public class AssistScoreFragment extends Fragment {
         int[] scoreIds = new int[]{
                 R.id.tvScoreB, R.id.tvScoreC, R.id.tvScoreD, R.id.tvScoreE,
                 R.id.tvScoreF, R.id.tvScoreG, R.id.tvScoreH, R.id.tvScoreI,
-                R.id.tvScoreJ, R.id.tvScoreK, R.id.tvScoreL
+                R.id.tvScoreJ //, R.id.tvScoreK, R.id.tvScoreL
         };
 
         String[] substanceIds = new String[]{
-                "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"
+                "b", "c", "d", "e", "f", "g", "h", "i", "j" // , "k", "l"
         };
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 

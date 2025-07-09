@@ -494,94 +494,94 @@
             </TableRow>
 
             <!-- Row 10: ใบกระท่อม -->
-            <TableRow
-                android:padding="5dp"
-                android:background="#EEEEEE">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="j. ใบกระท่อม"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreJ"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+<!--            <TableRow-->
+<!--                android:padding="5dp"-->
+<!--                android:background="#EEEEEE">-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="2"-->
+<!--                    android:text="j. ใบกระท่อม"-->
+<!--                    android:padding="8dp" />-->
+<!--                <TextView-->
+<!--                    android:id="@+id/tvScoreJ"-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:gravity="center"-->
+<!--                    android:padding="8dp" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="0-3"-->
+<!--                    android:gravity="center"-->
+<!--                    android:background="#C8E6C9"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:textStyle="bold" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="4-26"-->
+<!--                    android:gravity="center"-->
+<!--                    android:background="#FFF9C4"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:textStyle="bold" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="27+"-->
+<!--                    android:gravity="center"-->
+<!--                    android:background="#FFCDD2"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:textStyle="bold" />-->
+<!--            </TableRow>-->
 
-            <!-- Row 11: สารผสมนำในกระท่อม -->
-            <TableRow android:padding="5dp">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="k. สารผสมนำในกระท่อม"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreK"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+<!--            &lt;!&ndash; Row 11: สารผสมนำในกระท่อม &ndash;&gt;-->
+<!--            <TableRow android:padding="5dp">-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="2"-->
+<!--                    android:text="k. สารผสมน้ำในกระท่อม"-->
+<!--                    android:padding="8dp" />-->
+<!--                <TextView-->
+<!--                    android:id="@+id/tvScoreK"-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:gravity="center"-->
+<!--                    android:padding="8dp" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="0-3"-->
+<!--                    android:gravity="center"-->
+<!--                    android:background="#C8E6C9"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:textStyle="bold" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="4-26"-->
+<!--                    android:gravity="center"-->
+<!--                    android:background="#FFF9C4"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:textStyle="bold" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="0px"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="27+"-->
+<!--                    android:gravity="center"-->
+<!--                    android:background="#FFCDD2"-->
+<!--                    android:padding="8dp"-->
+<!--                    android:textStyle="bold" />-->
+<!--            </TableRow>-->
 
             <!-- Row 12: สารอื่น ๆ -->
             <TableRow
@@ -594,7 +594,7 @@
                     android:text="l. สารอื่น ๆ ระบุ........"
                     android:padding="8dp" />
                 <TextView
-                    android:id="@+id/tvScoreL"
+                    android:id="@+id/tvScoreJ"
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
