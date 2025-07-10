@@ -202,4 +202,13 @@
 
 
     <color name="error_red">#F44336</color>
+
+    <color name="light_orange">#FFE0B2</color>
+    <color name="dark_orange">#FF8F00</color>
+
+    <!-- สีแดงเข้มอ่อนและเข้ม -->
+    <color name="light_dark_red">#FFCDD2</color>
+    <color name="dark_dark_red">#8B0000</color>
+
+
 </resources>

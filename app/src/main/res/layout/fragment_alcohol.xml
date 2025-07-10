@@ -298,17 +298,6 @@
                                 android:textSize="14sp"
                                 android:gravity="center"
                                 android:padding="8dp" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="2"
-                                android:text="ระดับความเสี่ยง"
-                                android:textColor="#FFFFFF"
-                                android:textStyle="bold"
-                                android:textSize="14sp"
-                                android:gravity="center"
-                                android:padding="8dp" />
                         </TableRow>
 
                         <!-- แถวข้อมูลแอลกอฮอล์ -->
@@ -355,22 +344,47 @@
                                     android:padding="12dp"
                                     android:textStyle="bold"
                                     android:textSize="18sp"
-                                    android:textColor="#000000"
+                                    android:textColor="#FFFFFF"
                                     android:background="@drawable/gradient_score" />
                             </androidx.cardview.widget.CardView>
+                        </TableRow>
+
+                        <!-- แถวแสดงหัวข้อระดับความเสี่ยง -->
+                        <TableRow
+                            android:background="#E8F5E8">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_span="2"
+                                android:text="ระดับความเสี่ยง:"
+                                android:gravity="center"
+                                android:padding="8dp"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50" />
+                        </TableRow>
+
+                        <!-- แถวแสดงผลลัพธ์ระดับความเสี่ยง -->
+                        <TableRow
+                            android:background="#F8F9FA">
 
                             <TextView
                                 android:id="@+id/tvAlcoholRiskLevel"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="2"
+                                android:layout_span="2"
                                 android:text="ยังไม่ได้ประเมิน"
                                 android:gravity="center"
-                                android:padding="12dp"
+                                android:padding="16dp"
                                 android:textStyle="bold"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 android:textColor="#7F8C8D"
-                                android:background="@drawable/risk_level_background" />
+                                android:background="@drawable/risk_level_background"
+                                android:singleLine="false"
+                                android:maxLines="5"
+                                android:ellipsize="none"
+                                android:scrollHorizontally="false" />
                         </TableRow>
                     </TableLayout>
                 </androidx.cardview.widget.CardView>
@@ -406,7 +420,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="เกณฑ์การประเมิน"
+                                android:text="เกณฑ์การประเมินแอลกอฮอล์"
                                 android:textStyle="bold"
                                 android:textSize="14sp"
                                 android:textColor="#2C3E50" />

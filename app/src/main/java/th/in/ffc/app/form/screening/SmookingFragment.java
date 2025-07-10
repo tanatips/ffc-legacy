@@ -423,13 +423,6 @@ public class SmookingFragment extends Fragment {
 
         return score;
     }
-
-    /**
-     * อัปเดตการแสดงคะแนนและระดับความเสี่ยง
-     */
-    /**
-     * อัปเดตการแสดงคะแนนและระดับความเสี่ยง (เวอร์ชันใช้สีที่กำหนดเอง)
-     */
     private void updateSmokingScore(int score) {
         if (tvSmokingScore != null) {
             tvSmokingScore.setText(String.valueOf(score));
@@ -456,15 +449,18 @@ public class SmookingFragment extends Fragment {
             // กำหนดระดับความเสี่ยงตามคะแนน (สำหรับยาสูบ)
             if (score >= 0 && score <= 3) {
                 riskLevel = "ไม่มีความเสี่ยง";
-                tvSmokingRiskLevel.setBackgroundResource(R.color.light_green);
+                // ใช้สีเขียวเหมือน nicotine
+                tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_green));
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
             } else if (score >= 4 && score <= 26) {
                 riskLevel = "ความเสี่ยงปานกลาง";
-                tvSmokingRiskLevel.setBackgroundResource(R.color.light_yellow);
-                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+                // ใช้สีส้มเหมือน nicotine
+                tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_orange));
+                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_orange));
             } else {
                 riskLevel = "ความเสี่ยงสูง";
-                tvSmokingRiskLevel.setBackgroundResource(R.color.light_red);
+                // ใช้สีแดงเหมือน nicotine
+                tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_red));
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
             }
 

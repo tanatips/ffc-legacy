@@ -52,18 +52,21 @@ public class FagerstromNicotineFragment extends Fragment {
     private RadioGroup rdoNicotineQ4;
     private RadioGroup rdoNicotineQ5;
     private RadioGroup rdoNicotineQ6;
-    private TableLayout tbFagerstrome;
+    private TextView resultInterpretation;
     private int currentHighlightedRow = -1;
+
+    // เพิ่มตัวแปรสำหรับแสดงผลแบบใหม่
+    private TextView tvNicotineScore;
+    private TextView tvNicotineAddictionLevel;
+    private boolean isUpdatingFromCode = false;
 
     private int white;
     private int light_gray;
     private int highlightColor;
 
-
     public FagerstromNicotineFragment() {
 
     }
-
 
     public static FagerstromNicotineFragment newInstance(String param1, String param2) {
         FagerstromNicotineFragment fragment = new FagerstromNicotineFragment();
@@ -85,7 +88,6 @@ public class FagerstromNicotineFragment extends Fragment {
         super.onCreate(savedInstanceState);
         cigaretteAddictionTest = new CigaretteAddictionTestLiveData();
         shareViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
     }
 
     @Override
@@ -100,6 +102,7 @@ public class FagerstromNicotineFragment extends Fragment {
         white = ContextCompat.getColor(requireContext(), R.color.white);
         light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
         highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+
         View parentViewPager = (View) view.getParent();
         if (parentViewPager != null) {
             parentViewPager.post(() -> {
@@ -109,9 +112,15 @@ public class FagerstromNicotineFragment extends Fragment {
                 parentViewPager.setLayoutParams(layoutParams);
             });
         }
+
         points = new ArrayList<>();
         points.addAll(Arrays.asList(0, 0, 0, 0, 0, 0));
-        tbFagerstrome = view.findViewById(R.id.tbFagerstrome);
+        resultInterpretation = view.findViewById(R.id.resultInterpretation);
+
+        // เชื่อมโยง TextView สำหรับแสดงผลแบบใหม่
+        tvNicotineScore = view.findViewById(R.id.tvNicotineScore);
+        tvNicotineAddictionLevel = view.findViewById(R.id.tvNicotineAddictionLevel);
+
         nicotineInfo = new NicotineInfo();
         rdoNicotineQ1 = view.findViewById(R.id.rdoNicotineQ1);
         rdoNicotineQ2 = view.findViewById(R.id.rdoNicotineQ2);
@@ -119,9 +128,36 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ4 = view.findViewById(R.id.rdoNicotineQ4);
         rdoNicotineQ5 = view.findViewById(R.id.rdoNicotineQ5);
         rdoNicotineQ6 = view.findViewById(R.id.rdoNicotineQ6);
+
+        // เพิ่มการ observe คะแนนจาก SharedViewModel
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        // สังเกตการเปลี่ยนแปลงข้อมูลจาก ViewModel
+        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+            if (personInfo != null && personInfo.getId() != null) {
+                // ดึงข้อมูลคะแนนการติดนิโคติน
+                loadNicotineScore(personInfo.getId());
+            }
+        });
+
+        // สังเกตคะแนน nicotine จาก AssistScore
+        viewModel.getAssistScoreMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+            if (data.getPersonId() != null && data.getNicotineScore() != null) {
+                try {
+                    int nicotineScore = Integer.parseInt(data.getNicotineScore());
+                    updateNicotineScore(nicotineScore);
+                } catch (NumberFormatException e) {
+                    Log.e("FagerstromNicotineFragment", "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
+                    updateNicotineScore(0); // ใช้ค่าเริ่มต้นเป็น 0
+                }
+            }
+        });
+
         rdoNicotineQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (isUpdatingFromCode) return;
+
                 cigaretteAddictionTest.setSelectedRdoQ1(i);
                 shareViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTest);
                 String data = "";
@@ -148,6 +184,8 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (isUpdatingFromCode) return;
+
                 cigaretteAddictionTest.setSelectedRdoQ2(i);
                 shareViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTest);
                 String data = "";
@@ -174,6 +212,8 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (isUpdatingFromCode) return;
+
                 cigaretteAddictionTest.setSelectedRdoQ3(i);
                 shareViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTest);
                 String data = "";
@@ -194,6 +234,8 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (isUpdatingFromCode) return;
+
                 cigaretteAddictionTest.setSelectedRdoQ4(i);
                 shareViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTest);
 
@@ -215,6 +257,8 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (isUpdatingFromCode) return;
+
                 cigaretteAddictionTest.setSelectedRdoQ5(i);
                 shareViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTest);
                 String data = "";
@@ -235,6 +279,8 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ6.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (isUpdatingFromCode) return;
+
                 cigaretteAddictionTest.setSelectedRdoQ6(i);
                 shareViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTest);
                 String data = "";
@@ -248,7 +294,6 @@ public class FagerstromNicotineFragment extends Fragment {
                 cigaretteAddictionTest.setPoints(points);
 
                 nicotineInfo.setNicotine6(data);
-//                nicotineInfo.setPoints(points);
                 dataPasser.onNicotineInfo(nicotineInfo);
                 calculatePoints();
             }
@@ -256,69 +301,140 @@ public class FagerstromNicotineFragment extends Fragment {
         loadData();
     }
 
-    private void highlightScore(int score) {
-        // ล้าง highlight เดิม (ถ้ามี)
-        if (currentHighlightedRow != -1) {
-            TableRow previousRow = (TableRow) tbFagerstrome.getChildAt(currentHighlightedRow);
-            if (previousRow != null) {
-                previousRow.setBackgroundColor(getRowDefaultColor(currentHighlightedRow));
+    /**
+     * โหลดคะแนนการติดนิโคติน
+     */
+    private void loadNicotineScore(String personInfoId) {
+        try {
+            // ดึงข้อมูลจาก database หรือคำนวณจากข้อมูลปัจจุบัน
+            if (nicotineInfo != null && nicotineInfo.getSum() != null) {
+                updateNicotineScore(nicotineInfo.getSum());
+            }
+            Log.d("FagerstromNicotineFragment", "โหลดคะแนนการติดนิโคตินสำเร็จ");
+        } catch (Exception e) {
+            Log.e("FagerstromNicotineFragment", "เกิดข้อผิดพลาดในการโหลดคะแนน: " + e.getMessage());
+        }
+    }
+
+    /**
+     * อัปเดตการแสดงคะแนนและระดับการติดนิโคติน
+     */
+    private void updateNicotineScore(int score) {
+        if (tvNicotineScore != null) {
+            tvNicotineScore.setText(String.valueOf(score));
+
+            // เปลี่ยนสี background และ text color ของ tvNicotineScore ตามระดับคะแนน
+            if (score >= 0 && score <= 3) {
+                // ไม่มีการติด - สีเขียว
+                tvNicotineScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvNicotineScore.setTextColor(Color.WHITE);
+            } else if (score >= 4 && score <= 5) {
+                // การติดระดับปานกลาง - สีเหลือง
+                tvNicotineScore.setBackground(createGradientDrawable("#F1C40F", "#F39C12"));
+                tvNicotineScore.setTextColor(Color.WHITE);
+            } else if (score >= 6 && score <= 7) {
+                // การติดระดับปานกลาง-สูง - สีส้ม
+                tvNicotineScore.setBackground(createGradientDrawable("#FF9800", "#FF6B35"));
+                tvNicotineScore.setTextColor(Color.WHITE);
+            } else if (score >= 8 && score <= 9) {
+                // การติดระดับสูง - สีแดง
+                tvNicotineScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
+                tvNicotineScore.setTextColor(Color.WHITE);
+            } else if (score >= 10) {
+                // การติดระดับสูงมาก - สีแดงเข้ม
+                tvNicotineScore.setBackground(createGradientDrawable("#C0392B", "#A93226"));
+                tvNicotineScore.setTextColor(Color.WHITE);
             }
         }
 
-        // หาแถวที่ต้อง highlight
-        int rowToHighlight;
-        if (score >= 0 && score <= 3) {
-            rowToHighlight = 1;  // แถวแรกหลังหัวตาราง
-        } else if (score >= 4 && score <= 5) {
-            rowToHighlight = 2;
-        } else if (score >= 6 && score <= 7) {
-            rowToHighlight = 3;
-        } else if (score >= 8 && score <= 9) {
-            rowToHighlight = 4;
-        } else if (score == 10) {
-            rowToHighlight = 5;
-        } else {
-            return; // คะแนนไม่อยู่ในช่วงที่กำหนด
-        }
+        if (tvNicotineAddictionLevel != null) {
+            String addictionLevel;
 
-        // ทำการ highlight แถวที่ตรงกับช่วงคะแนน
-        TableRow rowToChange = (TableRow) tbFagerstrome.getChildAt(rowToHighlight);
-        if (rowToChange != null) {
-//            rowToChange.setBackgroundColor(getHighlightColor(score));
-            rowToChange.setBackgroundColor(highlightColor);
-            currentHighlightedRow = rowToHighlight;
+            // กำหนดระดับการติดนิโคตินตามคะแนน
+            if (score >= 0 && score <= 3) {
+                addictionLevel = "ไม่นับว่าคุณติดสารนิโคติน";
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_green);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 4 && score <= 5) {
+                addictionLevel = "คุณติดสารนิโคตินในระดับปานกลาง";
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_yellow);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+            } else if (score >= 6 && score <= 7) {
+                addictionLevel = "คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง";
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_orange);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_orange));
+            } else if (score >= 8 && score <= 9) {
+                addictionLevel = "คุณติดสารนิโคตินในระดับสูง";
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_red);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_red));
+            } else if (score >= 10) {
+                addictionLevel = "คุณติดสารนิโคตินในระดับสูงมาก";
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_dark_red);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_dark_red));
+            } else {
+                addictionLevel = "ยังไม่ได้ประเมิน";
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_gray);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            tvNicotineAddictionLevel.setText(addictionLevel);
         }
+    }
+
+    private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
+        android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        Color.parseColor(startColor),
+                        Color.parseColor(endColor)
+                }
+        );
+
+        // ตั้งค่ามุมโค้ง
+        gradient.setCornerRadius(20f);
+
+        return gradient;
+    }
+
+    // รักษาเมธอดเก่าไว้สำหรับ backward compatibility
+    private void highlightScore(int score) {
+        // อัพเดตคะแนนและการแปลผล
         TextView resultTextView = requireView().findViewById(R.id.resultFagerStromScore);
         if (resultTextView != null) {
             resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน", score));
         }
 
+        // แสดงการแปลผลใต้คะแนน
+        updateInterpretation(score);
+
+        // อัปเดตการแสดงผลแบบใหม่
+        updateNicotineScore(score);
     }
 
-    private int getRowDefaultColor(int rowIndex) {
-        if (rowIndex == 0) { // หัวตาราง
-            return getResources().getColor(R.color.purple_500);
-        } else if (rowIndex % 2 == 0) { // แถวคู่
-            return Color.parseColor("#F5F5F5");
-        } else { // แถวคี่
-            return Color.WHITE;
+    private void updateInterpretation(int score) {
+        if (resultInterpretation != null) {
+            String interpretation = getScoreInterpretation(score);
+            int backgroundColor = getInterpretationBackgroundColor(score);
+
+            resultInterpretation.setText(interpretation);
+            resultInterpretation.setBackgroundColor(backgroundColor);
+            resultInterpretation.setVisibility(View.VISIBLE);
         }
     }
 
-    /**
-     * ฟังก์ชันกำหนดสี highlight ตามระดับคะแนน
-     */
-    private int getHighlightColor(int score) {
+    private int getInterpretationBackgroundColor(int score) {
         if (score >= 0 && score <= 3) {
-            return Color.parseColor("#E8F5E9"); // สีเขียวอ่อน
+            return Color.parseColor("#27AE60"); // เขียว
         } else if (score >= 4 && score <= 5) {
-            return Color.parseColor("#FFF3E0"); // สีส้มอ่อน
+            return Color.parseColor("#F1C40F"); // เหลืองอ่อน
         } else if (score >= 6 && score <= 7) {
-            return Color.parseColor("#FFE0B2"); // สีส้ม
+            return Color.parseColor("#F39C12"); // เหลืองแก่
         } else if (score >= 8 && score <= 9) {
-            return Color.parseColor("#FFCCBC"); // สีส้มแดง
+            return Color.parseColor("#E67E22"); // แดงอ่อน
+        } else if (score == 10) {
+            return Color.parseColor("#C0392B"); // แดงเข้ม
         } else {
-            return Color.parseColor("#FFCDD2"); // สีแดงอ่อน
+            return Color.parseColor("#95A5A6"); // เทา (default)
         }
     }
 
@@ -335,7 +451,7 @@ public class FagerstromNicotineFragment extends Fragment {
      */
     private String getScoreInterpretation(int score) {
         if (score >= 0 && score <= 3) {
-            return "ไม่มีบ่วงคุดติดสารนิโคติน";
+            return "ไม่นับว่าคุณติดสารนิโคติน";
         } else if (score >= 4 && score <= 5) {
             return "คุณติดสารนิโคตินในระดับปานกลาง";
         } else if (score >= 6 && score <= 7) {
@@ -351,13 +467,12 @@ public class FagerstromNicotineFragment extends Fragment {
 
     private void loadData() {
         SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(getContext());
-//        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         shareViewModel.getCigatetteAddictionTestMutableLiveData().observe(getViewLifecycleOwner(), data -> {
 
             if (data.getPersonId() != null) {
                 List<NicotineInfo> nicotineInfos = sfNicotineInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
                 for (NicotineInfo nicotineInfo : nicotineInfos) {
-                    Log.d("smoker", "smoker infos:" + nicotineInfo);
+                    Log.d("nicotine", "nicotine infos:" + nicotineInfo);
                     setNicotineInfo(nicotineInfo);
 
                     if (nicotineInfo.getSum() != null) {
@@ -370,7 +485,6 @@ public class FagerstromNicotineFragment extends Fragment {
                 }
             }
         });
-
     }
 
     public void setNicotineInfo(NicotineInfo info) {
@@ -381,31 +495,39 @@ public class FagerstromNicotineFragment extends Fragment {
     private void updateUI() {
         if (nicotineInfo == null) return;
 
-        // Set Question 1
-        if (!nicotineInfo.getNicotine1().equals("0")) {
-            int radioId = getResources().getIdentifier(
-                    "rdoNicotineQ1_" + nicotineInfo.getNicotine1(),
-                    "id", requireContext().getPackageName());
-            if (radioId != 0) {
-                rdoNicotineQ1.check(radioId);
-            }
-        }
+        // ตั้งค่าป้องกัน loop
+        isUpdatingFromCode = true;
 
-        // Set Question 2
-        if (!nicotineInfo.getNicotine2().equals("0")) {
-            int radioId = getResources().getIdentifier(
-                    "rdoNicotineQ2_" + nicotineInfo.getNicotine2(),
-                    "id", requireContext().getPackageName());
-            if (radioId != 0) {
-                rdoNicotineQ2.check(radioId);
+        try {
+            // Set Question 1
+            if (!nicotineInfo.getNicotine1().equals("0")) {
+                int radioId = getResources().getIdentifier(
+                        "rdoNicotineQ1_" + nicotineInfo.getNicotine1(),
+                        "id", requireContext().getPackageName());
+                if (radioId != 0) {
+                    rdoNicotineQ1.check(radioId);
+                }
             }
-        }
 
-        // Set Question 3-6
-        setRadioGroupValue(rdoNicotineQ3, nicotineInfo.getNicotine3(), "rdoNicotineQ3_");
-        setRadioGroupValue(rdoNicotineQ4, nicotineInfo.getNicotine4(), "rdoNicotineQ4_");
-        setRadioGroupValue(rdoNicotineQ5, nicotineInfo.getNicotine5(), "rdoNicotineQ5_");
-        setRadioGroupValue(rdoNicotineQ6, nicotineInfo.getNicotine6(), "rdoNicotineQ6_");
+            // Set Question 2
+            if (!nicotineInfo.getNicotine2().equals("0")) {
+                int radioId = getResources().getIdentifier(
+                        "rdoNicotineQ2_" + nicotineInfo.getNicotine2(),
+                        "id", requireContext().getPackageName());
+                if (radioId != 0) {
+                    rdoNicotineQ2.check(radioId);
+                }
+            }
+
+            // Set Question 3-6
+            setRadioGroupValue(rdoNicotineQ3, nicotineInfo.getNicotine3(), "rdoNicotineQ3_");
+            setRadioGroupValue(rdoNicotineQ4, nicotineInfo.getNicotine4(), "rdoNicotineQ4_");
+            setRadioGroupValue(rdoNicotineQ5, nicotineInfo.getNicotine5(), "rdoNicotineQ5_");
+            setRadioGroupValue(rdoNicotineQ6, nicotineInfo.getNicotine6(), "rdoNicotineQ6_");
+        } finally {
+            // ปิดการป้องกัน loop
+            isUpdatingFromCode = false;
+        }
 
         calculatePoints();
     }
@@ -490,8 +612,8 @@ public class FagerstromNicotineFragment extends Fragment {
         assistScore.setNicotineScore(nicotineInfo.getSum().toString());
         assistScore.setPersonId(nicotineInfo.getPersonId());
         shareViewModel.setAssistScoreMutableLiveData(assistScore);
-//        updateScore(sum);
     }
+
     public boolean isFormComplete() {
         if (nicotineInfo == null) {
             return false;
@@ -505,6 +627,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 !nicotineInfo.getNicotine5().equals("0") &&
                 !nicotineInfo.getNicotine6().equals("0");
     }
+
     public String getValidationMessage() {
         StringBuilder message = new StringBuilder();
 
@@ -540,6 +663,7 @@ public class FagerstromNicotineFragment extends Fragment {
 
         return ""; // ไม่มีข้อผิดพลาด
     }
+
     public String getDetailedValidationMessage() {
         if (nicotineInfo == null) {
             return "แบบประเมินการติดนิโคติน Fagerstrom:\n• ยังไม่ได้กรอกข้อมูลใดๆ";
@@ -582,37 +706,58 @@ public class FagerstromNicotineFragment extends Fragment {
 
         return ""; // ไม่มีข้อผิดพลาด
     }
+
     public void resetForm() {
-        // ล้างการเลือกทั้งหมด
-        if (rdoNicotineQ1 != null) rdoNicotineQ1.clearCheck();
-        if (rdoNicotineQ2 != null) rdoNicotineQ2.clearCheck();
-        if (rdoNicotineQ3 != null) rdoNicotineQ3.clearCheck();
-        if (rdoNicotineQ4 != null) rdoNicotineQ4.clearCheck();
-        if (rdoNicotineQ5 != null) rdoNicotineQ5.clearCheck();
-        if (rdoNicotineQ6 != null) rdoNicotineQ6.clearCheck();
+        // ตั้งค่าป้องกัน loop
+        isUpdatingFromCode = true;
 
-        // รีเซ็ต nicotineInfo
-        nicotineInfo = new NicotineInfo();
+        try {
+            // ล้างการเลือกทั้งหมด
+            if (rdoNicotineQ1 != null) rdoNicotineQ1.clearCheck();
+            if (rdoNicotineQ2 != null) rdoNicotineQ2.clearCheck();
+            if (rdoNicotineQ3 != null) rdoNicotineQ3.clearCheck();
+            if (rdoNicotineQ4 != null) rdoNicotineQ4.clearCheck();
+            if (rdoNicotineQ5 != null) rdoNicotineQ5.clearCheck();
+            if (rdoNicotineQ6 != null) rdoNicotineQ6.clearCheck();
 
-        // รีเซ็ต points
-        points = new ArrayList<>();
-        points.addAll(Arrays.asList(0, 0, 0, 0, 0, 0));
+            // รีเซ็ต nicotineInfo
+            nicotineInfo = new NicotineInfo();
 
-        // รีเซ็ตการแสดงผล
-        TextView resultTextView = getView() != null ? getView().findViewById(R.id.resultFagerStromScore) : null;
-        if (resultTextView != null) {
-            resultTextView.setText("คะแนนที่ได้: - คะแนน");
-        }
+            // รีเซ็ต points
+            points = new ArrayList<>();
+            points.addAll(Arrays.asList(0, 0, 0, 0, 0, 0));
 
-        // ล้าง highlight
-        if (currentHighlightedRow != -1 && tbFagerstrome != null) {
-            TableRow previousRow = (TableRow) tbFagerstrome.getChildAt(currentHighlightedRow);
-            if (previousRow != null) {
-                previousRow.setBackgroundColor(getRowDefaultColor(currentHighlightedRow));
+            // รีเซ็ตการแสดงผลแบบใหม่
+            if (tvNicotineScore != null) {
+                tvNicotineScore.setText("-");
+                tvNicotineScore.setBackgroundResource(R.color.light_gray);
+                tvNicotineScore.setTextColor(getResources().getColor(R.color.darker_gray));
             }
+
+            if (tvNicotineAddictionLevel != null) {
+                tvNicotineAddictionLevel.setText("ยังไม่ได้ประเมิน");
+                tvNicotineAddictionLevel.setBackgroundResource(R.color.light_gray);
+                tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            // รีเซ็ตการแสดงผลเก่า
+            TextView resultTextView = getView() != null ? getView().findViewById(R.id.resultFagerStromScore) : null;
+            if (resultTextView != null) {
+                resultTextView.setText("คะแนนที่ได้: - คะแนน");
+            }
+
+            // ซ่อนการแปลผล
+            if (resultInterpretation != null) {
+                resultInterpretation.setVisibility(View.GONE);
+            }
+
             currentHighlightedRow = -1;
+        } finally {
+            // ปิดการป้องกัน loop
+            isUpdatingFromCode = false;
         }
     }
+
     public boolean hasDataChanged() {
         if (nicotineInfo == null) {
             return false;
@@ -625,6 +770,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 !nicotineInfo.getNicotine5().equals("0") ||
                 !nicotineInfo.getNicotine6().equals("0");
     }
+
     public int getCompletionPercentage() {
         if (nicotineInfo == null) {
             return 0;
@@ -642,6 +788,7 @@ public class FagerstromNicotineFragment extends Fragment {
 
         return (completedQuestions * 100) / totalQuestions;
     }
+
     public void showCompletionStatus() {
         int percentage = getCompletionPercentage();
         String message;
@@ -659,6 +806,7 @@ public class FagerstromNicotineFragment extends Fragment {
         // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
         // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
+
     public List<Integer> getUnansweredQuestions() {
         List<Integer> unanswered = new ArrayList<>();
 
@@ -678,6 +826,7 @@ public class FagerstromNicotineFragment extends Fragment {
 
         return unanswered;
     }
+
     private String getQuestionDescription(int questionNumber) {
         switch (questionNumber) {
             case 1:
@@ -696,6 +845,7 @@ public class FagerstromNicotineFragment extends Fragment {
                 return "คำถามที่ " + questionNumber;
         }
     }
+
     public void scrollToFirstUnansweredQuestion() {
         List<Integer> unanswered = getUnansweredQuestions();
         if (!unanswered.isEmpty()) {

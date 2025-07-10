@@ -365,19 +365,40 @@ public class AlcoholFragment extends Fragment {
             Log.d(TAG, "อัพเดตคะแนนแอลกอฮอล์ใน UI: " + score);
         }
 
-        // Update risk level
+        // Update risk level with dynamic colors
         if (tvAlcoholRiskLevel != null) {
-            RiskAssessment risk = assessRisk(score);
-            tvAlcoholRiskLevel.setText(risk.description);
-            updateScoreColors(risk);
-            Log.d(TAG, "อัพเดตระดับความเสี่ยง: " + risk.description);
+            String riskLevel;
+
+            // กำหนดระดับความเสี่ยงตามคะแนนและเปลี่ยนสีฟอนต์
+            if (score == 0) {
+                riskLevel = "ไม่ดื่ม";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_green);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 1 && score <= 10) {
+                riskLevel = "ไม่ต้องบำบัด";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_green);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 11 && score <= 26) {
+                riskLevel = "บำบัดอย่างย่อ";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_yellow);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+            } else if (score >= 27) {
+                riskLevel = "บำบัดเข้มข้น";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_red);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+            } else {
+                riskLevel = "ยังไม่ได้ประเมิน";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            tvAlcoholRiskLevel.setText(riskLevel);
+            Log.d(TAG, "อัพเดตระดับความเสี่ยง: " + riskLevel);
         }
 
         // Auto-select radio buttons based on score (only if no existing data)
-        if (shouldAutoSelectBasedOnScore()) {
-            autoSelectBasedOnScore(score);
-            Log.d(TAG, "เลือก radio button อัตโนมัติตามคะแนน: " + score);
-        }
+        autoSelectBasedOnScore(score);
+        Log.d(TAG, "เลือก radio button อัตโนมัติตามคะแนน: " + score);
     }
 
     /**
@@ -455,21 +476,41 @@ public class AlcoholFragment extends Fragment {
             }
         }
 
-        // อัพเดตระดับความเสี่ยงและสี
+        // อัพเดตระดับความเสี่ยงและสีฟอนต์
         if (tvAlcoholRiskLevel != null) {
-            RiskAssessment risk = assessRisk(score);
-            tvAlcoholRiskLevel.setText(risk.description);
-            updateScoreColors(risk);
-            Log.d(TAG, "อัพเดตระดับความเสี่ยงจากการซิงค์: " + risk.description);
+            String riskLevel;
+
+            // กำหนดระดับความเสี่ยงตามคะแนนและเปลี่ยนสีฟอนต์
+            if (score == 0) {
+                riskLevel = "ไม่ดื่ม";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_green);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 1 && score <= 10) {
+                riskLevel = "ไม่ต้องบำบัด";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_green);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 11 && score <= 26) {
+                riskLevel = "บำบัดอย่างย่อ";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_yellow);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+            } else if (score >= 27) {
+                riskLevel = "บำบัดเข้มข้น";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_red);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+            } else {
+                riskLevel = "ยังไม่ได้ประเมิน";
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            tvAlcoholRiskLevel.setText(riskLevel);
+            Log.d(TAG, "อัพเดตระดับความเสี่ยงจากการซิงค์: " + riskLevel);
         }
 
         // เลือก radio button อัตโนมัติตามคะแนน (เฉพาะกรณีที่ยังไม่มีข้อมูลเดิม)
-        if (shouldAutoSelectBasedOnScore()) {
-            autoSelectBasedOnScore(score);
-            Log.d(TAG, "เลือก radio button อัตโนมัติจากการซิงค์: " + score);
-        }
+        autoSelectBasedOnScore(score);
+        Log.d(TAG, "เลือก radio button อัตโนมัติจากการซิงค์: " + score);
     }
-
     /**
      * Calculate and update alcohol score directly from database (เก็บไว้เผื่อใช้งานอื่น)
      */
@@ -586,6 +627,7 @@ public class AlcoholFragment extends Fragment {
                 return;
             }
             tvAlcoholScore.setText(String.valueOf(score));
+
             // เปลี่ยนสีพื้นหลังตามช่วงคะแนน
             if (score == 0) {
                 // ไม่ดื่ม - สีเขียว
@@ -608,48 +650,50 @@ public class AlcoholFragment extends Fragment {
 
         if (tvAlcoholRiskLevel != null) {
             String riskLevel;
-            int backgroundColor;
-            int textColor = android.R.color.black;
 
-            // Determine risk level and auto-select radio buttons
+            // Determine risk level และเปลี่ยนสีฟอนต์
             if (score == 0) {
                 riskLevel = "ไม่ดื่ม";
-                backgroundColor = R.color.light_green;
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_green);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+                // เลือก radio button สำหรับคะแนน 0
                 selectDrinkingRadioButtonIfNeeded(0);
             } else if (score >= 1 && score <= 10) {
                 riskLevel = "ไม่ต้องบำบัด";
-                backgroundColor = R.color.light_green;
-                selectDrinkingRadioButtonIfNeeded(1); // เลือก rdoDrinkingAlway1
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_green);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+                // เลือก radio button สำหรับคะแนน 1-10
+                selectDrinkingRadioButtonIfNeeded(1);
             } else if (score >= 11 && score <= 26) {
                 riskLevel = "บำบัดอย่างย่อ";
-                backgroundColor = R.color.light_yellow;
-                selectDrinkingRadioButtonIfNeeded(2); // เลือก rdoDrinkingAlway2
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_yellow);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+                // เลือก radio button สำหรับคะแนน 11-26
+                selectDrinkingRadioButtonIfNeeded(2);
             } else if (score >= 27) {
                 riskLevel = "บำบัดเข้มข้น";
-                backgroundColor = R.color.light_red;
-                textColor = android.R.color.white;
-                selectDrinkingRadioButtonIfNeeded(3); // เลือก rdoDrinkingAlway3
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_red);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+                // เลือก radio button สำหรับคะแนน 27+
+                selectDrinkingRadioButtonIfNeeded(3);
             } else {
                 riskLevel = "ยังไม่ได้ประเมิน";
-                backgroundColor = android.R.color.transparent;
+                tvAlcoholRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvAlcoholRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
             }
 
             tvAlcoholRiskLevel.setText(riskLevel);
 
-            // Set background color
-            if (backgroundColor != android.R.color.transparent) {
-                tvAlcoholRiskLevel.setBackgroundResource(backgroundColor);
-                tvAlcoholScore.setBackgroundResource(backgroundColor);
-            }
+            Log.d(TAG, "อัพเดตระดับความเสี่ยงและเลือก RadioButton: " + riskLevel + " (คะแนน: " + score + ")");
         }
     }
-
     /**
      * Select radio button only when no existing data (prevent loop)
      */
     private void selectDrinkingRadioButtonIfNeeded(int drinkingLevel) {
         boolean hasExistingData = false;
 
+        // ตรวจสอบว่ามีข้อมูลเดิมหรือไม่
         if (drinkingInfo != null && drinkingInfo.getDrinking() != null &&
                 !drinkingInfo.getDrinking().equals("0") && !drinkingInfo.getDrinking().isEmpty()) {
             hasExistingData = true;
@@ -661,15 +705,14 @@ public class AlcoholFragment extends Fragment {
             Log.d(TAG, "มี RadioButton เลือกอยู่แล้ว: " + rdoDrinking.getCheckedRadioButtonId());
         }
 
+        // ถ้าไม่มีข้อมูลเดิม ให้เลือกอัตโนมัติตามคะแนน
         if (!hasExistingData) {
             selectDrinkingRadioButton(drinkingLevel);
-            selectExistingRadioButton(drinkingLevel == 0 ? 0 : drinkingLevel);
             Log.d(TAG, "เลือก RadioButton อัตโนมัติตามคะแนน: " + drinkingLevel);
         } else {
             Log.d(TAG, "ไม่เลือก RadioButton เพราะมีข้อมูลอยู่แล้ว");
         }
     }
-
     /**
      * Select radio button based on drinking level (fixed to prevent loop)
      */
@@ -680,7 +723,7 @@ public class AlcoholFragment extends Fragment {
             switch (drinkingLevel) {
                 case 0: // Score 0 = No drinking
                     if (rdoDrinking != null) {
-                        rdoDrinking.check(R.id.rdoDrinking1);
+                        rdoDrinking.check(R.id.rdoDrinking1); // ไม่ดื่ม
                         if (rdoDrinkingFrequency != null) {
                             rdoDrinkingFrequency.clearCheck();
                         }
@@ -696,58 +739,58 @@ public class AlcoholFragment extends Fragment {
                     Log.d(TAG, "เลือก: ไม่ดื่ม (คะแนน 0)");
                     break;
 
-                case 1: // Score 1-10 = Drink + Rarely
+                case 1: // Score 1-10 = Drink + Rarely + ไม่ต้องบำบัด
                     if (rdoDrinking != null) {
-                        rdoDrinking.check(R.id.rdoDrinking3);
+                        rdoDrinking.check(R.id.rdoDrinking3); // ดื่ม
                     }
                     if (rdoDrinkingFrequency != null) {
-                        rdoDrinkingFrequency.check(R.id.rdoDrinkingFrequency1);
+                        rdoDrinkingFrequency.check(R.id.rdoDrinkingFrequency1); // นาน ๆ ครั้ง
                     }
                     if (rdoDrinkingAlway != null) {
-                        rdoDrinkingAlway.clearCheck();
+                        rdoDrinkingAlway.check(R.id.rdoDrinkingAlway1); // ไม่ต้องบำบัด
                     }
                     if (drinkingInfo != null) {
                         drinkingInfo.setDrinking("3");
                         drinkingInfo.setDrinkingFrequency("1");
-                        drinkingInfo.setDrinkingAlway("0");
+                        drinkingInfo.setDrinkingAlway("1");
                     }
-                    Log.d(TAG, "เลือก: ดื่ม + นาน ๆ ครั้ง (คะแนน 1-10)");
+                    Log.d(TAG, "เลือก: ดื่ม + นาน ๆ ครั้ง + ไม่ต้องบำบัด (คะแนน 1-10)");
                     break;
 
-                case 2: // Score 11-26 = Drink + Sometimes
+                case 2: // Score 11-26 = Drink + Sometimes + บำบัดอย่างย่อ
                     if (rdoDrinking != null) {
-                        rdoDrinking.check(R.id.rdoDrinking3);
+                        rdoDrinking.check(R.id.rdoDrinking3); // ดื่ม
                     }
                     if (rdoDrinkingFrequency != null) {
-                        rdoDrinkingFrequency.check(R.id.rdoDrinkingFrequency2);
+                        rdoDrinkingFrequency.check(R.id.rdoDrinkingFrequency2); // เป็นครั้งคราว
                     }
                     if (rdoDrinkingAlway != null) {
-                        rdoDrinkingAlway.clearCheck();
+                        rdoDrinkingAlway.check(R.id.rdoDrinkingAlway2); // บำบัดอย่างย่อ
                     }
                     if (drinkingInfo != null) {
                         drinkingInfo.setDrinking("3");
                         drinkingInfo.setDrinkingFrequency("2");
-                        drinkingInfo.setDrinkingAlway("0");
+                        drinkingInfo.setDrinkingAlway("2");
                     }
-                    Log.d(TAG, "เลือก: ดื่ม + เป็นครั้งคราว (คะแนน 11-26)");
+                    Log.d(TAG, "เลือก: ดื่ม + เป็นครั้งคราว + บำบัดอย่างย่อ (คะแนน 11-26)");
                     break;
 
-                case 3: // Score 27+ = Drink + Always
+                case 3: // Score 27+ = Drink + Always + บำบัดเข้มข้น
                     if (rdoDrinking != null) {
-                        rdoDrinking.check(R.id.rdoDrinking3);
+                        rdoDrinking.check(R.id.rdoDrinking3); // ดื่ม
                     }
                     if (rdoDrinkingFrequency != null) {
-                        rdoDrinkingFrequency.check(R.id.rdoDrinkingFrequency3);
+                        rdoDrinkingFrequency.check(R.id.rdoDrinkingFrequency3); // เป็นประจำ
                     }
                     if (rdoDrinkingAlway != null) {
-                        rdoDrinkingAlway.check(R.id.rdoDrinkingAlway2);
+                        rdoDrinkingAlway.check(R.id.rdoDrinkingAlway3); // บำบัดเข้มข้น
                     }
                     if (drinkingInfo != null) {
                         drinkingInfo.setDrinking("3");
                         drinkingInfo.setDrinkingFrequency("3");
-                        drinkingInfo.setDrinkingAlway("2");
+                        drinkingInfo.setDrinkingAlway("3");
                     }
-                    Log.d(TAG, "เลือก: ดื่ม + เป็นประจำ (คะแนน 27+)");
+                    Log.d(TAG, "เลือก: ดื่ม + เป็นประจำ + บำบัดเข้มข้น (คะแนน 27+)");
                     break;
 
                 default:
@@ -788,7 +831,7 @@ public class AlcoholFragment extends Fragment {
         if (tvAlcoholRiskLevel != null && tvAlcoholScore != null) {
             if (risk.backgroundColor != android.R.color.transparent) {
                 tvAlcoholRiskLevel.setBackgroundResource(risk.backgroundColor);
-                tvAlcoholScore.setBackgroundResource(risk.backgroundColor);
+//                tvAlcoholScore.setBackgroundResource(risk.backgroundColor);
             }
         }
     }
@@ -801,14 +844,16 @@ public class AlcoholFragment extends Fragment {
     }
 
     private void autoSelectBasedOnScore(int score) {
+        Log.d(TAG, "autoSelectBasedOnScore: คะแนน = " + score);
+
         if (score == 0) {
-            selectDrinkingRadioButton(0);
+            selectDrinkingRadioButton(0); // ไม่ดื่ม
         } else if (score >= 1 && score <= 10) {
-            selectDrinkingRadioButton(1); // เลือก rdoDrinkingAlway1
+            selectDrinkingRadioButton(1); // ดื่ม + นาน ๆ ครั้ง + ไม่ต้องบำบัด
         } else if (score >= 11 && score <= 26) {
-            selectDrinkingRadioButton(2); // เลือก rdoDrinkingAlway2
+            selectDrinkingRadioButton(2); // ดื่ม + ครั้งคราว + บำบัดอย่างย่อ
         } else if (score >= 27) {
-            selectDrinkingRadioButton(3); // เลือก rdoDrinkingAlway3
+            selectDrinkingRadioButton(3); // ดื่ม + เป็นประจำ + บำบัดเข้มข้น
         }
     }
 
@@ -1367,4 +1412,18 @@ public class AlcoholFragment extends Fragment {
 
         return gradient;
     }
+//    private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
+//        android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
+//                android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+//                new int[]{
+//                        Color.parseColor(startColor),
+//                        Color.parseColor(endColor)
+//                }
+//        );
+//
+//        // ตั้งค่ามุมโค้ง
+//        gradient.setCornerRadius(20f);
+//
+//        return gradient;
+//    }
 }
