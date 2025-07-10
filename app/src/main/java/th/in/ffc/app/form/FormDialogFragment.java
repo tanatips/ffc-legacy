@@ -228,8 +228,23 @@ public class FormDialogFragment extends DialogFragment {
 
         if (contentFragment instanceof MainQuestionsFragment) {
             MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
-            isComplete = mainFragment.isAllDataComplete();
+
+            // ใช้เมธอดใหม่ที่ตรวจสอบตามเงื่อนไขการใช้สารเสพติด
+            isComplete = mainFragment.isDataCompleteBasedOnSubstanceUse();
+
             activity.updateFormStatus("แบบคัดกรองการใช้สารเสพติด", isComplete);
+
+            // แสดงข้อมูลสถานะเพิ่มเติมใน Log สำหรับการ debug
+            if (mainFragment.getQuestionOneFragment() != null &&
+                    mainFragment.getQuestionOneFragment().validateAllQuestionsAnswered()) {
+
+                if (mainFragment.isAllSubstancesNeverUsed()) {
+                    Log.d("FormDialogFragment", "ผู้ใช้ไม่เคยใช้สารเสพติดทั้งหมด - ไม่ต้องตอบคำถามเพิ่มเติม");
+                } else if (mainFragment.hasAnySubstanceUsed()) {
+                    Log.d("FormDialogFragment", "ผู้ใช้เคยใช้สารเสพติด - ต้องตอบคำถามเพิ่มเติม");
+                }
+            }
+
         } else if (contentFragment instanceof StressDepressionFragment) {
             StressDepressionFragment stressFragment = (StressDepressionFragment) contentFragment;
             isComplete = stressFragment.isFormComplete();
@@ -264,7 +279,6 @@ public class FormDialogFragment extends DialogFragment {
             activity.updateFormStatus("แบบประเมินความเสี่ยงโรคเบาหวาน", isComplete);
         }
 
-
         // เพิ่ม Fragment อื่นๆ ที่มีการตรวจสอบข้อมูลในอนาคต
     }
 
@@ -281,11 +295,34 @@ public class FormDialogFragment extends DialogFragment {
             if (contentFragment instanceof MainQuestionsFragment) {
                 MainQuestionsFragment mainFragment = (MainQuestionsFragment) contentFragment;
 
-                // ใช้เมธอดใหม่ที่ให้รายละเอียดมากขึ้น
-                String detailedMessage = mainFragment.getDetailedValidationMessage();
-                if (!detailedMessage.isEmpty()) {
+                // ใช้เมธอดใหม่ที่ตรวจสอบตามเงื่อนไขการใช้สารเสพติด
+                if (!mainFragment.isDataCompleteBasedOnSubstanceUse()) {
                     isFormValid = false;
-                    errorMessage = detailedMessage;
+
+                    // ตรวจสอบกรณีพิเศษต่างๆ
+                    if (mainFragment.getQuestionOneFragment() == null ||
+                            !mainFragment.getQuestionOneFragment().validateAllQuestionsAnswered()) {
+                        errorMessage = "กรุณาตอบคำถามที่ 1 ให้ครบถ้วนก่อน\n\n" +
+                                mainFragment.getQuestionOneFragment().getValidationMessage();
+                    } else if (mainFragment.isAllSubstancesNeverUsed()) {
+                        // กรณีนี้ไม่ควรเกิดขึ้น เพราะ isDataCompleteBasedOnSubstanceUse()
+                        // ควรคืนค่า true แล้ว
+                        isFormValid = true;
+                        errorMessage = "";
+                    } else if (mainFragment.hasAnySubstanceUsed()) {
+                        // เคยใช้สารเสพติดแต่ยังกรอกข้อมูลไม่ครบ
+                        String detailedMessage = mainFragment.getValidationMessageBasedOnSubstanceUse();
+                        if (!detailedMessage.isEmpty()) {
+                            errorMessage = "เนื่องจากท่านเลือก \"เคย\" ใช้สารเสพติดอย่างน้อย 1 อย่าง\n" +
+                                    "กรุณาตอบคำถามเพิ่มเติมให้ครบถ้วน:\n\n" + detailedMessage;
+                        } else {
+                            isFormValid = true;
+                            errorMessage = "";
+                        }
+                    } else {
+                        // กรณีอื่นๆ ที่ไม่ชัดเจน
+                        errorMessage = "กรุณาตรวจสอบและกรอกข้อมูลให้ครบถ้วน";
+                    }
                 }
             }
             // ตรวจสอบข้อมูลสำหรับ StressDepressionFragment

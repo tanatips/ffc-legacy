@@ -517,4 +517,109 @@ public class MainQuestionsFragment extends Fragment {
     public boolean isAllDataComplete() {
         return getDetailedValidationMessage().isEmpty();
     }
+
+    // เพิ่มเมธอดนี้ใน MainQuestionsFragment.java
+
+    /**
+     * ตรวจสอบว่าผู้ใช้เลือก "ไม่เคย" ใช้สารเสพติดทั้งหมดใน Question 1 หรือไม่
+     */
+    public boolean isAllSubstancesNeverUsed() {
+        if (questionOneFragment == null) {
+            return false;
+        }
+
+        Map<String, AnswerData> answers = questionOneFragment.getSelectedAnswers();
+        if (answers == null || answers.isEmpty()) {
+            return false;
+        }
+
+        // ตรวจสอบว่าทุกสารเสพติดถูกเลือกเป็น "ไม่เคย" (false) หรือไม่
+        for (Map.Entry<String, AnswerData> entry : answers.entrySet()) {
+            AnswerData answer = entry.getValue();
+
+            // ถ้าไม่มีการตอบหรือยังไม่ได้เลือก
+            if (answer == null || answer.isHasUsed() == null) {
+                return false;
+            }
+
+            // ถ้ามีสารเสพติดใดที่เลือก "เคย" ใช้
+            if (answer.isHasUsed()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * ตรวจสอบว่าผู้ใช้เลือก "เคย" ใช้สารเสพติดอย่างน้อย 1 อย่างใน Question 1 หรือไม่
+     */
+    public boolean hasAnySubstanceUsed() {
+        if (questionOneFragment == null) {
+            return false;
+        }
+
+        Map<String, AnswerData> answers = questionOneFragment.getSelectedAnswers();
+        if (answers == null || answers.isEmpty()) {
+            return false;
+        }
+
+        // ตรวจสอบว่ามีสารเสพติดใดที่เลือก "เคย" ใช้หรือไม่
+        for (Map.Entry<String, AnswerData> entry : answers.entrySet()) {
+            AnswerData answer = entry.getValue();
+
+            // ถ้ามีสารเสพติดใดที่เลือก "เคย" ใช้
+            if (answer != null && answer.isHasUsed() != null && answer.isHasUsed()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * ตรวจสอบความครบถ้วนของข้อมูลตามเงื่อนไขการใช้สารเสพติด
+     */
+    public boolean isDataCompleteBasedOnSubstanceUse() {
+        // ก่อนอื่นต้องตรวจสอบว่า Question 1 ได้รับการตอบครบถ้วนหรือไม่
+        if (questionOneFragment == null || !questionOneFragment.validateAllQuestionsAnswered()) {
+            return false;
+        }
+
+        // ถ้าไม่เคยใช้สารเสพติดเลย ถือว่าข้อมูลครบถ้วนแล้ว
+        if (isAllSubstancesNeverUsed()) {
+            return true;
+        }
+
+        // ถ้าเคยใช้สารเสพติด ต้องตรวจสอบความครบถ้วนของคำถามอื่นๆ
+        if (hasAnySubstanceUsed()) {
+            return isAllDataComplete();
+        }
+
+        // กรณีอื่นๆ ที่ไม่ควรเกิดขึ้น
+        return false;
+    }
+
+    /**
+     * รับข้อความแจ้งเตือนที่เหมาะสมตามสถานะการใช้สารเสพติด
+     */
+    public String getValidationMessageBasedOnSubstanceUse() {
+        // ตรวจสอบ Question 1 ก่อน
+        if (questionOneFragment == null || !questionOneFragment.validateAllQuestionsAnswered()) {
+            return questionOneFragment != null ? questionOneFragment.getValidationMessage() :
+                    "กรุณาตอบคำถามที่ 1 ให้ครบถ้วน";
+        }
+
+        // ถ้าไม่เคยใช้สารเสพติดเลย ไม่ต้องตอบคำถามอื่น
+        if (isAllSubstancesNeverUsed()) {
+            return ""; // ไม่มีข้อผิดพลาด
+        }
+
+        // ถ้าเคยใช้สารเสพติด ต้องตอบคำถามอื่นๆ ให้ครบ
+        if (hasAnySubstanceUsed()) {
+            return getDetailedValidationMessage();
+        }
+
+        return "";
+    }
 }
