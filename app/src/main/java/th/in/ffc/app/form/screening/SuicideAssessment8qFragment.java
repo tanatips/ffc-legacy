@@ -58,6 +58,13 @@ public class SuicideAssessment8qFragment extends Fragment {
 //    private RadioGroup[] mainQuestionGroups;
 //    private RadioGroup subQuestionGroup;
     private static final int MAIN_QUESTION_COUNT = 8;
+    private TextView tv8qScore;
+    private TextView tv8qResultDetail;
+
+    // เพิ่มตัวแปรสำหรับติดตามสถานะการตอบคำถาม
+    private boolean isFormValid = false;
+    private boolean[] questionAnswered = {false, false, false, false, false, false, false, false}; // 8 ข้อ
+
     public SuicideAssessment8qFragment() {
         // Required empty public constructor
     }
@@ -80,6 +87,7 @@ public class SuicideAssessment8qFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         View parentViewPager = (View) view.getParent();
         if (parentViewPager != null) {
             parentViewPager.post(() -> {
@@ -89,6 +97,8 @@ public class SuicideAssessment8qFragment extends Fragment {
                 parentViewPager.setLayoutParams(layoutParams);
             });
         }
+
+        // Initialize UI elements
         RadioGroup rdoSuicideQ1 = view.findViewById(R.id.rdoSuicideQ1);
         RadioGroup rdoSuicideQ2 = view.findViewById(R.id.rdoSuicideQ2);
         RadioGroup rdoSuicideQ3 = view.findViewById(R.id.rdoSuicideQ3);
@@ -98,6 +108,15 @@ public class SuicideAssessment8qFragment extends Fragment {
         RadioGroup rdoSuicideQ6 = view.findViewById(R.id.rdoSuicideQ6);
         RadioGroup rdoSuicideQ7 = view.findViewById(R.id.rdoSuicideQ7);
         RadioGroup rdoSuicideQ8 = view.findViewById(R.id.rdoSuicideQ8);
+
+        // Initialize new UI elements
+        tv8qScore = view.findViewById(R.id.tv8qScore);
+        tv8qResultDetail = view.findViewById(R.id.tv8qResultDetail);
+
+        // Initial display update
+        updateScoreDisplay();
+
+        // Setup RadioGroup listeners with updated validation
         rdoSuicideQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -108,14 +127,16 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ1(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[0] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ1(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
-
         rdoSuicideQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -126,13 +147,17 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ2(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[1] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ2(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         rdoSuicideQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -143,11 +168,14 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ3(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[2] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ3(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
 
@@ -161,13 +189,16 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ3_2_1(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ3_2_1(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         rdoSuicideQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -178,13 +209,17 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ4(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[3] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ4(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         rdoSuicideQ5.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -195,13 +230,17 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ5(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[4] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ5(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         rdoSuicideQ6.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -212,13 +251,17 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ6(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[5] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ6(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         rdoSuicideQ7.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -229,13 +272,17 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ7(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[6] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ7(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         rdoSuicideQ8.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -246,19 +293,144 @@ public class SuicideAssessment8qFragment extends Fragment {
                     data = "2";
                 }
                 suicideAssessment8qInfo.setQ8(data);
-                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+                questionAnswered[7] = true;
 
+                updateScoreAndHighlight();
+                validateAndSaveData();
+
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
                 suicideAssessment8qLiveData.setSelectedQ8(i);
                 shareViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-                updateScoreAndHighlight();
             }
         });
+
         loadData();
+
+        // Update display after view is created
         view.post(() -> {
+            updateScoreDisplay();
             if (isFormComplete()) {
                 updateScoreAndHighlight();
             }
         });
+    }
+    private void updateScoreDisplay() {
+        int totalScore = calculateTotalScore();
+
+        Log.d("SuicideAssessment8q", "updateScoreDisplay - Total Score: " + totalScore);
+
+        if (tv8qScore != null) {
+            tv8qScore.setText(String.valueOf(totalScore));
+            updateScoreBackgroundColor(totalScore);
+            Log.d("SuicideAssessment8q", "Score displayed: " + totalScore);
+        } else {
+            Log.e("SuicideAssessment8q", "tv8qScore is null!");
+        }
+    }
+    private void validateAndSaveData() {
+        // ตรวจสอบว่าตอบคำถามครบทุกข้อหรือไม่
+        boolean allAnswered = true;
+        for (int i = 0; i < 8; i++) {
+            if (!questionAnswered[i]) {
+                allAnswered = false;
+                break;
+            }
+        }
+
+        // ตรวจสอบคำถามย่อย Q3_2_1 (หากจำเป็น)
+        boolean q3SubComplete = true;
+        if (suicideAssessment8qInfo.getQ3().equals("2")) { // หากตอบ "มี" ในคำถาม Q3
+            q3SubComplete = !suicideAssessment8qInfo.getQ3_2_1().equals("0");
+        }
+
+        isFormValid = allAnswered && q3SubComplete;
+
+        // อัปเดตการแสดงผลทันที - ไม่ต้องรอให้ครบ
+        updateScoreDisplay();
+        updateResultDisplay(calculateTotalScore());
+
+        if (isFormValid) {
+            Log.d("SuicideAssessment8q", "ตอบคำถามครบทุกข้อแล้ว - บันทึกข้อมูล");
+            if (dataPasser != null) {
+                dataPasser.onSuicideAssessment8q(suicideAssessment8qInfo);
+            }
+        }
+
+        // อัปเดตสถานะใน Activity
+        updateFormStatusInActivity();
+    }
+
+    private void updateScoreBackgroundColor(int score) {
+        if (tv8qScore == null) {
+            Log.e("SuicideAssessment8q", "tv8qScore is null in updateScoreBackgroundColor");
+            return;
+        }
+
+        int color;
+        if (score == 0) {
+            color = Color.parseColor("#27AE60"); // เขียว - ไม่มีความเสี่ยง
+        } else if (score >= 1 && score <= 8) {
+            color = Color.parseColor("#F39C12"); // เหลือง - ความเสี่ยงต่ำ
+        } else if (score >= 9 && score <= 16) {
+            color = Color.parseColor("#E67E22"); // ส้ม - ความเสี่ยงปานกลาง
+        } else {
+            color = Color.parseColor("#E74C3C"); // แดง - ความเสี่ยงสูง
+        }
+
+        tv8qScore.setBackgroundColor(color);
+        tv8qScore.setTextColor(Color.WHITE);
+
+        Log.d("SuicideAssessment8q", "Background color updated for score: " + score);
+    }
+    private void updateResultDisplay(int totalScore) {
+        if (tv8qResultDetail == null) {
+            Log.e("SuicideAssessment8q", "tv8qResultDetail is null!");
+            return;
+        }
+
+        String resultText = "";
+        String resultCode = "";
+        int backgroundColor = Color.parseColor("#F8F9FA");
+        int textColor = Color.parseColor("#2C3E50");
+
+        if (totalScore == 0) {
+            resultText = "ไม่มีความเสี่ยงต่อการฆ่าตัวตาย";
+            resultCode = "1B0270";
+            backgroundColor = Color.parseColor("#E8F5E8");
+            textColor = Color.parseColor("#27AE60");
+        } else if (totalScore >= 1 && totalScore <= 8) {
+            resultText = "มีความเสี่ยงต่อการฆ่าตัวตายระดับต่ำ";
+            resultCode = "1B0271";
+            backgroundColor = Color.parseColor("#FFF3CD");
+            textColor = Color.parseColor("#F39C12");
+        } else if (totalScore >= 9 && totalScore <= 16) {
+            resultText = "มีความเสี่ยงต่อการฆ่าตัวตายระดับปานกลาง";
+            resultCode = "1B0272";
+            backgroundColor = Color.parseColor("#FFE4CC");
+            textColor = Color.parseColor("#E67E22");
+        } else if (totalScore >= 17) {
+            resultText = "มีความเสี่ยงต่อการฆ่าตัวตายระดับสูง";
+            resultCode = "1B0273";
+            backgroundColor = Color.parseColor("#F8D7DA");
+            textColor = Color.parseColor("#E74C3C");
+        }
+
+        String finalText = resultText + "\n(" + resultCode + ")";
+
+        // เพิ่มคำเตือนพิเศษสำหรับความเสี่ยงสูง
+        if (totalScore >= 17) {
+            finalText += "\n⚠️ ต้องการการแทรกแซงทันที!";
+            textColor = Color.parseColor("#E74C3C");
+        } else if (totalScore >= 9) {
+            finalText += "\n⚠️ ควรติดตามอย่างใกล้ชิด";
+            textColor = Color.parseColor("#E67E22");
+        }
+
+        tv8qResultDetail.setText(finalText);
+        tv8qResultDetail.setTextColor(textColor);
+        tv8qResultDetail.setBackgroundColor(backgroundColor);
+
+        Log.d("SuicideAssessment8q", "Result displayed: " + finalText);
     }
     private void loadData(){
         SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(getContext());
@@ -308,6 +480,9 @@ public class SuicideAssessment8qFragment extends Fragment {
                 if (radioButton != null) {
                     radioButton.setChecked(true);
                 }
+
+                // อัปเดตสถานะการตอบ
+                questionAnswered[i] = true;
             }
         }
 
@@ -324,13 +499,56 @@ public class SuicideAssessment8qFragment extends Fragment {
             }
         }
 
-        // ★ เพิ่มการอัปเดตคะแนนและไฮไลท์หลังจากโหลดข้อมูล
+        // อัปเดตการแสดงผลหลังจากโหลดข้อมูล
         updateScoreAndHighlight();
-
-        // ★ ตรวจสอบสถานะการกรอกข้อมูลและอัปเดต Activity
-        updateFormStatusInActivity();
+        validateAndSaveData();
     }
 
+    // เพิ่มเมธอดสำหรับดึงคะแนนปัจจุบัน
+    public int getCurrentScore() {
+        return calculateTotalScore();
+    }
+
+    // เพิ่มเมธอดสำหรับดึงสถานะความสมบูรณ์
+    public String getCompletionStatus() {
+        int answered = 0;
+        for (boolean isAnswered : questionAnswered) {
+            if (isAnswered) answered++;
+        }
+
+        // ตรวจสอบคำถามย่อย
+        if (suicideAssessment8qInfo.getQ3().equals("2") &&
+                !suicideAssessment8qInfo.getQ3_2_1().equals("0")) {
+            answered++; // นับคำถามย่อยด้วย
+        }
+
+        return answered + "/8 ข้อ";
+    }
+
+    public boolean isFormComplete() {
+        if (suicideAssessment8qInfo == null) {
+            return false;
+        }
+
+        // ตรวจสอบคำถามหลัก Q1-Q8
+        boolean q1Complete = !suicideAssessment8qInfo.getQ1().equals("0");
+        boolean q2Complete = !suicideAssessment8qInfo.getQ2().equals("0");
+        boolean q3Complete = !suicideAssessment8qInfo.getQ3().equals("0");
+        boolean q4Complete = !suicideAssessment8qInfo.getQ4().equals("0");
+        boolean q5Complete = !suicideAssessment8qInfo.getQ5().equals("0");
+        boolean q6Complete = !suicideAssessment8qInfo.getQ6().equals("0");
+        boolean q7Complete = !suicideAssessment8qInfo.getQ7().equals("0");
+        boolean q8Complete = !suicideAssessment8qInfo.getQ8().equals("0");
+
+        // ตรวจสอบคำถามย่อย Q3_2_1 (หากจำเป็น)
+        boolean q3SubComplete = true;
+        if (suicideAssessment8qInfo.getQ3().equals("2")) { // หากตอบ "มี" ในคำถาม Q3
+            q3SubComplete = !suicideAssessment8qInfo.getQ3_2_1().equals("0");
+        }
+
+        return q1Complete && q2Complete && q3Complete && q4Complete &&
+                q5Complete && q6Complete && q7Complete && q8Complete && q3SubComplete;
+    }
 
     private String getQuestionValue(int questionNumber) {
         switch (questionNumber) {
@@ -728,17 +946,22 @@ public class SuicideAssessment8qFragment extends Fragment {
      */
     private void updateScoreAndHighlight() {
         int totalScore = calculateTotalScore();
+
+        // อัปเดตการแสดงผลใหม่
+        updateScoreDisplay();
+        updateResultDisplay(totalScore);
+
+        // เรียกใช้การ highlight ตารางเดิม (ถ้ายังต้องการ)
         highlightScoreRow(totalScore);
 
         // เพิ่มการตรวจสอบและอัปเดตสีใหม่
         updateRadioButtonColors();
         checkCriticalQuestions();
 
-        // ตรวจสอบและแจ้งเตือนอัตโนมัติเมื่อมีการเปลี่ยนแปลงคะแนน
-//        checkAndNotifyRiskLevel(totalScore);
-
         // อัปเดตสถานะการกรอกข้อมูลใน Activity หลัก
         updateFormStatusInActivity();
+
+        Log.d("SuicideAssessment8q", "Score and highlight updated - Total: " + totalScore);
     }
     /**
      * อัปเดตสถานะการกรอกข้อมูลใน Activity หลัก
@@ -848,34 +1071,6 @@ public class SuicideAssessment8qFragment extends Fragment {
         }
     }
 
-    /**
-     * ตรวจสอบว่าข้อมูลครบถ้วนหรือไม่
-     * @return true หากกรอกข้อมูลครบถ้วน, false หากไม่ครบ
-     */
-    public boolean isFormComplete() {
-        if (suicideAssessment8qInfo == null) {
-            return false;
-        }
-
-        // ตรวจสอบคำถามหลัก Q1-Q8
-        boolean q1Complete = !suicideAssessment8qInfo.getQ1().equals("0");
-        boolean q2Complete = !suicideAssessment8qInfo.getQ2().equals("0");
-        boolean q3Complete = !suicideAssessment8qInfo.getQ3().equals("0");
-        boolean q4Complete = !suicideAssessment8qInfo.getQ4().equals("0");
-        boolean q5Complete = !suicideAssessment8qInfo.getQ5().equals("0");
-        boolean q6Complete = !suicideAssessment8qInfo.getQ6().equals("0");
-        boolean q7Complete = !suicideAssessment8qInfo.getQ7().equals("0");
-        boolean q8Complete = !suicideAssessment8qInfo.getQ8().equals("0");
-
-        // ตรวจสอบคำถามย่อย Q3_2_1 (หากจำเป็น)
-        boolean q3SubComplete = true;
-        if (suicideAssessment8qInfo.getQ3().equals("2")) { // หากตอบ "มี" ในคำถาม Q3
-            q3SubComplete = !suicideAssessment8qInfo.getQ3_2_1().equals("0");
-        }
-
-        return q1Complete && q2Complete && q3Complete && q4Complete &&
-                q5Complete && q6Complete && q7Complete && q8Complete && q3SubComplete;
-    }
 
     /**
      * ตรวจสอบความครบถ้วนของข้อมูลแบบละเอียด
@@ -1069,12 +1264,27 @@ public class SuicideAssessment8qFragment extends Fragment {
             suicideAssessment8qInfo.setQ8("0");
         }
 
+        // รีเซ็ตสถานะการตอบ
+        for (int i = 0; i < questionAnswered.length; i++) {
+            questionAnswered[i] = false;
+        }
+
+        isFormValid = false;
+
         // รีเซ็ต RadioButtons
         if (getView() != null) {
             clearAllRadioGroups();
-            updateScoreAndHighlight();
+
+            // รีเซ็ตการแสดงผล
+            updateScoreDisplay();
+            if (tv8qResultDetail != null) {
+                tv8qResultDetail.setText("ยังไม่ได้ประเมิน");
+                tv8qResultDetail.setTextColor(Color.parseColor("#7F8C8D"));
+                tv8qResultDetail.setBackgroundColor(Color.parseColor("#F8F9FA"));
+            }
         }
     }
+
     private void clearAllRadioGroups() {
         if (getView() == null) return;
 

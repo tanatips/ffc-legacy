@@ -72,15 +72,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Hidden Title -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_margin="10dp"
-            android:textStyle="bold"
-            android:text="การคัดกรองโรคซึมเศร้าด้วย 2 คำถาม (2Q)"
-            android:visibility="gone" />
-
         <!-- คำถามที่ 1 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -243,7 +234,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนผลการประเมิน -->
+        <!-- ส่วนแสดงผลแบบใหม่ (คล้าย nicotine) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -251,6 +242,228 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="*">
+
+                    <!-- Header Row -->
+                    <TableRow
+                        android:background="@drawable/gradient_header"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="การประเมิน"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:padding="8dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="ผลลัพธ์"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:padding="8dp" />
+                    </TableRow>
+
+                    <!-- แถวข้อมูล 2Q -->
+                    <TableRow
+                        android:padding="12dp"
+                        android:background="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@android:drawable/ic_dialog_info"
+                                android:tint="#673AB7"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2Q"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="2dp"
+                            android:layout_margin="4dp">
+
+                            <TextView
+                                android:id="@+id/tv2qResult"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="-"
+                                android:gravity="center"
+                                android:padding="12dp"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#FFFFFF"
+                                android:background="@drawable/gradient_score" />
+                        </androidx.cardview.widget.CardView>
+                    </TableRow>
+
+                    <!-- แถวแสดงหัวข้อผลการประเมิน -->
+                    <TableRow
+                        android:background="#E8F5E8">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_span="2"
+                            android:text="ผลการคัดกรอง:"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="#2C3E50" />
+                    </TableRow>
+
+                    <!-- แถวแสดงผลลัพธ์รายละเอียด -->
+                    <TableRow
+                        android:background="#F8F9FA">
+
+                        <TextView
+                            android:id="@+id/tv2qResultDetail"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_span="2"
+                            android:text="ยังไม่ได้ประเมิน"
+                            android:gravity="center"
+                            android:padding="16dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="#7F8C8D"
+                            android:background="@drawable/risk_level_background"
+                            android:singleLine="false"
+                            android:maxLines="5"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="false" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ส่วนตารางเกณฑ์การประเมิน (แบบใหม่) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="#F8F9FA">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="เกณฑ์การคัดกรองโรคซึมเศร้า 2Q"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#2C3E50" />
+                </LinearLayout>
+
+                <!-- ระดับ 1: ปกติ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ตอบ 'ไม่มี' ทั้ง 2 ข้อ: ปกติ (1B0210)"
+                        android:textSize="13sp"
+                        android:textColor="#27AE60" />
+                </LinearLayout>
+
+                <!-- ระดับ 2: ผิดปกติ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/circle_red"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ตอบ 'มี' อย่างน้อย 1 ข้อ: ผิดปกติ (1B0211)"
+                        android:textSize="13sp"
+                        android:textColor="#E74C3C" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ตารางเดิม (ซ่อนไว้) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -366,40 +579,6 @@
                         </TableRow>
                     </TableLayout>
                 </HorizontalScrollView>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- คำแนะนำเพิ่มเติม -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="3dp"
-            app:cardBackgroundColor="#FFF3E0">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp" android:visibility="gone">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="⚠️ หมายเหตุ"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#FF9800"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="หากผลการประเมินออกมาผิดปกติ ควรปรึกษาแพทย์หรือเจ้าหน้าที่สาธารณสุขเพื่อการประเมินและดูแลเพิ่มเติม"
-                    android:textSize="14sp"
-                    android:textColor="#2C3E50"
-                    android:lineSpacingExtra="2dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

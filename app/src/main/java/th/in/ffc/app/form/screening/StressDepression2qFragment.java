@@ -17,6 +17,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -49,9 +50,15 @@ public class StressDepression2qFragment extends Fragment {
     private RadioGroup rdoStress2qQ1;
     private RadioGroup rdoStress2qQ2;
     private TableLayout resultTable;
+
+    // เพิ่มตัวแปรสำหรับแสดงผลแบบใหม่
+    private TextView tv2qResult;
+    private TextView tv2qResultDetail;
+
     int white;
     int light_gray;
     int highlightColor;
+
     // เพิ่มตัวแปรสำหรับตรวจสอบข้อมูล
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่
@@ -59,26 +66,89 @@ public class StressDepression2qFragment extends Fragment {
     public StressDepression2qFragment() {
         // Required empty public constructor
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stress_depression2q, container, false);
-
-        // ผูก views
-        rdoStress2qQ1 = view.findViewById(R.id.rdoStress2qQ1);
-        rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
-        resultTable = view.findViewById(R.id.depression2resultTable);
-
         return view;
     }
+
     private void initializeViews(View view) {
         rdoStress2qQ1 = view.findViewById(R.id.rdoStress2qQ1);
         rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
         resultTable = view.findViewById(R.id.depression2resultTable);
+
+        // เชื่อมโยง TextView ใหม่
+        tv2qResult = view.findViewById(R.id.tv2qResult);
+        tv2qResultDetail = view.findViewById(R.id.tv2qResultDetail);
+
         white = ContextCompat.getColor(requireContext(), R.color.white);
         light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
         highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+
+        // แสดงผลเริ่มต้น
+        updateResultDisplay();
     }
+
+    /**
+     * อัพเดทการแสดงผลในตารางแสดงผลแบบใหม่
+     */
+    private void updateResultDisplay() {
+        // ตรวจสอบว่าตอบคำถามครบหรือไม่
+        if (!isFormComplete()) {
+            // ยังไม่ได้ประเมิน
+            if (tv2qResult != null) {
+                tv2qResult.setText("-");
+                tv2qResult.setBackgroundColor(Color.parseColor("#9E9E9E")); // สีเทา
+                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
+            }
+
+            if (tv2qResultDetail != null) {
+                tv2qResultDetail.setText("ยังไม่ได้ประเมิน");
+                tv2qResultDetail.setTextColor(Color.parseColor("#616161"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#F5F5F5"));
+            }
+            return;
+        }
+
+        // ตรวจสอบผลการประเมิน
+        boolean hasPositiveAnswer = false;
+        String answer1 = stressDepression2qInfo.getQ1();
+        String answer2 = stressDepression2qInfo.getQ2();
+
+        // ตรวจสอบว่ามีการตอบ "มี" (รหัส "2") หรือไม่
+        if ("2".equals(answer1) || "2".equals(answer2)) {
+            hasPositiveAnswer = true;
+        }
+
+        // อัพเดท tv2qResult
+        if (tv2qResult != null) {
+            if (hasPositiveAnswer) {
+                tv2qResult.setText("ผิดปกติ");
+                tv2qResult.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
+                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
+            } else {
+                tv2qResult.setText("ปกติ");
+                tv2qResult.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
+                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
+            }
+        }
+
+        // อัพเดท tv2qResultDetail
+        if (tv2qResultDetail != null) {
+            if (hasPositiveAnswer) {
+                tv2qResultDetail.setText("ผิดปกติ และส่งต่อเจ้าหน้าที่ (1B0211)");
+                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
+            } else {
+                tv2qResultDetail.setText("ปกติ (1B0210)");
+                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
+            }
+        }
+    }
+
     private void updateTableHighlight() {
         try {
             // รับค่าการเลือกจาก RadioGroup ทั้งสอง
@@ -129,6 +199,7 @@ public class StressDepression2qFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
     /**
      * ตรวจสอบความถูกต้องของข้อมูลและบันทึกข้อมูล
      */
@@ -153,6 +224,7 @@ public class StressDepression2qFragment extends Fragment {
             showIncompleteFormMessage();
         }
     }
+
     /**
      * แสดงข้อความแจ้งเตือนเมื่อตอบไม่ครบ
      */
@@ -164,6 +236,7 @@ public class StressDepression2qFragment extends Fragment {
 //                    Toast.LENGTH_SHORT).show();
         }
     }
+
     /**
      * ตรวจสอบสถานะการตอบจาก RadioGroup
      */
@@ -171,6 +244,7 @@ public class StressDepression2qFragment extends Fragment {
         questionAnswered[0] = rdoStress2qQ1.getCheckedRadioButtonId() != -1;
         questionAnswered[1] = rdoStress2qQ2.getCheckedRadioButtonId() != -1;
     }
+
     /**
      * ตรวจสอบว่าแบบฟอร์มกรอกครบหรือไม่
      */
@@ -187,6 +261,7 @@ public class StressDepression2qFragment extends Fragment {
             questionAnswered[i] = false;
         }
     }
+
     /**
      * ดึงรายการคำถามที่ยังไม่ได้ตอบ
      */
@@ -205,13 +280,17 @@ public class StressDepression2qFragment extends Fragment {
 
         return String.join(", ", missingQuestions);
     }
+
     private void clearHighlights() {
         // ล้าง highlight ทั้งหมด
-        TableRow normalRow = (TableRow) resultTable.getChildAt(1);
-        TableRow abnormalRow = (TableRow) resultTable.getChildAt(2);
-        normalRow.setBackgroundColor(white);
-        abnormalRow.setBackgroundColor(light_gray);
+        if (resultTable != null && resultTable.getChildCount() >= 3) {
+            TableRow normalRow = (TableRow) resultTable.getChildAt(1);
+            TableRow abnormalRow = (TableRow) resultTable.getChildAt(2);
+            normalRow.setBackgroundColor(white);
+            abnormalRow.setBackgroundColor(light_gray);
+        }
     }
+
     private void setupListeners(){
         rdoStress2qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -235,6 +314,7 @@ public class StressDepression2qFragment extends Fragment {
                 validateAndSaveData(); // เรียกใช้การตรวจสอบและบันทึก
 
                 updatePoints();
+                updateResultDisplay(); // เพิ่มการอัพเดทการแสดงผล
                 updateTableHighlight();
             }
         });
@@ -261,10 +341,12 @@ public class StressDepression2qFragment extends Fragment {
                 validateAndSaveData(); // เรียกใช้การตรวจสอบและบันทึก
 
                 updatePoints();
+                updateResultDisplay(); // เพิ่มการอัพเดทการแสดงผล
                 updateTableHighlight();
             }
         });
     }
+
     private void updatePoints() {
         ArrayList<Integer> points = new ArrayList<>();
 
@@ -279,12 +361,13 @@ public class StressDepression2qFragment extends Fragment {
 
         // Analyze results
         stressDepression2qInfo.analyze();
-
     }
+
     public void setStressInfo(StressDepression2qInfo info) {
         this.stressDepression2qInfo = info;
         loadExistingData();
     }
+
     // ปรับปรุง loadExistingData() ให้ตรวจสอบสถานะการตอบ
     private void loadExistingData() {
         if (stressDepression2qInfo == null) return;
@@ -314,14 +397,20 @@ public class StressDepression2qFragment extends Fragment {
 
         // อัปเดตสถานะความถูกต้องของข้อมูล
         validateAndSaveData();
+
+        // อัพเดทการแสดงผล
+        updateResultDisplay();
     }
+
     public StressDepression2qInfo getStressInfo() {
         return stressDepression2qInfo;
     }
+
     public static StressDepression2qFragment newInstance(String param1, String param2) {
         StressDepression2qFragment fragment = new StressDepression2qFragment();
         return fragment;
     }
+
     public StressDepression2qInfo getFormData() {
         if (isFormValid) {
             return stressDepression2qInfo;
@@ -340,6 +429,7 @@ public class StressDepression2qFragment extends Fragment {
         points = new ArrayList<>();
         points.addAll(Arrays.asList(0,0));
     }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -366,6 +456,7 @@ public class StressDepression2qFragment extends Fragment {
         setupListeners();
         loadData();
     }
+
     private void loadData(){
         SfStressDepression2qInfoDao sfStressDepression2qInfoDao = new SfStressDepression2qInfoDao(getContext());
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -381,6 +472,7 @@ public class StressDepression2qFragment extends Fragment {
             }
         });
     }
+
     // เพิ่มเมธอด validation ใน StressDepression2qFragment class
 
     /**
@@ -457,6 +549,9 @@ public class StressDepression2qFragment extends Fragment {
 
         // ล้าง highlight ในตาราง
         clearHighlights();
+
+        // รีเซ็ตการแสดงผล
+        updateResultDisplay();
     }
 
     /**
@@ -685,5 +780,4 @@ public class StressDepression2qFragment extends Fragment {
         }
         return "";
     }
-
 }

@@ -38,14 +38,39 @@
                 android:textColor="#2C3E50" />
         </LinearLayout>
 
-        <!-- Hidden Title -->
-        <TextView
+        <!-- คำอธิบาย -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="20dp"
-            android:text="การคัดกรองโรคซึมเศร้าด้วย 9 คำถาม (9Q)"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="#E8F5E8">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="💡 คำแนะนำ"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#27AE60"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="กรุณาตอบคำถามเกี่ยวกับความรู้สึกของท่านใน 2 สัปดาห์ที่ผ่านมารวมทั้งวันนี้"
+                    android:textSize="14sp"
+                    android:textColor="#2C3E50"
+                    android:lineSpacingExtra="2dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- คำถามที่ 1 -->
         <androidx.cardview.widget.CardView
@@ -785,14 +810,280 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนผลการประเมิน -->
+        <!-- ส่วนแสดงผลแบบใหม่ (คล้าย nicotine) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="*">
+
+                    <!-- Header Row -->
+                    <TableRow
+                        android:background="@drawable/gradient_header"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="การประเมิน"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:padding="8dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="คะแนน"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:padding="8dp" />
+                    </TableRow>
+
+                    <!-- แถวข้อมูล 9Q -->
+                    <TableRow
+                        android:padding="12dp"
+                        android:background="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@android:drawable/ic_dialog_info"
+                                android:tint="#673AB7"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="9Q"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="2dp"
+                            android:layout_margin="4dp">
+
+                            <TextView
+                                android:id="@+id/tv9qScore"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="-"
+                                android:gravity="center"
+                                android:padding="12dp"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:textColor="#FFFFFF"
+                                android:background="@drawable/gradient_score" />
+                        </androidx.cardview.widget.CardView>
+                    </TableRow>
+
+                    <!-- แถวแสดงหัวข้อระดับซึมเศร้า -->
+                    <TableRow
+                        android:background="#E8F5E8">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_span="2"
+                            android:text="ระดับการซึมเศร้า:"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="#2C3E50" />
+                    </TableRow>
+
+                    <!-- แถวแสดงผลลัพธ์ระดับซึมเศร้า -->
+                    <TableRow
+                        android:background="#F8F9FA">
+
+                        <TextView
+                            android:id="@+id/tv9qResultDetail"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_span="2"
+                            android:text="ยังไม่ได้ประเมิน"
+                            android:gravity="center"
+                            android:padding="16dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="#7F8C8D"
+                            android:background="@drawable/risk_level_background"
+                            android:singleLine="false"
+                            android:maxLines="5"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="false" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ส่วนตารางเกณฑ์การประเมินแบบใหม่ -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="#F8F9FA">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="เกณฑ์การคัดกรองโรคซึมเศร้า 9Q"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#2C3E50" />
+                </LinearLayout>
+
+                <!-- ระดับ 1: ปกติ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/circle_green"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="&lt; 7 คะแนน: ไม่มีอาการซึมเศร้า (1B0260/1B0282)"
+                        android:textSize="13sp"
+                        android:textColor="#27AE60" />
+                </LinearLayout>
+
+                <!-- ระดับ 2: น้อย -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/circle_yellow"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="7-12 คะแนน: ซึมเศร้าระดับน้อย (1B0261/1B0283)"
+                        android:textSize="13sp"
+                        android:textColor="#F39C12" />
+                </LinearLayout>
+
+                <!-- ระดับ 3: ปานกลาง -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/circle_orange"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="13-18 คะแนน: ซึมเศร้าระดับปานกลาง (1B0262/1B0284)"
+                        android:textSize="13sp"
+                        android:textColor="#E67E22" />
+                </LinearLayout>
+
+                <!-- ระดับ 4: รุนแรง -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/circle_red"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="≥ 19 คะแนน: ซึมเศร้าระดับรุนแรง (1B0263/1B0285)"
+                        android:textSize="13sp"
+                        android:textColor="#E74C3C" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ตารางเดิม (ซ่อนไว้) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardBackgroundColor="#FFFFFF"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -819,219 +1110,7 @@
                     android:stretchColumns="*"
                     android:background="#FFFFFF">
 
-                    <!-- Header Row -->
-                    <TableRow
-                        android:background="#673AB7"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="คะแนน"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="4"
-                            android:text="การแปรผล"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="กลุ่มอื่นๆ"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="กลุ่มผู้สูงอายุ"
-                            android:textStyle="bold"
-                            android:textColor="#FFFFFF"
-                            android:gravity="center"
-                            android:padding="8dp" />
-                    </TableRow>
-
-                    <!-- Row 1: Normal -->
-                    <TableRow
-                        android:background="#E8F5E8"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="&lt; 7"
-                            android:textColor="#27AE60"
-                            android:textStyle="bold"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="4"
-                            android:text="ไม่มีอาการของโรคซึมเศร้าหรือมีระดับน้อยมาก"
-                            android:textColor="#2C3E50"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0260"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0282"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-                    </TableRow>
-
-                    <!-- Row 2: Mild -->
-                    <TableRow
-                        android:background="#FFF3CD"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="7-12"
-                            android:textColor="#F39C12"
-                            android:textStyle="bold"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="4"
-                            android:text="เป็นโรคซึมเศร้า ระดับน้อย (Major Depression, Mild)"
-                            android:textColor="#2C3E50"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0261"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0283"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-                    </TableRow>
-
-                    <!-- Row 3: Moderate -->
-                    <TableRow
-                        android:background="#F8D7DA"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="13-18"
-                            android:textColor="#E67E22"
-                            android:textStyle="bold"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="4"
-                            android:text="เป็นโรคซึมเศร้า ระดับปานกลาง (Major Depression, Moderate)"
-                            android:textColor="#2C3E50"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0262"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0284"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-                    </TableRow>
-
-                    <!-- Row 4: Severe -->
-                    <TableRow
-                        android:background="#F5C6CB"
-                        android:padding="8dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="≥ 19"
-                            android:textColor="#E74C3C"
-                            android:textStyle="bold"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="4"
-                            android:text="เป็นโรคซึมเศร้า ระดับมาก (Major Depression, Severe)"
-                            android:textColor="#2C3E50"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0263"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
-                            android:text="1B0285"
-                            android:textColor="#7F8C8D"
-                            android:gravity="center"
-                            android:padding="8dp" />
-                    </TableRow>
+                    <!-- ตารางเดิมถูกซ่อนไว้ -->
                 </TableLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

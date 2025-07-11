@@ -58,6 +58,9 @@ public class StressDepression9qFragment extends Fragment {
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false, false, false, false, false, false, false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่ (9 ข้อ)
 
+    private TextView tv9qScore;
+    private TextView tv9qResultDetail;
+
     public StressDepression9qFragment() {
         // Required empty public constructor
     }
@@ -73,8 +76,9 @@ public class StressDepression9qFragment extends Fragment {
     private void validateAndSaveData() {
         // ตรวจสอบว่าตอบคำถามครบทุกข้อหรือไม่
         boolean allAnswered = true;
-        for (boolean answered : questionAnswered) {
-            if (!answered) {
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value == null || value.equals("0") || value.isEmpty()) {
                 allAnswered = false;
                 break;
             }
@@ -82,12 +86,15 @@ public class StressDepression9qFragment extends Fragment {
 
         isFormValid = allAnswered;
 
+        // อัปเดตการแสดงผลทันที - ไม่ต้องรอให้ครบ
+        displayPoints();
+
         if (isFormValid) {
-            // ถ้าตอบครบทุกข้อ ให้บันทึกข้อมูล
             Log.d("StressDepression9q", "ตอบคำถามครบทุกข้อแล้ว - บันทึกข้อมูล");
-            dataPasser.onStressDepression9q(stressDepression9qInfo);
+            if (dataPasser != null) {
+                dataPasser.onStressDepression9q(stressDepression9qInfo);
+            }
         } else {
-            // ถ้ายังตอบไม่ครบ ให้แสดงข้อความแจ้งเตือน
             showIncompleteFormMessage();
         }
     }
@@ -125,7 +132,19 @@ public class StressDepression9qFragment extends Fragment {
      * ตรวจสอบว่าแบบฟอร์มกรอกครบหรือไม่
      */
     public boolean isFormComplete() {
-        return isFormValid;
+        if (stressDepression9qInfo == null) {
+            return false;
+        }
+
+        // ตรวจสอบว่าตอบครบทุกข้อหรือไม่
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value == null || value.equals("0") || value.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
     /**
      * รีเซ็ตสถานะการตรวจสอบ (ใช้เมื่อล้างข้อมูล)
@@ -196,21 +215,16 @@ public class StressDepression9qFragment extends Fragment {
                 0,0,0,
                 0,0,0));
     }
-    private void displayPoints() {
-        int totalScore = sumPoints();
-//        depression9result.setText("คะแนน: "+String.valueOf(totalScore));
-    }
+
     private int sumPoints() {
-        // ตรวจสอบว่า points ไม่เป็น null
-        if (points == null) {
+        if (points == null || points.size() != 9) {
             return 0;
         }
 
-        // คำนวณผลรวมของคะแนนทั้งหมด
         int totalScore = 0;
-        for (Integer point : points) {
-            if (point != null) {
-                totalScore += point;
+        for (int i = 0; i < 9; i++) {
+            if (points.get(i) != null) {
+                totalScore += points.get(i);
             }
         }
 
@@ -228,6 +242,8 @@ public class StressDepression9qFragment extends Fragment {
                 parentViewPager.setLayoutParams(layoutParams);
             });
         }
+
+        // Initialize all UI components
         RadioGroup rdoStress9qQ1 = view.findViewById(R.id.rdoStress9qQ1);
         RadioGroup rdoStress9qQ2 = view.findViewById(R.id.rdoStress9qQ2);
         RadioGroup rdoStress9qQ3 = view.findViewById(R.id.rdoStress9qQ3);
@@ -239,131 +255,137 @@ public class StressDepression9qFragment extends Fragment {
         RadioGroup rdoStress9qQ9 = view.findViewById(R.id.rdoStress9qQ9);
         depression9resultTable = view.findViewById(R.id.depression9resultTable);
         depression9result = view.findViewById(R.id.depression9result);
+
+        // Initialize new UI elements
+        tv9qScore = view.findViewById(R.id.tv9qScore);
+        tv9qResultDetail = view.findViewById(R.id.tv9qResultDetail);
+
+        // Initial display update
+        updateScoreDisplay();
+
+        // แก้ไข RadioGroup Listeners ให้ถูกต้อง
         rdoStress9qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                String data="";
+                String data = "";
                 if (checkedId == R.id.rdoStress9qQ1_1) {
-                    data= "1";
-                    points.set(0,0);
+                    data = "1";
+                    points.set(0, 0);
                 } else if (checkedId == R.id.rdoStress9qQ1_2) {
-                    data= "2";
-                    points.set(0,1);
+                    data = "2";
+                    points.set(0, 1);
                 } else if (checkedId == R.id.rdoStress9qQ1_3) {
-                    data= "3";
-                    points.set(0,2);
+                    data = "3";
+                    points.set(0, 2);
                 } else if (checkedId == R.id.rdoStress9qQ1_4) {
-                    data= "4";
-                    points.set(0,3);
+                    data = "4";
+                    points.set(0, 3);
                 }
+
                 stressDepression9qInfo.setQ1(data);
                 stressDepression9qInfo.setPoint(points);
-
-                // ตรวจสอบว่าตอบคำถามที่ 1 แล้ว
                 questionAnswered[0] = true;
+
+                // อัปเดตการแสดงผลทันที
+                displayPoints();
                 validateAndSaveData();
 
                 dataPasser.onStressDepression9q(stressDepression9qInfo);
                 stressDepression9qLiveData.setSelectedQ1(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
-
             }
         });
 
         rdoStress9qQ2.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                String data="";
+                String data = "";
                 if (checkedId == R.id.rdoStress9qQ2_1) {
-                    data= "1";
-                    points.set(1,0);
+                    data = "1";
+                    points.set(1, 0);
                 } else if (checkedId == R.id.rdoStress9qQ2_2) {
-                    data= "2";
-                    points.set(1,1);
+                    data = "2";
+                    points.set(1, 1);
                 } else if (checkedId == R.id.rdoStress9qQ2_3) {
-                    data= "3";
-                    points.set(1,2);
+                    data = "3";
+                    points.set(1, 2);
                 } else if (checkedId == R.id.rdoStress9qQ2_4) {
-                    data= "4";
-                    points.set(1,3);
+                    data = "4";
+                    points.set(1, 3);
                 }
 
                 stressDepression9qInfo.setQ2(data);
                 stressDepression9qInfo.setPoint(points);
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 questionAnswered[1] = true;
-                validateAndSaveData();
 
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ2(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
         });
 
         rdoStress9qQ3.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                String data="";
+                String data = "";
                 if (checkedId == R.id.rdoStress9qQ3_1) {
-                    data= "1";
-                    points.set(2,0);
+                    data = "1";
+                    points.set(2, 0);
                 } else if (checkedId == R.id.rdoStress9qQ3_2) {
-                    data= "2";
-                    points.set(2,1);
+                    data = "2";
+                    points.set(2, 1);
                 } else if (checkedId == R.id.rdoStress9qQ3_3) {
-                    data= "3";
-                    points.set(2,2);
+                    data = "3";
+                    points.set(2, 2);
                 } else if (checkedId == R.id.rdoStress9qQ3_4) {
-                    data= "4";
-                    points.set(2,3);
+                    data = "4";
+                    points.set(2, 3);
                 }
 
                 stressDepression9qInfo.setQ3(data);
                 stressDepression9qInfo.setPoint(points);
-                // ตรวจสอบว่าตอบคำถามที่ 2 แล้ว
                 questionAnswered[2] = true;
-                validateAndSaveData();
 
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ3(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
-
         });
 
         rdoStress9qQ4.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                String data="";
+                String data = "";
                 if (checkedId == R.id.rdoStress9qQ4_1) {
-                    data= "1";
-                    points.set(3,0);
+                    data = "1";
+                    points.set(3, 0);
                 } else if (checkedId == R.id.rdoStress9qQ4_2) {
-                    data= "2";
-                    points.set(3,1);
+                    data = "2";
+                    points.set(3, 1);
                 } else if (checkedId == R.id.rdoStress9qQ4_3) {
-                    data= "3";
-                    points.set(3,2);
+                    data = "3";
+                    points.set(3, 2);
                 } else if (checkedId == R.id.rdoStress9qQ4_4) {
-                    data= "4";
-                    points.set(3,3);
+                    data = "4";
+                    points.set(3, 3);
                 }
 
                 stressDepression9qInfo.setQ4(data);
                 stressDepression9qInfo.setPoint(points);
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
-
                 questionAnswered[3] = true;
-                validateAndSaveData();
 
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ4(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
         });
 
@@ -373,29 +395,29 @@ public class StressDepression9qFragment extends Fragment {
                 String data = "";
                 if (checkedId == R.id.rdoStress9qQ5_1) {
                     data = "1";
-                    points.set(4,0);
+                    points.set(4, 0);
                 } else if (checkedId == R.id.rdoStress9qQ5_2) {
                     data = "2";
-                    points.set(4,1);
+                    points.set(4, 1);
                 } else if (checkedId == R.id.rdoStress9qQ5_3) {
                     data = "3";
-                    points.set(4,2);
+                    points.set(4, 2);
                 } else if (checkedId == R.id.rdoStress9qQ5_4) {
                     data = "4";
-                    points.set(4,3);
+                    points.set(4, 3);
                 }
 
                 stressDepression9qInfo.setQ5(data);
                 stressDepression9qInfo.setPoint(points);
-                dataPasser.onStressDepression9q(stressDepression9qInfo);
-
                 questionAnswered[4] = true;
-                validateAndSaveData();
 
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
+                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 stressDepression9qLiveData.setSelectedQ5(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
         });
 
@@ -405,29 +427,28 @@ public class StressDepression9qFragment extends Fragment {
                 String data = "";
                 if (checkedId == R.id.rdoStress9qQ6_1) {
                     data = "1";
-                    points.set(5,0);
+                    points.set(5, 0);
                 } else if (checkedId == R.id.rdoStress9qQ6_2) {
                     data = "2";
-                    points.set(5,1);
+                    points.set(5, 1);
                 } else if (checkedId == R.id.rdoStress9qQ6_3) {
                     data = "3";
-                    points.set(5,2);
+                    points.set(5, 2);
                 } else if (checkedId == R.id.rdoStress9qQ6_4) {
                     data = "4";
-                    points.set(5,3);
+                    points.set(5, 3);
                 }
 
                 stressDepression9qInfo.setQ6(data);
                 stressDepression9qInfo.setPoint(points);
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
                 questionAnswered[5] = true;
-                validateAndSaveData();
 
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
 
                 stressDepression9qLiveData.setSelectedQ6(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
         });
 
@@ -437,29 +458,28 @@ public class StressDepression9qFragment extends Fragment {
                 String data = "";
                 if (checkedId == R.id.rdoStress9qQ7_1) {
                     data = "1";
-                    points.set(6,0);
+                    points.set(6, 0);
                 } else if (checkedId == R.id.rdoStress9qQ7_2) {
                     data = "2";
-                    points.set(6,1);
+                    points.set(6, 1);
                 } else if (checkedId == R.id.rdoStress9qQ7_3) {
                     data = "3";
-                    points.set(6,2);
+                    points.set(6, 2);
                 } else if (checkedId == R.id.rdoStress9qQ7_4) {
                     data = "4";
-                    points.set(6,3);
+                    points.set(6, 3);
                 }
 
                 stressDepression9qInfo.setQ7(data);
                 stressDepression9qInfo.setPoint(points);
-
                 questionAnswered[6] = true;
-                validateAndSaveData();
 
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ7(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
         });
 
@@ -469,29 +489,28 @@ public class StressDepression9qFragment extends Fragment {
                 String data = "";
                 if (checkedId == R.id.rdoStress9qQ8_1) {
                     data = "1";
-                    points.set(7,0);
+                    points.set(7, 0);
                 } else if (checkedId == R.id.rdoStress9qQ8_2) {
                     data = "2";
-                    points.set(7,1);
+                    points.set(7, 1);
                 } else if (checkedId == R.id.rdoStress9qQ8_3) {
                     data = "3";
-                    points.set(7,2);
+                    points.set(7, 2);
                 } else if (checkedId == R.id.rdoStress9qQ8_4) {
                     data = "4";
-                    points.set(7,3);
+                    points.set(7, 3);
                 }
 
                 stressDepression9qInfo.setQ8(data);
                 stressDepression9qInfo.setPoint(points);
-
                 questionAnswered[7] = true;
-                validateAndSaveData();
 
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ8(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
             }
         });
 
@@ -501,32 +520,31 @@ public class StressDepression9qFragment extends Fragment {
                 String data = "";
                 if (checkedId == R.id.rdoStress9qQ9_1) {
                     data = "1";
-                    points.set(8,0);
+                    points.set(8, 0);
                 } else if (checkedId == R.id.rdoStress9qQ9_2) {
                     data = "2";
-                    points.set(8,1);
+                    points.set(8, 1);
                 } else if (checkedId == R.id.rdoStress9qQ9_3) {
                     data = "3";
-                    points.set(8,2);
+                    points.set(8, 2);
                 } else if (checkedId == R.id.rdoStress9qQ9_4) {
                     data = "4";
-                    points.set(8,3);
+                    points.set(8, 3);
                 }
 
                 stressDepression9qInfo.setQ9(data);
                 stressDepression9qInfo.setPoint(points);
-
                 questionAnswered[8] = true;
-                validateAndSaveData();
 
-//                dataPasser.onStressDepression9q(stressDepression9qInfo);
+                displayPoints();
+                validateAndSaveData();
                 updateTableHighlight();
+
                 stressDepression9qLiveData.setSelectedQ9(checkedId);
                 shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
-                displayPoints();
-
             }
         });
+
         loadData();
     }
     @Override
@@ -554,15 +572,119 @@ public class StressDepression9qFragment extends Fragment {
             }
         });
     }
+    private void displayPoints() {
+        int totalScore = sumPoints();
+
+        // อัปเดตการแสดงผลใหม่
+        updateScoreDisplay();
+        updateResultDisplay(totalScore);
+
+        // อัปเดตการแสดงผลเดิม (ถ้ามี)
+        if (depression9result != null) {
+            depression9result.setText(String.format("คะแนนที่ได้: %d คะแนน", totalScore));
+        }
+
+        Log.d("StressDepression9q", "Total Score: " + totalScore);
+    }
+
+
+    // เมธอดใหม่สำหรับอัปเดตการแสดงผลคะแนน
+    private void updateScoreDisplay() {
+        int totalScore = sumPoints();
+
+        Log.d("StressDepression9q", "updateScoreDisplay - Total Score: " + totalScore);
+        Log.d("StressDepression9q", "updateScoreDisplay - Form Complete: " + isFormComplete());
+
+        if (tv9qScore != null) {
+            tv9qScore.setText(String.valueOf(totalScore));
+            updateScoreBackgroundColor(totalScore);
+            Log.d("StressDepression9q", "Score displayed: " + totalScore);
+        } else {
+            Log.e("StressDepression9q", "tv9qScore is null!");
+        }
+    }
+    private void updateScoreBackgroundColor(int score) {
+        if (tv9qScore == null) {
+            Log.e("StressDepression9q", "tv9qScore is null in updateScoreBackgroundColor");
+            return;
+        }
+
+        int color;
+        if (score < 7) {
+            color = Color.parseColor("#27AE60"); // เขียว - ปกติ
+        } else if (score >= 7 && score <= 12) {
+            color = Color.parseColor("#F39C12"); // เหลือง - น้อย
+        } else if (score >= 13 && score <= 18) {
+            color = Color.parseColor("#E67E22"); // ส้ม - ปานกลาง
+        } else {
+            color = Color.parseColor("#E74C3C"); // แดง - รุนแรง
+        }
+
+        tv9qScore.setBackgroundColor(color);
+        tv9qScore.setTextColor(Color.WHITE);
+
+        Log.d("StressDepression9q", "Background color updated for score: " + score);
+    }
+    private void updateResultDisplay(int totalScore) {
+        if (tv9qResultDetail == null) {
+            Log.e("StressDepression9q", "tv9qResultDetail is null!");
+            return;
+        }
+
+        String resultText = "";
+        String resultCode = "";
+        int backgroundColor = Color.parseColor("#F8F9FA");
+        int textColor = Color.parseColor("#2C3E50");
+
+        if (totalScore < 7) {
+            resultText = "ไม่มีอาการของโรคซึมเศร้า";
+            resultCode = "1B0260|1B0282";
+            backgroundColor = Color.parseColor("#E8F5E8");
+            textColor = Color.parseColor("#27AE60");
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            resultText = "มีอาการของโรคซึมเศร้าระดับน้อย";
+            resultCode = "1B0261|1B0283";
+            backgroundColor = Color.parseColor("#FFF3CD");
+            textColor = Color.parseColor("#F39C12");
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            resultText = "มีอาการของโรคซึมเศร้าระดับปานกลาง";
+            resultCode = "1B0262|1B0284";
+            backgroundColor = Color.parseColor("#FFE4CC");
+            textColor = Color.parseColor("#E67E22");
+        } else if (totalScore >= 19) {
+            resultText = "มีอาการของโรคซึมเศร้าระดับรุนแรง";
+            resultCode = "1B0263|1B0285";
+            backgroundColor = Color.parseColor("#F8D7DA");
+            textColor = Color.parseColor("#E74C3C");
+        }
+
+        // ตรวจสอบความเสี่ยงการฆ่าตัวตาย (ข้อ 9)
+        String q9Value = getQuestionValue(9);
+        boolean hasSuicidalRisk = q9Value != null && !q9Value.equals("1") && !q9Value.equals("0");
+
+        String finalText = resultText + "\n(" + resultCode + ")";
+        if (hasSuicidalRisk) {
+//            finalText += "\n⚠️ พบความเสี่ยงการทำร้ายตนเอง";
+            textColor = Color.parseColor("#E74C3C");
+        }
+
+        tv9qResultDetail.setText(finalText);
+        tv9qResultDetail.setTextColor(textColor);
+        tv9qResultDetail.setBackgroundColor(backgroundColor);
+
+        Log.d("StressDepression9q", "Result displayed: " + finalText);
+    }
+
     // ปรับปรุง loadExistingData() ให้ตรวจสอบสถานะการตอบ
     private void loadExistingData() {
         if (this.stressDepression9qInfo == null) return;
 
+        // โหลดข้อมูลเดิมและอัปเดต points array
         for (int i = 0; i < QUESTION_COUNT; i++) {
             String value = getQuestionValue(i + 1);
-            if (!value.equals("0")) {
+            if (!value.equals("0") && !value.isEmpty()) {
                 int radioButtonId = getResources().getIdentifier(
-                        "rdoStress9qQ" + (i + 1) + "_" + (Integer.parseInt(value)),
+                        "rdoStress9qQ" + (i + 1) + "_" + value,
                         "id",
                         requireContext().getPackageName()
                 );
@@ -570,16 +692,21 @@ public class StressDepression9qFragment extends Fragment {
                 if (radioButton != null) {
                     radioButton.setChecked(true);
                 }
+
+                // อัปเดต points array
+                int pointValue = Integer.parseInt(value) - 1; // แปลง 1-4 เป็น 0-3
+                points.set(i, pointValue);
             }
         }
 
-        // ตรวจสอบสถานะการตอบจากข้อมูลที่โหลดมา
+        // อัปเดตการแสดงผล
+        updateScoreDisplay();
+        updateResultDisplay(sumPoints());
+        updateTableHighlight();
+
+        // ตรวจสอบสถานะการตอบ
         checkAnsweredStatus();
-
-        // อัปเดตสถานะความถูกต้องของข้อมูล
         validateAndSaveData();
-
-        displayPoints();
     }
     private void setQuestionValue(int questionNumber, String value) {
         switch (questionNumber) {
@@ -596,17 +723,44 @@ public class StressDepression9qFragment extends Fragment {
     }
 
     private String getQuestionValue(int questionNumber) {
+        if (stressDepression9qInfo == null) {
+            return "0";
+        }
+
+        String value = "";
         switch (questionNumber) {
-            case 1: return stressDepression9qInfo.getQ1();
-            case 2: return stressDepression9qInfo.getQ2();
-            case 3: return stressDepression9qInfo.getQ3();
-            case 4: return stressDepression9qInfo.getQ4();
-            case 5: return stressDepression9qInfo.getQ5();
-            case 6: return stressDepression9qInfo.getQ6();
-            case 7: return stressDepression9qInfo.getQ7();
-            case 8: return stressDepression9qInfo.getQ8();
-            case 9: return stressDepression9qInfo.getQ9();
+            case 1: value = stressDepression9qInfo.getQ1(); break;
+            case 2: value = stressDepression9qInfo.getQ2(); break;
+            case 3: value = stressDepression9qInfo.getQ3(); break;
+            case 4: value = stressDepression9qInfo.getQ4(); break;
+            case 5: value = stressDepression9qInfo.getQ5(); break;
+            case 6: value = stressDepression9qInfo.getQ6(); break;
+            case 7: value = stressDepression9qInfo.getQ7(); break;
+            case 8: value = stressDepression9qInfo.getQ8(); break;
+            case 9: value = stressDepression9qInfo.getQ9(); break;
             default: return "0";
+        }
+
+        return (value != null) ? value : "0";
+    }
+    public void debugScoreDisplay() {
+        Log.d("StressDepression9q", "=== DEBUG SCORE DISPLAY ===");
+        Log.d("StressDepression9q", "tv9qScore: " + (tv9qScore != null ? "OK" : "NULL"));
+        Log.d("StressDepression9q", "tv9qResultDetail: " + (tv9qResultDetail != null ? "OK" : "NULL"));
+        Log.d("StressDepression9q", "points size: " + (points != null ? points.size() : "NULL"));
+        Log.d("StressDepression9q", "Total score: " + sumPoints());
+        Log.d("StressDepression9q", "Form complete: " + isFormComplete());
+
+        if (points != null) {
+            for (int i = 0; i < points.size(); i++) {
+                Log.d("StressDepression9q", "Point[" + i + "]: " + points.get(i));
+            }
+        }
+
+        if (stressDepression9qInfo != null) {
+            for (int i = 1; i <= 9; i++) {
+                Log.d("StressDepression9q", "Q" + i + ": " + getQuestionValue(i));
+            }
         }
     }
     @Override
@@ -767,14 +921,29 @@ public class StressDepression9qFragment extends Fragment {
         resetValidation();
 
         // รีเซ็ตการแสดงผล
-        if (depression9result != null) {
-            depression9result.setText("คะแนนที่ได้: - คะแนน");
+        updateScoreDisplay();
+        if (tv9qResultDetail != null) {
+            tv9qResultDetail.setText("ยังไม่ได้ประเมิน");
+            tv9qResultDetail.setTextColor(Color.parseColor("#7F8C8D"));
+            tv9qResultDetail.setBackgroundColor(Color.parseColor("#F8F9FA"));
         }
 
         // ล้าง highlight ในตาราง
         clearTableHighlight();
     }
-
+    public int getCurrentScore() {
+        return sumPoints();
+    }
+    public String getCompletionStatus() {
+        int answered = 0;
+        for (int i = 1; i <= 9; i++) {
+            String value = getQuestionValue(i);
+            if (value != null && !value.equals("0") && !value.isEmpty()) {
+                answered++;
+            }
+        }
+        return answered + "/9 ข้อ";
+    }
     /**
      * ล้าง highlight ในตาราง
      */
