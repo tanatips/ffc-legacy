@@ -43,8 +43,11 @@ public class StressDepressionFragment extends Fragment {
     private RadioGroup rdoObesityQ3;
     private RadioGroup rdoObesityQ4;
     private RadioGroup rdoObesityQ5;
-    private int currentScore = -1;
+    private int currentScore = 0; // เปลี่ยนจาก -1 เป็น 0
     private TableLayout tableLayout;
+    private TextView resultTextView; // เก็บไว้เผื่อใช้ในส่วนอื่น (ไม่แสดงผล)
+    private TextView tvStressScore; // เพิ่มตัวแปรสำหรับแสดงคะแนนในตาราง
+    private TextView tvStressLevel; // เพิ่มตัวแปรสำหรับแสดงระดับความเครียด
 
     private static final String COLOR_HIGHLIGHT_1 = "#C8E6C9"; // Light green for low stress
     private static final String COLOR_HIGHLIGHT_2 = "#FFCC80"; // Light orange for medium stress
@@ -73,6 +76,9 @@ public class StressDepressionFragment extends Fragment {
 
     private void initializeTable(View view) {
         tableLayout = view.findViewById(R.id.stressScoreTable);
+        // resultTextView = view.findViewById(R.id.resultStressDepressionScore); // comment ออก
+        tvStressScore = view.findViewById(R.id.tvStressScore); // เชื่อมโยงตัวแปรใหม่
+        tvStressLevel = view.findViewById(R.id.tvStressLevel); // เชื่อมโยงตัวแปรใหม่
 
         // Add header row
         TableRow headerRow = new TableRow(getContext());
@@ -90,6 +96,9 @@ public class StressDepressionFragment extends Fragment {
         white = ContextCompat.getColor(requireContext(), R.color.white);
         light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
         highlightColor = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+
+        // แสดงผลเริ่มต้น
+        updateScoreDisplay();
     }
 
     // ปรับปรุง addTableRow method เพื่อใช้สีที่สอดคล้องกัน
@@ -116,6 +125,7 @@ public class StressDepressionFragment extends Fragment {
         row.addView(codeView);
         table.addView(row);
     }
+
     // เพิ่ม method สำหรับกำหนดสีพื้นหลังของแต่ละแถว
     private String getBackgroundColorForPosition(int position) {
         switch (position) {
@@ -126,6 +136,7 @@ public class StressDepressionFragment extends Fragment {
             default: return "#FFFFFF"; // สีขาว (default)
         }
     }
+
     private TextView createTextView(String text, boolean isHeader) {
         TextView textView = new TextView(getContext());
         textView.setText(text);
@@ -232,7 +243,7 @@ public class StressDepressionFragment extends Fragment {
                 // ตรวจสอบว่าตอบคำถามที่ 1 แล้ว
                 questionAnswered[0] = true;
                 validateAndSaveData();
-                calculatePoints();
+                calculateAndUpdateScore(); // เปลี่ยนจาก calculatePoints()
             }
         });
 
@@ -264,7 +275,7 @@ public class StressDepressionFragment extends Fragment {
                 // ตรวจสอบว่าตอบคำถามที่ 2 แล้ว
                 questionAnswered[1] = true;
                 validateAndSaveData();
-                calculatePoints();
+                calculateAndUpdateScore(); // เปลี่ยนจาก calculatePoints()
             }
         });
 
@@ -296,7 +307,7 @@ public class StressDepressionFragment extends Fragment {
                 // ตรวจสอบว่าตอบคำถามที่ 3 แล้ว
                 questionAnswered[2] = true;
                 validateAndSaveData();
-                calculatePoints();
+                calculateAndUpdateScore(); // เปลี่ยนจาก calculatePoints()
             }
         });
 
@@ -328,7 +339,7 @@ public class StressDepressionFragment extends Fragment {
                 // ตรวจสอบว่าตอบคำถามที่ 4 แล้ว
                 questionAnswered[3] = true;
                 validateAndSaveData();
-                calculatePoints();
+                calculateAndUpdateScore(); // เปลี่ยนจาก calculatePoints()
             }
         });
 
@@ -360,9 +371,105 @@ public class StressDepressionFragment extends Fragment {
                 // ตรวจสอบว่าตอบคำถามที่ 5 แล้ว
                 questionAnswered[4] = true;
                 validateAndSaveData();
-                calculatePoints();
+                calculateAndUpdateScore(); // เปลี่ยนจาก calculatePoints()
             }
         });
+    }
+
+    /**
+     * คำนวณคะแนนและอัพเดทการแสดงผลแบบ real-time
+     */
+    private void calculateAndUpdateScore() {
+        // คำนวณคะแนนจากคำตอบปัจจุบัน
+        currentScore = 0;
+        for (int point : points) {
+            currentScore += point;
+        }
+
+        // อัพเดทการแสดงผล
+        updateScoreDisplay();
+        updateTableHighlight();
+    }
+
+    /**
+     * อัพเดทการแสดงผลคะแนนและผลการประเมิน - ใช้เฉพาะตารางใหม่
+     */
+    private void updateScoreDisplay() {
+        String resultCode = getResultCode(currentScore);
+        String stressLevel = getStressLevelText(currentScore);
+
+        // อัพเดท TextView คะแนนในตาราง
+        if (tvStressScore != null) {
+            if (currentScore == 0) {
+                tvStressScore.setText("-");
+                tvStressScore.setBackgroundColor(Color.parseColor("#9E9E9E")); // สีเทา
+            } else {
+                tvStressScore.setText(String.valueOf(currentScore));
+                // เปลี่ยนสีพื้นหลังตามระดับความเครียด
+                tvStressScore.setBackgroundColor(getScoreBackgroundColor(currentScore));
+
+                // ปรับสีข้อความให้อ่านง่าย (ขาวสำหรับพื้นหลังเข้ม, ดำสำหรับพื้นหลังอ่อน)
+                if (currentScore >= 5 && currentScore <= 7) {
+                    tvStressScore.setTextColor(Color.parseColor("#333333")); // ข้อความดำสำหรับพื้นหลังเหลือง
+                } else {
+                    tvStressScore.setTextColor(Color.parseColor("#FFFFFF")); // ข้อความขาวสำหรับพื้นหลังเข้ม
+                }
+            }
+        }
+
+        // อัพเดท TextView ระดับความเครียด
+        if (tvStressLevel != null) {
+            if (currentScore == 0) {
+                tvStressLevel.setText("ยังไม่ได้ประเมิน");
+                tvStressLevel.setTextColor(Color.parseColor("#616161"));
+                tvStressLevel.setBackgroundColor(Color.parseColor("#F5F5F5")); // พื้นหลังเทาอ่อน
+            } else {
+                tvStressLevel.setText(stressLevel + " (" + resultCode + ")");
+
+                // เปลี่ยนสีข้อความและพื้นหลังตามระดับความเครียด
+                int backgroundColor = getScoreBackgroundColor(currentScore);
+                tvStressLevel.setBackgroundColor(backgroundColor);
+
+                // ปรับสีข้อความให้อ่านง่าย
+                if (currentScore >= 5 && currentScore <= 7) {
+                    tvStressLevel.setTextColor(Color.parseColor("#333333")); // ข้อความดำสำหรับพื้นหลังเหลือง
+                } else {
+                    tvStressLevel.setTextColor(Color.parseColor("#FFFFFF")); // ข้อความขาวสำหรับพื้นหลังเข้ม
+                }
+            }
+        }
+    }
+
+    /**
+     * กำหนดสีพื้นหลังคะแนนตามระดับความเครียด
+     */
+    private int getScoreBackgroundColor(int score) {
+        if (score >= 0 && score <= 4) {
+            return Color.parseColor("#4CAF50"); // เขียว - เครียดน้อย
+        } else if (score >= 5 && score <= 7) {
+            return Color.parseColor("#FFEB3B"); // เหลือง - เครียดปานกลาง
+        } else if (score >= 8 && score <= 9) {
+            return Color.parseColor("#FF9800"); // แดงอ่อน (ส้ม) - เครียดมาก
+        } else if (score >= 10 && score <= 15) {
+            return Color.parseColor("#F44336"); // แดงเข้ม - เครียดมากที่สุด
+        }
+        return Color.parseColor("#9E9E9E"); // เทา (default)
+    }
+
+    /**
+     * กำหนดสีข้อความระดับความเครียด
+     */
+    private int getStressLevelTextColor(int score) {
+        if (score >= 0 && score <= 4) {
+            return Color.parseColor("#388E3C"); // เขียวเข้ม
+        } else if (score >= 5 && score <= 7) {
+            return Color.parseColor("#F57F17"); // เหลืองเข้ม (ให้อ่านง่าย)
+        } else if (score >= 8 && score <= 9) {
+            return Color.parseColor("#E65100"); // ส้มเข้ม
+        } else if (score >= 10 && score <= 15) {
+            return Color.parseColor("#C62828"); // แดงเข้ม
+        }
+        return Color.parseColor("#616161"); // เทาเข้ม (default)
     }
 
     /**
@@ -451,20 +558,18 @@ public class StressDepressionFragment extends Fragment {
 
     public void setUserScore(int score) {
         currentScore = score;
+        updateScoreDisplay(); // เพิ่มการอัพเดทการแสดงผล
         updateTableHighlight();
     }
 
     private void updateTableHighlight() {
-        // First set alternating colors for all rows
+        // First set default colors for all rows
         for (int i = 1; i < tableLayout.getChildCount(); i++) {
             TableRow row = (TableRow) tableLayout.getChildAt(i);
 
-            // Set default alternating background colors
-            if (i % 2 == 0) {
-                row.setBackgroundColor(Color.parseColor("#F5F5F5")); // Light gray
-            } else {
-                row.setBackgroundColor(Color.parseColor("#FFFFFF")); // White
-            }
+            // Set default background colors based on stress level
+            String backgroundColor = getBackgroundColorForPosition(i - 1);
+            row.setBackgroundColor(Color.parseColor(backgroundColor));
         }
 
         // Then highlight the row that matches the score range with appropriate color
@@ -478,16 +583,8 @@ public class StressDepressionFragment extends Fragment {
                 row.setBackgroundColor(Color.parseColor(highlightColor));
             }
         }
-
-        int totalScore = currentScore;
-        String resultCode = getResultCode(totalScore);
-        String stressLevel = getStressLevelText(totalScore);
-        TextView resultTextView = getView().findViewById(R.id.resultStressDepressionScore);
-        if (resultTextView != null) {
-            resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน (%s - %s)",
-                    totalScore, resultCode, stressLevel));
-        }
     }
+
     // เพิ่ม method ใหม่สำหรับกำหนดสี highlight ตามระดับคะแนน
     private String getHighlightColorForScore(int score) {
         if (score >= 0 && score <= 4) {
@@ -501,6 +598,7 @@ public class StressDepressionFragment extends Fragment {
         }
         return "#FFFFFF"; // สีขาว (default)
     }
+
     // เพิ่ม method สำหรับดึงข้อความระดับความเครียด
     private String getStressLevelText(int score) {
         if (score >= 0 && score <= 4) return "เครียดน้อย";
@@ -509,6 +607,7 @@ public class StressDepressionFragment extends Fragment {
         if (score >= 10 && score <= 15) return "เครียดมากที่สุด";
         return "";
     }
+
     private String getHighlightColorForRow(int rowIndex) {
         switch (rowIndex) {
             case 1: return COLOR_HIGHLIGHT_1;
@@ -591,6 +690,7 @@ public class StressDepressionFragment extends Fragment {
         points.add(getPointFromAnswer(stressDepressionInfo.getQ4()));
         points.add(getPointFromAnswer(stressDepressionInfo.getQ5()));
 
+        this.points = points; // อัพเดท points
         stressDepressionInfo.setPoints(points);
 
         // คำนวณผลอัตโนมัติ (getSum() จะคำนวณ resultCode และ resultDescription ให้)
@@ -657,23 +757,23 @@ public class StressDepressionFragment extends Fragment {
         ArrayList<String> missingQuestions = new ArrayList<>();
 
         if (stressDepressionInfo.getQ1() == null || stressDepressionInfo.getQ1().equals("0") || stressDepressionInfo.getQ1().isEmpty()) {
-            missingQuestions.add("ข้อ 1: นอนไม่หลับเพราะคิดมากหรือกังวล");
+            missingQuestions.add("ข้อ 1: มีปัญหาการนอน นอนไม่หลับหรือนอนมาก");
         }
 
         if (stressDepressionInfo.getQ2() == null || stressDepressionInfo.getQ2().equals("0") || stressDepressionInfo.getQ2().isEmpty()) {
-            missingQuestions.add("ข้อ 2: รู้สึกหงุดหงิด ร่าเริงไม่ขึ้น");
+            missingQuestions.add("ข้อ 2: มีสมาธิน้อยลง");
         }
 
         if (stressDepressionInfo.getQ3() == null || stressDepressionInfo.getQ3().equals("0") || stressDepressionInfo.getQ3().isEmpty()) {
-            missingQuestions.add("ข้อ 3: รู้สึกเบื่อ ไม่อยากพบปะผู้คน");
+            missingQuestions.add("ข้อ 3: หงุดหงิด / กระวนกระวาย / ว้าวุ่นใจ");
         }
 
         if (stressDepressionInfo.getQ4() == null || stressDepressionInfo.getQ4().equals("0") || stressDepressionInfo.getQ4().isEmpty()) {
-            missingQuestions.add("ข้อ 4: รู้สึกว่าชีวิตตนเองไม่มีคุณค่า");
+            missingQuestions.add("ข้อ 4: รู้สึกเบื่อ เซ็ง");
         }
 
         if (stressDepressionInfo.getQ5() == null || stressDepressionInfo.getQ5().equals("0") || stressDepressionInfo.getQ5().isEmpty()) {
-            missingQuestions.add("ข้อ 5: ไม่อยากดูแลตัวเองหรือแต่งตัว");
+            missingQuestions.add("ข้อ 5: ไม่อยากพบปะผู้คน");
         }
 
         if (!missingQuestions.isEmpty()) {
@@ -710,13 +810,9 @@ public class StressDepressionFragment extends Fragment {
         resetValidation();
 
         // รีเซ็ตการแสดงผล
-        currentScore = -1;
+        currentScore = 0;
+        updateScoreDisplay();
         updateTableHighlight();
-
-        TextView resultTextView = getView() != null ? getView().findViewById(R.id.resultStressDepressionScore) : null;
-        if (resultTextView != null) {
-            resultTextView.setText("คะแนนที่ได้: - คะแนน");
-        }
     }
 
     /**
@@ -808,15 +904,15 @@ public class StressDepressionFragment extends Fragment {
     private String getQuestionDescription(int questionNumber) {
         switch (questionNumber) {
             case 1:
-                return "นอนไม่หลับเพราะคิดมากหรือกังวล";
+                return "มีปัญหาการนอน นอนไม่หลับหรือนอนมาก";
             case 2:
-                return "รู้สึกหงุดหงิด ร่าเริงไม่ขึ้น";
+                return "มีสมาธิน้อยลง";
             case 3:
-                return "รู้สึกเบื่อ ไม่อยากพบปะผู้คน";
+                return "หงุดหงิด / กระวนกระวาย / ว้าวุ่นใจ";
             case 4:
-                return "รู้สึกว่าชีวิตตนเองไม่มีคุณค่า";
+                return "รู้สึกเบื่อ เซ็ง";
             case 5:
-                return "ไม่อยากดูแลตัวเองหรือแต่งตัว";
+                return "ไม่อยากพบปะผู้คน";
             default:
                 return "คำถามที่ " + questionNumber;
         }
@@ -864,7 +960,7 @@ public class StressDepressionFragment extends Fragment {
             return "ยังไม่ได้ประเมิน";
         }
 
-        int score = stressDepressionInfo.getSum();
+        int score = currentScore; // ใช้ currentScore แทน stressDepressionInfo.getSum()
         return getStressLevelText(score) + " (คะแนน: " + score + ")";
     }
 
@@ -876,7 +972,7 @@ public class StressDepressionFragment extends Fragment {
             return false;
         }
 
-        return stressDepressionInfo.getSum() >= 8;
+        return currentScore >= 8;
     }
 
     /**
@@ -887,7 +983,7 @@ public class StressDepressionFragment extends Fragment {
             return "กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
         }
 
-        int score = stressDepressionInfo.getSum();
+        int score = currentScore;
 
         if (score >= 0 && score <= 4) {
             return "ระดับความเครียดของคุณอยู่ในเกณฑ์ปกติ ควรรักษาสุขภาพจิตที่ดีต่อไป";

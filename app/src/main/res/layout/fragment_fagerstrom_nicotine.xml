@@ -606,6 +606,8 @@
                                 android:scrollHorizontally="false" />
                         </TableRow>
                     </TableLayout>
+
+
                 </androidx.cardview.widget.CardView>
 
                 <!-- เกณฑ์การประเมิน -->
@@ -755,6 +757,7 @@
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

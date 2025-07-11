@@ -2,12 +2,21 @@ package th.in.ffc.person;
 
 
 
+import static java.security.AccessController.getContext;
+
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -17,9 +26,12 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -175,11 +187,21 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
     private boolean isUpdatingPersonData = false;
 
+    private boolean hasTobaccoUse = false;
+    private boolean hasAlcoholUse = false;
+
+    private boolean previousTobaccoUse = false;
+    private boolean previousAlcoholUse = false;
+    private boolean isInitialLoad = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_screening_form15);
-        // เพิ่มโค้ดสำหรับการทำ collapse สำหรับ PersonInfoFragment
+
+        mContext = this;
+
+        // เปลี่ยนจาก getBaseContext() เป็น this
         View personInfoHeader = findViewById(R.id.personInfoHeader);
         final FrameLayout personInfoContainer = findViewById(R.id.personInfoContainer);
         final ImageView personInfoExpandIcon = findViewById(R.id.personInfoExpandIcon);
@@ -189,58 +211,74 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         personInfoHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // สลับสถานะการแสดงผล
                 if (personInfoContainer.getVisibility() == View.VISIBLE) {
-                    // ย่อ
                     personInfoContainer.setVisibility(View.GONE);
                     personInfoExpandIcon.setImageResource(R.drawable.ic_expand_more_black);
                 } else {
-                    // ขยาย
                     personInfoContainer.setVisibility(View.VISIBLE);
                     personInfoExpandIcon.setImageResource(R.drawable.ic_expand_less_black);
                 }
             }
         });
 
-        // เตรียมข้อมูล
-        prepareListData();
+        // เรียก getPersonInfoDetail() ก่อน
+        getPersonInfoDetail();
 
-        // ค้นหาและกำหนดค่า ExpandableListView
-        expandableListView = findViewById(R.id.expandableListView);
-        expandableListAdapter = new ScreeningExpandableListAdapter(this, categoryList, subcategoryMap);
-        expandableListView.setAdapter(expandableListAdapter);
+        // แก้ไข: หน่วงเวลาเพิ่มขึ้นและเปลี่ยนลำดับการทำงาน
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // ตรวจสอบข้อมูลการใช้สารเสพติดก่อน
+                checkSubstanceUseAndUpdateMenu();
 
+                // เตรียมข้อมูลเมนูหลังจากได้ข้อมูลการใช้สารเสพติดแล้ว
+                prepareListData();
 
-        // เมื่อคลิกที่รายการย่อย
-//        expandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-//            String category = categoryList.get(groupPosition);
-//            String subcategory = subcategoryMap.get(category).get(childPosition);
-//
-//            // แสดง Fragment ที่เกี่ยวข้อง
-//            Fragment fragment = fragmentMap.get(subcategory);
-//            if (fragment != null) {
-//                getSupportFragmentManager().beginTransaction()
-//                        .replace(R.id.fragmentContainer, fragment)
-//                        .commit();
-//            }
-//
-//            return true;
-//        });
+                // ค้นหาและกำหนดค่า ExpandableListView
+                expandableListView = findViewById(R.id.expandableListView);
+                expandableListAdapter = new ScreeningExpandableListAdapter(PersonScreeningForm15Activity.this, categoryList, subcategoryMap);
+                expandableListView.setAdapter(expandableListAdapter);
+
+                // ตั้งค่า listeners
+                setupExpandableListViewListeners();
+
+                // ขยายรายการทั้งหมดแบบอัตโนมัติ
+                expandAllGroups();
+
+                // ตรวจสอบข้อมูลที่มีอยู่แล้วหลังจากสร้างเมนูเสร็จ
+                if (personInfo != null && personInfo.getId() != null) {
+                    checkExistingData(personInfo.getId());
+                }
+            }
+        }, 1000); // เพิ่มเวลาจาก 0 เป็น 1000ms
+
+        // ตั้งค่าปุ่มต่างๆ
+        setupButtons();
+
+        // ตรวจสอบสถานะการส่งข้อมูล
+        checkSendStatus();
+    }
+
+    private void checkSendStatus() {
+        if (this.personInfo != null) {
+            if (this.personInfo.getSend_to_claim().equals(1)) {
+                btnOk.setEnabled(false);
+            } else {
+                btnOk.setEnabled(true);
+            }
+        }
+    }
+    private void setupExpandableListViewListeners() {
         expandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
             String category = categoryList.get(groupPosition);
             String subcategory = subcategoryMap.get(category).get(childPosition);
-
-            // สร้างและแสดง Dialog แทนการใช้ Fragment
             showFormDialog(subcategory);
-
             return true;
         });
 
-        // เพิ่มโค้ดนี้ในเมธอด onCreate หลังจากตั้งค่า OnChildClickListener
         expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int groupPosition) {
-                // ปรับความสูงตามเนื้อหาเมื่อขยายกลุ่ม
                 adjustExpandableListViewHeight();
             }
         });
@@ -248,49 +286,14 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
-                // ปรับความสูงตามเนื้อหาเมื่อยุบกลุ่ม
                 adjustExpandableListViewHeight();
             }
         });
-
-        // เพิ่มการกำหนดให้ขยายรายการไว้ที่นี่ เพื่อให้เห็นทุกหมวดหมู่แบบอัตโนมัติเมื่อเปิด
-        for (int i = 0; i < expandableListAdapter.getGroupCount(); i++) {
-            expandableListView.expandGroup(i);
-        }
-
-//        tabLayout = findViewById(R.id.tabLayout);
-//        viewPager = findViewById(R.id.viewPager);
+    }
+    private void setupButtons() {
         btnOk = findViewById(R.id.btnOK);
         btnReCreateTable = findViewById(R.id.btnReCreateTable);
         btnCancel = findViewById(R.id.btnCancel);
-        mContext = getBaseContext();
-//        ArrayList<FragmentTabInfo> fragmentTabInfos = new ArrayList<>();
-//        fragmentTabInfos.add(new FragmentTabInfo(new MainQuestionsFragment(),"แบบคัดกรองการใช้สารเสพติด"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new AssistScoreFragment(),"สรุปคะแนนแบบคัดกรอง ASSIST"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new SmookingFragment(),"คัดกรองความเสี่ยงจากการสูบบุหรี่"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new FagerstromNicotineFragment(),"แบบทดสอบการติดบุหรี่"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new AlcoholFragment(),"คัดกรองความเสี่ยงจากการดื่มสุรา"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new StressDepressionFragment(),"ประเมินภาวะเครียด-ซึมเศร้า(ST 5)"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new StressDepression2qFragment(),"คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new StressDepression9qFragment(),"คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new SuicideAssessment8qFragment(),"การประเมินการฆ่าตัวตายด้วย 8 คําถาม (8Q)"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new HealthRiskAssessmentFragment(),"แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน"));
-//        fragmentTabInfos.add(new FragmentTabInfo(new CardiovascularRiskFragment() ,"คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด"));
-//
-//        viewPagerAdapter = new ViewPagerAdapter(this,fragmentTabInfos);
-//
-//        viewPager.setAdapter(viewPagerAdapter);
-//        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-//            tab.setText(fragmentTabInfos.get(position).getTabTitle());
-//
-//        }).attach();
-//        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                viewPager.post(() -> adjustViewPagerHeight(viewPager.getCurrentItem(),viewPager,viewPagerAdapter));
-//            }
-//        });
-//        viewPager.post(() -> adjustViewPagerHeight(viewPager.getCurrentItem(),viewPager,viewPagerAdapter));
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -318,18 +321,17 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                         saveCounseling();
                         saveVisit();
                         saveVisitDiag();
-                        // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
-                        checkExistingData(personInfo.getId());
 
-                        // อัพเดต PersonData หลังจากบันทึกข้อมูลทั้งหมดแล้ว
-                        // updatePersonDataFromCurrentInfo();
+                        // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
+                        if (personInfo.getId() != null) {
+                            checkExistingData(personInfo.getId());
+                        }
 
                         Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
 
@@ -339,6 +341,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 finish();
             }
         });
+
         btnReCreateTable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -347,24 +350,254 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
             }
         });
-//        SfTokenDao tokenDao = new SfTokenDao(getBaseContext());
-//        tokenDao.insertDefaultTokenIfEmpty();
-        getPersonInfoDetail();
-        if (this.personInfo != null) {
-            if (this.personInfo.getSend_to_claim().equals(1)) {
-                btnOk.setEnabled(false);
-            } else {
-                btnOk.setEnabled(true);
-            }
+    }
+
+    // แยกการขยายรายการออกมาเป็นเมธอดแยก
+    private void expandAllGroups() {
+        for (int i = 0; i < expandableListAdapter.getGroupCount(); i++) {
+            expandableListView.expandGroup(i);
         }
     }
 
+    public void handleSubstanceUseChange(boolean currentTobaccoUse, boolean currentAlcoholUse) {
+        // ข้ามการตรวจสอบในการโหลดครั้งแรก
+        if (isInitialLoad) {
+            previousTobaccoUse = currentTobaccoUse;
+            previousAlcoholUse = currentAlcoholUse;
+            isInitialLoad = false;
+            return;
+        }
+
+        boolean tobaccoChanged = (previousTobaccoUse != currentTobaccoUse);
+        boolean alcoholChanged = (previousAlcoholUse != currentAlcoholUse);
+
+        // แจ้งเตือนเมื่อมีการเปลี่ยนแปลง
+        if (tobaccoChanged || alcoholChanged) {
+            showSubstanceChangeDialog(
+                    tobaccoChanged, alcoholChanged,
+                    previousTobaccoUse, previousAlcoholUse,
+                    currentTobaccoUse, currentAlcoholUse
+            );
+        }
+
+        // อัปเดตสถานะ
+        previousTobaccoUse = currentTobaccoUse;
+        previousAlcoholUse = currentAlcoholUse;
+        hasTobaccoUse = currentTobaccoUse;
+        hasAlcoholUse = currentAlcoholUse;
+    }
+    private void showSubstanceChangeDialog(boolean tobaccoChanged, boolean alcoholChanged,
+                                           boolean prevTobacco, boolean prevAlcohol,
+                                           boolean currTobacco, boolean currAlcohol) {
+
+        StringBuilder message = new StringBuilder();
+        message.append("🔄 ตรวจพบการเปลี่ยนแปลงคำตอบ\n\n");
+
+        if (tobaccoChanged) {
+            if (prevTobacco && !currTobacco) {
+                message.append("🚬 ยาสูบ: เปลี่ยนจาก \"เคย\" เป็น \"ไม่เคย\"\n");
+                message.append("   → แบบประเมินการสูบบุหรี่จะถูกซ่อน\n");
+                message.append("   → ข้อมูลที่เคยกรอกจะยังคงอยู่\n\n");
+            } else if (!prevTobacco && currTobacco) {
+                message.append("🚬 ยาสูบ: เปลี่ยนจาก \"ไม่เคย\" เป็น \"เคย\"\n");
+                message.append("   → แบบประเมินการสูบบุหรี่จะปรากฏขึ้น\n");
+                message.append("   → แนะนำให้ทำแบบประเมินเพิ่มเติม\n\n");
+            }
+        }
+
+        if (alcoholChanged) {
+            if (prevAlcohol && !currAlcohol) {
+                message.append("🍺 แอลกอฮอล์: เปลี่ยนจาก \"เคย\" เป็น \"ไม่เคย\"\n");
+                message.append("   → แบบประเมินการดื่มสุราจะถูกซ่อน\n");
+                message.append("   → ข้อมูลที่เคยกรอกจะยังคงอยู่\n\n");
+            } else if (!prevAlcohol && currAlcohol) {
+                message.append("🍺 แอลกอฮอล์: เปลี่ยนจาก \"ไม่เคย\" เป็น \"เคย\"\n");
+                message.append("   → แบบประเมินการดื่มสุราจะปรากฏขึ้น\n");
+                message.append("   → แนะนำให้ทำแบบประเมินเพิ่มเติม\n\n");
+            }
+        }
+
+        message.append("📝 หมายเหตุ: การเปลี่ยนแปลงนี้จะมีผลทันที\n");
+        message.append("ข้อมูลที่เคยกรอกจะไม่หายไป และสามารถเข้าถึงได้\n");
+        message.append("เมื่อเปลี่ยนคำตอบกลับมาเป็น \"เคย\" อีกครั้ง");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // สร้าง custom title
+        View titleView = createChangeNotificationTitleView();
+
+        builder.setCustomTitle(titleView)
+                .setMessage(message.toString())
+                .setPositiveButton("รับทราบ", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        // อัปเดตเมนูทันที
+                        updateMenuAfterSubstanceChange();
+                    }
+                })
+                .setNeutralButton("ดูรายการแบบประเมิน", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        updateMenuAfterSubstanceChange();
+                        // เลื่อนไปยังส่วนรายการแบบประเมิน
+                        scrollToScreeningList();
+                    }
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+                if (positiveButton != null) {
+                    positiveButton.setTextColor(getResources().getColor(R.color.primary_color));
+                    positiveButton.setTypeface(null, Typeface.BOLD);
+                }
+
+                if (neutralButton != null) {
+                    neutralButton.setTextColor(getResources().getColor(R.color.accent_color));
+                }
+            }
+        });
+
+        dialog.show();
+    }
+    private View createChangeNotificationTitleView() {
+        LinearLayout titleLayout = new LinearLayout(this);
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#E3F2FD")); // น้ำเงินอ่อน
+
+        // เพิ่มไอคอนแจ้งเตือน
+        ImageView iconView = new ImageView(this);
+        iconView.setImageResource(R.drawable.ic_sync);
+        iconView.setColorFilter(Color.parseColor("#1976D2")); // น้ำเงิน
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        // เพิ่ม TextView สำหรับ title
+        TextView titleTextView = new TextView(this);
+        titleTextView.setText("การเปลี่ยนแปลงคำตอบ");
+        titleTextView.setTextColor(Color.parseColor("#1976D2")); // น้ำเงิน
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
+    }
+    private void scrollToScreeningList() {
+        if (expandableListView != null) {
+            // เลื่อนไปยัง section การคัดกรองสารเสพติด
+            expandableListView.smoothScrollToPosition(0);
+
+            // เน้น section ที่เกี่ยวข้อง
+            new Handler().postDelayed(() -> {
+                View firstGroupView = expandableListView.getChildAt(0);
+                if (firstGroupView != null) {
+                    // เอฟเฟกต์กะพริบเบาๆ
+                    ObjectAnimator fadeOut = ObjectAnimator.ofFloat(firstGroupView, "alpha", 1f, 0.3f);
+                    ObjectAnimator fadeIn = ObjectAnimator.ofFloat(firstGroupView, "alpha", 0.3f, 1f);
+
+                    fadeOut.setDuration(200);
+                    fadeIn.setDuration(200);
+
+                    fadeOut.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            fadeIn.start();
+                        }
+                    });
+
+                    fadeOut.start();
+                }
+            }, 500);
+        }
+    }
+    private void checkSubstanceUseAndUpdateMenu() {
+        String personId = getIntent().getStringExtra("person_id");
+        if (personId != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(personId));
+
+            // รีเซ็ตค่าเริ่มต้น
+            hasTobaccoUse = false;
+            hasAlcoholUse = false;
+
+            // ตรวจสอบการใช้ยาสูบ (a) และเครื่องดื่มแอลกอฮอล์ (b)
+            for (DrugsInfo drug : drugsInfos) {
+                if (drug.getQuestion().equals("Q1")) {
+                    if (drug.getSubquestion().equals("a")) { // ผลิตภัณฑ์ยาสูบ
+                        hasTobaccoUse = "1".equals(drug.getAnswer());
+                        System.out.println("Found tobacco use data: " + hasTobaccoUse);
+                    } else if (drug.getSubquestion().equals("b")) { // เครื่องดื่มแอลกอฮอล์
+                        hasAlcoholUse = "1".equals(drug.getAnswer());
+                        System.out.println("Found alcohol use data: " + hasAlcoholUse);
+                    }
+                }
+            }
+
+            // ตั้งค่าให้ previousTobaccoUse และ previousAlcoholUse
+            previousTobaccoUse = hasTobaccoUse;
+            previousAlcoholUse = hasAlcoholUse;
+            isInitialLoad = false; // ตั้งค่าให้เป็น false หลังจากโหลดข้อมูลเสร็จ
+
+            System.out.println("checkSubstanceUseAndUpdateMenu - Tobacco: " + hasTobaccoUse + ", Alcohol: " + hasAlcoholUse);
+        }
+    }
+    private void updateMenuAfterSubstanceChange() {
+        // เตรียมข้อมูลเมนูใหม่
+        prepareListData();
+
+        // อัปเดต adapter
+        expandableListAdapter = new ScreeningExpandableListAdapter(this, categoryList, subcategoryMap);
+        expandableListView.setAdapter(expandableListAdapter);
+
+        // ขยายรายการทั้งหมดอีกครั้ง
+        for (int i = 0; i < expandableListAdapter.getGroupCount(); i++) {
+            expandableListView.expandGroup(i);
+        }
+
+        // ตรวจสอบสถานะการกรอกข้อมูลใหม่
+        if (personInfo != null && personInfo.getId() != null) {
+            checkExistingData(personInfo.getId());
+        }
+
+        // แสดงข้อความแจ้งให้ทราบ
+        showQuickToast("🔄 รายการแบบประเมินได้รับการอัปเดตแล้ว");
+    }
+    private void showQuickToast(String message) {
+        Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+    private void updateMenuVisibility() {
+        if (expandableListAdapter != null) {
+            ((ScreeningExpandableListAdapter) expandableListAdapter).updateMenuVisibility(hasTobaccoUse, hasAlcoholUse);
+        }
+    }
     public void updatePersonDataAfterFormSave() {
         updatePersonDataFromCurrentInfo();
     }
 
     // เพิ่มเมธอดใหม่สำหรับแสดง Dialog
     private void showFormDialog(String formName) {
+        // ตรวจสอบเงื่อนไขการใช้สารเสพติดก่อนแสดงฟอร์ม
+        if (!shouldShowForm(formName)) {
+            String message = getFormRestrictionMessage(formName);
+            showRestrictionDialog(message);
+            return;
+        }
+
         Fragment fragment = fragmentMap.get(formName);
         if (fragment != null) {
             if (this.personInfo != null) {
@@ -373,24 +606,117 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             } else {
                 Toast.makeText(this, "โปรดกรอกข้อมูลผู้ส่วนตัวก่อนทำแบบคัดกรอง", Toast.LENGTH_SHORT).show();
             }
-
-            // หน่วงเวลาเพิ่มขึ้นเพื่อให้ Dialog แสดงก่อน
-//            new Handler().postDelayed(() -> {
-//                Dialog dialog = dialogFragment.getDialog();
-//                if (dialog != null) {
-//                    View focusView = dialog.getCurrentFocus();
-//                    if (focusView instanceof EditText) {
-//                        focusView.requestFocus();
-//                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                        if (imm != null) {
-//                            imm.showSoftInput(focusView, InputMethodManager.SHOW_IMPLICIT);
-//                        }
-//                    }
-//                }
-//            }, 700); // ลองเพิ่มเวลารอเป็น 700ms
         }
     }
 
+    private String getFormRestrictionMessage(String formName) {
+        if (formName.contains("สูบบุหรี่") || formName.contains("ติดบุหรี่")) {
+            return "ไม่สามารถทำแบบประเมิน \"" + formName + "\" ได้\n\n" +
+                    "เนื่องจากท่านเลือก \"ไม่เคย\" ใช้ผลิตภัณฑ์ยาสูบ\n" +
+                    "ในแบบคัดกรองการใช้สารเสพติด (คำถามที่ 1)\n\n" +
+                    "หากต้องการทำแบบประเมินนี้ กรุณาแก้ไขคำตอบ\n" +
+                    "ในแบบคัดกรองการใช้สารเสพติดก่อน";
+        }
+
+        if (formName.contains("สุรา") || formName.contains("แอลกอฮอล์")) {
+            return "ไม่สามารถทำแบบประเมิน \"" + formName + "\" ได้\n\n" +
+                    "เนื่องจากท่านเลือก \"ไม่เคย\" ดื่มเครื่องดื่มแอลกอฮอล์\n" +
+                    "ในแบบคัดกรองการใช้สารเสพติด (คำถามที่ 1)\n\n" +
+                    "หากต้องการทำแบบประเมินนี้ กรุณาแก้ไขคำตอบ\n" +
+                    "ในแบบคัดกรองการใช้สารเสพติดก่อน";
+        }
+
+        return "ไม่สามารถเข้าถึงแบบประเมินนี้ได้ในขณะนี้";
+    }
+    private boolean shouldShowForm(String formName) {
+        // ตรวจสอบการใช้ยาสูบ
+        if (formName.contains("สูบบุหรี่") || formName.contains("ติดบุหรี่")) {
+            return hasTobaccoUse;
+        }
+
+        // ตรวจสอบการดื่มแอลกอฮอล์
+        if (formName.contains("สุรา") || formName.contains("แอลกอฮอล์")) {
+            return hasAlcoholUse;
+        }
+
+        return true; // แสดงฟอร์มอื่นๆ ปกติ
+    }
+    private void showRestrictionDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // สร้าง custom title view
+        View titleView = createRestrictionTitleView();
+
+        builder.setCustomTitle(titleView)
+                .setMessage(message)
+                .setPositiveButton("ตกลง", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNeutralButton("แก้ไขคำตอบ", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        // เปิดแบบคัดกรองการใช้สารเสพติดเพื่อให้แก้ไขคำตอบ
+                        showFormDialog("แบบคัดกรองการใช้สารเสพติด");
+                    }
+                })
+                .setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+                if (positiveButton != null) {
+                    positiveButton.setTextColor(Color.parseColor("#2196F3"));
+                }
+
+                if (neutralButton != null) {
+                    neutralButton.setTextColor(Color.parseColor("#FF9800"));
+                    neutralButton.setTypeface(null, Typeface.BOLD);
+                }
+            }
+        });
+
+        dialog.show();
+    }
+    private View createRestrictionTitleView() {
+        LinearLayout titleLayout = new LinearLayout(getBaseContext());
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#FFF3E0")); // ส้มอ่อน
+
+        // เพิ่มไอคอนแจ้งเตือน
+        ImageView iconView = new ImageView(getBaseContext());
+        iconView.setImageResource(R.drawable.ic_info);
+        iconView.setColorFilter(Color.parseColor("#FF9800")); // ส้ม
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        // เพิ่ม TextView สำหรับ title
+        TextView titleTextView = new TextView(getBaseContext());
+        titleTextView.setText("ไม่สามารถเข้าถึงแบบประเมินได้");
+        titleTextView.setTextColor(Color.parseColor("#FF9800")); // ส้ม
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
     private void adjustExpandableListViewHeight() {
         ViewGroup.LayoutParams params = expandableListView.getLayoutParams();
         int totalHeight = 0;
@@ -417,17 +743,17 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     }
 
     private void getPersonInfoDetail() {
-
         String personId = getIntent().getStringExtra("person_id");
         String visitId = getIntent().getStringExtra("visit_id");
         if (personId != null) {
-            // ใน Activity
+            // ตั้งค่า ViewModels
             SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
             QuestionsStateViewModel questionsStateViewModel = new ViewModelProvider(this).get(QuestionsStateViewModel.class);
             PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
             personInfoLiveData.setId(personId);
             viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
 
+            // ตั้งค่า LiveData อื่นๆ...
             SmookingLiveData smookingLiveData = new SmookingLiveData();
             smookingLiveData.setPersonId(personId);
             viewModel.setSmookingMutableLiveData(smookingLiveData);
@@ -448,11 +774,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             stressDepression9qLiveData.setPersonId(personId);
             viewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
 
-
             SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
             suicideAssessment8qLiveData.setPersonId(personId);
             viewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-
 
             HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
             healthRiskAssessmentLiveData.setPersonId(personId);
@@ -469,11 +793,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             CounselingLiveData counselingLiveData = new CounselingLiveData();
             counselingLiveData.setPersonId(personId);
             counselingLiveData.setVisitId(visitId);
-
             viewModel.setCounselingLiveData(counselingLiveData);
 
-            // ตรวจสอบข้อมูลที่มีอยู่แล้วและอัปเดตสถานะ
-            checkExistingData(personId);
+            // แก้ไข: ลบการเรียก checkExistingData และ checkSubstanceUseAndUpdateMenu ออกจากที่นี่
+            // เพราะจะเรียกใน Handler แทน
         }
     }
 
@@ -566,12 +889,21 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         List<String> addictionScreening = new ArrayList<>();
         addictionScreening.add("แบบคัดกรองการใช้สารเสพติด");
         addictionScreening.add("สรุปคะแนนแบบคัดกรอง ASSIST");
-        addictionScreening.add("คัดกรองความเสี่ยงจากการสูบบุหรี่");
-        addictionScreening.add("แบบทดสอบการติดบุหรี่");
-        addictionScreening.add("คัดกรองความเสี่ยงจากการดื่มสุรา");
+
+        // เพิ่มเมนูการสูบบุหรี่เฉพาะเมื่อมีการใช้ยาสูบ
+        if (hasTobaccoUse) {
+            addictionScreening.add("คัดกรองความเสี่ยงจากการสูบบุหรี่");
+            addictionScreening.add("แบบทดสอบการติดบุหรี่");
+        }
+
+        // เพิ่มเมนูการดื่มสุราเฉพาะเมื่อมีการดื่มแอลกอฮอล์
+        if (hasAlcoholUse) {
+            addictionScreening.add("คัดกรองความเสี่ยงจากการดื่มสุรา");
+        }
+
         subcategoryMap.put("การคัดกรองสารเสพติด", addictionScreening);
 
-        // 2. หมวดหมู่ ภาวะเครียด-ซึมเศร้า
+        // 2. หมวดหมู่ ภาวะเครียด-ซึมเศร้า (คงเดิม)
         List<String> mentalHealth = new ArrayList<>();
         mentalHealth.add("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)");
         mentalHealth.add("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)");
@@ -579,43 +911,44 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         mentalHealth.add("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)");
         subcategoryMap.put("ภาวะเครียด-ซึมเศร้า", mentalHealth);
 
-        // 3. หมวดหมู่ ความเสี่ยงด้านสุขภาพ
+        // 3. หมวดหมู่ ความเสี่ยงด้านสุขภาพ (คงเดิม)
         List<String> healthRisks = new ArrayList<>();
         healthRisks.add("แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน");
         healthRisks.add("คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด");
         subcategoryMap.put("ความเสี่ยงด้านสุขภาพ", healthRisks);
 
-        // 4. หมวดหมู่ สรุปการคัดกรอง
+        // 4. หมวดหมู่ สรุปการคัดกรอง (คงเดิม)
         List<String> sfSummary = new ArrayList<>();
         sfSummary.add("ให้คำปรึกษาและแนะนำ");
-
         subcategoryMap.put("สรุปผลการคัดกรอง", sfSummary);
 
         // เพิ่ม Fragment ที่เกี่ยวข้องทั้งหมด
-        // 1. การคัดกรองสารเสพติด
         fragmentMap.put("แบบคัดกรองการใช้สารเสพติด", new MainQuestionsFragment());
         fragmentMap.put("สรุปคะแนนแบบคัดกรอง ASSIST", new AssistScoreFragment());
-        fragmentMap.put("คัดกรองความเสี่ยงจากการสูบบุหรี่", new SmookingFragment());
-        fragmentMap.put("แบบทดสอบการติดบุหรี่", new FagerstromNicotineFragment());
-        fragmentMap.put("คัดกรองความเสี่ยงจากการดื่มสุรา", new AlcoholFragment());
 
-        // 2. ภาวะเครียด-ซึมเศร้า
+        // เพิ่ม Fragment เฉพาะเมื่อมีการใช้ยาสูบ
+        if (hasTobaccoUse) {
+            fragmentMap.put("คัดกรองความเสี่ยงจากการสูบบุหรี่", new SmookingFragment());
+            fragmentMap.put("แบบทดสอบการติดบุหรี่", new FagerstromNicotineFragment());
+        }
+
+        // เพิ่ม Fragment เฉพาะเมื่อมีการดื่มแอลกอฮอล์
+        if (hasAlcoholUse) {
+            fragmentMap.put("คัดกรองความเสี่ยงจากการดื่มสุรา", new AlcoholFragment());
+        }
+
+        // ภาวะเครียด-ซึมเศร้า (คงเดิม)
         fragmentMap.put("ประเมินภาวะเครียด-ซึมเศร้า(ST 5)", new StressDepressionFragment());
         fragmentMap.put("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q)", new StressDepression2qFragment());
         fragmentMap.put("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)", new StressDepression9qFragment());
         fragmentMap.put("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)", new SuicideAssessment8qFragment());
 
-        // 3. ความเสี่ยงด้านสุขภาพ
+        // ความเสี่ยงด้านสุขภาพ (คงเดิม)
         fragmentMap.put("แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน", new HealthRiskAssessmentFragment());
         fragmentMap.put("คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด", new CardiovascularRiskFragment());
 
-        // 4. สรุปการคัดกรอง
+        // สรุปการคัดกรอง (คงเดิม)
         fragmentMap.put("ให้คำปรึกษาและแนะนำ", new CounselingSignFragment());
-
-        // *** ลบบรรทัดเหล่านี้ออก เพราะจะทำใน onCreate แทน ***
-        // expandableListView = findViewById(R.id.expandableListView);
-        // expandableListAdapter = new ScreeningExpandableListAdapter(this, categoryList, subcategoryMap);
-        // expandableListView.setAdapter(expandableListAdapter);
     }
 
     public void updateFormStatus(String formName, boolean status) {
@@ -1648,10 +1981,28 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     @Override
     public void onDrugsOneInfo(List<DrugsInfo> data) {
         this.drugsOneInfos = data;
-        displayData(data);
-//        Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
-    }
 
+        // ตรวจสอบการเปลี่ยนแปลงในการใช้สารเสพติดเฉพาะเมื่อไม่ใช่การโหลดครั้งแรก
+        if (!isInitialLoad) {
+            boolean currentTobaccoUse = false;
+            boolean currentAlcoholUse = false;
+
+            for (DrugsInfo drug : data) {
+                if (drug.getQuestion().equals("Q1")) {
+                    if (drug.getSubquestion().equals("a")) { // ผลิตภัณฑ์ยาสูบ
+                        currentTobaccoUse = "1".equals(drug.getAnswer());
+                    } else if (drug.getSubquestion().equals("b")) { // เครื่องดื่มแอลกอฮอล์
+                        currentAlcoholUse = "1".equals(drug.getAnswer());
+                    }
+                }
+            }
+
+            // เรียกใช้ handleSubstanceUseChange แทนการจัดการเอง
+            handleSubstanceUseChange(currentTobaccoUse, currentAlcoholUse);
+        }
+
+        displayData(data);
+    }
     @Override
     public void onDrugsTwoInfo(List<DrugsInfo> data) {
         this.drugsTwoInfos = data;

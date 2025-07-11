@@ -588,6 +588,8 @@ public class MainQuestionsFragment extends Fragment {
 
         // ถ้าไม่เคยใช้สารเสพติดเลย ถือว่าข้อมูลครบถ้วนแล้ว
         if (isAllSubstancesNeverUsed()) {
+            // แจ้งเตือนหากมีการเปลี่ยนจาก "เคย" เป็น "ไม่เคย"
+            notifySubstanceUseChanges();
             return true;
         }
 
@@ -599,10 +601,33 @@ public class MainQuestionsFragment extends Fragment {
         // กรณีอื่นๆ ที่ไม่ควรเกิดขึ้น
         return false;
     }
+    private void notifySubstanceUseChanges() {
+        if (getActivity() instanceof PersonScreeningForm15Activity) {
+            PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
 
-    /**
-     * รับข้อความแจ้งเตือนที่เหมาะสมตามสถานะการใช้สารเสพติด
-     */
+            Map<String, AnswerData> answers = questionOneFragment.getSelectedAnswers();
+            if (answers != null) {
+                boolean currentTobaccoUse = false;
+                boolean currentAlcoholUse = false;
+
+                // ตรวจสอบสถานะปัจจุบัน
+                AnswerData tobaccoAnswer = answers.get("a");
+                AnswerData alcoholAnswer = answers.get("b");
+
+                if (tobaccoAnswer != null && tobaccoAnswer.isHasUsed() != null) {
+                    currentTobaccoUse = tobaccoAnswer.isHasUsed();
+                }
+
+                if (alcoholAnswer != null && alcoholAnswer.isHasUsed() != null) {
+                    currentAlcoholUse = alcoholAnswer.isHasUsed();
+                }
+
+                // เรียกใช้เมธอดในกิจกรรมหลักเพื่อตรวจสอบการเปลี่ยนแปลง
+                activity.handleSubstanceUseChange(currentTobaccoUse, currentAlcoholUse);
+            }
+        }
+    }
+
     public String getValidationMessageBasedOnSubstanceUse() {
         // ตรวจสอบ Question 1 ก่อน
         if (questionOneFragment == null || !questionOneFragment.validateAllQuestionsAnswered()) {
@@ -612,14 +637,117 @@ public class MainQuestionsFragment extends Fragment {
 
         // ถ้าไม่เคยใช้สารเสพติดเลย ไม่ต้องตอบคำถามอื่น
         if (isAllSubstancesNeverUsed()) {
-            return ""; // ไม่มีข้อผิดพลาด
+            StringBuilder message = new StringBuilder();
+            message.append("✅ ข้อมูลครบถ้วนแล้ว\n\n");
+
+            Map<String, AnswerData> answers = questionOneFragment.getSelectedAnswers();
+            boolean showTobaccoNote = false;
+            boolean showAlcoholNote = false;
+
+            if (answers != null) {
+                AnswerData tobaccoAnswer = answers.get("a");
+                AnswerData alcoholAnswer = answers.get("b");
+
+                if (tobaccoAnswer != null && !tobaccoAnswer.isHasUsed()) {
+                    showTobaccoNote = true;
+                }
+
+                if (alcoholAnswer != null && !alcoholAnswer.isHasUsed()) {
+                    showAlcoholNote = true;
+                }
+            }
+
+            if (showTobaccoNote || showAlcoholNote) {
+                message.append("📝 หมายเหตุ:\n");
+
+                if (showTobaccoNote) {
+                    message.append("• ไม่จำเป็นต้องทำแบบประเมินเกี่ยวกับการสูบบุหรี่\n");
+                }
+
+                if (showAlcoholNote) {
+                    message.append("• ไม่จำเป็นต้องทำแบบประเมินเกี่ยวกับการดื่มสุรา\n");
+                }
+            }
+
+            return message.toString();
         }
 
         // ถ้าเคยใช้สารเสพติด ต้องตอบคำถามอื่นๆ ให้ครบ
         if (hasAnySubstanceUsed()) {
-            return getDetailedValidationMessage();
+            StringBuilder message = new StringBuilder();
+            message.append("เนื่องจากท่านเลือก \"เคย\" ใช้สารเสพติดอย่างน้อย 1 อย่าง\n");
+            message.append("กรุณาทำแบบประเมินเพิ่มเติมดังนี้:\n\n");
+
+            Map<String, AnswerData> answers = questionOneFragment.getSelectedAnswers();
+            if (answers != null) {
+                AnswerData tobaccoAnswer = answers.get("a");
+                AnswerData alcoholAnswer = answers.get("b");
+
+                if (tobaccoAnswer != null && tobaccoAnswer.isHasUsed()) {
+                    message.append("🚬 แบบประเมินเกี่ยวกับการสูบบุหรี่:\n");
+                    message.append("   • คัดกรองความเสี่ยงจากการสูบบุหรี่\n");
+                    message.append("   • แบบทดสอบการติดบุหรี่\n\n");
+                }
+
+                if (alcoholAnswer != null && alcoholAnswer.isHasUsed()) {
+                    message.append("🍺 แบบประเมินเกี่ยวกับการดื่มสุรา:\n");
+                    message.append("   • คัดกรองความเสี่ยงจากการดื่มสุรา\n\n");
+                }
+            }
+
+            String detailedMessage = getDetailedValidationMessage();
+            if (!detailedMessage.isEmpty()) {
+                message.append(detailedMessage);
+            }
+
+            return message.toString();
         }
 
         return "";
+    }
+    public SubstanceChangeInfo getSubstanceChangeInfo() {
+        if (questionOneFragment == null) {
+            return new SubstanceChangeInfo(false, false, false, false);
+        }
+
+        Map<String, AnswerData> answers = questionOneFragment.getSelectedAnswers();
+        if (answers == null) {
+            return new SubstanceChangeInfo(false, false, false, false);
+        }
+
+        boolean currentTobaccoUse = false;
+        boolean currentAlcoholUse = false;
+
+        AnswerData tobaccoAnswer = answers.get("a");
+        AnswerData alcoholAnswer = answers.get("b");
+
+        if (tobaccoAnswer != null && tobaccoAnswer.isHasUsed() != null) {
+            currentTobaccoUse = tobaccoAnswer.isHasUsed();
+        }
+
+        if (alcoholAnswer != null && alcoholAnswer.isHasUsed() != null) {
+            currentAlcoholUse = alcoholAnswer.isHasUsed();
+        }
+
+        return new SubstanceChangeInfo(
+                currentTobaccoUse,
+                currentAlcoholUse,
+                true, // hasValidData
+                questionOneFragment.validateAllQuestionsAnswered() // isComplete
+        );
+    }
+    public static class SubstanceChangeInfo {
+        public final boolean hasTobaccoUse;
+        public final boolean hasAlcoholUse;
+        public final boolean hasValidData;
+        public final boolean isComplete;
+
+        public SubstanceChangeInfo(boolean hasTobaccoUse, boolean hasAlcoholUse,
+                                   boolean hasValidData, boolean isComplete) {
+            this.hasTobaccoUse = hasTobaccoUse;
+            this.hasAlcoholUse = hasAlcoholUse;
+            this.hasValidData = hasValidData;
+            this.isComplete = isComplete;
+        }
     }
 }

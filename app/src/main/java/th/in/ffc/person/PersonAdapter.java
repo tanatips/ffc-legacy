@@ -23,8 +23,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import th.in.ffc.R;
 import th.in.ffc.api.nhso.FSDataResponse;
@@ -515,72 +519,81 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             boolean hasBasicInfo = isBasicInfoComplete(person);
             if (!hasBasicInfo) missingAssessments.add("ข้อมูลพื้นฐาน");
 
-            // 1. ตรวจสอบสารเสพติด (Drug Assessment)
-            // TODO: เพิ่ม DAO และ Model สำหรับสารเสพติด
+            // 1. ตรวจสอบสารเสพติด (Drug Assessment) - ต้องตรวจสอบก่อนเสมอ
             SfDrugsDao drugDao = new SfDrugsDao(context);
             List<DrugsInfo> drugInfos = drugDao.getSfDrugsByPersonInfoId(personId);
             boolean hasDrugAssessment = !drugInfos.isEmpty() && isDrugsComplete(drugInfos);
-            if (!hasDrugAssessment) missingAssessments.add("แบบประเมินสารเสพติด");
+            if (!hasDrugAssessment) {
+                missingAssessments.add("แบบประเมินสารเสพติด");
+                // หากยังไม่มีการประเมินสารเสพติด ให้ข้ามการตรวจสอบบุหรี่และสุรา
+            } else {
+                // มีการประเมินสารเสพติดแล้ว - ตรวจสอบว่าต้องการประเมินบุหรี่และสุราหรือไม่
+                SubstanceUseStatus substanceStatus = getSubstanceUseStatus(drugInfos);
 
+                // 2. ตรวจสอบการสูบบุหรี่ (เฉพาะกรณีที่เคยสูบบุหรี่)
+                if (substanceStatus.usesTobacco) {
+                    SfSmokerInfoDao smokingDao = new SfSmokerInfoDao(context);
+                    List<SmokerInfo> smokingInfos = smokingDao.getByPersonId(personId);
+                    boolean hasSmokingAssessment = !smokingInfos.isEmpty() && isSmokingAssessmentComplete(smokingInfos.get(0));
+                    if (!hasSmokingAssessment) missingAssessments.add("แบบประเมินการสูบบุหรี่");
 
-            // 2. ตรวจสอบการสูบบุหรี่ (Smoking)
-            SfSmokerInfoDao smokingDao = new SfSmokerInfoDao(context);
-            List<SmokerInfo> smokingInfos = smokingDao.getByPersonId(personId);
-            boolean hasSmokingAssessment = !smokingInfos.isEmpty() && isSmokingAssessmentComplete(smokingInfos.get(0));
-            if (!hasSmokingAssessment) missingAssessments.add("แบบประเมินการสูบบุหรี่");
+                    // 3. ตรวจสอบการติดบุหรี่ (เฉพาะกรณีที่เคยสูบบุหรี่)
+                    SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(context);
+                    List<NicotineInfo> smokingAddictionInfos = sfNicotineInfoDao.getByPersonId(personId);
+                    boolean hasSmokingAddiction = !smokingAddictionInfos.isEmpty() && isNicotineComplete(smokingAddictionInfos.get(0));
+                    if (!hasSmokingAddiction) missingAssessments.add("แบบประเมินการติดบุหรี่");
+                } else {
+                    Log.d("DATA_CHECK", "ข้ามการตรวจสอบบุหรี่ - ไม่เคยสูบบุหรี่");
+                }
 
-            // 3. ตรวจสอบการติดบุหรี่ (Smoking Addiction)
-            // TODO: เพิ่ม DAO และ Model สำหรับการติดบุหรี่
+                // 4. ตรวจสอบการดื่มสุรา (เฉพาะกรณีที่เคยดื่มสุรา)
+                if (substanceStatus.usesAlcohol) {
+                    SfDrinkingInfoDao alcoholDao = new SfDrinkingInfoDao(context);
+                    List<DrinkingInfo> alcoholInfos = alcoholDao.getByPersonId(personId);
+                    boolean hasAlcoholAssessment = !alcoholInfos.isEmpty() && isAlcoholAssessmentComplete(alcoholInfos.get(0));
+                    if (!hasAlcoholAssessment) missingAssessments.add("แบบประเมินการดื่มสุรา");
+                } else {
+                    Log.d("DATA_CHECK", "ข้ามการตรวจสอบสุรา - ไม่เคยดื่มสุรา");
+                }
+            }
 
-        SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(context);
-        List<NicotineInfo> smokingAddictionInfos = sfNicotineInfoDao.getByPersonId(personId);
-        boolean hasSmokingAddiction = !smokingAddictionInfos.isEmpty() && isNicotineComplete(smokingAddictionInfos.get(0));
-        if (!hasSmokingAddiction) missingAssessments.add("แบบประเมินการติดบุหรี่");
-
-
-            // 4. ตรวจสอบการดื่มสุรา (Alcohol)
-            SfDrinkingInfoDao alcoholDao = new SfDrinkingInfoDao(context);
-            List<DrinkingInfo> alcoholInfos = alcoholDao.getByPersonId(personId);
-            boolean hasAlcoholAssessment = !alcoholInfos.isEmpty() && isAlcoholAssessmentComplete(alcoholInfos.get(0));
-            if (!hasAlcoholAssessment) missingAssessments.add("แบบประเมินการดื่มสุรา");
-
-            // 5. ตรวจสอบ ST-5 (Stress Test 5)
+            // 5. ตรวจสอบ ST-5 (Stress Test 5) - จำเป็นเสมอ
             SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(context);
             List<StressDepressionInfo> st5Infos = sfStressDepressionInfoDao.getByPersonId(personId);
             boolean hasSt5Assessment = !st5Infos.isEmpty() && isSt5AssessmentComplete(st5Infos.get(0));
             if (!hasSt5Assessment) missingAssessments.add("แบบประเมิน ST-5");
 
-            // 6. ตรวจสอบ 2Q (Depression 2 Questions)
+            // 6. ตรวจสอบ 2Q (Depression 2 Questions) - จำเป็นเสมอ
             SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
             List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
             boolean has2qAssessment = !depression2qInfos.isEmpty() && is2qAssessmentComplete(depression2qInfos.get(0));
             if (!has2qAssessment) missingAssessments.add("แบบประเมิน 2Q");
 
-            // 7. ตรวจสอบ 9Q (Depression 9 Questions)
+            // 7. ตรวจสอบ 9Q (Depression 9 Questions) - จำเป็นเสมอ
             SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
             List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
             boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
             if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
 
-            // 8. ตรวจสอบ 8Q (Depression 8 Questions)
+            // 8. ตรวจสอบ 8Q (Suicide Assessment 8 Questions) - จำเป็นเสมอ
             SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
             List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
             boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
             if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
 
-            // 9. ตรวจสอบโรคเบาหวาน (Health Risk Assessment - Diabetes)
+            // 9. ตรวจสอบโรคเบาหวาน (Health Risk Assessment - Diabetes) - จำเป็นเสมอ
             SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
             List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
             boolean hasHealthRisk = !healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0));
             if (!hasHealthRisk) missingAssessments.add("แบบประเมินโรคเบาหวาน");
 
-            // 10. ตรวจสอบโรคหัวใจและหลอดเลือด (Cardiovascular Risk)
+            // 10. ตรวจสอบโรคหัวใจและหลอดเลือด (Cardiovascular Risk) - จำเป็นเสมอ
             SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
             List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
             boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0));
             if (!hasCardioRisk) missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด");
 
-            // 11. ตรวจสอบการให้คำปรึกษาและแนะนำ (Counseling)
+            // 11. ตรวจสอบการให้คำปรึกษาและแนะนำ (Counseling) - จำเป็นเสมอ
             CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
             List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(String.valueOf(personId));
             boolean hasCounseling = !counselingInfos.isEmpty() && isCounselingComplete(counselingInfos.get(0));
@@ -599,10 +612,206 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             return new DataCompletionStatus(false, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูล");
         }
     }
+    private SubstanceUseStatus getSubstanceUseStatus(List<DrugsInfo> drugInfos) {
+        SubstanceUseStatus status = new SubstanceUseStatus();
 
+        if (drugInfos == null || drugInfos.isEmpty()) {
+            return status; // default: false, false
+        }
+
+        for (DrugsInfo drug : drugInfos) {
+            if ("Q1".equals(drug.getQuestion())) {
+                String answer = drug.getAnswer();
+                String subQuestion = drug.getSubquestion();
+
+                // ตรวจสอบการใช้ยาสูบ (Q1a = ผลิตภัณฑ์ยาสูบ)
+                if ("a".equals(subQuestion) && answer != null && !"0".equals(answer) && !answer.isEmpty()) {
+                    status.usesTobacco = true;
+                    Log.d("SUBSTANCE_CHECK", "พบการใช้ยาสูบ: " + answer);
+                }
+
+                // ตรวจสอบการดื่มสุรา (Q1b = เครื่องดื่มแอลกอฮอล์)
+                if ("b".equals(subQuestion) && answer != null && !"0".equals(answer) && !answer.isEmpty()) {
+                    status.usesAlcohol = true;
+                    Log.d("SUBSTANCE_CHECK", "พบการดื่มสุรา: " + answer);
+                }
+            }
+        }
+
+        Log.d("SUBSTANCE_CHECK", "สถานะการใช้สาร - ยาสูบ: " + status.usesTobacco + ", สุรา: " + status.usesAlcohol);
+        return status;
+    }
+    private static class SubstanceUseStatus {
+        boolean usesTobacco = false;  // เคยใช้ยาสูบหรือไม่
+        boolean usesAlcohol = false;  // เคยดื่มสุราหรือไม่
+
+        public SubstanceUseStatus() {}
+
+        public SubstanceUseStatus(boolean usesTobacco, boolean usesAlcohol) {
+            this.usesTobacco = usesTobacco;
+            this.usesAlcohol = usesAlcohol;
+        }
+
+        @Override
+        public String toString() {
+            return "SubstanceUseStatus{usesTobacco=" + usesTobacco + ", usesAlcohol=" + usesAlcohol + "}";
+        }
+    }
 // เพิ่มเมธอดตรวจสอบแต่ละแบบประเมิน
-    private boolean isDrugsComplete(List<DrugsInfo> drugsInfos){
-        return drugsInfos!=null && drugsInfos.size() == 70;
+private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
+    if (drugsInfos == null || drugsInfos.isEmpty()) {
+        return false;
+    }
+    if( drugsInfos.size() == 70) {
+        Log.d("ASSIST_CHECK", "Drugs assessment incomplete - less than 10 records found");
+        return true; // ต้องมีอย่างน้อย 10 records สำหรับ Q1
+    }
+    try {
+        // ตรวจสอบ Q1 (คำถามการใช้สารเสพติด) - ต้องมี 10 subquestions (a-j)
+        Map<String, String> q1Answers = new HashMap<>();
+
+        // เก็บคำตอบ Q1 ทั้งหมด
+        for (DrugsInfo drug : drugsInfos) {
+            if ("Q1".equals(drug.getQuestion())) {
+                q1Answers.put(drug.getSubquestion(), drug.getAnswer());
+            }
+        }
+
+        // ตรวจสอบว่า Q1 ครบ 10 subquestions (a-j)
+        String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+        for (String subQ : expectedSubQuestions) {
+            if (!q1Answers.containsKey(subQ)) {
+                Log.d("ASSIST_CHECK", "Missing Q1 subquestion: " + subQ);
+                return false; // ยังไม่ได้ตอบ Q1 ครบ
+            }
+        }
+
+        // ตรวจสอบว่า Q1 ตอบเป็น "0" ทั้งหมดหรือไม่
+        boolean allQ1Zero = true;
+        List<String> substancesUsed = new ArrayList<>(); // เก็บสารที่เคยใช้ (ตอบไม่ใช่ 0)
+
+        for (String subQ : expectedSubQuestions) {
+            String answer = q1Answers.get(subQ);
+            if (answer == null || answer.isEmpty()) {
+                Log.d("ASSIST_CHECK", "Q1 subquestion " + subQ + " has no answer");
+                return false;
+            }
+
+            if (!"0".equals(answer)) {
+                allQ1Zero = false;
+                substancesUsed.add(subQ); // เพิ่มสารที่เคยใช้ในรายการ
+            }
+        }
+
+        // กรณีที่ Q1 ตอบเป็น "0" ทั้งหมด = ครบถ้วนแล้ว (ไม่เคยใช้สารใดๆ)
+        if (allQ1Zero) {
+            Log.d("ASSIST_CHECK", "All Q1 answers are 0 - Assessment complete");
+            return true;
+        }
+
+        // กรณีที่มีการใช้สารบางชนิด = ต้องตอบ Q2-Q8 สำหรับสารที่เคยใช้
+        Log.d("ASSIST_CHECK", "Substances used: " + substancesUsed.toString());
+
+        // ตรวจสอบ Q2-Q8 สำหรับสารที่เคยใช้
+        String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"};
+
+        for (String substance : substancesUsed) {
+            for (String question : followUpQuestions) {
+                boolean found = false;
+                for (DrugsInfo drug : drugsInfos) {
+                    if (question.equals(drug.getQuestion()) &&
+                            substance.equals(drug.getSubquestion())) {
+
+                        // ตรวจสอบว่ามีคำตอบและไม่ใช่ค่าเริ่มต้น
+                        if (drug.getAnswer() != null &&
+                                !drug.getAnswer().isEmpty() &&
+                                !"0".equals(drug.getAnswer())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    Log.d("ASSIST_CHECK", "Missing answer for " + question + " substance " + substance);
+                    return false; // ยังไม่ได้ตอบคำถามครบ
+                }
+            }
+        }
+
+        Log.d("ASSIST_CHECK", "All required questions answered - Assessment complete");
+        return true;
+
+    } catch (Exception e) {
+        Log.e("ASSIST_CHECK", "Error checking drugs completion: " + e.getMessage());
+        return false;
+    }
+}
+    private void debugAssistStatus(List<DrugsInfo> drugsInfos) {
+        if (drugsInfos == null || drugsInfos.isEmpty()) {
+            Log.d("ASSIST_DEBUG", "No ASSIST data found");
+            return;
+        }
+
+        Log.d("ASSIST_DEBUG", "=== ASSIST Data Debug ===");
+        Log.d("ASSIST_DEBUG", "Total records: " + drugsInfos.size());
+
+        // จัดกลุ่มข้อมูลตามคำถาม
+        Map<String, List<DrugsInfo>> questionGroups = new HashMap<>();
+        for (DrugsInfo drug : drugsInfos) {
+            String question = drug.getQuestion();
+            if (!questionGroups.containsKey(question)) {
+                questionGroups.put(question, new ArrayList<>());
+            }
+            questionGroups.get(question).add(drug);
+        }
+
+        // แสดงข้อมูลแต่ละคำถาม
+        for (String question : questionGroups.keySet()) {
+            List<DrugsInfo> questionData = questionGroups.get(question);
+            Log.d("ASSIST_DEBUG", question + " has " + questionData.size() + " answers");
+
+            for (DrugsInfo drug : questionData) {
+                Log.d("ASSIST_DEBUG", "  " + question + drug.getSubquestion() +
+                        " = " + drug.getAnswer());
+            }
+        }
+        Log.d("ASSIST_DEBUG", "========================");
+    }
+    private boolean isQ1Complete(List<DrugsInfo> drugsInfos) {
+        if (drugsInfos == null || drugsInfos.isEmpty()) {
+            return false;
+        }
+
+        String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+        Set<String> answeredSubQuestions = new HashSet<>();
+
+        for (DrugsInfo drug : drugsInfos) {
+            if ("Q1".equals(drug.getQuestion()) &&
+                    drug.getAnswer() != null &&
+                    !drug.getAnswer().isEmpty()) {
+                answeredSubQuestions.add(drug.getSubquestion());
+            }
+        }
+
+        return answeredSubQuestions.size() == expectedSubQuestions.length;
+    }
+    private boolean needsFollowUpQuestions(List<DrugsInfo> drugsInfos) {
+        if (drugsInfos == null || drugsInfos.isEmpty()) {
+            return false;
+        }
+
+        // ตรวจสอบ Q1 ว่ามีการตอบไม่ใช่ "0" หรือไม่
+        for (DrugsInfo drug : drugsInfos) {
+            if ("Q1".equals(drug.getQuestion()) &&
+                    drug.getAnswer() != null &&
+                    !"0".equals(drug.getAnswer()) &&
+                    !drug.getAnswer().isEmpty()) {
+                return true; // มีการใช้สารอย่างน้อย 1 ชนิด
+            }
+        }
+
+        return false; // ไม่เคยใช้สารใดๆ
     }
     // ตรวจสอบการสูบบุหรี่
     private boolean isSmokingAssessmentComplete(SmokerInfo smokerInfo) {

@@ -448,11 +448,11 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนผลการประเมิน -->
+        <!-- ส่วนตารางผลการประเมิน - ปรับสไตล์ใหม่ -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF">
@@ -463,24 +463,262 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/resultStressDepressionScore"
+                <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="12dp"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#2C3E50"
-                    android:background="#F3E5F5"
-                    android:layout_marginBottom="16dp" />
+                    android:stretchColumns="*">
 
+                    <!-- Header Row -->
+                    <TableRow
+                        android:background="@drawable/gradient_header"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="การประเมิน"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:padding="8dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="คะแนน"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:gravity="center"
+                            android:padding="8dp" />
+                    </TableRow>
+
+                    <!-- แถวข้อมูลความเครียด -->
+                    <TableRow
+                        android:padding="12dp"
+                        android:background="#FFFFFF">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@android:drawable/ic_dialog_info"
+                                android:tint="#8E44AD"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ST-5"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="2dp"
+                            android:layout_margin="4dp">
+
+                            <TextView
+                                android:id="@+id/tvStressScore"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="-"
+                                android:gravity="center"
+                                android:padding="12dp"
+                                android:textStyle="bold"
+                                android:textSize="18sp"
+                                android:textColor="#FFFFFF"
+                                android:background="@drawable/gradient_score" />
+                        </androidx.cardview.widget.CardView>
+                    </TableRow>
+
+                    <!-- แถวแสดงหัวข้อระดับความเครียด -->
+                    <TableRow
+                        android:background="#E8F5E8">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_span="2"
+                            android:text="ระดับความเครียด:"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="#2C3E50" />
+                    </TableRow>
+
+                    <!-- แถวแสดงผลลัพธ์ระดับความเครียด -->
+                    <TableRow
+                        android:background="#F8F9FA">
+
+                        <TextView
+                            android:id="@+id/tvStressLevel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_span="2"
+                            android:text="ยังไม่ได้ประเมิน"
+                            android:gravity="center"
+                            android:padding="16dp"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:textColor="#7F8C8D"
+                            android:background="@drawable/risk_level_background"
+                            android:singleLine="false"
+                            android:maxLines="5"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="false" />
+                    </TableRow>
+                </TableLayout>
+
+                <!-- ตารางเกณฑ์การประเมิน (ปรับสไตล์ใหม่) -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="#F8F9FA">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@android:drawable/ic_dialog_info"
+                                android:tint="#8E44AD"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="เกณฑ์การประเมินความเครียดและซึมเศร้า"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 1: 0-4 คะแนน -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_green"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0-4 คะแนน: เครียดน้อย (1B132)"
+                                android:textSize="13sp"
+                                android:textColor="#4CAF50" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 2: 5-7 คะแนน -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_yellow"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="5-7 คะแนน: เครียดปานกลาง (1B133)"
+                                android:textSize="13sp"
+                                android:textColor="#F57F17" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 3: 8-9 คะแนน -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_orange"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8-9 คะแนน: เครียดมาก (1B134)"
+                                android:textSize="13sp"
+                                android:textColor="#E65100" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 4: 10-15 คะแนน -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_red"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="10-15 คะแนน: เครียดมากที่สุด (1B135)"
+                                android:textSize="13sp"
+                                android:textColor="#C62828" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- ตารางเดิม (ซ่อนไว้หรือลบออก) -->
                 <TableLayout
                     android:id="@+id/stressScoreTable"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:stretchColumns="1"
-                    android:background="#FFFFFF">
+                    android:background="#FFFFFF"
+                    android:visibility="gone">
 
                     <!-- ตารางจะถูกสร้างจาก Java code ใน initializeTable() method -->
                     <!-- Header: คะแนน | ความเครียด | รหัส -->
@@ -490,6 +728,7 @@
                     <!-- Row 4: 10 - 15 | เครียดมากที่สุด | 1B135 -->
 
                 </TableLayout>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
