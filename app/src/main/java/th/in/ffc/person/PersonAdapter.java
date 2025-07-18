@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import th.in.ffc.R;
@@ -352,11 +353,15 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             double choresteral = 0.0;
                             if(!healthRiskAssessmentInfos.isEmpty())
                             {
-                                fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+                                if(healthRiskAssessmentInfos.get(0).getFpg()==null && healthRiskAssessmentInfos.get(0).getFpg().isEmpty() && Objects.equals(healthRiskAssessmentInfos.get(0).getFpg(), "")) {
+                                    fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+                                }
                             }
                             if(!cardiovascularRiskInfos.isEmpty())
                             {
-                                choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol()!=null?cardiovascularRiskInfos.get(0).getCholesterol():"0");
+                                if(cardiovascularRiskInfos.get(0).getCholesterol()==null && cardiovascularRiskInfos.get(0).getCholesterol().isEmpty() && Objects.equals(cardiovascularRiskInfos.get(0).getCholesterol(), "")) {
+                                    choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol());
+                                }
                             }
                             double cost13 = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,0);
                             double costFpg = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),fpg,0);

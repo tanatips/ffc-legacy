@@ -228,6 +228,7 @@
                 </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
         <!-- Question 4: Waist -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -389,27 +390,314 @@
                 </RadioGroup>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-        <!-- Result Display -->
-        <TextView
-            android:id="@+id/resultHealthRiskScrollView"
+
+        <!-- ผลการประเมินคะแนน - แบบใหม่คล้าย Nicotine -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:gravity="center"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_blue"
-            android:background="@drawable/result_background"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="#FFFFFF">
 
-        <!-- Risk Assessment Table -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- หัวข้อผลการประเมิน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_assessment"
+                        android:tint="#3498DB"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ผลการประเมินความเสี่ยงโรคเบาหวาน"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+                </LinearLayout>
+
+                <!-- ตารางแสดงคะแนน -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="16dp">
+
+                    <TableLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="*">
+
+                        <!-- Header Row -->
+                        <TableRow
+                            android:background="@drawable/gradient_header"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2"
+                                android:text="การประเมิน"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:gravity="center"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="คะแนน"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:gravity="center"
+                                android:padding="8dp" />
+                        </TableRow>
+
+                        <!-- แถวข้อมูลความเสี่ยงเบาหวาน -->
+                        <TableRow
+                            android:padding="12dp"
+                            android:background="#FFFFFF">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="2"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:src="@drawable/ic_diabetes"
+                                    android:tint="#E74C3C"
+                                    android:layout_marginEnd="8dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ความเสี่ยงเบาหวาน"
+                                    android:textSize="14sp"
+                                    android:textColor="#2C3E50"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                app:cardCornerRadius="20dp"
+                                app:cardElevation="2dp"
+                                android:layout_margin="4dp">
+
+                                <TextView
+                                    android:id="@+id/tvHealthRiskScore"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="-"
+                                    android:gravity="center"
+                                    android:padding="12dp"
+                                    android:textStyle="bold"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:background="@drawable/gradient_score" />
+                            </androidx.cardview.widget.CardView>
+                        </TableRow>
+
+                        <!-- แถวแสดงหัวข้อระดับความเสี่ยง -->
+                        <TableRow
+                            android:background="#E8F5E8">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_span="2"
+                                android:text="ระดับความเสี่ยง:"
+                                android:gravity="center"
+                                android:padding="8dp"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50" />
+                        </TableRow>
+
+                        <!-- แถวแสดงผลลัพธ์ระดับความเสี่ยง -->
+                        <TableRow
+                            android:background="#F8F9FA">
+
+                            <TextView
+                                android:id="@+id/tvHealthRiskLevel"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_span="2"
+                                android:text="ยังไม่ได้ประเมิน"
+                                android:gravity="center"
+                                android:padding="16dp"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#7F8C8D"
+                                android:background="@drawable/risk_level_background"
+                                android:singleLine="false"
+                                android:maxLines="5"
+                                android:ellipsize="none"
+                                android:scrollHorizontally="false" />
+                        </TableRow>
+                    </TableLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- เกณฑ์การประเมิน -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="1dp"
+                    app:cardBackgroundColor="#F8F9FA">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_info"
+                                android:tint="#3498DB"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="เกณฑ์การประเมินความเสี่ยงโรคเบาหวาน"
+                                android:textStyle="bold"
+                                android:textSize="14sp"
+                                android:textColor="#2C3E50" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 1: เสี่ยงน้อย -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_green"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="≤ 2 คะแนน: เสี่ยงน้อย (&lt; 5%)"
+                                android:textSize="13sp"
+                                android:textColor="#27AE60" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 2: เสี่ยงปานกลาง -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_yellow"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3-5 คะแนน: เสี่ยงปานกลาง (5-10%)"
+                                android:textSize="13sp"
+                                android:textColor="#F39C12" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 3: เสี่ยงสูง -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_orange"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="6-8 คะแนน: เสี่ยงสูง (11-20%)"
+                                android:textSize="13sp"
+                                android:textColor="#FF9800" />
+                        </LinearLayout>
+
+                        <!-- ระดับ 4: เสี่ยงสูงมาก -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <View
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:background="@drawable/circle_red"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="&gt; 8 คะแนน: เสี่ยงสูงมาก (&gt; 20%)"
+                                android:textSize="13sp"
+                                android:textColor="#E74C3C" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ตารางประเมินความเสี่ยงแบบเก่า (ซ่อนไว้สำหรับ backward compatibility) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            app:cardBackgroundColor="@color/white"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -598,6 +886,21 @@
                 </TableLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <!-- Result Display (แบบเก่า - ซ่อนไว้) -->
+        <TextView
+            android:id="@+id/resultHealthRiskScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:background="@drawable/result_background"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
+
         <!-- Blood Sugar Testing Section -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

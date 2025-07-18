@@ -6,6 +6,7 @@ import th.in.ffc.app.form.screening.model.DrugsInfo;
 
 public class DrugsLiveData {
     private String personId;
+    private String visitId;
     private List<DrugsInfo> drugsInfo;
 
     public String getPersonId() {
@@ -22,5 +23,12 @@ public class DrugsLiveData {
 
     public void setDrugsInfo(List<DrugsInfo> drugsInfo) {
         this.drugsInfo = drugsInfo;
+    }
+
+    public String getVisitId() {
+        return visitId;
+    }
+    public void setVisitId(String visitId) {
+        this.visitId = visitId;
     }
 }

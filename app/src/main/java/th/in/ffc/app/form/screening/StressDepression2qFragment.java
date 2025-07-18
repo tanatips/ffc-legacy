@@ -2,6 +2,7 @@ package th.in.ffc.app.form.screening;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,15 +23,19 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
 import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
+import th.in.ffc.provider.ScreeningResultCode;
+import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
 
 /**
@@ -40,18 +45,22 @@ import th.in.ffc.util.Log;
  */
 public class StressDepression2qFragment extends Fragment {
 
+    private static final String TAG = "StressDepression2qFragment";
     private StressDepression2qLiveData stressDepression2qLiveData;
     private SharedViewModel shareViewModel;
 
     private OnDataPass dataPasser;
     private StressDepression2qInfo stressDepression2qInfo;
 
+    private ScreeningResultCodeDao screeningResultDao;
+    private int currentPersonId = -1;
+    private int currentVisitNo = -1;
+
     private ArrayList<Integer> points;
     private RadioGroup rdoStress2qQ1;
     private RadioGroup rdoStress2qQ2;
     private TableLayout resultTable;
 
-    // เพิ่มตัวแปรสำหรับแสดงผลแบบใหม่
     private TextView tv2qResult;
     private TextView tv2qResultDetail;
 
@@ -59,10 +68,10 @@ public class StressDepression2qFragment extends Fragment {
     int light_gray;
     int highlightColor;
 
-    // เพิ่มตัวแปรสำหรับตรวจสอบข้อมูล
+
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่
-
+    private ScreeningResultCodeDao screeningResultCodeDao;
     public StressDepression2qFragment() {
         // Required empty public constructor
     }
@@ -89,6 +98,7 @@ public class StressDepression2qFragment extends Fragment {
 
         // แสดงผลเริ่มต้น
         updateResultDisplay();
+
     }
 
     /**
@@ -230,11 +240,6 @@ public class StressDepression2qFragment extends Fragment {
      */
     private void showIncompleteFormMessage() {
         String missingQuestions = getMissingQuestionsText();
-        if (!missingQuestions.isEmpty()) {
-//            Toast.makeText(getContext(),
-//                    "กรุณาตอบคำถามให้ครบถ้วน: " + missingQuestions,
-//                    Toast.LENGTH_SHORT).show();
-        }
     }
 
     /**
@@ -311,11 +316,14 @@ public class StressDepression2qFragment extends Fragment {
 
                 // ตรวจสอบว่าตอบคำถามที่ 1 แล้ว
                 questionAnswered[0] = true;
-                validateAndSaveData(); // เรียกใช้การตรวจสอบและบันทึก
+                validateAndSaveData();
 
                 updatePoints();
-                updateResultDisplay(); // เพิ่มการอัพเดทการแสดงผล
+                updateResultDisplay();
                 updateTableHighlight();
+
+                // บันทึก result code หากครบถ้วน
+//                saveResultCodeIfComplete();
             }
         });
 
@@ -343,8 +351,50 @@ public class StressDepression2qFragment extends Fragment {
                 updatePoints();
                 updateResultDisplay(); // เพิ่มการอัพเดทการแสดงผล
                 updateTableHighlight();
+
+                // บันทึก result code หากครบถ้วน
+//                saveResultCodeIfComplete();
             }
         });
+    }
+    /**
+     * บันทึก screening result code หากข้อมูลครบถ้วน
+     */
+    private void saveResultCodeIfComplete() {
+        if (isFormComplete() && currentPersonId != -1 && currentVisitNo != -1) {
+            try {
+                // ตรวจสอบผลการประเมิน
+                boolean hasPositiveAnswer = false;
+                String answer1 = stressDepression2qInfo.getQ1();
+                String answer2 = stressDepression2qInfo.getQ2();
+
+                // ตรวจสอบว่ามีการตอบ "มี" (รหัส "2") หรือไม่
+                if ("2".equals(answer1) || "2".equals(answer2)) {
+                    hasPositiveAnswer = true;
+                }
+
+                // บันทึกผลการคัดกรอง 2Q
+                Uri result = screeningResultDao.save2QResult(
+                        currentPersonId,
+                        currentVisitNo,
+                        hasPositiveAnswer,
+                        "SYSTEM" // หรือ username ปัจจุบัน
+                );
+
+                if (result != null) {
+                    Log.d("StressDepression2q", "บันทึก screening result code สำเร็จ: " + result.toString());
+                } else {
+                    Log.e("StressDepression2q", "เกิดข้อผิดพลาดในการบันทึก screening result code");
+                }
+
+            } catch (Exception e) {
+                Log.e("StressDepression2q", "เกิดข้อผิดพลาดในการบันทึก screening result code");
+            }
+        }
+    }
+    public void setPersonAndVisitInfo(int personId, int visitNo) {
+        this.currentPersonId = personId;
+        this.currentVisitNo = visitNo;
     }
 
     private void updatePoints() {
@@ -428,6 +478,8 @@ public class StressDepression2qFragment extends Fragment {
         stressDepression2qInfo = new StressDepression2qInfo();
         points = new ArrayList<>();
         points.addAll(Arrays.asList(0,0));
+        screeningResultDao = new ScreeningResultCodeDao(getContext());
+        screeningResultCodeDao = new ScreeningResultCodeDao(getContext());
     }
 
     @Override
@@ -455,6 +507,16 @@ public class StressDepression2qFragment extends Fragment {
         initializeViews(view);
         setupListeners();
         loadData();
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+            if (personInfo != null && personInfo.getId() != null) {
+                currentPersonId = Integer.parseInt(personInfo.getId());
+                if( personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()){
+                    currentVisitNo = Integer.parseInt(personInfo.getVisitId());
+                }
+
+            }
+        });
     }
 
     private void loadData(){
@@ -472,7 +534,131 @@ public class StressDepression2qFragment extends Fragment {
             }
         });
     }
+    public boolean saveToScreeningResultCode(int personId, int visitno, String userCreate) {
+        try {
+            if (!isFormComplete()) {
+                Log.e(TAG, "ไม่สามารถบันทึกได้ - ข้อมูลไม่ครบถ้วน");
+                return false;
+            }
 
+            // สร้าง ScreeningResultData
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_STRESS_DEPRESSION_2Q; // "2Q"
+            data.totalScore = getCurrentTotalScore(); // ใช้ method ที่มีอยู่
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode และ resultDescription ตาม 2Q
+            boolean hasPositiveAnswer = data.totalScore > 0;
+            setResultCodeAndDescription2Q(data, hasPositiveAnswer);
+
+            // กำหนด riskLevel และ isAbnormal
+            setRiskLevelAndAbnormal2Q(data, hasPositiveAnswer);
+
+            // กำหนดคำแนะนำ
+            data.recommendation = getRecommendation2Q(hasPositiveAnswer);
+
+            // บันทึกข้อมูล
+            Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d(TAG, "บันทึกผลการคัดกรอง 2Q สำเร็จ: " + result.toString());
+                Log.d(TAG, "รายละเอียด: personId=" + personId + ", visitno=" + visitno +
+                        ", score=" + data.totalScore + ", resultCode=" + data.resultCode +
+                        ", hasPositiveAnswer=" + hasPositiveAnswer);
+                return true;
+            } else {
+                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผลการคัดกรอง 2Q");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกผลการคัดกรอง 2Q");
+            return false;
+        }
+    }
+    private String getRecommendation2Q(boolean hasPositiveAnswer) {
+        if (hasPositiveAnswer) {
+            return "แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติม และพิจารณาปรึกษาแพทย์";
+        } else {
+            return "ไม่พบความเสี่ยงต่อภาวะซึมเศร้า ควรดูแลสุขภาพจิตให้ดีต่อไป";
+        }
+    }
+    private void setResultCodeAndDescription2Q(ScreeningResultCodeDao.ScreeningResultData data, boolean hasPositiveAnswer) {
+        if (!hasPositiveAnswer) {
+            data.resultCode = "1B0211";
+            data.resultDescription = "ผิดปกติ และส่งต่อเจ้าหน้าที่";
+        } else {
+            data.resultCode = "1B0210";
+            data.resultDescription = "ปกติ";
+        }
+    }
+
+    /**
+     * กำหนด riskLevel และ isAbnormal ตาม 2Q
+     */
+    private void setRiskLevelAndAbnormal2Q(ScreeningResultCodeDao.ScreeningResultData data, boolean hasPositiveAnswer) {
+        if (hasPositiveAnswer) {
+            data.riskLevel = ScreeningResultCode.RISK_HIGH;
+            data.isAbnormal = true;
+        } else {
+            data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+            data.isAbnormal = false;
+        }
+    }
+    private int getCurrentTotalScore() {
+        if (stressDepression2qInfo != null) {
+            return stressDepression2qInfo.getSum();
+        }
+        return 0;
+    }
+    public void loadFromScreeningResultCode(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_STRESS_DEPRESSION_2Q);
+
+            if (existingData != null) {
+                Log.d(TAG, "พบข้อมูลการประเมิน 2Q เดิม: คะแนน=" + existingData.totalScore +
+                        ", ผลการประเมิน=" + existingData.resultDescription);
+
+                Toast.makeText(getContext(),
+                        "โหลดข้อมูลการประเมิน 2Q เดิม: " + existingData.resultDescription,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "ไม่พบข้อมูลการประเมิน 2Q เดิม");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน 2Q");
+        }
+    }
+    public boolean hasExistingData(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_STRESS_DEPRESSION_2Q);
+            return existingData != null;
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูลเดิม");
+            return false;
+        }
+    }
+
+    public void showSaveResult(boolean success, String message) {
+        if (success) {
+            Toast.makeText(getContext(),
+                    "✅ บันทึกผลการประเมินซึมเศร้า 2Q สำเร็จ",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(),
+                    "❌ เกิดข้อผิดพลาดในการบันทึก: " + message,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
     // เพิ่มเมธอด validation ใน StressDepression2qFragment class
 
     /**
@@ -480,14 +666,10 @@ public class StressDepression2qFragment extends Fragment {
      */
     public String getValidationMessage() {
         StringBuilder message = new StringBuilder();
-
-        // ตรวจสอบว่าตอบคำถามครบหรือไม่
         ArrayList<Integer> unansweredQuestions = getUnansweredQuestions();
 
         if (!unansweredQuestions.isEmpty()) {
             message.append("คัดกรองโรคซึมเศร้าด้วย 2 คำถาม(2Q): ยังไม่ได้ตอบข้อ ");
-
-            // แสดงรายการข้อที่ยังไม่ได้ตอบ
             for (int i = 0; i < unansweredQuestions.size(); i++) {
                 if (i > 0) {
                     message.append(", ");
@@ -768,7 +950,10 @@ public class StressDepression2qFragment extends Fragment {
      * ตรวจสอบว่าควรทำแบบประเมิน 9Q ต่อหรือไม่
      */
     public boolean shouldDo9QAssessment() {
-        return isFormComplete() && isAtRisk();
+        if (!isFormComplete()) {
+            return false;
+        }
+        return getCurrentTotalScore() > 0; // หากมีคำตอบเป็น "ใช่" ข้อใดข้อหนึ่ง
     }
 
     /**
@@ -776,8 +961,34 @@ public class StressDepression2qFragment extends Fragment {
      */
     public String get9QRecommendationText() {
         if (shouldDo9QAssessment()) {
-            return "⚠️ แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติม เนื่องจากพบความเสี่ยงต่อภาวะซึมเศร้า";
+            return "ผลการประเมิน 2Q พบความเสี่ยง แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติมเพื่อความแม่นยำ";
         }
         return "";
+    }
+    public ScreeningResultCodeDao.ScreeningStatistics getStatistics() {
+        try {
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_STRESS_DEPRESSION_2Q);
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการดึงสถิติ 2Q");
+            return null;
+        }
+    }
+    public void showStatistics() {
+        ScreeningResultCodeDao.ScreeningStatistics stats = getStatistics();
+        if (stats != null) {
+            String message = String.format(
+                    "สถิติการประเมิน 2Q:\n" +
+                            "จำนวนทั้งหมด: %d ครั้ง\n" +
+                            "ปกติ: %d ครั้ง\n" +
+                            "ผิดปกติ: %d ครั้ง\n" +
+                            "คะแนนเฉลี่ย: %.1f\n" +
+                            "คะแนนสูงสุด: %d\n" +
+                            "คะแนนต่ำสุด: %d",
+                    stats.totalCount, stats.normalCount, stats.abnormalCount,
+                    stats.averageScore, stats.maxScore, stats.minScore
+            );
+
+            Log.d(TAG, message);
+        }
     }
 }

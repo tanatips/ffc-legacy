@@ -2,6 +2,7 @@ package th.in.ffc.app.form.screening;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,20 +15,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
+import java.util.Map;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
 import th.in.ffc.app.form.screening.dao.SfSmokerInfoDao;
+import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
+import th.in.ffc.provider.ScreeningResultCode;
+import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
-import android.widget.TextView;
-import th.in.ffc.app.form.screening.dao.SfDrugsDao;
-import java.util.Map;
-
-// เพิ่มในส่วน import
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,6 +39,7 @@ import java.util.Map;
  */
 public class SmookingFragment extends Fragment {
 
+    private static final String TAG = "SmookingFragment";
 
     SharedViewModel shareViewModel;
     SmookingLiveData smookingLiveData;
@@ -55,15 +59,20 @@ public class SmookingFragment extends Fragment {
     private RadioButton rdoSmokerRegularly1;
     private RadioButton rdoSmokerRegularly2;
     private RadioButton rdoSmokerRegularly3;
-    public SmookingFragment() {
-        // Required empty public constructor
-    }
+
     // เพิ่มตัวแปรสำหรับแสดงคะแนน
     private TextView tvSmokingScore;
     private TextView tvSmokingRiskLevel;
     private boolean isUpdatingFromCode = false;
 
-    // ตัวแปรเดิมทั้งหมด...
+    // เพิ่มตัวแปรสำหรับ ScreeningResultCode
+    private ScreeningResultCodeDao screeningResultCodeDao;
+    private int currentPersonId = -1;
+    private int currentVisitNo = -1;
+
+    public SmookingFragment() {
+        // Required empty public constructor
+    }
 
     public static SmookingFragment newInstance(String param1, String param2) {
         SmookingFragment fragment = new SmookingFragment();
@@ -75,11 +84,11 @@ public class SmookingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         shareViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         if (shareViewModel == null) {
-            StressDepression9qLiveData stressDepression9qLiveData =new StressDepression9qLiveData();
+            StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
             shareViewModel.setStressDepression9qLiveData(stressDepression9qLiveData);
         }
         smookingLiveData = new SmookingLiveData();
-
+        screeningResultCodeDao = new ScreeningResultCodeDao(getContext());
     }
 
     @Override
@@ -101,13 +110,43 @@ public class SmookingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initializeViews(view);
+        setupListeners();
+        loadData();
+
+        // สังเกตการเปลี่ยนแปลงข้อมูลจาก ViewModel
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+            if (personInfo != null && personInfo.getId() != null) {
+                currentPersonId = Integer.parseInt(personInfo.getId());
+                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
+                    currentVisitNo = Integer.parseInt(personInfo.getVisitId());
+                }
+                // ดึงข้อมูลคะแนนการสูบบุหรี่จาก SfDrugsDao
+                loadSmokingScore(personInfo.getId());
+            }
+        });
+
+        // สังเกตคะแนน nicotine จาก AssistScore
+        viewModel.getAssistScoreMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+            if (data.getPersonId() != null && data.getNicotineScore() != null) {
+                try {
+                    int nicotineScore = Integer.parseInt(data.getNicotineScore());
+                    updateSmokingScore(nicotineScore);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
+                    updateSmokingScore(0);
+                }
+            }
+        });
+    }
+
+    private void initializeViews(View view) {
         smokerInfo = new SmokerInfo();
         sfSmokerInfoDao = new SfSmokerInfoDao(getContext());
         rdoSmokerGroup = view.findViewById(R.id.rdoSmokerGroup);
         rdoSmokerAssist = view.findViewById(R.id.rdoSmokerAssist);
         rdoSmokerRegularly = view.findViewById(R.id.rdoSmokerRegularly);
-//        rdoSmokerAssist.setVisibility(View.INVISIBLE);
-//        rdoSmokerRegularly.setVisibility(View.INVISIBLE);
         rdoSmokerGroup1 = view.findViewById(R.id.rdoSmokerGroup1);
         rdoSmokerGroup2 = view.findViewById(R.id.rdoSmokerGroup2);
         rdoSmokerGroup3 = view.findViewById(R.id.rdoSmokerGroup3);
@@ -121,194 +160,77 @@ public class SmookingFragment extends Fragment {
         // เชื่อมโยง TextView สำหรับแสดงคะแนน
         tvSmokingScore = view.findViewById(R.id.tvSmokingScore);
         tvSmokingRiskLevel = view.findViewById(R.id.tvSmokingRiskLevel);
+    }
 
-        // โค้ดเดิมทั้งหมด...
-        smokerInfo = new SmokerInfo();
-        sfSmokerInfoDao = new SfSmokerInfoDao(getContext());
-        rdoSmokerGroup = view.findViewById(R.id.rdoSmokerGroup);
-        rdoSmokerAssist = view.findViewById(R.id.rdoSmokerAssist);
-        rdoSmokerRegularly = view.findViewById(R.id.rdoSmokerRegularly);
-
-        // เพิ่มการ observe คะแนนจาก SharedViewModel
-        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
-        // สังเกตการเปลี่ยนแปลงข้อมูลจาก ViewModel
-        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
-            if (personInfo != null && personInfo.getId() != null) {
-                // ดึงข้อมูลคะแนนการสูบบุหรี่จาก SfDrugsDao
-                loadSmokingScore(personInfo.getId());
-            }
-        });
-
-        // สังเกตคะแนน nicotine จาก AssistScore
-        viewModel.getAssistScoreMutableLiveData().observe(getViewLifecycleOwner(), data -> {
-            if (data.getPersonId() != null && data.getNicotineScore() != null) {
-                // แสดงคะแนนบุหรี่ - แปลง String เป็น int
-                try {
-                    int nicotineScore = Integer.parseInt(data.getNicotineScore());
-                    updateSmokingScore(nicotineScore);
-                } catch (NumberFormatException e) {
-                    Log.e("SmookingFragment", "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
-                    updateSmokingScore(0); // ใช้ค่าเริ่มต้นเป็น 0
-                }
-            }
-        });
-
-//        boolean isInDialog = getParentFragment() instanceof DialogFragment;
-
-        rdoSmokerGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+    private void setupListeners() {
+        rdoSmokerGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                // หยุดการทำงานหาก isUpdatingFromCode เป็น true
                 if (isUpdatingFromCode) return;
 
                 String data = "";
-                if(checkedId == R.id.rdoSmokerGroup1) {
+                if (checkedId == R.id.rdoSmokerGroup1) {
                     data = "1";
-                    // ล้างการเลือกขั้นตอนต่อไป
-                    isUpdatingFromCode = true;
-                    rdoSmokerAssist.clearCheck();
-                    rdoSmokerRegularly.clearCheck();
-                    rdoSmokerAssist1.setChecked(false);
-                    rdoSmokerAssist2.setChecked(false);
-                    rdoSmokerAssist3.setChecked(false);
-
-                    rdoSmokerAssist1.setEnabled(false);
-                    rdoSmokerAssist2.setEnabled(false);
-                    rdoSmokerAssist3.setEnabled(false);
-
-                    rdoSmokerRegularly1.setChecked(false);
-                    rdoSmokerRegularly2.setChecked(false);
-                    rdoSmokerRegularly3.setChecked(false);
-
-                    isUpdatingFromCode = false;
-                    smokerInfo.setSmokerAssist("");
-                    smokerInfo.setSmokerRegularly("");
-                    smookingLiveData.setSelectedRdoSmokerAssist(null);
-                    smookingLiveData.setSelectedRdoSmokerRegularly(null);
-                } else if(checkedId == R.id.rdoSmokerGroup2) {
+                    clearSubsequentSelections();
+                } else if (checkedId == R.id.rdoSmokerGroup2) {
                     data = "2";
-                    // ล้างการเลือกขั้นตอนต่อไป
-                    isUpdatingFromCode = true;
-                    rdoSmokerAssist.clearCheck();
-                    rdoSmokerRegularly.clearCheck();
-                    rdoSmokerAssist1.setChecked(false);
-                    rdoSmokerAssist2.setChecked(false);
-                    rdoSmokerAssist3.setChecked(false);
-
-                    rdoSmokerAssist1.setEnabled(false);
-                    rdoSmokerAssist2.setEnabled(false);
-                    rdoSmokerAssist3.setEnabled(false);
-
-                    rdoSmokerRegularly1.setChecked(false);
-                    rdoSmokerRegularly2.setChecked(false);
-                    rdoSmokerRegularly3.setChecked(false);
-
-                    isUpdatingFromCode = false;
-                    smokerInfo.setSmokerAssist("");
-                    smokerInfo.setSmokerRegularly("");
-                    smookingLiveData.setSelectedRdoSmokerAssist(null);
-                    smookingLiveData.setSelectedRdoSmokerRegularly(null);
-                } else if(checkedId == R.id.rdoSmokerGroup3) {
+                    clearSubsequentSelections();
+                } else if (checkedId == R.id.rdoSmokerGroup3) {
                     data = "3";
-                    // เก็บการเลือกเดิมไว้ แต่ล้าง SmokerRegularly
-                    isUpdatingFromCode = true;
-                    rdoSmokerAssist.clearCheck();
-                    rdoSmokerRegularly.clearCheck();
-
-                    rdoSmokerAssist1.setChecked(false);
-                    rdoSmokerAssist2.setChecked(false);
-                    rdoSmokerAssist3.setChecked(false);
-
-                    rdoSmokerAssist1.setEnabled(true);
-                    rdoSmokerAssist2.setEnabled(true);
-                    rdoSmokerAssist3.setEnabled(true);
-
-
-                    rdoSmokerRegularly1.setChecked(false);
-                    rdoSmokerRegularly2.setChecked(false);
-                    rdoSmokerRegularly3.setChecked(false);
-
-                    isUpdatingFromCode = false;
-                    smokerInfo.setSmokerRegularly("");
+                    enableAssistOptions();
+                    clearRegularlySelection();
                 }
 
                 smokerInfo.setSmokerGroup(data);
                 smookingLiveData.setSelectedRdoSmokerGroup(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
-                // คำนวณคะแนนแบบ real-time
-//                calculateAndUpdateScore();
-
                 dataPasser.onSmokerInfo(smokerInfo);
+//                saveResultCodeIfComplete();
 
-                Log.d("SmookingFragment", "Selected SmokerGroup: " + data + ", Form Complete: " + isFormComplete());
+                Log.d(TAG, "Selected SmokerGroup: " + data + ", Form Complete: " + isFormComplete());
             }
         });
+
         rdoSmokerAssist.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                // หยุดการทำงานหาก isUpdatingFromCode เป็น true
                 if (isUpdatingFromCode) return;
 
                 String data = "";
-                if(checkedId == R.id.rdoSmokerAssist1) {
+                if (checkedId == R.id.rdoSmokerAssist1) {
                     data = "1";
-                    // ล้าง SmokerRegularly เพราะไม่ต้องตอบขั้นตอนต่อไป
-                    isUpdatingFromCode = true;
-                    rdoSmokerRegularly.clearCheck();
-                    isUpdatingFromCode = false;
-                    rdoSmokerRegularly1.setChecked(false);
-                    rdoSmokerRegularly2.setChecked(false);
-                    rdoSmokerRegularly3.setChecked(false);
-
-                    smookingLiveData.setSelectedRdoSmokerRegularly(null);
-                    smokerInfo.setSmokerRegularly("");
-                } else if(checkedId == R.id.rdoSmokerAssist2) {
+                    clearRegularlySelection();
+                } else if (checkedId == R.id.rdoSmokerAssist2) {
                     data = "2";
-                    // ล้าง SmokerRegularly เพราะไม่ต้องตอบขั้นตอนต่อไป
-                    isUpdatingFromCode = true;
-                    rdoSmokerRegularly.clearCheck();
-                    isUpdatingFromCode = false;
-                    rdoSmokerRegularly1.setChecked(false);
-                    rdoSmokerRegularly2.setChecked(false);
-                    rdoSmokerRegularly3.setChecked(false);
-
-                    smokerInfo.setSmokerRegularly("");
-                    smookingLiveData.setSelectedRdoSmokerRegularly(null);
-                } else if(checkedId == R.id.rdoSmokerAssist3) {
+                    clearRegularlySelection();
+                } else if (checkedId == R.id.rdoSmokerAssist3) {
                     data = "3";
-                    rdoSmokerRegularly1.setChecked(false);
-                    rdoSmokerRegularly2.setChecked(false);
-                    rdoSmokerRegularly3.setChecked(false);
-                    // เก็บการเลือกเดิมไว้ หรือล้างก็ได้
+                    // ไม่ล้าง regularly เพราะต้องให้เลือกต่อ
                 }
 
                 smokerInfo.setSmokerAssist(data);
                 smookingLiveData.setSelectedRdoSmokerAssist(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
-                // คำนวณคะแนนแบบ real-time
-//                calculateAndUpdateScore();
-
                 dataPasser.onSmokerInfo(smokerInfo);
+//                saveResultCodeIfComplete();
 
-                Log.d("SmookingFragment", "Selected SmokerAssist: " + data + ", Form Complete: " + isFormComplete());
+                Log.d(TAG, "Selected SmokerAssist: " + data + ", Form Complete: " + isFormComplete());
             }
         });
 
         rdoSmokerRegularly.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                // หยุดการทำงานหาก isUpdatingFromCode เป็น true
                 if (isUpdatingFromCode) return;
 
                 String data = "";
-                if(checkedId == R.id.rdoSmokerRegularly1) {
+                if (checkedId == R.id.rdoSmokerRegularly1) {
                     data = "1";
-                } else if(checkedId == R.id.rdoSmokerRegularly2) {
+                } else if (checkedId == R.id.rdoSmokerRegularly2) {
                     data = "2";
-                } else if(checkedId == R.id.rdoSmokerRegularly3) {
+                } else if (checkedId == R.id.rdoSmokerRegularly3) {
                     data = "3";
                 }
 
@@ -316,26 +238,24 @@ public class SmookingFragment extends Fragment {
                 smookingLiveData.setSelectedRdoSmokerRegularly(checkedId);
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
-                // คำนวณคะแนนแบบ real-time
-//                calculateAndUpdateScore();
-
                 dataPasser.onSmokerInfo(smokerInfo);
+//                saveResultCodeIfComplete();
 
-                Log.d("SmookingFragment", "Selected SmokerRegularly: " + data + ", Form Complete: " + isFormComplete());
+                Log.d(TAG, "Selected SmokerRegularly: " + data + ", Form Complete: " + isFormComplete());
             }
         });
 
         shareViewModel.getSmookingMutableLiveData().observe(getViewLifecycleOwner(), smookingLiveData -> {
-            if(smookingLiveData != null && !isUpdatingFromCode){
+            if (smookingLiveData != null && !isUpdatingFromCode) {
                 isUpdatingFromCode = true;
                 try {
-                    if(smookingLiveData.getSelectedRdoSmokerGroup() != null) {
+                    if (smookingLiveData.getSelectedRdoSmokerGroup() != null) {
                         rdoSmokerGroup.check(smookingLiveData.getSelectedRdoSmokerGroup());
                     }
-                    if(smookingLiveData.getSelectedRdoSmokerAssist() != null) {
+                    if (smookingLiveData.getSelectedRdoSmokerAssist() != null) {
                         rdoSmokerAssist.check(smookingLiveData.getSelectedRdoSmokerAssist());
                     }
-                    if(smookingLiveData.getSelectedRdoSmokerRegularly() != null) {
+                    if (smookingLiveData.getSelectedRdoSmokerRegularly() != null) {
                         rdoSmokerRegularly.check(smookingLiveData.getSelectedRdoSmokerRegularly());
                     }
                 } finally {
@@ -343,55 +263,515 @@ public class SmookingFragment extends Fragment {
                 }
             }
         });
-        loadData();
     }
+
+    private void clearSubsequentSelections() {
+        isUpdatingFromCode = true;
+        rdoSmokerAssist.clearCheck();
+        rdoSmokerRegularly.clearCheck();
+
+        rdoSmokerAssist1.setEnabled(false);
+        rdoSmokerAssist2.setEnabled(false);
+        rdoSmokerAssist3.setEnabled(false);
+
+        rdoSmokerRegularly1.setEnabled(false);
+        rdoSmokerRegularly2.setEnabled(false);
+        rdoSmokerRegularly3.setEnabled(false);
+
+        isUpdatingFromCode = false;
+
+        smokerInfo.setSmokerAssist("");
+        smokerInfo.setSmokerRegularly("");
+        smookingLiveData.setSelectedRdoSmokerAssist(null);
+        smookingLiveData.setSelectedRdoSmokerRegularly(null);
+    }
+
+    private void enableAssistOptions() {
+        rdoSmokerAssist1.setEnabled(true);
+        rdoSmokerAssist2.setEnabled(true);
+        rdoSmokerAssist3.setEnabled(true);
+
+        rdoSmokerRegularly1.setEnabled(true);
+        rdoSmokerRegularly2.setEnabled(true);
+        rdoSmokerRegularly3.setEnabled(true);
+    }
+
+    private void clearRegularlySelection() {
+        isUpdatingFromCode = true;
+        rdoSmokerRegularly.clearCheck();
+        isUpdatingFromCode = false;
+
+        smokerInfo.setSmokerRegularly("");
+        smookingLiveData.setSelectedRdoSmokerRegularly(null);
+    }
+
+    /**
+     * บันทึก screening result code หากข้อมูลครบถ้วน
+     */
+//    private void saveResultCodeIfComplete() {
+//        if (isFormComplete() && currentPersonId != -1 && currentVisitNo != -1) {
+//            try {
+//                // บันทึกผลการคัดกรอง (2 records)
+//                boolean result = saveSmokingResults(currentPersonId, currentVisitNo, "SYSTEM");
+//
+//                if (result) {
+//                    Log.d(TAG, "บันทึก screening result code สำเร็จ");
+//                } else {
+//                    Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึก screening result code");
+//                }
+//
+//            } catch (Exception e) {
+//                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึก screening result code");
+//            }
+//        }
+//    }
+
+
+
+    /**
+     * บันทึกผลการประเมินความเสี่ยงจากการสูบบุหรี่
+     */
+    public Uri saveSmokingResult(int personId, int visitno, String userCreate) {
+        try {
+            // สร้าง ScreeningResultData
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_SMOKING_RISK;
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode และข้อมูลอื่นๆ ตามการเลือก
+            setResultCodeFromSelection(data);
+
+            // บันทึกข้อมูล
+            Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d(TAG, "บันทึกผลการประเมินการสูบบุหรี่สำเร็จ: " + result.toString());
+                Log.d(TAG, "รายละเอียด: personId=" + personId + ", visitno=" + visitno +
+                        ", resultCode=" + data.resultCode + ", description=" + data.resultDescription);
+                return result;
+            } else {
+                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผลการประเมินการสูบบุหรี่");
+                return null;
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกผลการประเมินการสูบบุหรี่");
+            return null;
+        }
+    }
+    private void setResultCodeFromSelection(ScreeningResultCodeDao.ScreeningResultData data) {
+        if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
+            return;
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        // ตรวจสอบตามลำดับการเลือก
+        if ("1".equals(smokerGroup)) {
+            // ไม่เคยสูบบุหรี่
+            data.resultCode = "1B520"; // ใส่ code ที่ถูกต้องตาม RadioButton
+            data.resultDescription = "ไม่เคยสูบบุหรี่";
+            data.totalScore = 0;
+            data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+            data.isAbnormal = false;
+            data.recommendation = "ควรรักษาสถานะไม่สูบบุหรี่ต่อไป";
+
+        } else if ("2".equals(smokerGroup)) {
+            // เคยสูบ แต่ไม่ใช่ใน 3 เดือนที่ผ่านมา
+            data.resultCode = "1B521"; // ใส่ code ที่ถูกต้องตาม RadioButton
+            data.resultDescription = "เคยสูบบุหรี่ แต่ไม่ใช่ใน 3 เดือนที่ผ่านมา";
+            data.totalScore = 2;
+            data.riskLevel = ScreeningResultCode.RISK_LOW;
+            data.isAbnormal = false;
+            data.recommendation = "ดีที่เลิกสูบได้แล้ว ควรรักษาสถานะนี้ต่อไป";
+
+        } else if ("3".equals(smokerGroup)) {
+            // สูบบุหรี่เป็นประจำ - ต้องดูความถี่
+            if (smokerAssist == null || smokerAssist.isEmpty()) {
+                // ยังไม่ได้เลือกความถี่
+                data.resultCode = "1B522"; // default สำหรับสูบเป็นประจำ
+                data.resultDescription = "สูบบุหรี่เป็นประจำ (ยังไม่ระบุความถี่)";
+                data.totalScore = 4;
+                data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+                data.isAbnormal = true;
+                data.recommendation = "ควรเลิกสูบบุหรี่และปรึกษาแพทย์";
+
+            } else if ("1".equals(smokerAssist)) {
+                // บางครั้ง บางคราว
+                data.resultCode = "1B5221"; // ใส่ code ที่ถูกต้องตาม RadioButton
+                data.resultDescription = "สูบบุหรี่บางครั้ง บางคราว";
+                data.totalScore = 6;
+                data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+                data.isAbnormal = true;
+                data.recommendation = "ควรลดการสูบและหาวิธีเลิกสูบบุหรี่";
+
+            } else if ("2".equals(smokerAssist)) {
+                // บางครั้ง บางคราว
+                data.resultCode = "1B5222"; // ใส่ code ที่ถูกต้องตาม RadioButton
+                data.resultDescription = "สูบบุหรี่บางครั้ง บางคราว";
+                data.totalScore = 7;
+                data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+                data.isAbnormal = true;
+                data.recommendation = "ควรลดการสูบและหาวิธีเลิกสูบบุหรี่";
+
+            } else if ("3".equals(smokerAssist)) {
+                // สูบเป็นประจำ - ต้องดูการให้คำแนะนำ
+                if (smokerRegularly == null || smokerRegularly.isEmpty()) {
+                    // ยังไม่ได้เลือกการให้คำแนะนำ
+                    data.resultCode = "1B5223"; // default สำหรับสูบเป็นประจำ
+                    data.resultDescription = "สูบบุหรี่เป็นประจำ (ยังไม่ระบุการให้คำแนะนำ)";
+                    data.totalScore = 8;
+                    data.riskLevel = ScreeningResultCode.RISK_HIGH;
+                    data.isAbnormal = true;
+                    data.recommendation = "ต้องเลิกสูบบุหรี่ทันที และปรึกษาแพทย์";
+
+                } else if ("1".equals(smokerRegularly)) {
+                    // ให้คำแนะนำ/ปรึกษา แบบที่ 1
+                    data.resultCode = "1B52231"; // ใส่ code ที่ถูกต้องตาม RadioButton
+                    data.resultDescription = "สูบบุหรี่เป็นประจำ - ให้คำแนะนำแบบที่ 1";
+                    data.totalScore = 9;
+                    data.riskLevel = ScreeningResultCode.RISK_HIGH;
+                    data.isAbnormal = true;
+                    data.recommendation = "ต้องเลิกสูบบุหรี่ทันที พร้อมติดตามอย่างใกล้ชิด";
+
+                } else if ("2".equals(smokerRegularly)) {
+                    // ให้คำแนะนำ/ปรึกษา แบบที่ 2
+                    data.resultCode = "1B52232"; // ใส่ code ที่ถูกต้องตาม RadioButton
+                    data.resultDescription = "สูบบุหรี่เป็นประจำ - ให้คำแนะนำแบบที่ 2";
+                    data.totalScore = 10;
+                    data.riskLevel = ScreeningResultCode.RISK_HIGH;
+                    data.isAbnormal = true;
+                    data.recommendation = "ต้องเลิกสูบบุหรี่ทันที พร้อมการรักษาเพิ่มเติม";
+
+                } else if ("3".equals(smokerRegularly)) {
+                    // ให้คำแนะนำ/ปรึกษา แบบที่ 3
+                    data.resultCode = "1B52233"; // ใส่ code ที่ถูกต้องตาม RadioButton
+                    data.resultDescription = "สูบบุหรี่เป็นประจำ - ให้คำแนะนำแบบที่ 3";
+                    data.totalScore = 12;
+                    data.riskLevel = ScreeningResultCode.RISK_VERY_HIGH;
+                    data.isAbnormal = true;
+                    data.recommendation = "ต้องเลิกสูบบุหรี่ทันที พร้อมการรักษาแบบเร่งด่วน";
+                }
+            }
+        }
+    }
+    public boolean saveSmokingResults(int personId, int visitno, String userCreate) {
+        try {
+            boolean success = true;
+
+            // บันทึก Record 1: สถานะการสูบบุหรี่
+            Uri result1 = saveSmokingStatusResult(personId, visitno, userCreate);
+            if (result1 == null) {
+                success = false;
+                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกสถานะการสูบบุหรี่");
+            }
+
+            // บันทึก Record 2: การให้คำแนะนำ (เฉพาะกรณีที่สูบบุหรี่)
+            if ("3".equals(smokerInfo.getSmokerGroup()) &&
+                    "3".equals(smokerInfo.getSmokerAssist()) &&
+                    smokerInfo.getSmokerRegularly() != null &&
+                    !smokerInfo.getSmokerRegularly().isEmpty()) {
+
+                Uri result2 = saveSmokingAdviceResult(personId, visitno, userCreate);
+                if (result2 == null) {
+                    success = false;
+                    Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกการให้คำแนะนำ");
+                }
+            }
+
+            if (success) {
+                Log.d(TAG, "บันทึกผลการประเมินการสูบบุหรี่สำเร็จทั้งหมด");
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกผลการประเมินการสูบบุหรี่");
+            return false;
+        }
+    }
+    private Uri saveSmokingAdviceResult(int personId, int visitno, String userCreate) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_SMOKING_ADVICE; // ต้องเพิ่มใน ScreeningResultCode
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode ตามการให้คำแนะนำ
+            String smokerRegularly = smokerInfo.getSmokerRegularly();
+            if ("1".equals(smokerRegularly)) {
+                data.resultCode = "1B530";
+                data.resultDescription = "การให้คำแนะนำแบบที่ 1";
+                data.totalScore = 1;
+                data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+                data.isAbnormal = true;
+                data.recommendation = "ให้คำแนะนำเกี่ยวกับการเลิกสูบบุหรี่";
+
+            } else if ("2".equals(smokerRegularly)) {
+                data.resultCode = "1B531";
+                data.resultDescription = "การให้คำแนะนำแบบที่ 2";
+                data.totalScore = 2;
+                data.riskLevel = ScreeningResultCode.RISK_HIGH;
+                data.isAbnormal = true;
+                data.recommendation = "ให้คำแนะนำและติดตามการเลิกสูบบุหรี่";
+
+            } else if ("3".equals(smokerRegularly)) {
+                data.resultCode = "1B532";
+                data.resultDescription = "การให้คำแนะนำแบบที่ 3";
+                data.totalScore = 3;
+                data.riskLevel = ScreeningResultCode.RISK_VERY_HIGH;
+                data.isAbnormal = true;
+                data.recommendation = "ให้คำแนะนำเร่งด่วนและส่งต่อผู้เชี่ยวชาญ";
+            }
+
+            Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d(TAG, "บันทึกการให้คำแนะนำสำเร็จ: " + data.resultCode + " - " + data.resultDescription);
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกการให้คำแนะนำ");
+            return null;
+        }
+    }
+    private Uri saveSmokingStatusResult(int personId, int visitno, String userCreate) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_SMOKING_STATUS; // ต้องเพิ่มใน ScreeningResultCode
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode ตามสถานะการสูบ
+            String smokerGroup = smokerInfo.getSmokerGroup();
+            if ("1".equals(smokerGroup)) {
+                // ไม่สูบ
+                data.resultCode = "1B52";
+                data.resultDescription = "ไม่สูบบุหรี่";
+                data.totalScore = 0;
+                data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+                data.isAbnormal = false;
+                data.recommendation = "ควรรักษาสถานะไม่สูบบุหรี่ต่อไป";
+
+            } else if ("2".equals(smokerGroup)) {
+                // เคยสูบบุหรี่แต่เลิกแล้ว
+                data.resultCode = "1B51";
+                data.resultDescription = "เคยสูบบุหรี่แต่เลิกแล้ว";
+                data.totalScore = 0;
+                data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+                data.isAbnormal = false;
+                data.recommendation = "ดีที่เลิกสูบได้แล้ว ควรรักษาสถานะนี้ต่อไป";
+
+            } else if ("3".equals(smokerGroup)) {
+                // สูบบุหรี่
+                data.resultCode = "1B50";
+                data.resultDescription = "สูบบุหรี่";
+                data.totalScore = 1;
+                data.riskLevel = ScreeningResultCode.RISK_HIGH;
+                data.isAbnormal = true;
+                data.recommendation = "ควรเลิกสูบบุหรี่และปรึกษาแพทย์";
+            }
+
+            Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d(TAG, "บันทึกสถานะการสูบบุหรี่สำเร็จ: " + data.resultCode + " - " + data.resultDescription);
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกสถานะการสูบบุหรี่");
+            return null;
+        }
+    }
+
+    /**
+     * กำหนด resultCode และ resultDescription ตามคะแนนความเสี่ยงจากการสูบบุหรี่
+     */
+    private void setResultCodeAndDescriptionSmoking(ScreeningResultCodeDao.ScreeningResultData data, int riskScore) {
+        if (riskScore >= 0 && riskScore <= 3) {
+            data.resultCode = "1B140"; // ไม่มีความเสี่ยง
+            data.resultDescription = "ไม่มีความเสี่ยงจากการสูบบุหรี่";
+        } else if (riskScore >= 4 && riskScore <= 26) {
+            data.resultCode = "1B141"; // ความเสี่ยงปานกลาง
+            data.resultDescription = "มีความเสี่ยงจากการสูบบุหรี่ระดับปานกลาง";
+        } else {
+            data.resultCode = "1B142"; // ความเสี่ยงสูง
+            data.resultDescription = "มีความเสี่ยงจากการสูบบุหรี่ระดับสูง";
+        }
+    }
+
+    /**
+     * กำหนด riskLevel และ isAbnormal ตามคะแนนความเสี่ยงจากการสูบบุหรี่
+     */
+    private void setRiskLevelAndAbnormalSmoking(ScreeningResultCodeDao.ScreeningResultData data, int riskScore) {
+        if (riskScore >= 0 && riskScore <= 3) {
+            data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+            data.isAbnormal = false;
+        } else if (riskScore >= 4 && riskScore <= 26) {
+            data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+            data.isAbnormal = true;
+        } else {
+            data.riskLevel = ScreeningResultCode.RISK_HIGH;
+            data.isAbnormal = true;
+        }
+    }
+
+    /**
+     * กำหนดคำแนะนำตามคะแนนความเสี่ยง
+     */
+    private String getRecommendationSmoking(int riskScore) {
+        if (riskScore >= 0 && riskScore <= 3) {
+            return "ไม่มีความเสี่ยงจากการสูบบุหรี่ ควรรักษาสถานะนี้ต่อไป";
+        } else if (riskScore >= 4 && riskScore <= 26) {
+            return "มีความเสี่ยงปานกลาง ควรได้รับคำแนะนำเกี่ยวกับการเลิกสูบบุหรี่";
+        } else {
+            return "มีความเสี่ยงสูง ควรเลิกสูบบุหรี่ทันที และปรึกษาแพทย์เพื่อขอคำแนะนำ";
+        }
+    }
+
+    /**
+     * บันทึกข้อมูลลง ScreeningResultCode (เมธอดหลัก)
+     */
+    public boolean saveToScreeningResultCode(int personId, int visitno, String userCreate) {
+        try {
+            if (!isFormComplete()) {
+                Log.e(TAG, "ไม่สามารถบันทึกได้ - ข้อมูลไม่ครบถ้วน");
+                return false;
+            }
+
+            boolean result = saveSmokingResults(personId, visitno, userCreate);
+
+            if (result) {
+                Log.d(TAG, "บันทึกผลการประเมินการสูบบุหรี่สำเร็จ");
+                return true;
+            } else {
+                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผลการประเมินการสูบบุหรี่");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกผลการประเมินการสูบบุหรี่");
+            return false;
+        }
+    }
+
+    /**
+     * โหลดข้อมูลจาก ScreeningResultCode
+     */
+    public void loadFromScreeningResultCode(int personId, int visitno) {
+        try {
+            // โหลด Record 1: สถานะการสูบบุหรี่
+            ScreeningResultCodeDao.ScreeningResultData statusData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_SMOKING_STATUS);
+
+            // โหลด Record 2: การให้คำแนะนำ
+            ScreeningResultCodeDao.ScreeningResultData adviceData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_SMOKING_ADVICE);
+
+            if (statusData != null) {
+                Log.d(TAG, "พบข้อมูลสถานะการสูบบุหรี่เดิม: " + statusData.resultCode + " - " + statusData.resultDescription);
+
+                if (adviceData != null) {
+                    Log.d(TAG, "พบข้อมูลการให้คำแนะนำเดิม: " + adviceData.resultCode + " - " + adviceData.resultDescription);
+
+                    Toast.makeText(getContext(),
+                            "โหลดข้อมูลการประเมินการสูบบุหรี่เดิม: " + statusData.resultDescription +
+                                    " และ " + adviceData.resultDescription,
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(),
+                            "โหลดข้อมูลการประเมินการสูบบุหรี่เดิม: " + statusData.resultDescription,
+                            Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.d(TAG, "ไม่พบข้อมูลการประเมินการสูบบุหรี่เดิม");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมินการสูบบุหรี่");
+        }
+    }
+
+    /**
+     * ตรวจสอบว่ามีข้อมูลเดิมหรือไม่
+     */
+    public boolean hasExistingData(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData statusData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_SMOKING_STATUS);
+            return statusData != null;
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูลเดิม");
+            return false;
+        }
+    }
+
+    /**
+     * แสดงผลการบันทึก
+     */
+    public void showSaveResult(boolean success, String message) {
+        if (success) {
+            Toast.makeText(getContext(),
+                    "✅ บันทึกผลการประเมินการสูบบุหรี่สำเร็จ",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(),
+                    "❌ เกิดข้อผิดพลาดในการบันทึก: " + message,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     /**
      * โหลดคะแนนการสูบบุหรี่จาก SfDrugsDao
      */
     private void loadSmokingScore(String personInfoId) {
         try {
-            // คำนวณผลรวมของคำตอบจาก Q2 ถึง Q7 สำหรับยาสูบ (substance a)
             String[] questions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7"};
             int totalScore = 0;
 
-            // ดึงข้อมูลจากแต่ละคำถามและรวมคะแนนสำหรับยาสูบ (a)
             for (String question : questions) {
                 Map<String, Integer> summaryMap = SfDrugsDao.getSummaryMapBySubquestion(
                         Integer.valueOf(personInfoId), question);
 
-                // เอาเฉพาะคะแนนของยาสูบ (substance a)
                 if (summaryMap.containsKey("a")) {
                     totalScore += summaryMap.get("a");
                 }
             }
 
-            // แสดงคะแนนรวม
             updateSmokingScore(totalScore);
+            Log.d(TAG, "โหลดคะแนนการสูบบุหรี่สำเร็จ: " + totalScore);
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการโหลดคะแนน: " + e.getMessage());
+        }
+    }
 
-            Log.d("SmookingFragment", "โหลดคะแนนการสูบบุหรี่สำเร็จ: " + totalScore);
-        } catch (Exception e) {
-            Log.e("SmookingFragment", "เกิดข้อผิดพลาดในการโหลดคะแนน: " + e.getMessage());
-        }
-    }
-    /**
-     * คำนวณและอัปเดตคะแนนแบบ real-time
-     */
-    private void calculateAndUpdateScore() {
-        try {
-            // คำนวณคะแนนจากการเลือกปัจจุบัน
-            int score = calculateCurrentScore();
-            updateSmokingScore(score);
-        } catch (Exception e) {
-            Log.e("SmookingFragment", "เกิดข้อผิดพลาดในการคำนวณคะแนน: " + e.getMessage());
-        }
-    }
     /**
      * คำนวณคะแนนจากการเลือกปัจจุบัน
      */
     private int calculateCurrentScore() {
         int score = 0;
 
-        // คำนวณจากการเลือกใน RadioGroup ต่างๆ
         if (smokerInfo != null) {
             // Q2: ความถี่การใช้ (SmokerGroup)
             if (smokerInfo.getSmokerGroup() != null) {
@@ -423,21 +803,21 @@ public class SmookingFragment extends Fragment {
 
         return score;
     }
+
+    /**
+     * อัปเดตคะแนนและระดับความเสี่ยงบน UI
+     */
     private void updateSmokingScore(int score) {
         if (tvSmokingScore != null) {
             tvSmokingScore.setText(String.valueOf(score));
 
-            // เปลี่ยนสี background และ text color ของ tvSmokingScore ตามระดับคะแนน
             if (score >= 0 && score <= 3) {
-                // ไม่มีความเสี่ยง - สีเขียว
                 tvSmokingScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
                 tvSmokingScore.setTextColor(Color.WHITE);
             } else if (score >= 4 && score <= 26) {
-                // ความเสี่ยงปานกลาง - สีส้ม
                 tvSmokingScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
                 tvSmokingScore.setTextColor(Color.WHITE);
             } else {
-                // ความเสี่ยงสูง - สีแดง
                 tvSmokingScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
                 tvSmokingScore.setTextColor(Color.WHITE);
             }
@@ -446,20 +826,16 @@ public class SmookingFragment extends Fragment {
         if (tvSmokingRiskLevel != null) {
             String riskLevel;
 
-            // กำหนดระดับความเสี่ยงตามคะแนน (สำหรับยาสูบ)
             if (score >= 0 && score <= 3) {
                 riskLevel = "ไม่มีความเสี่ยง";
-                // ใช้สีเขียวเหมือน nicotine
                 tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_green));
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
             } else if (score >= 4 && score <= 26) {
                 riskLevel = "ความเสี่ยงปานกลาง";
-                // ใช้สีส้มเหมือน nicotine
                 tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_orange));
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_orange));
             } else {
                 riskLevel = "ความเสี่ยงสูง";
-                // ใช้สีแดงเหมือน nicotine
                 tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_red));
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
             }
@@ -467,6 +843,7 @@ public class SmookingFragment extends Fragment {
             tvSmokingRiskLevel.setText(riskLevel);
         }
     }
+
     private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
         android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
                 android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
@@ -476,114 +853,51 @@ public class SmookingFragment extends Fragment {
                 }
         );
 
-        // ตั้งค่ามุมโค้ง
         gradient.setCornerRadius(20f);
-
         return gradient;
     }
-    private void loadData(){
 
+    private void loadData() {
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getSmookingMutableLiveData().observe(getViewLifecycleOwner(), data -> {
-
-            if(data.getPersonId()!=null){
+            if (data.getPersonId() != null) {
                 List<SmokerInfo> smokerInfos = sfSmokerInfoDao.getByPersonId(Integer.valueOf(data.getPersonId()));
-                for(SmokerInfo smokerInfo :smokerInfos){
-//                    setDataToViews(smokerInfo);
-                    Log.d("smoker", "smoker infos:"+smokerInfos);
+                for (SmokerInfo smokerInfo : smokerInfos) {
+                    Log.d("smoker", "smoker infos:" + smokerInfos);
                     setSmokerInfo(smokerInfo);
                 }
-
-
             }
         });
-
     }
-    private void setDataToViews(SmokerInfo smokerInfo){
 
-    }
     public void setSmokerInfo(SmokerInfo info) {
-        Log.d("SmookingFragment", "setSmokerInfo called with: " +
+        Log.d(TAG, "setSmokerInfo called with: " +
                 (info != null ? "Group=" + info.getSmokerGroup() + ", Assist=" + info.getSmokerAssist() + ", Regularly=" + info.getSmokerRegularly() : "null"));
 
         this.smokerInfo = info;
         updateUI();
     }
+
     private void updateUI() {
         if (this.smokerInfo != null) {
-            // ตั้งค่าป้องกัน loop
             isUpdatingFromCode = true;
 
             try {
-                // Set SmokerGroup
                 String smokerGroup = this.smokerInfo.getSmokerGroup();
                 if (smokerGroup != null && !smokerGroup.isEmpty()) {
                     switch (smokerGroup) {
                         case "1":
                             rdoSmokerGroup1.setChecked(true);
-                            rdoSmokerAssist.clearCheck();
-                            rdoSmokerRegularly.clearCheck();
-                            rdoSmokerAssist1.setChecked(false);
-                            rdoSmokerAssist2.setChecked(false);
-                            rdoSmokerAssist3.setChecked(false);
-
-                            rdoSmokerAssist1.setEnabled(false);
-                            rdoSmokerAssist2.setEnabled(false);
-                            rdoSmokerAssist3.setEnabled(false);
-
-                            rdoSmokerRegularly1.setChecked(false);
-                            rdoSmokerRegularly2.setChecked(false);
-                            rdoSmokerRegularly3.setChecked(false);
-
-                            rdoSmokerRegularly1.setEnabled(false);
-                            rdoSmokerRegularly2.setEnabled(false);
-                            rdoSmokerRegularly3.setEnabled(false);
+                            clearSubsequentSelections();
                             break;
                         case "2":
                             rdoSmokerGroup2.setChecked(true);
-
-                            rdoSmokerAssist.clearCheck();
-                            rdoSmokerRegularly.clearCheck();
-                            rdoSmokerAssist1.setChecked(false);
-                            rdoSmokerAssist2.setChecked(false);
-                            rdoSmokerAssist3.setChecked(false);
-
-                            rdoSmokerAssist1.setEnabled(false);
-                            rdoSmokerAssist2.setEnabled(false);
-                            rdoSmokerAssist3.setEnabled(false);
-
-                            rdoSmokerRegularly1.setChecked(false);
-                            rdoSmokerRegularly2.setChecked(false);
-                            rdoSmokerRegularly3.setChecked(false);
-
-                            rdoSmokerRegularly1.setEnabled(false);
-                            rdoSmokerRegularly2.setEnabled(false);
-                            rdoSmokerRegularly3.setEnabled(false);
-
+                            clearSubsequentSelections();
                             break;
                         case "3":
                             rdoSmokerGroup3.setChecked(true);
-                            rdoSmokerAssist.clearCheck();
-                            rdoSmokerRegularly.clearCheck();
+                            enableAssistOptions();
 
-                            rdoSmokerAssist1.setChecked(false);
-                            rdoSmokerAssist2.setChecked(false);
-                            rdoSmokerAssist3.setChecked(false);
-
-                            rdoSmokerAssist1.setEnabled(true);
-                            rdoSmokerAssist2.setEnabled(true);
-                            rdoSmokerAssist3.setEnabled(true);
-
-
-                            rdoSmokerRegularly1.setChecked(false);
-                            rdoSmokerRegularly2.setChecked(false);
-                            rdoSmokerRegularly3.setChecked(false);
-
-                            rdoSmokerRegularly1.setEnabled(true);
-                            rdoSmokerRegularly2.setEnabled(true);
-                            rdoSmokerRegularly3.setEnabled(true);
-
-                            // Set SmokerAssist if SmokerGroup is 3
                             String smokerAssist = this.smokerInfo.getSmokerAssist();
                             if (smokerAssist != null && !smokerAssist.isEmpty()) {
                                 switch (smokerAssist) {
@@ -596,7 +910,6 @@ public class SmookingFragment extends Fragment {
                                     case "3":
                                         rdoSmokerAssist3.setChecked(true);
 
-                                        // Set SmokerRegularly if SmokerAssist is 3
                                         String smokerRegularly = this.smokerInfo.getSmokerRegularly();
                                         if (smokerRegularly != null && !smokerRegularly.isEmpty()) {
                                             switch (smokerRegularly) {
@@ -618,35 +931,28 @@ public class SmookingFragment extends Fragment {
                     }
                 }
             } finally {
-                // ปิดการป้องกัน loop
                 isUpdatingFromCode = false;
             }
-
-            // คำนวณคะแนนหลังจากอัปเดต UI เสร็จแล้ว
-//            calculateAndUpdateScore();
         }
     }
+
     public SmokerInfo getFormData() {
-        return  this.smokerInfo;
+        return this.smokerInfo;
     }
-    // เพิ่มเมธอดเหล่านี้ใน SmookingFragment.java
 
     /**
      * ตรวจสอบว่าข้อมูลครบถ้วนหรือไม่
      */
     public boolean isFormComplete() {
-        // ตรวจสอบว่าได้เลือก SmokerGroup แล้วหรือไม่
         if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
             return false;
         }
 
-        // ถ้าเลือก "สูบบุหรี่เป็นประจำ" (option 3) ต้องเลือก SmokerAssist ด้วย
         if ("3".equals(smokerInfo.getSmokerGroup())) {
             if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
                 return false;
             }
 
-            // ถ้าเลือก "สูบเป็นประจำ" (option 3 ใน SmokerAssist) ต้องเลือก SmokerRegularly ด้วย
             if ("3".equals(smokerInfo.getSmokerAssist())) {
                 if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
                     return false;
@@ -663,20 +969,17 @@ public class SmookingFragment extends Fragment {
     public String getValidationMessage() {
         StringBuilder message = new StringBuilder();
 
-        // ตรวจสอบว่าได้เลือกสถานะการสูบบุหรี่หรือไม่
         if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
             message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่: ยังไม่ได้เลือกสถานะการสูบบุหรี่");
             return message.toString();
         }
 
-        // ถ้าเลือก "สูบบุหรี่เป็นประจำ" แต่ยังไม่ได้เลือกความถี่
         if ("3".equals(smokerInfo.getSmokerGroup())) {
             if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
                 message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่: ยังไม่ได้เลือกความถี่ในการสูบ");
                 return message.toString();
             }
 
-            // ถ้าเลือก "สูบเป็นประจำ" แต่ยังไม่ได้เลือกระดับการให้คำแนะนำ
             if ("3".equals(smokerInfo.getSmokerAssist())) {
                 if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
                     message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่: ยังไม่ได้เลือกการให้คำแนะนำ/ปรึกษา");
@@ -685,7 +988,7 @@ public class SmookingFragment extends Fragment {
             }
         }
 
-        return ""; // ไม่มีข้อผิดพลาด
+        return "";
     }
 
     /**
@@ -694,14 +997,12 @@ public class SmookingFragment extends Fragment {
     public String getDetailedValidationMessage() {
         StringBuilder message = new StringBuilder();
 
-        // ตรวจสอบว่าได้เลือกสถานะการสูบบุหรี่หรือไม่
         if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
             message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่:\n");
             message.append("• ยังไม่ได้เลือกสถานะการสูบบุหรี่ (ไม่เคยสูบ/เคยสูบ/สูบเป็นประจำ)");
             return message.toString();
         }
 
-        // ตรวจสอบการเลือกความถี่ (สำหรับผู้ที่สูบเป็นประจำ)
         if ("3".equals(smokerInfo.getSmokerGroup())) {
             if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
                 message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่:\n");
@@ -709,7 +1010,6 @@ public class SmookingFragment extends Fragment {
                 return message.toString();
             }
 
-            // ตรวจสอบการให้คำแนะนำ (สำหรับผู้ที่สูบเป็นประจำ)
             if ("3".equals(smokerInfo.getSmokerAssist())) {
                 if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
                     message.append("แบบประเมินความเสี่ยงจากการสูบบุหรี่:\n");
@@ -719,7 +1019,7 @@ public class SmookingFragment extends Fragment {
             }
         }
 
-        return ""; // ไม่มีข้อผิดพลาด
+        return "";
     }
 
     /**
@@ -738,10 +1038,8 @@ public class SmookingFragment extends Fragment {
                 rdoSmokerRegularly.clearCheck();
             }
 
-            // รีเซ็ต smokerInfo
             smokerInfo = new SmokerInfo();
 
-            // รีเซ็ตคะแนน
             if (tvSmokingScore != null) {
                 tvSmokingScore.setText("-");
                 tvSmokingScore.setBackgroundResource(R.color.light_gray);
@@ -779,26 +1077,24 @@ public class SmookingFragment extends Fragment {
             return 0;
         }
 
-        // หากเลือก "ไม่เคยสูบ" หรือ "เคยสูบแต่ไม่ใช่ใน 3 เดือนที่ผ่านมา" ถือว่าครบ 100%
         if ("1".equals(smokerInfo.getSmokerGroup()) || "2".equals(smokerInfo.getSmokerGroup())) {
             return 100;
         }
 
-        // หากเลือก "สูบเป็นประจำ" ต้องตรวจสอบขั้นตอนต่อไป
         if ("3".equals(smokerInfo.getSmokerGroup())) {
             if (smokerInfo.getSmokerAssist() == null || smokerInfo.getSmokerAssist().isEmpty()) {
-                return 33; // กรอก 1/3
+                return 33;
             }
 
             if ("1".equals(smokerInfo.getSmokerAssist()) || "2".equals(smokerInfo.getSmokerAssist())) {
-                return 100; // ไม่ต้องตอบขั้นตอนถัดไป
+                return 100;
             }
 
             if ("3".equals(smokerInfo.getSmokerAssist())) {
                 if (smokerInfo.getSmokerRegularly() == null || smokerInfo.getSmokerRegularly().isEmpty()) {
-                    return 66; // กรอง 2/3
+                    return 66;
                 } else {
-                    return 100; // กรอบครบทุกขั้นตอน
+                    return 100;
                 }
             }
         }
@@ -815,15 +1111,238 @@ public class SmookingFragment extends Fragment {
 
         if (percentage == 100) {
             message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+
+            // แสดงผลการประเมินด้วย
+            String result = getAssessmentResult();
+            message += " - " + result;
         } else if (percentage > 0) {
             message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
         } else {
             message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
         }
 
-        Log.d("SmookingFragment", "Completion Status: " + message);
+        Log.d(TAG, "Completion Status: " + message);
+    }
 
-        // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
-        // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    /**
+     * ดึงผลการประเมิน
+     */
+    public String getAssessmentResult() {
+        if (!isFormComplete()) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        if ("1".equals(smokerGroup)) {
+            return "ไม่เคยสูบบุหรี่";
+        } else if ("2".equals(smokerGroup)) {
+            return "เคยสูบบุหรี่ แต่ไม่ใช่ใน 3 เดือนที่ผ่านมา";
+        } else if ("3".equals(smokerGroup)) {
+            if ("1".equals(smokerAssist)) {
+                return "สูบบุหรี่บางครั้ง บางคราว";
+            } else if ("2".equals(smokerAssist)) {
+                return "สูบบุหรี่บางครั้ง บางคราว";
+            } else if ("3".equals(smokerAssist)) {
+                if ("1".equals(smokerRegularly)) {
+                    return "สูบบุหรี่เป็นประจำ - ให้คำแนะนำแบบที่ 1";
+                } else if ("2".equals(smokerRegularly)) {
+                    return "สูบบุหรี่เป็นประจำ - ให้คำแนะนำแบบที่ 2";
+                } else if ("3".equals(smokerRegularly)) {
+                    return "สูบบุหรี่เป็นประจำ - ให้คำแนะนำแบบที่ 3";
+                } else {
+                    return "สูบบุหรี่เป็นประจำ";
+                }
+            } else {
+                return "สูบบุหรี่เป็นประจำ";
+            }
+        }
+
+        return "ไม่ทราบสถานะ";
+    }
+
+    /**
+     * ดึงระดับความเสี่ยงจากคะแนน
+     */
+    public String getRiskLevelFromScore() {
+        if (!isFormComplete()) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        if ("1".equals(smokerGroup)) {
+            return "ไม่มีความเสี่ยง";
+        } else if ("2".equals(smokerGroup)) {
+            return "ความเสี่ยงต่ำ";
+        } else if ("3".equals(smokerGroup)) {
+            if ("1".equals(smokerAssist) || "2".equals(smokerAssist)) {
+                return "ความเสี่ยงปานกลาง";
+            } else if ("3".equals(smokerAssist)) {
+                if ("3".equals(smokerRegularly)) {
+                    return "ความเสี่ยงสูงมาก";
+                } else {
+                    return "ความเสี่ยงสูง";
+                }
+            } else {
+                return "ความเสี่ยงปานกลาง";
+            }
+        }
+
+        return "ไม่ทราบระดับความเสี่ยง";
+    }
+
+
+    /**
+     * ดึงคำแนะนำตามผลการประเมิน
+     */
+    public String getRecommendation() {
+        if (!isFormComplete()) {
+            return "กรุณากรอกข้อมูลให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        if ("1".equals(smokerGroup)) {
+            return "ควรรักษาสถานะไม่สูบบุหรี่ต่อไป หลีกเลี่ยงสภาพแวดล้อมที่มีควันบุหรี่";
+        } else if ("2".equals(smokerGroup)) {
+            return "ดีที่เลิกสูบได้แล้ว ควรรักษาสถานะนี้ต่อไป และหลีกเลี่ยงการกลับไปสูบใหม่";
+        } else if ("3".equals(smokerGroup)) {
+            StringBuilder recommendation = new StringBuilder("ควรเลิกสูบบุหรี่และปรึกษาแพทย์");
+
+            if ("3".equals(smokerAssist) && smokerRegularly != null && !smokerRegularly.isEmpty()) {
+                if ("1".equals(smokerRegularly)) {
+                    recommendation.append(" - ให้คำแนะนำเกี่ยวกับการเลิกสูบบุหรี่");
+                } else if ("2".equals(smokerRegularly)) {
+                    recommendation.append(" - ให้คำแนะนำและติดตามการเลิกสูบบุหรี่อย่างใกล้ชิด");
+                } else if ("3".equals(smokerRegularly)) {
+                    recommendation.append(" - ให้คำแนะนำเร่งด่วนและส่งต่อผู้เชี่ยวชาญเพื่อการรักษา");
+                }
+            }
+
+            return recommendation.toString();
+        }
+
+        return "ควรปรึกษาแพทย์เพื่อรับคำแนะนำที่เหมาะสม";
+    }
+
+    /**
+     * ตรวจสอบว่ามีความเสี่ยงสูงหรือไม่
+     */
+    public boolean isHighRisk() {
+        if (!isFormComplete()) {
+            return false;
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        // ถือว่าความเสี่ยงสูงถ้าสูบเป็นประจำ และเลือกตัวเลือกที่มีความเสี่ยงสูง
+        if ("3".equals(smokerGroup) && "3".equals(smokerAssist)) {
+            if ("2".equals(smokerRegularly) || "3".equals(smokerRegularly)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * ดึงคะแนนรวม
+     */
+    public int getTotalScore() {
+        if (!isFormComplete()) {
+            return -1;
+        }
+
+        // คำนวณคะแนนเพื่อแสดงผลใน UI เท่านั้น
+        return calculateCurrentScore();
+    }
+
+    /**
+     * ดึงข้อความสรุปผลแบบสั้น
+     */
+    public String getSummaryText() {
+        if (!isFormComplete()) {
+            return "ยังไม่ได้ประเมิน";
+        }
+
+        String riskLevel = getRiskLevelFromScore();
+        String assessment = getAssessmentResult();
+
+        return riskLevel + " (" + assessment + ")";
+    }
+
+    /**
+     * ดึงสถิติการประเมิน
+     */
+    public ScreeningResultCodeDao.ScreeningStatistics getStatistics() {
+        try {
+            // ดึงสถิติจากสถานะการสูบบุหรี่เป็นหลัก
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_SMOKING_STATUS);
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการดึงสถิติการประเมินการสูบบุหรี่");
+            return null;
+        }
+    }
+    public ScreeningResultCodeDao.ScreeningStatistics getAdviceStatistics() {
+        try {
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_SMOKING_ADVICE);
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการดึงสถิติการให้คำแนะนำ");
+            return null;
+        }
+    }
+
+    /**
+     * แสดงสถิติการประเมิน
+     */
+    public void showStatistics() {
+        ScreeningResultCodeDao.ScreeningStatistics statusStats = getStatistics();
+        ScreeningResultCodeDao.ScreeningStatistics adviceStats = getAdviceStatistics();
+
+        StringBuilder message = new StringBuilder();
+
+        if (statusStats != null) {
+            message.append("สถิติสถานะการสูบบุหรี่:\n");
+            message.append(String.format(
+                    "จำนวนทั้งหมด: %d ครั้ง\n" +
+                            "ไม่สูบ/เลิกแล้ว: %d ครั้ง\n" +
+                            "สูบบุหรี่: %d ครั้ง\n",
+                    statusStats.totalCount, statusStats.normalCount, statusStats.abnormalCount
+            ));
+        }
+
+        if (adviceStats != null) {
+            message.append("\nสถิติการให้คำแนะนำ:\n");
+            message.append(String.format(
+                    "จำนวนทั้งหมด: %d ครั้ง\n" +
+                            "คะแนนเฉลี่ย: %.1f\n" +
+                            "คะแนนสูงสุด: %d\n" +
+                            "คะแนนต่ำสุด: %d",
+                    adviceStats.totalCount, adviceStats.averageScore,
+                    adviceStats.maxScore, adviceStats.minScore
+            ));
+        }
+
+        if (message.length() > 0) {
+            Log.d(TAG, message.toString());
+        }
+    }
+
+    /**
+     * ตั้งค่าข้อมูล person และ visit
+     */
+    public void setPersonAndVisitInfo(int personId, int visitNo) {
+        this.currentPersonId = personId;
+        this.currentVisitNo = visitNo;
     }
 }

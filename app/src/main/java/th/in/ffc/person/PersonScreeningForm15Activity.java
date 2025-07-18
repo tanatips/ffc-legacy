@@ -194,11 +194,17 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private boolean previousAlcoholUse = false;
     private boolean isInitialLoad = true;
 
+
+    // เพิ่มในส่วน Declaration ของ PersonScreeningForm15Activity.java
+    private LinearLayout counselingInfoContainer;
+    private TextView textCounselingType;
+    private TextView textCounselingDetail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_screening_form15);
-
+        initializeCounselingInfo();
         mContext = this;
 
         // เปลี่ยนจาก getBaseContext() เป็น this
@@ -258,7 +264,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         // ตรวจสอบสถานะการส่งข้อมูล
         checkSendStatus();
     }
-
+    private void initializeCounselingInfo() {
+        counselingInfoContainer = findViewById(R.id.counselingInfoContainer);
+        textCounselingType = findViewById(R.id.textCounselingType);
+        textCounselingDetail = findViewById(R.id.textCounselingDetail);
+    }
     private void checkSendStatus() {
         if (this.personInfo != null) {
             if (this.personInfo.getSend_to_claim().equals(1)) {
@@ -751,43 +761,53 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             QuestionsStateViewModel questionsStateViewModel = new ViewModelProvider(this).get(QuestionsStateViewModel.class);
             PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
             personInfoLiveData.setId(personId);
+            personInfoLiveData.setVisitId(visitId);
             viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
 
             // ตั้งค่า LiveData อื่นๆ...
             SmookingLiveData smookingLiveData = new SmookingLiveData();
             smookingLiveData.setPersonId(personId);
+            smookingLiveData.setVisitId(visitId);
             viewModel.setSmookingMutableLiveData(smookingLiveData);
 
             CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
             cigaretteAddictionTestLiveData.setPersonId(personId);
+            cigaretteAddictionTestLiveData.setVisitId(visitId);
             viewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
 
             StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
             stressDepressionLiveData.setPersonId(personId);
+            stressDepressionLiveData.setVisitId(visitId);
             viewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
 
             StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
             stressDepression2qLiveData.setPersonId(personId);
+            stressDepression2qLiveData.setVisitId(visitId);
             viewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
 
             StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
             stressDepression9qLiveData.setPersonId(personId);
+            stressDepression9qLiveData.setVisitId(visitId);
             viewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
 
             SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
             suicideAssessment8qLiveData.setPersonId(personId);
+            suicideAssessment8qLiveData.setVisitId(visitId);
             viewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
 
             HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
             healthRiskAssessmentLiveData.setPersonId(personId);
+            healthRiskAssessmentLiveData.setVisitId(visitId);
             viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
 
             CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
             cardiovascularRiskLiveData.setPersonId(personId);
+            cardiovascularRiskLiveData.setVisitId(visitId);
             viewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
 
             DrugsLiveData drugsLiveData = new DrugsLiveData();
             drugsLiveData.setPersonId(personId);
+            drugsLiveData.setVisitId(visitId);
             viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
 
             CounselingLiveData counselingLiveData = new CounselingLiveData();
@@ -868,10 +888,13 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(personId);
         formStatus.put("ให้คำปรึกษาและแนะนำ", !counselingInfos.isEmpty());
 
+        loadExistingCounselingData();
+
         // อัปเดตสถานะในไอคอน
         if (expandableListAdapter != null) {
             ((ScreeningExpandableListAdapter) expandableListAdapter).updateAllCompletionStatus(formStatus);
         }
+
     }
 
     private void prepareListData() {
@@ -1443,6 +1466,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     counselingInfo.setId(newId);
                     System.out.println("บันทึกข้อมูลการให้คำปรึกษาสำเร็จ ID: " + newId);
                     updateFormStatus("ให้คำปรึกษาและแนะนำ", true);
+                    // อัพเดทการแสดงผล
+                    updateCounselingDisplay(counselingInfo);
                 } else {
                     System.out.println("ไม่สามารถบันทึกข้อมูลการให้คำปรึกษาได้");
                 }
@@ -1454,13 +1479,14 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 if (rowsUpdated > 0) {
                     System.out.println("อัพเดตข้อมูลการให้คำปรึกษาสำเร็จ ID: " + counselingInfo.getId());
                     updateFormStatus("ให้คำปรึกษาและแนะนำ", true);
+                    // อัพเดทการแสดงผล
+                    updateCounselingDisplay(counselingInfo);
                 } else {
                     System.out.println("ไม่สามารถอัพเดตข้อมูลการให้คำปรึกษาได้");
                 }
             }
         }
     }
-
     private void saveVisit() {
         UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
         VisitDao visitDao = new VisitDao(getContentResolver());
@@ -2123,6 +2149,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         System.out.println("Person Info ID: " + counselingInfo.getPersonId());
         System.out.println("Counseling Type: " + counselingInfo.getCounselingType());
 
+        // อัพเดทการแสดงผลในหน้าจอหลัก
+        updateCounselingDisplay(counselingInfo);
+
         // บันทึกลายเซ็นเป็นไฟล์รูปภาพ
         try {
             // ตรวจสอบลายเซ็นผู้รับบริการ
@@ -2145,6 +2174,58 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         } catch (Exception e) {
             System.out.println("Error saving signature files: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    private void updateCounselingDisplay(CounselingInfo counselingInfo) {
+        if (counselingInfo == null) {
+            counselingInfoContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        // ตรวจสอบว่ามีข้อมูลการให้คำปรึกษาหรือไม่
+        boolean hasCounselingData = (counselingInfo.getCounselingType() > 0) ||
+                (counselingInfo.getDetail() != null && !counselingInfo.getDetail().trim().isEmpty()) ||
+                (counselingInfo.getReferralDetail() != null && !counselingInfo.getReferralDetail().trim().isEmpty());
+
+        if (hasCounselingData) {
+            counselingInfoContainer.setVisibility(View.VISIBLE);
+
+            // แสดงประเภทการให้คำปรึกษา
+            String counselingTypeText = "";
+            String detailText = "";
+
+            if (counselingInfo.getCounselingType() == 1) {
+                counselingTypeText = "ให้คำแนะนำ";
+                detailText = counselingInfo.getDetail() != null ? counselingInfo.getDetail() : "-";
+            } else if (counselingInfo.getCounselingType() == 2) {
+                counselingTypeText = "ส่งต่อแพทย์/รับบริการตามสิทธิ";
+                detailText = counselingInfo.getReferralDetail() != null ? counselingInfo.getReferralDetail() : "-";
+            } else {
+                counselingTypeText = "-";
+                detailText = "-";
+            }
+
+            textCounselingType.setText(counselingTypeText);
+            textCounselingDetail.setText(detailText);
+
+            System.out.println("Updated counseling display: " + counselingTypeText + " - " + detailText);
+        } else {
+            counselingInfoContainer.setVisibility(View.GONE);
+        }
+    }
+
+    // เพิ่มเมธอดสำหรับโหลดข้อมูลการให้คำปรึกษาที่มีอยู่แล้ว
+    private void loadExistingCounselingData() {
+        if (personInfo != null && personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
+            CounselingSignatureDao counselingDao = new CounselingSignatureDao(mContext);
+            List<CounselingInfo> existingCounseling = counselingDao.getCounselingByVisitId(personInfo.getVisitId());
+
+            if (!existingCounseling.isEmpty()) {
+                CounselingInfo counseling = existingCounseling.get(0);
+                updateCounselingDisplay(counseling);
+                this.counselingInfo = counseling;
+                System.out.println("Loaded existing counseling data for visitId: " + personInfo.getVisitId());
+            }
         }
     }
     // เพิ่มเมธอดใหม่สำหรับอัพเดตข้อมูลทั้งหมดใน PersonData

@@ -173,7 +173,9 @@ public class ScreeningFormProvider extends ContentProvider {
 //                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
 //                mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
+//                mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.DROP_TABLE);
+
                 mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
                 mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
                 mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
@@ -187,6 +189,8 @@ public class ScreeningFormProvider extends ContentProvider {
                 mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
                 mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
                 mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
+                mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.CREATE_TABLE);
+
                 isFirstRun = false;
 
             }
@@ -225,6 +229,7 @@ public class ScreeningFormProvider extends ContentProvider {
         mOpenHelper.getWritableDatabase().execSQL(NHSOPractitioner.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(NHSOPatient.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(NHSOOPD.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.DROP_TABLE);
 
 
 
@@ -249,6 +254,7 @@ public class ScreeningFormProvider extends ContentProvider {
         mOpenHelper.getWritableDatabase().execSQL(NHSOPractitioner.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(NHSOPatient.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(NHSOOPD.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.CREATE_TABLE);
 
 //        SfTokenDao tokenDao = new SfTokenDao(context);
 //        tokenDao.insertDefaultTokenIfEmpty();

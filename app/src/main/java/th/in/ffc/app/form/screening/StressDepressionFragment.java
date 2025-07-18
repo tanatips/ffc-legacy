@@ -2,6 +2,7 @@ package th.in.ffc.app.form.screening;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -24,13 +25,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepressionInfoDao;
+import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
+import th.in.ffc.app.form.screening.model.PersonData;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
+import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.provider.ScreeningResultCode;
+import th.in.ffc.session.UserSessionManager;
+import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
 
 public class StressDepressionFragment extends Fragment {
 
+    private static final String TAG = "StressDepressionFragment";
     StressDepressionLiveData stressDepressionLiveData;
     SharedViewModel shareViewModel;
 
@@ -62,7 +71,7 @@ public class StressDepressionFragment extends Fragment {
     // ตัวแปรสำหรับตรวจสอบข้อมูล
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false, false, false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่
-
+    private ScreeningResultCodeDao screeningResultCodeDao; // เพิ่มตัวแปรใหม่
     public StressDepressionFragment() {
         // Required empty public constructor
     }
@@ -184,6 +193,7 @@ public class StressDepressionFragment extends Fragment {
         shareViewModel = new SharedViewModel();
         points = new ArrayList<>();
         points.addAll(Arrays.asList(0,0,0,0,0,0));
+        screeningResultCodeDao = new ScreeningResultCodeDao(getContext());
     }
 
     @Override
@@ -209,7 +219,137 @@ public class StressDepressionFragment extends Fragment {
         loadData();
         initializeTable(view);
     }
+    public boolean saveToScreeningResultCode(int personId, int visitno, String userCreate) {
+        try {
+            if (!isFormComplete()) {
+                Log.e(TAG, "ไม่สามารถบันทึกได้ - ข้อมูลไม่ครบถ้วน");
+                return false;
+            }
 
+            // สร้าง ScreeningResultData
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_STRESS_DEPRESSION_ST5; // "ST5"
+            data.totalScore = currentScore;
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode และ resultDescription ตามคะแนน
+            setResultCodeAndDescription(data, currentScore);
+
+            // กำหนด riskLevel และ isAbnormal
+            setRiskLevelAndAbnormal(data, currentScore);
+
+            // กำหนดคำแนะนำ
+            data.recommendation = getRecommendation();
+
+            // บันทึกข้อมูล
+            Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d(TAG, "บันทึกผลการคัดกรอง ST5 สำเร็จ: " + result.toString());
+                Log.d(TAG, "รายละเอียด: personId=" + personId + ", visitno=" + visitno +
+                        ", score=" + currentScore + ", resultCode=" + data.resultCode);
+                return true;
+            } else {
+                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผลการคัดกรอง ST5");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception ในการบันทึกผลการคัดกรอง ST5");
+            return false;
+        }
+    }
+    public void showSaveResult(boolean success, String message) {
+        if (success) {
+            Toast.makeText(getContext(),
+                    "✅ บันทึกผลการประเมินความเครียด ST5 สำเร็จ",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(),
+                    "❌ เกิดข้อผิดพลาดในการบันทึก: " + message,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+    private void setRiskLevelAndAbnormal(ScreeningResultCodeDao.ScreeningResultData data, int score) {
+        if (score >= 0 && score <= 4) {
+            data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+            data.isAbnormal = false;
+        } else if (score >= 5 && score <= 7) {
+            data.riskLevel = ScreeningResultCode.RISK_LOW;
+            data.isAbnormal = true; // เริ่มถือว่าผิดปกติจากระดับ 5 คะแนนขึ้นไป
+        } else if (score >= 8 && score <= 9) {
+            data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+            data.isAbnormal = true;
+        } else if (score >= 10 && score <= 15) {
+            data.riskLevel = ScreeningResultCode.RISK_HIGH;
+            data.isAbnormal = true;
+        } else {
+            data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+            data.isAbnormal = false;
+        }
+    }
+    private void setResultCodeAndDescription(ScreeningResultCodeDao.ScreeningResultData data, int score) {
+        if (score >= 0 && score <= 4) {
+            data.resultCode = "1B132";
+            data.resultDescription = "เครียดน้อย";
+        } else if (score >= 5 && score <= 7) {
+            data.resultCode = "1B133";
+            data.resultDescription = "เครียดปานกลาง";
+        } else if (score >= 8 && score <= 9) {
+            data.resultCode = "1B134";
+            data.resultDescription = "เครียดมาก";
+        } else if (score >= 10 && score <= 15) {
+            data.resultCode = "1B135";
+            data.resultDescription = "เครียดมากที่สุด";
+        } else {
+            data.resultCode = "1B132"; // default
+            data.resultDescription = "ไม่สามารถประเมินได้";
+        }
+    }
+    public void loadFromScreeningResultCode(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_STRESS_DEPRESSION_ST5);
+
+            if (existingData != null) {
+                Log.d(TAG, "พบข้อมูลการประเมิน ST5 เดิม: คะแนน=" + existingData.totalScore +
+                        ", ผลการประเมิน=" + existingData.resultDescription);
+
+                // อัพเดทการแสดงผลตามข้อมูลที่มีอยู่
+                currentScore = existingData.totalScore;
+                updateScoreDisplay();
+                updateTableHighlight();
+
+                // แสดงข้อมูลในฟอร์มจากคะแนนที่มี (ถ้าต้องการ)
+                // reconstructFormFromScore(existingData.totalScore);
+
+                Toast.makeText(getContext(),
+                        "โหลดข้อมูลการประเมิน ST5 เดิม: " + existingData.resultDescription,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "ไม่พบข้อมูลการประเมิน ST5 เดิม");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน ST5");
+        }
+    }
+    public boolean hasExistingData(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_STRESS_DEPRESSION_ST5);
+            return existingData != null;
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูลเดิม");
+            return false;
+        }
+    }
     /**
      * ตั้งค่า Listener สำหรับ RadioGroup ทั้งหมด
      */
@@ -375,7 +515,33 @@ public class StressDepressionFragment extends Fragment {
             }
         });
     }
+    public ScreeningResultCodeDao.ScreeningStatistics getStatistics() {
+        try {
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_STRESS_DEPRESSION_ST5);
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการดึงสถิติ ST5");
+            return null;
+        }
+    }
+    public void showStatistics() {
+        ScreeningResultCodeDao.ScreeningStatistics stats = getStatistics();
+        if (stats != null) {
+            String message = String.format(
+                    "สถิติการประเมิน ST5:\n" +
+                            "จำนวนทั้งหมด: %d ครั้ง\n" +
+                            "ปกติ: %d ครั้ง\n" +
+                            "ผิดปกติ: %d ครั้ง\n" +
+                            "คะแนนเฉลี่ย: %.1f\n" +
+                            "คะแนนสูงสุด: %d\n" +
+                            "คะแนนต่ำสุด: %d",
+                    stats.totalCount, stats.normalCount, stats.abnormalCount,
+                    stats.averageScore, stats.maxScore, stats.minScore
+            );
 
+            Log.d(TAG, message);
+            // สามารถแสดง Dialog หรือ Toast ได้ที่นี่
+        }
+    }
     /**
      * คำนวณคะแนนและอัพเดทการแสดงผลแบบ real-time
      */
@@ -849,8 +1015,7 @@ public class StressDepressionFragment extends Fragment {
 
         return (completedQuestions * 100) / totalQuestions;
     }
-
-    /**
+     /**
      * แสดงสถานะการกรอกข้อมูล
      */
     public void showCompletionStatus() {

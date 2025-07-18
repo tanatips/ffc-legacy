@@ -45,6 +45,10 @@ public class HealthRiskAssessmentFragment extends Fragment {
     private EditText editFcbg;
     private EditText editFpg;
 
+    // เพิ่มตัวแปรสำหรับแสดงผลแบบใหม่
+    private TextView tvHealthRiskScore;
+    private TextView tvHealthRiskLevel;
+
     // ตัวแปรป้องกัน infinite loop
     private boolean isAutoSelecting = false;
     private boolean isLoadingExistingData = false;
@@ -126,6 +130,10 @@ public class HealthRiskAssessmentFragment extends Fragment {
         setupRadioGroups(view);
         editFcbg = view.findViewById(R.id.edtFCBG);
         editFpg = view.findViewById(R.id.edtFPG);
+
+        // เชื่อมโยง TextView สำหรับแสดงผลแบบใหม่
+        tvHealthRiskScore = view.findViewById(R.id.tvHealthRiskScore);
+        tvHealthRiskLevel = view.findViewById(R.id.tvHealthRiskLevel);
 
         // Setup listeners and observers
         loadData();
@@ -289,6 +297,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
         }
     }
+
     private boolean hasExistingData() {
         if (healthRiskAssessmentInfo == null) return false;
 
@@ -299,6 +308,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 (healthRiskAssessmentInfo.getHealthRiskQ5() != null && !healthRiskAssessmentInfo.getHealthRiskQ5().equals("0")) ||
                 (healthRiskAssessmentInfo.getHealthRiskQ6() != null && !healthRiskAssessmentInfo.getHealthRiskQ6().equals("0"));
     }
+
     private void setupPersonDataObserver() {
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getPersonDataLiveData().observe(getViewLifecycleOwner(), personData -> {
@@ -313,10 +323,12 @@ public class HealthRiskAssessmentFragment extends Fragment {
             }
         });
     }
+
     public void resetAutoSelection() {
         hasAutoSelectedOnce = false;
         Log.d("HealthRiskAssessment", "Reset auto-selection flag");
     }
+
     private void loadData() {
         SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(getContext());
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -571,7 +583,6 @@ public class HealthRiskAssessmentFragment extends Fragment {
         }
     }
 
-
     private void autoSelectFamilyHistory(PersonData personData) {
         if (personData.hasFamilyDiabetesHistory() != null) {
             // ตรวจสอบว่ามีข้อมูลเดิมหรือผู้ใช้เลือกแล้วหรือไม่
@@ -587,6 +598,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             Log.d("HealthRiskAssessment", "Auto-selected family diabetes history: " + familyHistoryCategory);
         }
     }
+
     public void refreshWithPersonData(PersonData personData) {
         if (personData != null && !hasExistingData()) {
             // ถ้ายังไม่มีข้อมูลเดิม ให้ auto-select จาก PersonData
@@ -789,6 +801,78 @@ public class HealthRiskAssessmentFragment extends Fragment {
         return totalScore;
     }
 
+    /**
+     * อัปเดตการแสดงคะแนนและระดับความเสี่ยงแบบใหม่ (คล้าย Nicotine)
+     */
+    private void updateHealthRiskScore(int score) {
+        if (tvHealthRiskScore != null) {
+            tvHealthRiskScore.setText(String.valueOf(score));
+
+            // เปลี่ยนสี background และ text color ของ tvHealthRiskScore ตามระดับคะแนน
+            if (score <= 2) {
+                // เสี่ยงน้อย - สีเขียว
+                tvHealthRiskScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+                tvHealthRiskScore.setTextColor(Color.WHITE);
+            } else if (score >= 3 && score <= 5) {
+                // เสี่ยงปานกลาง - สีเหลือง
+                tvHealthRiskScore.setBackground(createGradientDrawable("#F1C40F", "#F39C12"));
+                tvHealthRiskScore.setTextColor(Color.WHITE);
+            } else if (score >= 6 && score <= 8) {
+                // เสี่ยงสูง - สีส้ม
+                tvHealthRiskScore.setBackground(createGradientDrawable("#FF9800", "#FF6B35"));
+                tvHealthRiskScore.setTextColor(Color.WHITE);
+            } else if (score > 8) {
+                // เสี่ยงสูงมาก - สีแดง
+                tvHealthRiskScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
+                tvHealthRiskScore.setTextColor(Color.WHITE);
+            }
+        }
+
+        if (tvHealthRiskLevel != null) {
+            String riskLevel;
+
+            // กำหนดระดับความเสี่ยงตามคะแนน
+            if (score <= 2) {
+                riskLevel = "เสี่ยงน้อย (น้อยกว่าร้อยละ 5)";
+                tvHealthRiskLevel.setBackgroundResource(R.color.light_green);
+                tvHealthRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+            } else if (score >= 3 && score <= 5) {
+                riskLevel = "เสี่ยงปานกลาง (ร้อยละ 5-10)";
+                tvHealthRiskLevel.setBackgroundResource(R.color.light_yellow);
+                tvHealthRiskLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
+            } else if (score >= 6 && score <= 8) {
+                riskLevel = "เสี่ยงสูง (ร้อยละ 11-20)";
+                tvHealthRiskLevel.setBackgroundResource(R.color.light_orange);
+                tvHealthRiskLevel.setTextColor(getResources().getColor(R.color.dark_orange));
+            } else if (score > 8) {
+                riskLevel = "เสี่ยงสูงมาก (มากกว่าร้อยละ 20)";
+                tvHealthRiskLevel.setBackgroundResource(R.color.light_red);
+                tvHealthRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+            } else {
+                riskLevel = "ยังไม่ได้ประเมิน";
+                tvHealthRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvHealthRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+            }
+
+            tvHealthRiskLevel.setText(riskLevel);
+        }
+    }
+
+    private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
+        android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{
+                        Color.parseColor(startColor),
+                        Color.parseColor(endColor)
+                }
+        );
+
+        // ตั้งค่ามุมโค้ง
+        gradient.setCornerRadius(20f);
+
+        return gradient;
+    }
+
     private void highlightScoreRow(int totalScore) {
         int white = ContextCompat.getColor(requireContext(), R.color.white);
         int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
@@ -800,23 +884,24 @@ public class HealthRiskAssessmentFragment extends Fragment {
         TableRow row4 = getView().findViewById(R.id.scoreRow4);
 
         // รีเซ็ตสีพื้นหลัง
-        row1.setBackgroundColor(white);
-        row2.setBackgroundColor(light_gray);
-        row3.setBackgroundColor(white);
-        row4.setBackgroundColor(light_gray);
+        if (row1 != null) row1.setBackgroundColor(white);
+        if (row2 != null) row2.setBackgroundColor(light_gray);
+        if (row3 != null) row3.setBackgroundColor(white);
+        if (row4 != null) row4.setBackgroundColor(light_gray);
 
         // ไฮไลท์แถวตามคะแนน
         if (totalScore <= 2) {
-            row1.setBackgroundColor(highlightColor);
+            if (row1 != null) row1.setBackgroundColor(highlightColor);
         } else if (totalScore >= 3 && totalScore <= 5) {
-            row2.setBackgroundColor(highlightColor);
+            if (row2 != null) row2.setBackgroundColor(highlightColor);
         } else if (totalScore >= 6 && totalScore <= 8) {
-            row3.setBackgroundColor(highlightColor);
+            if (row3 != null) row3.setBackgroundColor(highlightColor);
         } else if (totalScore > 8) {
-            row4.setBackgroundColor(highlightColor);
+            if (row4 != null) row4.setBackgroundColor(highlightColor);
         }
 
-        TextView resultTextView = getView().findViewById(R.id.resultHealthRiskScrollView);
+        // อัพเดตการแสดงผลเก่า (รักษาไว้สำหรับ backward compatibility)
+        TextView resultTextView = getView() != null ? getView().findViewById(R.id.resultHealthRiskScrollView) : null;
         if (resultTextView != null) {
             resultTextView.setText(String.format("คะแนนที่ได้: %d คะแนน", totalScore));
         }
@@ -824,6 +909,11 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
     private void updateScoreAndHighlight() {
         int totalScore = calculateTotalScore();
+
+        // อัพเดตการแสดงผลแบบใหม่ (คล้าย Nicotine)
+        updateHealthRiskScore(totalScore);
+
+        // อัพเดตการแสดงผลแบบเก่า (ตารางไฮไลท์)
         highlightScoreRow(totalScore);
     }
 
@@ -836,16 +926,16 @@ public class HealthRiskAssessmentFragment extends Fragment {
         int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
         int highlight = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
 
-        row1.setBackgroundColor(white);
-        row2.setBackgroundColor(light_gray);
-        row3.setBackgroundColor(white);
+        if (row1 != null) row1.setBackgroundColor(white);
+        if (row2 != null) row2.setBackgroundColor(light_gray);
+        if (row3 != null) row3.setBackgroundColor(white);
 
         if (glucoseValue < 100) {
-            row1.setBackgroundColor(highlight);
+            if (row1 != null) row1.setBackgroundColor(highlight);
         } else if (glucoseValue >= 100 && glucoseValue <= 125) {
-            row2.setBackgroundColor(highlight);
+            if (row2 != null) row2.setBackgroundColor(highlight);
         } else if (glucoseValue >= 126) {
-            row3.setBackgroundColor(highlight);
+            if (row3 != null) row3.setBackgroundColor(highlight);
         }
     }
 
@@ -922,17 +1012,18 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     private void clearGlucoseHighlight() {
-        TableRow row1 = getView().findViewById(R.id.glucoseRow1);
-        TableRow row2 = getView().findViewById(R.id.glucoseRow2);
-        TableRow row3 = getView().findViewById(R.id.glucoseRow3);
+        TableRow row1 = getView() != null ? getView().findViewById(R.id.glucoseRow1) : null;
+        TableRow row2 = getView() != null ? getView().findViewById(R.id.glucoseRow2) : null;
+        TableRow row3 = getView() != null ? getView().findViewById(R.id.glucoseRow3) : null;
 
         int white = ContextCompat.getColor(requireContext(), R.color.white);
         int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
 
-        row1.setBackgroundColor(white);
-        row2.setBackgroundColor(light_gray);
-        row3.setBackgroundColor(white);
+        if (row1 != null) row1.setBackgroundColor(white);
+        if (row2 != null) row2.setBackgroundColor(light_gray);
+        if (row3 != null) row3.setBackgroundColor(white);
     }
+
     // เพิ่มเมธอด validation ใน HealthRiskAssessmentFragment class
 
     /**
@@ -1088,7 +1179,20 @@ public class HealthRiskAssessmentFragment extends Fragment {
         // ล้าง highlight
         clearGlucoseHighlight();
 
-        // รีเซ็ตการแสดงคะแนน
+        // รีเซ็ตการแสดงคะแนนแบบใหม่
+        if (tvHealthRiskScore != null) {
+            tvHealthRiskScore.setText("-");
+            tvHealthRiskScore.setBackgroundResource(R.color.light_gray);
+            tvHealthRiskScore.setTextColor(getResources().getColor(R.color.darker_gray));
+        }
+
+        if (tvHealthRiskLevel != null) {
+            tvHealthRiskLevel.setText("ยังไม่ได้ประเมิน");
+            tvHealthRiskLevel.setBackgroundResource(R.color.light_gray);
+            tvHealthRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+        }
+
+        // รีเซ็ตการแสดงคะแนนแบบเก่า
         TextView resultTextView = getView() != null ? getView().findViewById(R.id.resultHealthRiskScrollView) : null;
         if (resultTextView != null) {
             resultTextView.setText("คะแนนที่ได้: - คะแนน");
@@ -1097,10 +1201,12 @@ public class HealthRiskAssessmentFragment extends Fragment {
         // รีเซ็ต highlight คะแนน
         clearScoreHighlight();
     }
+
     public void forceRefreshFromPersonData() {
         resetAutoSelection();
         // PersonData จะถูกส่งมาใหม่อัตโนมัติจาก Observer
     }
+
     /**
      * ล้าง highlight คะแนน
      */

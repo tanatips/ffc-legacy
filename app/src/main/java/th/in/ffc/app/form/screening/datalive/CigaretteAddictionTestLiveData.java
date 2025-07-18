@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class CigaretteAddictionTestLiveData {
     private String personId;
+    private String visitId;
     private Integer selectedQ1;
     private Integer selectedQ2;
     private Integer selectedQ3;
@@ -103,5 +104,12 @@ public class CigaretteAddictionTestLiveData {
 
     public void setPoints(ArrayList<Integer> points) {
         this.points = points;
+    }
+
+    public String getVisitId() {
+        return visitId;
+    }
+    public void setVisitId(String visitId) {
+        this.visitId = visitId;
     }
 }

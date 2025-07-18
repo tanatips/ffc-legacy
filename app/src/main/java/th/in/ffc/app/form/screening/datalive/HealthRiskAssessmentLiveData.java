@@ -2,6 +2,7 @@ package th.in.ffc.app.form.screening.datalive;
 
 public class HealthRiskAssessmentLiveData {
     private String personId;
+    private String visitId;
     private Integer selectHealthRiskQ1;
     private Integer selectHealthRiskQ2;
     private Integer selectHealthRiskQ3;
@@ -63,5 +64,11 @@ public class HealthRiskAssessmentLiveData {
 
     public void setPersonId(String personId) {
         this.personId = personId;
+    }
+    public String getVisitId() {
+        return visitId;
+    }
+    public void setVisitId(String visitId) {
+        this.visitId = visitId;
     }
 }

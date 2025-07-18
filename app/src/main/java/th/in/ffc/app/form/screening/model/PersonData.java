@@ -4,6 +4,10 @@ package th.in.ffc.app.form.screening.model;
  * Data class สำหรับเก็บข้อมูลบุคคลที่ใช้ในการประเมินความเสี่ยงโรคเบาหวาน
  */
 public class PersonData {
+
+    private String persionId;
+    private String visitId;
+    private String idcard;
     private Integer age;
     private String gender;
     private Double bmi;
@@ -18,7 +22,7 @@ public class PersonData {
 
     public PersonData(Integer age, String gender, Double bmi, Double waistCircumference,
                       Boolean hasHypertension, Boolean hasFamilyDiabetesHistory,
-                      Double fcbg, Double fpg) {
+                      Double fcbg, Double fpg, String persionId, String visitId, String idcard) {
         this.age = age;
         this.gender = gender;
         this.bmi = bmi;
@@ -27,6 +31,9 @@ public class PersonData {
         this.hasFamilyDiabetesHistory = hasFamilyDiabetesHistory;
         this.fcbg = fcbg;
         this.fpg = fpg;
+        this.persionId = persionId;
+        this.visitId = visitId;
+        this.idcard = idcard;
     }
 
     // Getters and Setters
@@ -94,6 +101,25 @@ public class PersonData {
         this.fpg = fpg;
     }
 
+    public String getPersionId() {
+        return persionId;
+    }
+    public void setPersionId(String persionId) {
+        this.persionId = persionId;
+    }
+    public String getVisitId() {
+        return visitId;
+    }
+    public void setVisitId(String visitId) {
+        this.visitId = visitId;
+    }
+    public String getIdcard() {
+        return idcard;
+    }
+    public void setIdcard(String idcard) {
+        this.idcard = idcard;
+    }
+
     @Override
     public String toString() {
         return "PersonData{" +
@@ -105,6 +131,9 @@ public class PersonData {
                 ", hasFamilyDiabetesHistory=" + hasFamilyDiabetesHistory +
                 ", fcbg=" + fcbg +
                 ", fpg=" + fpg +
+                ", persionId='" + persionId + '\'' +
+                ", visitId='" + visitId + '\'' +
+                ", idcard='" + idcard + '\'' +
                 '}';
     }
 }

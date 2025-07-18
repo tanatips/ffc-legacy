@@ -2,6 +2,9 @@ package th.in.ffc.app.form.screening.datalive;
 
 public class CardiovascularRiskLiveData {
     private String personId;
+
+    private String visitId;
+
     private String age;
     private Integer selectedGender;
     private String bloodPressure;
@@ -114,5 +117,12 @@ public class CardiovascularRiskLiveData {
 
     public void setRecommendation(String recommendation) {
         this.recommendation = recommendation;
+    }
+
+    public String getVisitId() {
+        return visitId;
+    }
+    public void setVisitId(String visitId) {
+        this.visitId = visitId;
     }
 }

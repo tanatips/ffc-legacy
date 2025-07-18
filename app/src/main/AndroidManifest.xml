@@ -291,7 +291,9 @@
             android:name=".provider.CounselingSignatureProvider"
             android:authorities="th.in.ffc.provider.CounselingSignatureProvider"
             android:exported="false" />
-
+        <provider android:name=".provider.ScreeningResultCodeProvider"
+            android:authorities="th.in.ffc.provider.ScreeningResultCodeProvider"
+            android:exported="false" />
         <activity
             android:name=".app.form.screening.ApiUrlListActivity"
             android:exported="true"
