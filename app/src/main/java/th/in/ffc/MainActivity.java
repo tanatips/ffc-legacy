@@ -30,6 +30,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -94,6 +95,7 @@ import th.in.ffc.intent.Action;
 import th.in.ffc.intent.Category;
 import th.in.ffc.security.CryptographerService;
 import th.in.ffc.security.PdpaActivity;
+import th.in.ffc.service.EncryptDbService;
 import th.in.ffc.util.AssetReader;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.GenerateSeq;
@@ -167,8 +169,38 @@ public class MainActivity extends FFCGridActivity {
         Log.i(TAG, "All APIs ready: " + allReady);
 
         Log.i(TAG, "Application initialization completed");
+//        startEncryptDbService();
+        if(!isServiceRunning(EncryptDbService.class)) {
+            Log.d(TAG, "EncryptDbService is not running, starting it now.");
+            Intent serviceIntent = new Intent(this, EncryptDbService.class);
+
+            // ใช้ startForegroundService สำหรับ Android 8.0+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        } else {
+            Log.d(TAG, "EncryptDbService is already running.");
+        }
+
+    }
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
+// ใช้งาน
+
+    private void startEncryptDbService() {
+        Intent serviceIntent = new Intent(this, EncryptDbService.class);
+        startService(serviceIntent);
+    }
     private void showDialogPDPA(){
         Date c = Calendar.getInstance().getTime();
         System.out.println("Current time => " + c);

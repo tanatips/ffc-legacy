@@ -26,6 +26,8 @@
 
 package th.in.ffc.app;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -143,6 +145,7 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
         MyService();
         pref = getApplicationContext().getSharedPreferences(USER_SESSION, Context.MODE_PRIVATE);
         editor = pref.edit();
+
     }
 
     @Override
@@ -278,11 +281,11 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
                             result = true;
                         }
                     } else {
-//                        Intent state = new Intent(Action.STATE_DATE_NOT_UPDATE);
-//                        state.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                        if (mDateListener == null)
-//                            startActivity(state);
-//                        result = false;
+                       Intent state = new Intent(Action.STATE_DATE_NOT_UPDATE);
+                       state.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                       if (mDateListener == null)
+                           startActivity(state);
+                       result = false;
                     }
                 }
 
@@ -430,12 +433,12 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
 
     @Override
     public void onScreenOff() {
-//        startTimer();
+        // startTimer();
     }
 
     @Override
     public void onUserLeave(boolean systemInterrupt) {
-//        startTimer();
+        // startTimer();
     }
 
     @Override
@@ -513,7 +516,7 @@ public class FFCFragmentActivity extends TrackingFragmentActivity implements
         }
 
     };
-    private void MyService(){
+    private void MyService (){
         Log.d("FFC", "relogin=" + reLogin);
         reLogin = getPreferences();
         if (!reLogin) {

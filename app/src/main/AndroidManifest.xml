@@ -313,6 +313,11 @@
                 <action android:name="ffc.intent.aciton.DECRYPT" />
             </intent-filter>
         </service>
+        <service
+            android:name=".service.EncryptDbService"
+            android:exported="false"
+            android:stopWithTask="false"
+            />
 
         <activity
             android:name=".security.LoginActivity"

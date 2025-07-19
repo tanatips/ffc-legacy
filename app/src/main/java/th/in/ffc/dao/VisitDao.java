@@ -252,7 +252,7 @@ public class VisitDao {
             vitalValues.put(Visit.WAIST, waist);
             vitalValues.put(Visit.SYMPTOMS, symptoms);
             vitalValues.put(Visit.DIAGNOTE, diagnote);
-            vitalValues.put(Visit.VITAL, "1"); // มีการบันทึกสัญญาณชีพ
+//            vitalValues.put(Visit.VITAL, "1"); // มีการบันทึกสัญญาณชีพ
             vitalValues.put(Visit.UPDATE, getCurrentDateTime());
 
             // คำนวณค่า BMI ถ้ามีข้อมูลน้ำหนักและส่วนสูง

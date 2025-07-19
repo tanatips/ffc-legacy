@@ -809,7 +809,7 @@ public class FormDialogFragment extends DialogFragment {
             }
 
         } catch (Exception e) {
-            Log.e("FormDialogFragment", "Exception ในการบันทึกผลการประเมิน ST5", e);
+            Log.e("FormDialogFragment", "Exception ในการบันทึกผลการประเมิน ST5");
             stressFragment.showSaveResult(false, e.getMessage());
             return false;
         }
@@ -834,7 +834,7 @@ public class FormDialogFragment extends DialogFragment {
             Log.e("FormDialogFragment", "personId ไม่ใช่ตัวเลข", e);
             return 0;
         } catch (Exception e) {
-            Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการดึง personId", e);
+            Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการดึง personId");
             return 0;
         }
     }

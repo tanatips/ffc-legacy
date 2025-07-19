@@ -111,9 +111,11 @@ import th.in.ffc.dao.PersonDao;
 import th.in.ffc.dao.PersonVillageDao;
 import th.in.ffc.dao.VisitDao;
 import th.in.ffc.dao.VisitDiagDao;
+import th.in.ffc.intent.Action;
 import th.in.ffc.model.Person;
 import th.in.ffc.provider.CounselingSignatureProvider;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.security.CryptographerService;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.DateConverter;
@@ -135,6 +137,7 @@ import org.slf4j.helpers.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass {
 
@@ -983,8 +986,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private String savePerson() {
         SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
         UserSessionManager userSessionManager = new UserSessionManager(mContext);
-        if (this.personInfo.getId() == null) {
-
+        if (this.personInfo.getId() == null || Objects.equals(this.personInfo.getId(), "")){
             this.personInfo.setCreated_by(userSessionManager.getUser());
             this.personInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
             String id = sfPersonInfoDao.insert(this.personInfo);
@@ -2520,5 +2522,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        Intent encrypter = new Intent(getBaseContext(), CryptographerService.class);
+//        encrypter.setAction(Action.ENCRYPT);
+//        startService(encrypter);
+    }
 }
