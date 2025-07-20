@@ -14,29 +14,27 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
-import th.in.ffc.app.form.screening.dao.SfDrinkingInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
-import th.in.ffc.app.form.screening.model.DrinkingInfo;
-import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
+import th.in.ffc.app.form.screening.view.StressRiskGauge2QView;
 import th.in.ffc.provider.ScreeningResultCode;
 import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
+import android.app.AlertDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,7 +57,6 @@ public class StressDepression2qFragment extends Fragment {
     private ArrayList<Integer> points;
     private RadioGroup rdoStress2qQ1;
     private RadioGroup rdoStress2qQ2;
-    private TableLayout resultTable;
 
     private TextView tv2qResult;
     private TextView tv2qResultDetail;
@@ -72,6 +69,17 @@ public class StressDepression2qFragment extends Fragment {
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่
     private ScreeningResultCodeDao screeningResultCodeDao;
+
+    private ImageView ivStress2qInfoButton;
+
+    private StressRiskGauge2QView stressRiskGauge;
+    private TextView tvStressGaugeEmoji;
+    private TextView tvStressGaugeScore;
+    private TextView tvStressGaugeLevel;
+    private TextView tvStressGaugeCode;
+    private TextView tvStressGaugeRecommendation;
+    private SeekBar seekBarStressGaugeTest;
+
     public StressDepression2qFragment() {
         // Required empty public constructor
     }
@@ -86,11 +94,15 @@ public class StressDepression2qFragment extends Fragment {
     private void initializeViews(View view) {
         rdoStress2qQ1 = view.findViewById(R.id.rdoStress2qQ1);
         rdoStress2qQ2 = view.findViewById(R.id.rdoStress2qQ2);
-        resultTable = view.findViewById(R.id.depression2resultTable);
 
         // เชื่อมโยง TextView ใหม่
         tv2qResult = view.findViewById(R.id.tv2qResult);
         tv2qResultDetail = view.findViewById(R.id.tv2qResultDetail);
+        
+        // เพิ่มการ initialize info button
+        ivStress2qInfoButton = view.findViewById(R.id.ivStress2qInfoButton);
+        setupInfoButtonListener();
+        initializeStressGaugeViews(view);
 
         white = ContextCompat.getColor(requireContext(), R.color.white);
         light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
@@ -98,121 +110,166 @@ public class StressDepression2qFragment extends Fragment {
 
         // แสดงผลเริ่มต้น
         updateResultDisplay();
-
     }
 
-    /**
-     * อัพเดทการแสดงผลในตารางแสดงผลแบบใหม่
-     */
-    private void updateResultDisplay() {
-        // ตรวจสอบว่าตอบคำถามครบหรือไม่
-        if (!isFormComplete()) {
-            // ยังไม่ได้ประเมิน
-            if (tv2qResult != null) {
-                tv2qResult.setText("-");
-                tv2qResult.setBackgroundColor(Color.parseColor("#9E9E9E")); // สีเทา
-                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
-            }
+    private void initializeStressGaugeViews(View view) {
+        stressRiskGauge = view.findViewById(R.id.stressRiskGauge);
+        tvStressGaugeEmoji = view.findViewById(R.id.tvStressGaugeEmoji);
+        tvStressGaugeScore = view.findViewById(R.id.tvStressGaugeScore);
+        tvStressGaugeLevel = view.findViewById(R.id.tvStressGaugeLevel);
+        tvStressGaugeCode = view.findViewById(R.id.tvStressGaugeCode);
+        tvStressGaugeRecommendation = view.findViewById(R.id.tvStressGaugeRecommendation);
 
-            if (tv2qResultDetail != null) {
-                tv2qResultDetail.setText("ยังไม่ได้ประเมิน");
-                tv2qResultDetail.setTextColor(Color.parseColor("#616161"));
-                tv2qResultDetail.setBackgroundColor(Color.parseColor("#F5F5F5"));
-            }
-            return;
-        }
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarStressGaugeTest = view.findViewById(R.id.seekBarStressGaugeTest);
+        setupStressGaugeTestControls();
 
-        // ตรวจสอบผลการประเมิน
-        boolean hasPositiveAnswer = false;
-        String answer1 = stressDepression2qInfo.getQ1();
-        String answer2 = stressDepression2qInfo.getQ2();
 
-        // ตรวจสอบว่ามีการตอบ "มี" (รหัส "2") หรือไม่
-        if ("2".equals(answer1) || "2".equals(answer2)) {
-            hasPositiveAnswer = true;
-        }
-
-        // อัพเดท tv2qResult
-        if (tv2qResult != null) {
-            if (hasPositiveAnswer) {
-                tv2qResult.setText("ผิดปกติ");
-                tv2qResult.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
-                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
-            } else {
-                tv2qResult.setText("ปกติ");
-                tv2qResult.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
-                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
-            }
-        }
-
-        // อัพเดท tv2qResultDetail
-        if (tv2qResultDetail != null) {
-            if (hasPositiveAnswer) {
-                tv2qResultDetail.setText("ผิดปกติ และส่งต่อเจ้าหน้าที่ (1B0211)");
-                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
-                tv2qResultDetail.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
-            } else {
-                tv2qResultDetail.setText("ปกติ (1B0210)");
-                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
-                tv2qResultDetail.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
-            }
+        // อัปเดต Gauge ครั้งแรก
+        updateStressGaugeDisplay();
+    }
+    private void setupInfoButtonListener() {
+        if (ivStress2qInfoButton != null) {
+            ivStress2qInfoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showStress2qCriteriaDialog();
+                }
+            });
         }
     }
-
-    private void updateTableHighlight() {
+    private void showStress2qCriteriaDialog() {
         try {
-            // รับค่าการเลือกจาก RadioGroup ทั้งสอง
-            String answer1 = null;
-            String answer2 = null;
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
-            // ตรวจสอบคำตอบข้อ 1
-            int checkedId1 = rdoStress2qQ1.getCheckedRadioButtonId();
-            if (checkedId1 == R.id.rdoStress2qQ1_1) {
-                answer1 = "ไม่มี";
-            } else if (checkedId1 == R.id.rdoStress2qQ1_2) {
-                answer1 = "มี";
-            }
+            // สร้าง custom layout สำหรับ dialog
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_stress_2q_criteria, null);
 
-            // ตรวจสอบคำตอบข้อ 2
-            int checkedId2 = rdoStress2qQ2.getCheckedRadioButtonId();
-            if (checkedId2 == R.id.rdoStress2qQ2_1) {
-                answer2 = "ไม่มี";
-            } else if (checkedId2 == R.id.rdoStress2qQ2_2) {
-                answer2 = "มี";
-            }
+            builder.setView(dialogView);
+            builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
 
-            // ถ้ายังตอบไม่ครบ ไม่ต้อง highlight
-            if (answer1 == null || answer2 == null) {
-                clearHighlights();
-                return;
-            }
+            AlertDialog dialog = builder.create();
+            dialog.show();
 
-            if (resultTable != null && resultTable.getChildCount() >= 3) {
-                // ดึง TableRow ที่ต้องการ highlight
-                TableRow normalRow = (TableRow) resultTable.getChildAt(1);
-                TableRow abnormalRow = (TableRow) resultTable.getChildAt(2);
+            Log.d(TAG, "แสดง Dialog เกณฑ์การประเมิน 2Q สำเร็จ");
 
-                // รีเซ็ตสีพื้นหลังเริ่มต้น
-                normalRow.setBackgroundColor(white);
-                abnormalRow.setBackgroundColor(white);
-
-                // ถ้าตอบ "ไม่มี" ทั้งสองข้อ
-                if ("ไม่มี".equals(answer1) && "ไม่มี".equals(answer2)) {
-                    normalRow.setBackgroundColor(highlightColor);
-                }
-                // ถ้ามีการตอบ "มี" อย่างน้อย 1 ข้อ
-                else if ("มี".equals(answer1) || "มี".equals(answer2)) {
-                    abnormalRow.setBackgroundColor(highlightColor);
-                }
-            }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "เกิดข้อผิดพลาดในการแสดง Dialog: " + e.getMessage());
+
+            // แสดง dialog แบบง่ายหากเกิดข้อผิดพลาด
+            showSimpleStress2qCriteriaDialog();
+        }
+    }
+    private void showSimpleStress2qCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "📊 เกณฑ์การคัดกรองโรคซึมเศร้า 2Q\n\n" +
+                "😊 ตอบ 'ไม่มี' ทั้ง 2 ข้อ: ปกติ (1B0210)\n" +
+                "🔶 ควรดูแลสุขภาพจิตให้ดีต่อไป\n\n" +
+
+                "😟 ตอบ 'มี' อย่างน้อย 1 ข้อ: ผิดปกติ (1B0211)\n" +
+                "🔶 แนะนำให้ทำแบบ 9Q เพิ่มเติม และปรึกษาแพทย์\n\n";
+
+        builder.setTitle("📈 เกณฑ์การประเมิน 2Q")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private String get2qEmoji(boolean hasPositiveAnswer) {
+        if (hasPositiveAnswer) {
+            return "😟"; // ผิดปกติ - หน้ากังวล
+        } else {
+            return "😊"; // ปกติ - หน้ายิ้ม
+        }
+    }
+    /**
+     * ดึงผลการประเมินพร้อม emoji
+     */
+    public String getAssessmentResultWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        // ตรวจสอบว่าตอบ "มี" อย่างน้อย 1 ข้อหรือไม่
+        boolean hasPositive = false;
+
+        if ("2".equals(stressDepression2qInfo.getQ1())) { // "2" = มี
+            hasPositive = true;
+        }
+
+        if ("2".equals(stressDepression2qInfo.getQ2())) { // "2" = มี
+            hasPositive = true;
+        }
+
+        String emoji = get2qEmoji(hasPositive);
+
+        if (hasPositive) {
+            return emoji + " ผิดปกติ (Abnormal) - มีความเสี่ยงต่อภาวะซึมเศร้า";
+        } else {
+            return emoji + " ปกติ (Normal) - ไม่มีความเสี่ยงต่อภาวะซึมเศร้า";
         }
     }
 
     /**
-     * ตรวจสอบความถูกต้องของข้อมูลและบันทึกข้อมูล
+     * แสดงคำแนะนำตามผลการประเมินพร้อม emoji
      */
+    public String getRecommendationWithEmoji() {
+        if (!isFormComplete()) {
+            return "📝 กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        String emoji = get2qEmoji(isAtRisk());
+
+        if (isAtRisk()) {
+            return emoji + " พบความเสี่ยงต่อภาวะซึมเศร้า ควรทำแบบประเมิน 9Q เพิ่มเติม และพิจารณาปรึกษาแพทย์หรือผู้เชี่ยวชาญด้านสุขภาพจิต";
+        } else {
+            return emoji + " ไม่พบความเสี่ยงต่อภาวะซึมเศร้า ควรดูแลสุขภาพจิตให้ดีต่อไป หากมีอาการเปลี่ยนแปลงควรมาประเมินใหม่";
+        }
+    }
+
+    public String getSummaryTextWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        int score = getTotalScore();
+        String emoji = get2qEmoji(score > 0);
+
+        if (score == 0) {
+            return emoji + " ปกติ (ไม่มีอาการ)";
+        } else if (score == 1) {
+            return emoji + " ผิดปกติ (มีอาการ 1 ข้อ)";
+        } else if (score == 2) {
+            return emoji + " ผิดปกติ (มีอาการ 2 ข้อ)";
+        }
+
+        return "";
+    }
+    public void showCompletionStatusWithEmoji() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            String resultInfo = getAssessmentResultWithEmoji();
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + resultInfo;
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("StressDepression2q", "Completion Status: " + message);
+    }
+    public String get9QRecommendationTextWithEmoji() {
+        if (shouldDo9QAssessment()) {
+            String emoji = get2qEmoji(true);
+            return emoji + " ผลการประเมิน 2Q พบความเสี่ยง แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติมเพื่อความแม่นยำ";
+        }
+        return "";
+    }
+
     private void validateAndSaveData() {
         // ตรวจสอบว่าตอบคำถามครบทุกข้อหรือไม่
         boolean allAnswered = true;
@@ -286,16 +343,6 @@ public class StressDepression2qFragment extends Fragment {
         return String.join(", ", missingQuestions);
     }
 
-    private void clearHighlights() {
-        // ล้าง highlight ทั้งหมด
-        if (resultTable != null && resultTable.getChildCount() >= 3) {
-            TableRow normalRow = (TableRow) resultTable.getChildAt(1);
-            TableRow abnormalRow = (TableRow) resultTable.getChildAt(2);
-            normalRow.setBackgroundColor(white);
-            abnormalRow.setBackgroundColor(light_gray);
-        }
-    }
-
     private void setupListeners(){
         rdoStress2qQ1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -320,7 +367,6 @@ public class StressDepression2qFragment extends Fragment {
 
                 updatePoints();
                 updateResultDisplay();
-                updateTableHighlight();
 
                 // บันทึก result code หากครบถ้วน
 //                saveResultCodeIfComplete();
@@ -350,7 +396,6 @@ public class StressDepression2qFragment extends Fragment {
 
                 updatePoints();
                 updateResultDisplay(); // เพิ่มการอัพเดทการแสดงผล
-                updateTableHighlight();
 
                 // บันทึก result code หากครบถ้วน
 //                saveResultCodeIfComplete();
@@ -729,13 +774,12 @@ public class StressDepression2qFragment extends Fragment {
         // รีเซ็ตสถานะการตรวจสอบ
         resetValidation();
 
-        // ล้าง highlight ในตาราง
-        clearHighlights();
-
         // รีเซ็ตการแสดงผล
         updateResultDisplay();
-    }
 
+        // รีเซ็ต Stress Gauge
+        resetStressGauge();
+    }
     /**
      * ตรวจสอบว่ามีการเปลี่ยนแปลงข้อมูลหรือไม่
      */
@@ -991,4 +1035,178 @@ public class StressDepression2qFragment extends Fragment {
             Log.d(TAG, message);
         }
     }
+    private void setupStressGaugeTestControls() {
+        if (seekBarStressGaugeTest != null) {
+            seekBarStressGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && stressRiskGauge != null) {
+                        stressRiskGauge.setScore(progress);
+                        StressRiskGauge2QView.StressLevel level = getCurrentStressLevelFromScore(progress);
+
+                        // อัปเดตข้อความทดสอบ
+                        if (tvStressGaugeEmoji != null) tvStressGaugeEmoji.setText(level.emoji);
+                        if (tvStressGaugeScore != null) tvStressGaugeScore.setText("คะแนน: " + progress + "/2");
+                        if (tvStressGaugeLevel != null) {
+                            tvStressGaugeLevel.setText(level.label);
+                            tvStressGaugeLevel.setTextColor(Color.parseColor(level.color));
+                        }
+                        if (tvStressGaugeCode != null) tvStressGaugeCode.setText(level.code);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+
+    private void showStressGaugeCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "📊 เกณฑ์การคัดกรองโรคซึมเศร้า 2Q Gauge\n\n" +
+                "😊 0 คะแนน: ปกติ (1B0210)\n" +
+                "🔶 ตอบ 'ไม่มี' ทั้ง 2 ข้อ\n" +
+                "🔶 ควรดูแลสุขภาพจิตให้ดีต่อไป\n\n" +
+
+                "😟 1-2 คะแนน: ผิดปกติ (1B0211)\n" +
+                "🔶 ตอบ 'มี' อย่างน้อย 1 ข้อ\n" +
+                "🔶 แนะนำให้ทำแบบ 9Q เพิ่มเติม และปรึกษาแพทย์\n\n";
+
+        builder.setTitle("📈 เกณฑ์การประเมิน 2Q Gauge")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showStressGaugeTestControls(boolean show) {
+        View layoutStressGaugeControl = getView().findViewById(R.id.layoutStressGaugeControl);
+        if (layoutStressGaugeControl != null) {
+            layoutStressGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    // Method สำหรับรีเซ็ต Gauge
+    public void resetStressGauge() {
+        if (stressRiskGauge != null) {
+            stressRiskGauge.setScore(0);
+            updateStressGaugeDisplay();
+        }
+    }
+
+    private void updateStressGaugeDisplay() {
+        if (stressRiskGauge == null) return;
+
+        int totalScore = getTotalScore();
+        // ถ้ายังไม่ครบข้อมูล ให้ใช้ 0
+        if (totalScore == -1) totalScore = 0;
+
+        StressRiskGauge2QView.StressLevel currentLevel = getCurrentStressLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        stressRiskGauge.setScore(totalScore);
+
+        // อัปเดตข้อความ
+        if (tvStressGaugeEmoji != null) tvStressGaugeEmoji.setText(currentLevel.emoji);
+        if (tvStressGaugeScore != null) tvStressGaugeScore.setText("คะแนน: " + totalScore + "/2");
+        if (tvStressGaugeLevel != null) {
+            tvStressGaugeLevel.setText(currentLevel.label);
+            tvStressGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvStressGaugeCode != null) tvStressGaugeCode.setText(currentLevel.code);
+
+        Log.d(TAG, "Stress Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label);
+    }
+
+    private StressRiskGauge2QView.StressLevel getCurrentStressLevelFromScore(int score) {
+        if (score == 0) {
+            return new StressRiskGauge2QView.StressLevel(0, 0, "ปกติ", "#27AE60", "😊", "1B0210");
+        } else {
+            return new StressRiskGauge2QView.StressLevel(1, 2, "ผิดปกติ และส่งต่อเจ้าหน้าที่", "#E74C3C", "😟", "1B0211");
+        }
+    }
+
+    public void updateStressGaugeWithScore(int score) {
+        if (stressRiskGauge != null) {
+            stressRiskGauge.setScore(score);
+            updateStressGaugeDisplay();
+        }
+    }
+
+    public StressRiskGauge2QView.StressLevel getCurrentStressGaugeLevel() {
+        if (stressRiskGauge != null) {
+            return stressRiskGauge.getCurrentStressLevel();
+        }
+        return getCurrentStressLevelFromScore(0);
+    }
+
+    // ปรับปรุง updateResultDisplay() method ให้เรียก updateStressGaugeDisplay()
+    private void updateResultDisplay() {
+        // ตรวจสอบว่าตอบคำถามครบหรือไม่
+        if (!isFormComplete()) {
+            // ยังไม่ได้ประเมิน
+            if (tv2qResult != null) {
+                tv2qResult.setText("-");
+                tv2qResult.setBackgroundColor(Color.parseColor("#9E9E9E")); // สีเทา
+                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
+            }
+
+            if (tv2qResultDetail != null) {
+                tv2qResultDetail.setText("🤔 ยังไม่ได้ประเมิน");
+                tv2qResultDetail.setTextColor(Color.parseColor("#616161"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#F5F5F5"));
+            }
+
+            // อัปเดต Stress Gauge
+            updateStressGaugeDisplay();
+            return;
+        }
+
+        // ตรวจสอบผลการประเมิน
+        boolean hasPositiveAnswer = false;
+        String answer1 = stressDepression2qInfo.getQ1();
+        String answer2 = stressDepression2qInfo.getQ2();
+
+        // ตรวจสอบว่ามีการตอบ "มี" (รหัส "2") หรือไม่
+        if ("2".equals(answer1) || "2".equals(answer2)) {
+            hasPositiveAnswer = true;
+        }
+
+        String emoji = get2qEmoji(hasPositiveAnswer);
+
+        // อัพเดท tv2qResult
+        if (tv2qResult != null) {
+            if (hasPositiveAnswer) {
+                tv2qResult.setText("ผิดปกติ");
+                tv2qResult.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
+                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
+            } else {
+                tv2qResult.setText("ปกติ");
+                tv2qResult.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
+                tv2qResult.setTextColor(Color.parseColor("#FFFFFF"));
+            }
+        }
+
+        // อัพเดท tv2qResultDetail พร้อม emoji
+        if (tv2qResultDetail != null) {
+            if (hasPositiveAnswer) {
+                tv2qResultDetail.setText(emoji + " ผิดปกติ และส่งต่อเจ้าหน้าที่ (1B0211)");
+                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
+            } else {
+                tv2qResultDetail.setText(emoji + " ปกติ (1B0210)");
+                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
+            }
+        }
+
+        // อัปเดต Stress Gauge
+        updateStressGaugeDisplay();
+    }
+
 }

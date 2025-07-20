@@ -810,13 +810,14 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนแสดงผลแบบใหม่ (คล้าย nicotine) -->
+        <!-- ส่วนแสดงผลแบบใหม่ (คล้าย 2Q) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
+            android:visibility="gone"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
@@ -824,6 +825,32 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
+
+                <!-- หัวข้อผลการประเมิน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ผลการคัดกรอง 9Q"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+
+                </LinearLayout>
 
                 <TableLayout
                     android:layout_width="match_parent"
@@ -835,16 +862,6 @@
                         android:background="@drawable/gradient_header"
                         android:padding="12dp">
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="การประเมิน"
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            android:textSize="14sp"
-                            android:gravity="center"
-                            android:padding="8dp" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -862,28 +879,6 @@
                     <TableRow
                         android:padding="12dp"
                         android:background="#FFFFFF">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@android:drawable/ic_dialog_info"
-                                android:tint="#673AB7"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="9Q"
-                                android:textSize="14sp"
-                                android:textColor="#2C3E50"
-                                android:textStyle="bold" />
-                        </LinearLayout>
 
                         <androidx.cardview.widget.CardView
                             android:layout_width="0dp"
@@ -908,8 +903,7 @@
                     </TableRow>
 
                     <!-- แถวแสดงหัวข้อระดับซึมเศร้า -->
-                    <TableRow
-                        android:background="#E8F5E8">
+                    <TableRow>
 
                         <TextView
                             android:layout_width="0dp"
@@ -932,7 +926,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_span="2"
-                            android:text="ยังไม่ได้ประเมิน"
+                            android:text="🤔 ยังไม่ได้ประเมิน"
                             android:gravity="center"
                             android:padding="16dp"
                             android:textStyle="bold"
@@ -948,134 +942,206 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนตารางเกณฑ์การประเมินแบบใหม่ -->
+        <!-- ส่วน Gauge ใหม่ สำหรับ 9Q -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="#F8F9FA">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="10dp">
 
+                <!-- หัวข้อ Gauge -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="16dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@android:drawable/ic_dialog_info"
                         android:tint="#673AB7"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="เกณฑ์การคัดกรองโรคซึมเศร้า 9Q"
+                        android:layout_weight="1"
+                        android:text="📊 ระดับความรุนแรง"
                         android:textStyle="bold"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textColor="#2C3E50" />
+
+                    <ImageView
+                        android:id="@+id/ivStress9qInfoButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
 
-                <!-- ระดับ 1: ปกติ -->
+                <!-- Custom Gauge View สำหรับ Depression -->
+                <th.in.ffc.app.form.screening.view.DepressionRiskGaugeView
+                    android:id="@+id/depressionRiskGauge"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="0dp" />
+
+                <!-- ข้อมูลระดับปัจจุบัน -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:background="@drawable/risk_level_background"
+                    android:padding="16dp">
 
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_green"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- คะแนนและ Emoji -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        >
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="&lt; 7 คะแนน: ไม่มีอาการซึมเศร้า (1B0260/1B0282)"
-                        android:textSize="13sp"
-                        android:textColor="#27AE60" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/tvDepressionGaugeEmoji"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="😊"
+                            android:textSize="32sp"
+                            android:layout_marginEnd="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvDepressionGaugeScore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="คะแนน: 0"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#2C3E50" />
+
+                            <TextView
+                                android:id="@+id/tvDepressionGaugeLevel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ไม่มีอาการ"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#27AE60" />
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvDepressionGaugeCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1B0260"
+                            android:textSize="16sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:background="#F0F0F0"
+                            android:padding="4dp"
+                            android:layout_gravity="center_horizontal"
+                             />
+                    </LinearLayout>
+
+                    <!-- คำแนะนำ -->
+                    <TextView
+                        android:id="@+id/tvDepressionGaugeRecommendation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="✅ สถานะปกติ"
+                        android:textSize="14sp"
+                        android:textColor="#27AE60"
+                        android:textStyle="italic"
+                        android:gravity="center"
+                        android:background="#E8F5E8"
+                        android:padding="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- ระดับ 2: น้อย -->
+                <!-- ตัวควบคุมคะแนน (สำหรับทดสอบ - สามารถลบออกได้) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_yellow"
-                        android:layout_marginEnd="8dp" />
+                    android:orientation="vertical"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    android:id="@+id/layoutDepressionGaugeControl">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="7-12 คะแนน: ซึมเศร้าระดับน้อย (1B0261/1B0283)"
-                        android:textSize="13sp"
-                        android:textColor="#F39C12" />
-                </LinearLayout>
+                        android:text="ทดสอบ Gauge (สำหรับ Debug):"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp" />
 
-                <!-- ระดับ 3: ปานกลาง -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_orange"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <SeekBar
+                        android:id="@+id/seekBarDepressionGaugeTest"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="13-18 คะแนน: ซึมเศร้าระดับปานกลาง (1B0262/1B0284)"
-                        android:textSize="13sp"
-                        android:textColor="#E67E22" />
-                </LinearLayout>
+                        android:max="27"
+                        android:progress="0" />
 
-                <!-- ระดับ 4: รุนแรง -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_red"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="≥ 19 คะแนน: ซึมเศร้าระดับรุนแรง (1B0263/1B0285)"
-                        android:textSize="13sp"
-                        android:textColor="#E74C3C" />
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="start" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="27"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="end" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
         <!-- ตารางเดิม (ซ่อนไว้) -->
+
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -1116,4 +1182,6 @@
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
+
+
 </ScrollView>

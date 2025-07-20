@@ -13,8 +13,10 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -31,8 +33,10 @@ import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
+import th.in.ffc.app.form.screening.view.DepressionRiskGaugeView;
 import th.in.ffc.util.Log;
-
+import android.app.AlertDialog;
+import android.widget.ImageView;
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link StressDepression9qFragment#newInstance} factory method to
@@ -60,6 +64,17 @@ public class StressDepression9qFragment extends Fragment {
 
     private TextView tv9qScore;
     private TextView tv9qResultDetail;
+
+    private ImageView ivStress9qInfoButton;
+
+    private DepressionRiskGaugeView depressionRiskGauge;
+    private TextView tvDepressionGaugeEmoji;
+    private TextView tvDepressionGaugeScore;
+    private TextView tvDepressionGaugeLevel;
+    private TextView tvDepressionGaugeCode;
+    private TextView tvDepressionGaugeRecommendation;
+    private SeekBar seekBarDepressionGaugeTest;
+
 
     public StressDepression9qFragment() {
         // Required empty public constructor
@@ -109,6 +124,110 @@ public class StressDepression9qFragment extends Fragment {
 //                    Toast.LENGTH_SHORT).show();
         }
     }
+    private void initializeDepressionGaugeViews(View view) {
+        depressionRiskGauge = view.findViewById(R.id.depressionRiskGauge);
+        tvDepressionGaugeEmoji = view.findViewById(R.id.tvDepressionGaugeEmoji);
+        tvDepressionGaugeScore = view.findViewById(R.id.tvDepressionGaugeScore);
+        tvDepressionGaugeLevel = view.findViewById(R.id.tvDepressionGaugeLevel);
+        tvDepressionGaugeCode = view.findViewById(R.id.tvDepressionGaugeCode);
+        tvDepressionGaugeRecommendation = view.findViewById(R.id.tvDepressionGaugeRecommendation);
+
+
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarDepressionGaugeTest = view.findViewById(R.id.seekBarDepressionGaugeTest);
+        setupDepressionGaugeTestControls();
+//        setupDepressionGaugeInfoButton();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateDepressionGaugeDisplay();
+    }
+    private void setupDepressionGaugeTestControls() {
+        if (seekBarDepressionGaugeTest != null) {
+            seekBarDepressionGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && depressionRiskGauge != null) {
+                        depressionRiskGauge.setScore(progress);
+                        DepressionRiskGaugeView.DepressionLevel level = getCurrentDepressionLevelFromScore(progress);
+
+                        // อัปเดตข้อความทดสอบ
+                        if (tvDepressionGaugeEmoji != null) tvDepressionGaugeEmoji.setText(level.emoji);
+                        if (tvDepressionGaugeScore != null) tvDepressionGaugeScore.setText("คะแนน: " + progress);
+                        if (tvDepressionGaugeLevel != null) {
+                            tvDepressionGaugeLevel.setText(level.label);
+                            tvDepressionGaugeLevel.setTextColor(Color.parseColor(level.color));
+                        }
+                        if (tvDepressionGaugeCode != null) tvDepressionGaugeCode.setText(level.code);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+    public void showDepressionGaugeTestControls(boolean show) {
+        View layoutDepressionGaugeControl = getView().findViewById(R.id.layoutDepressionGaugeControl);
+        if (layoutDepressionGaugeControl != null) {
+            layoutDepressionGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    // Method สำหรับรีเซ็ต Gauge
+    public void resetDepressionGauge() {
+        if (depressionRiskGauge != null) {
+            depressionRiskGauge.setScore(0);
+            updateDepressionGaugeDisplay();
+        }
+    }
+    private void updateDepressionGaugeDisplay() {
+        if (depressionRiskGauge == null) return;
+
+        int totalScore = sumPoints();
+        DepressionRiskGaugeView.DepressionLevel currentLevel = getCurrentDepressionLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        depressionRiskGauge.setScore(totalScore);
+
+        // อัปเดตข้อความ
+        if (tvDepressionGaugeEmoji != null) tvDepressionGaugeEmoji.setText(currentLevel.emoji);
+        if (tvDepressionGaugeScore != null) tvDepressionGaugeScore.setText("คะแนน: " + totalScore);
+        if (tvDepressionGaugeLevel != null) {
+            tvDepressionGaugeLevel.setText(currentLevel.label);
+            tvDepressionGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvDepressionGaugeCode != null) tvDepressionGaugeCode.setText(currentLevel.code);
+
+        Log.d("StressDepression9q", "Depression Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label);
+    }
+
+    private DepressionRiskGaugeView.DepressionLevel getCurrentDepressionLevelFromScore(int score) {
+        if (score < 7) {
+            return new DepressionRiskGaugeView.DepressionLevel(0, 6, "ไม่มีอาการของโรคซึมเศร้า", "#27AE60", "😊", "1B0260|1B0282");
+        } else if (score >= 7 && score <= 12) {
+            return new DepressionRiskGaugeView.DepressionLevel(7, 12, "มีอาการของโรคซึมเศร้าระดับน้อย", "#F39C12", "😐", "1B0261|1B0283");
+        } else if (score >= 13 && score <= 18) {
+            return new DepressionRiskGaugeView.DepressionLevel(13, 18, "มีอาการของโรคซึมเศร้าระดับปานกลาง", "#E67E22", "😟", "1B0262|1B0284");
+        } else {
+            return new DepressionRiskGaugeView.DepressionLevel(19, 27, "มีอาการของโรคซึมเศร้าระดับรุนแรง", "#E74C3C", "😰", "1B0263|1B0285");
+        }
+    }
+    public void updateDepressionGaugeWithScore(int score) {
+        if (depressionRiskGauge != null) {
+            depressionRiskGauge.setScore(score);
+            updateDepressionGaugeDisplay();
+        }
+    }
+    public DepressionRiskGaugeView.DepressionLevel getCurrentDepressionGaugeLevel() {
+        if (depressionRiskGauge != null) {
+            return depressionRiskGauge.getCurrentDepressionLevel();
+        }
+        return getCurrentDepressionLevelFromScore(0);
+    }
+
     /**
      * ดึงรายการคำถามที่ยังไม่ได้ตอบ
      */
@@ -259,7 +378,10 @@ public class StressDepression9qFragment extends Fragment {
         // Initialize new UI elements
         tv9qScore = view.findViewById(R.id.tv9qScore);
         tv9qResultDetail = view.findViewById(R.id.tv9qResultDetail);
+        ivStress9qInfoButton = view.findViewById(R.id.ivStress9qInfoButton);
+        setupInfoButtonListener();
 
+        initializeDepressionGaugeViews(view);
         // Initial display update
         updateScoreDisplay();
 
@@ -546,6 +668,23 @@ public class StressDepression9qFragment extends Fragment {
         });
 
         loadData();
+        view.post(() -> {
+            updateScoreDisplay();
+            updateDepressionGaugeDisplay(); // เพิ่มบรรทัดนี้
+            if (isFormComplete()) {
+                updateTableHighlight();
+            }
+        });
+    }
+    private void setupInfoButtonListener() {
+        if (ivStress9qInfoButton != null) {
+            ivStress9qInfoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showStress9qCriteriaDialog();
+                }
+            });
+        }
     }
     @Override
     public void onAttach(@NonNull Context context) {
@@ -578,6 +717,9 @@ public class StressDepression9qFragment extends Fragment {
         // อัปเดตการแสดงผลใหม่
         updateScoreDisplay();
         updateResultDisplay(totalScore);
+
+        // อัปเดต Depression Gauge ใหม่
+        updateDepressionGaugeDisplay();
 
         // อัปเดตการแสดงผลเดิม (ถ้ามี)
         if (depression9result != null) {
@@ -625,56 +767,6 @@ public class StressDepression9qFragment extends Fragment {
 
         Log.d("StressDepression9q", "Background color updated for score: " + score);
     }
-    private void updateResultDisplay(int totalScore) {
-        if (tv9qResultDetail == null) {
-            Log.e("StressDepression9q", "tv9qResultDetail is null!");
-            return;
-        }
-
-        String resultText = "";
-        String resultCode = "";
-        int backgroundColor = Color.parseColor("#F8F9FA");
-        int textColor = Color.parseColor("#2C3E50");
-
-        if (totalScore < 7) {
-            resultText = "ไม่มีอาการของโรคซึมเศร้า";
-            resultCode = "1B0260|1B0282";
-            backgroundColor = Color.parseColor("#E8F5E8");
-            textColor = Color.parseColor("#27AE60");
-        } else if (totalScore >= 7 && totalScore <= 12) {
-            resultText = "มีอาการของโรคซึมเศร้าระดับน้อย";
-            resultCode = "1B0261|1B0283";
-            backgroundColor = Color.parseColor("#FFF3CD");
-            textColor = Color.parseColor("#F39C12");
-        } else if (totalScore >= 13 && totalScore <= 18) {
-            resultText = "มีอาการของโรคซึมเศร้าระดับปานกลาง";
-            resultCode = "1B0262|1B0284";
-            backgroundColor = Color.parseColor("#FFE4CC");
-            textColor = Color.parseColor("#E67E22");
-        } else if (totalScore >= 19) {
-            resultText = "มีอาการของโรคซึมเศร้าระดับรุนแรง";
-            resultCode = "1B0263|1B0285";
-            backgroundColor = Color.parseColor("#F8D7DA");
-            textColor = Color.parseColor("#E74C3C");
-        }
-
-        // ตรวจสอบความเสี่ยงการฆ่าตัวตาย (ข้อ 9)
-        String q9Value = getQuestionValue(9);
-        boolean hasSuicidalRisk = q9Value != null && !q9Value.equals("1") && !q9Value.equals("0");
-
-        String finalText = resultText + "\n(" + resultCode + ")";
-        if (hasSuicidalRisk) {
-//            finalText += "\n⚠️ พบความเสี่ยงการทำร้ายตนเอง";
-            textColor = Color.parseColor("#E74C3C");
-        }
-
-        tv9qResultDetail.setText(finalText);
-        tv9qResultDetail.setTextColor(textColor);
-        tv9qResultDetail.setBackgroundColor(backgroundColor);
-
-        Log.d("StressDepression9q", "Result displayed: " + finalText);
-    }
-
     // ปรับปรุง loadExistingData() ให้ตรวจสอบสถานะการตอบ
     private void loadExistingData() {
         if (this.stressDepression9qInfo == null) return;
@@ -923,10 +1015,13 @@ public class StressDepression9qFragment extends Fragment {
         // รีเซ็ตการแสดงผล
         updateScoreDisplay();
         if (tv9qResultDetail != null) {
-            tv9qResultDetail.setText("ยังไม่ได้ประเมิน");
+            tv9qResultDetail.setText("🤔 ยังไม่ได้ประเมิน");
             tv9qResultDetail.setTextColor(Color.parseColor("#7F8C8D"));
             tv9qResultDetail.setBackgroundColor(Color.parseColor("#F8F9FA"));
         }
+
+        // รีเซ็ต Depression Gauge
+        resetDepressionGauge();
 
         // ล้าง highlight ในตาราง
         clearTableHighlight();
@@ -1260,6 +1355,218 @@ public class StressDepression9qFragment extends Fragment {
         }
 
         return symptoms;
+    }
+
+
+    private void showStress9qCriteriaDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+            // สร้าง custom layout สำหรับ dialog
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_stress_9q_criteria, null);
+
+            builder.setView(dialogView);
+            builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            Log.d("StressDepression9q", "แสดง Dialog เกณฑ์การประเมิน 9Q สำเร็จ");
+
+        } catch (Exception e) {
+            Log.e("StressDepression9q", "เกิดข้อผิดพลาดในการแสดง Dialog: " + e.getMessage());
+
+            // แสดง dialog แบบง่ายหากเกิดข้อผิดพลาด
+            showSimpleStress9qCriteriaDialog();
+        }
+    }
+
+    private void showSimpleStress9qCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "📊 เกณฑ์การคัดกรองโรคซึมเศร้า 9Q\n\n" +
+                "😊 < 7 คะแนน: ไม่มีอาการซึมเศร้า (1B0260/1B0282)\n" +
+                "🔶 ควรดูแลสุขภาพจิตให้ดีต่อไป\n\n" +
+
+                "😐 7-12 คะแนน: ซึมเศร้าระดับน้อย (1B0261/1B0283)\n" +
+                "🔶 ควรพักผ่อนให้เพียงพอ ออกกำลังกาย\n\n" +
+
+                "😟 13-18 คะแนน: ซึมเศร้าระดับปานกลาง (1B0262/1B0284)\n" +
+                "🔶 ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิต\n\n" +
+
+                "😰 ≥ 19 คะแนน: ซึมเศร้าระดับรุนแรง (1B0263/1B0285)\n" +
+                "🔶 ควรพบแพทย์เพื่อรับการรักษาโดยเร็ว\n\n" +
+
+                "⚠️ หมายเหตุ: หากข้อ 9 ตอบ 'มี' ใดๆ = มีความเสี่ยงการทำร้ายตนเอง\n" +
+                "แนะนำทำแบบประเมิน 8Q เพิ่มเติม\n\n";
+
+        builder.setTitle("📈 เกณฑ์การประเมิน 9Q")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // เพิ่ม emoji helper methods
+    private String get9qEmoji(int totalScore) {
+        if (totalScore < 7) {
+            return "😊"; // ปกติ - หน้ายิ้ม
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return "😐"; // น้อย - หน้าเฉยๆ
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return "😟"; // ปานกลาง - หน้ากังวล
+        } else if (totalScore >= 19) {
+            return "😰"; // รุนแรง - หน้าตกใจ
+        }
+        return "🤔"; // ยังไม่ได้ประเมิน
+    }
+
+    private String get9qSuicidalRiskEmoji(boolean hasSuicidalRisk) {
+        return hasSuicidalRisk ? "⚠️" : "";
+    }
+
+    // ปรับปรุง updateResultDisplay method ให้มี emoji
+    private void updateResultDisplay(int totalScore) {
+        if (tv9qResultDetail == null) {
+            Log.e("StressDepression9q", "tv9qResultDetail is null!");
+            return;
+        }
+
+        String resultText = "";
+        String resultCode = "";
+        int backgroundColor = Color.parseColor("#F8F9FA");
+        int textColor = Color.parseColor("#2C3E50");
+        String emoji = get9qEmoji(totalScore);
+
+        if (totalScore < 7) {
+            resultText = "ไม่มีอาการของโรคซึมเศร้า";
+            resultCode = "1B0260|1B0282";
+            backgroundColor = Color.parseColor("#E8F5E8");
+            textColor = Color.parseColor("#27AE60");
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            resultText = "มีอาการของโรคซึมเศร้าระดับน้อย";
+            resultCode = "1B0261|1B0283";
+            backgroundColor = Color.parseColor("#FFF3CD");
+            textColor = Color.parseColor("#F39C12");
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            resultText = "มีอาการของโรคซึมเศร้าระดับปานกลาง";
+            resultCode = "1B0262|1B0284";
+            backgroundColor = Color.parseColor("#FFE4CC");
+            textColor = Color.parseColor("#E67E22");
+        } else if (totalScore >= 19) {
+            resultText = "มีอาการของโรคซึมเศร้าระดับรุนแรง";
+            resultCode = "1B0263|1B0285";
+            backgroundColor = Color.parseColor("#F8D7DA");
+            textColor = Color.parseColor("#E74C3C");
+        }
+
+        // ตรวจสอบความเสี่ยงการฆ่าตัวตาย (ข้อ 9)
+        String q9Value = getQuestionValue(9);
+        boolean hasSuicidalRisk = q9Value != null && !q9Value.equals("1") && !q9Value.equals("0");
+        String suicidalEmoji = get9qSuicidalRiskEmoji(hasSuicidalRisk);
+
+        String finalText = emoji + " " + resultText + "\n(" + resultCode + ")";
+//        if (hasSuicidalRisk) {
+//            finalText += "\n" + suicidalEmoji + " พบความเสี่ยงการทำร้ายตนเอง";
+//            textColor = Color.parseColor("#E74C3C");
+//        }
+
+        tv9qResultDetail.setText(finalText);
+        tv9qResultDetail.setTextColor(textColor);
+        tv9qResultDetail.setBackgroundColor(backgroundColor);
+
+        Log.d("StressDepression9q", "Result displayed: " + finalText);
+    }
+
+    // ปรับปรุง methods อื่นๆ ให้มี emoji
+    public String getDepressionSeverityWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        int totalScore = getTotalScore();
+        String emoji = get9qEmoji(totalScore);
+
+        if (totalScore < 7) {
+            return emoji + " ไม่มีอาการของโรคซึมเศร้า";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return emoji + " มีอาการของโรคซึมเศร้าระดับน้อย";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return emoji + " มีอาการของโรคซึมเศร้าระดับปานกลาง";
+        } else if (totalScore >= 19) {
+            return emoji + " มีอาการของโรคซึมเศร้าระดับรุนแรง";
+        }
+
+        return "";
+    }
+
+    public String getRecommendationWithEmoji() {
+        if (!isFormComplete()) {
+            return "📝 กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int totalScore = getTotalScore();
+        String emoji = get9qEmoji(totalScore);
+        String suicidalEmoji = get9qSuicidalRiskEmoji(hasSuicidalRisk());
+
+        if (hasSuicidalRisk()) {
+            return suicidalEmoji + " พบความเสี่ยงในการทำร้ายตนเอง ควรพบแพทย์โดยด่วน!";
+        }
+
+        if (totalScore < 7) {
+            return emoji + " ไม่มีอาการของโรคซึมเศร้า ควรดูแลสุขภาพจิตให้ดีต่อไป";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return emoji + " มีอาการซึมเศร้าระดับน้อย ควรพักผ่อนให้เพียงพอ ออกกำลังกาย และทำกิจกรรมที่ชื่นชอบ";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return emoji + " มีอาการซึมเศร้าระดับปานกลาง ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิต";
+        } else if (totalScore >= 19) {
+            return emoji + " มีอาการซึมเศร้าระดับรุนแรง ควรพบแพทย์เพื่อรับการรักษาโดยเร็ว";
+        }
+
+        return "";
+    }
+
+    public String getSummaryTextWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        int score = getTotalScore();
+        String severity = getDepressionSeverityWithEmoji();
+        String suicidalEmoji = get9qSuicidalRiskEmoji(hasSuicidalRisk());
+
+        String summary = String.format("คะแนน: %d - %s", score, severity);
+
+        if (hasSuicidalRisk()) {
+            summary += " (" + suicidalEmoji + " เสี่ยงทำร้ายตนเอง)";
+        }
+
+        return summary;
+    }
+
+    public String get8QRecommendationTextWithEmoji() {
+        if (shouldDo8QAssessment()) {
+            String suicidalEmoji = get9qSuicidalRiskEmoji(true);
+            return suicidalEmoji + " แนะนำให้ทำแบบประเมินการฆ่าตัวตาย 8Q เพิ่มเติม เนื่องจากพบความเสี่ยงในการทำร้ายตนเอง";
+        }
+        return "";
+    }
+
+    public void showCompletionStatusWithEmoji() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            String resultInfo = getDepressionSeverityWithEmoji();
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + resultInfo;
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("StressDepression9q", "Completion Status: " + message);
     }
 
 }

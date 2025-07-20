@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -64,6 +66,9 @@ public class SmookingFragment extends Fragment {
     private TextView tvSmokingScore;
     private TextView tvSmokingRiskLevel;
     private boolean isUpdatingFromCode = false;
+
+    // เพิ่มตัวแปรสำหรับปุ่ม info
+    private ImageView ivInfoButton;
 
     // เพิ่มตัวแปรสำหรับ ScreeningResultCode
     private ScreeningResultCodeDao screeningResultCodeDao;
@@ -160,9 +165,20 @@ public class SmookingFragment extends Fragment {
         // เชื่อมโยง TextView สำหรับแสดงคะแนน
         tvSmokingScore = view.findViewById(R.id.tvSmokingScore);
         tvSmokingRiskLevel = view.findViewById(R.id.tvSmokingRiskLevel);
+
+        // เชื่อมโยงปุ่ม info
+        ivInfoButton = view.findViewById(R.id.ivInfoButton);
     }
 
     private void setupListeners() {
+        // เพิ่ม listener สำหรับปุ่ม info
+        ivInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSmokingCriteriaDialog();
+            }
+        });
+
         rdoSmokerGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
@@ -186,7 +202,6 @@ public class SmookingFragment extends Fragment {
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
                 dataPasser.onSmokerInfo(smokerInfo);
-//                saveResultCodeIfComplete();
 
                 Log.d(TAG, "Selected SmokerGroup: " + data + ", Form Complete: " + isFormComplete());
             }
@@ -214,7 +229,6 @@ public class SmookingFragment extends Fragment {
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
                 dataPasser.onSmokerInfo(smokerInfo);
-//                saveResultCodeIfComplete();
 
                 Log.d(TAG, "Selected SmokerAssist: " + data + ", Form Complete: " + isFormComplete());
             }
@@ -239,7 +253,6 @@ public class SmookingFragment extends Fragment {
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
                 dataPasser.onSmokerInfo(smokerInfo);
-//                saveResultCodeIfComplete();
 
                 Log.d(TAG, "Selected SmokerRegularly: " + data + ", Form Complete: " + isFormComplete());
             }
@@ -263,6 +276,23 @@ public class SmookingFragment extends Fragment {
                 }
             }
         });
+    }
+
+    /**
+     * แสดง Dialog เกณฑ์การประเมินบุหรี่
+     */
+    private void showSmokingCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom layout สำหรับ dialog
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_smoking_criteria, null);
+
+        builder.setView(dialogView);
+//        builder.setTitle("เกณฑ์การประเมินบุหรี่");
+        builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void clearSubsequentSelections() {
@@ -306,29 +336,6 @@ public class SmookingFragment extends Fragment {
     }
 
     /**
-     * บันทึก screening result code หากข้อมูลครบถ้วน
-     */
-//    private void saveResultCodeIfComplete() {
-//        if (isFormComplete() && currentPersonId != -1 && currentVisitNo != -1) {
-//            try {
-//                // บันทึกผลการคัดกรอง (2 records)
-//                boolean result = saveSmokingResults(currentPersonId, currentVisitNo, "SYSTEM");
-//
-//                if (result) {
-//                    Log.d(TAG, "บันทึก screening result code สำเร็จ");
-//                } else {
-//                    Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึก screening result code");
-//                }
-//
-//            } catch (Exception e) {
-//                Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึก screening result code");
-//            }
-//        }
-//    }
-
-
-
-    /**
      * บันทึกผลการประเมินความเสี่ยงจากการสูบบุหรี่
      */
     public Uri saveSmokingResult(int personId, int visitno, String userCreate) {
@@ -364,6 +371,7 @@ public class SmookingFragment extends Fragment {
             return null;
         }
     }
+
     private void setResultCodeFromSelection(ScreeningResultCodeDao.ScreeningResultData data) {
         if (smokerInfo == null || smokerInfo.getSmokerGroup() == null || smokerInfo.getSmokerGroup().isEmpty()) {
             return;
@@ -462,6 +470,7 @@ public class SmookingFragment extends Fragment {
             }
         }
     }
+
     public boolean saveSmokingResults(int personId, int visitno, String userCreate) {
         try {
             boolean success = true;
@@ -497,6 +506,7 @@ public class SmookingFragment extends Fragment {
             return false;
         }
     }
+
     private Uri saveSmokingAdviceResult(int personId, int visitno, String userCreate) {
         try {
             ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
@@ -548,6 +558,7 @@ public class SmookingFragment extends Fragment {
             return null;
         }
     }
+
     private Uri saveSmokingStatusResult(int personId, int visitno, String userCreate) {
         try {
             ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
@@ -803,7 +814,150 @@ public class SmookingFragment extends Fragment {
 
         return score;
     }
+    public String getAssessmentResultWithEmoji() {
+        if (!isFormComplete()) {
+            return "😐 ยังไม่ได้ประเมิน";
+        }
 
+        String emoji = getSmokingStatusEmoji();
+        String result = getAssessmentResult();
+
+        return emoji + " " + result;
+    }
+    public String getRiskLevelFromScoreWithEmoji() {
+        if (!isFormComplete()) {
+            return "😐 ยังไม่ได้ประเมิน";
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        if ("1".equals(smokerGroup)) {
+            return "😊 ไม่มีความเสี่ยง";
+        } else if ("2".equals(smokerGroup)) {
+            return "🙂 ความเสี่ยงต่ำ";
+        } else if ("3".equals(smokerGroup)) {
+            if ("1".equals(smokerAssist) || "2".equals(smokerAssist)) {
+                return "😟 ความเสี่ยงปานกลาง";
+            } else if ("3".equals(smokerAssist)) {
+                if ("3".equals(smokerRegularly)) {
+                    return "😱 ความเสี่ยงสูงมาก";
+                } else {
+                    return "😰 ความเสี่ยงสูง";
+                }
+            } else {
+                return "😟 ความเสี่ยงปานกลาง";
+            }
+        }
+
+        return "😐 ไม่ทราบระดับความเสี่ยง";
+    }
+    public String getRecommendationWithEmoji() {
+        if (!isFormComplete()) {
+            return "😐 กรุณากรอกข้อมูลให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        if ("1".equals(smokerGroup)) {
+            return "😊 ควรรักษาสถานะไม่สูบบุหรี่ต่อไป หลีกเลี่ยงสภาพแวดล้อมที่มีควันบุหรี่";
+        } else if ("2".equals(smokerGroup)) {
+            return "🙂 ดีที่เลิกสูบได้แล้ว ควรรักษาสถานะนี้ต่อไป และหลีกเลี่ยงการกลับไปสูบใหม่";
+        } else if ("3".equals(smokerGroup)) {
+            StringBuilder recommendation = new StringBuilder("😰 ควรเลิกสูบบุหรี่และปรึกษาแพทย์");
+
+            if ("3".equals(smokerAssist) && smokerRegularly != null && !smokerRegularly.isEmpty()) {
+                if ("1".equals(smokerRegularly)) {
+                    recommendation.append(" - ให้คำแนะนำเกี่ยวกับการเลิกสูบบุหรี่");
+                } else if ("2".equals(smokerRegularly)) {
+                    recommendation.append(" - ให้คำแนะนำและติดตามการเลิกสูบบุหรี่อย่างใกล้ชิด");
+                } else if ("3".equals(smokerRegularly)) {
+                    recommendation.setLength(0); // ล้างข้อความเดิม
+                    recommendation.append("😱 ให้คำแนะนำเร่งด่วนและส่งต่อผู้เชี่ยวชาญเพื่อการรักษา");
+                }
+            }
+
+            return recommendation.toString();
+        }
+
+        return "😐 ควรปรึกษาแพทย์เพื่อรับคำแนะนำที่เหมาะสม";
+    }
+
+    public void checkHighRiskSmokingAlert() {
+        if (isFormComplete() && isHighRisk()) {
+            showHighRiskSmokingNotification();
+        }
+    }
+    private void showHighRiskSmokingNotification() {
+        try {
+            String emoji = getSmokingStatusEmoji();
+            String riskLevel = getRiskLevelFromScoreWithEmoji();
+            String assessment = getAssessmentResultWithEmoji();
+
+            String message = String.format(
+                    "%s ตรวจพบความเสี่ยงสูงจากการสูบบุหรี่\n\n" +
+                            "สถานะ: %s\n" +
+                            "ระดับ: %s\n\n" +
+                            "จำเป็นต้องได้รับการดูแลเป็นพิเศษ",
+                    emoji, assessment.replace(emoji + " ", ""), riskLevel.replace(emoji + " ", "")
+            );
+
+            Log.w(TAG, message);
+
+            // แสดง Toast แจ้งเตือน
+            if (getContext() != null) {
+                Toast.makeText(getContext(), emoji + " ตรวจพบความเสี่ยงสูงจากการสูบบุหรี่",
+                        Toast.LENGTH_LONG).show();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการแสดงการแจ้งเตือน: " + e.getMessage());
+        }
+    }
+    public String generateSmokingAssessmentReport() {
+        StringBuilder report = new StringBuilder();
+
+        report.append("=== รายงานการประเมินความเสี่ยงจากการสูบบุหรี่ ===\n\n");
+
+        if (!isFormComplete()) {
+            report.append("สถานะ: ไม่สามารถสร้างรายงานได้\n");
+            report.append("เหตุผล: ข้อมูลไม่ครบถ้วน\n");
+            report.append("ข้อที่ยังไม่ได้กรอก: ").append(getValidationMessage()).append("\n");
+            return report.toString();
+        }
+
+        // ข้อมูลพื้นฐาน
+        report.append("สถานะการกรอกข้อมูล: ครบถ้วน (").append(getCompletionPercentage()).append("%)\n");
+        report.append("วันที่ประเมิน: ").append(System.currentTimeMillis()).append("\n\n");
+
+        // ผลการประเมิน
+        String emoji = getSmokingStatusEmoji();
+        report.append("ผลการประเมิน:\n");
+        report.append("- สถานะ: ").append(getAssessmentResultWithEmoji()).append("\n");
+        report.append("- ระดับความเสี่ยง: ").append(getRiskLevelFromScoreWithEmoji()).append("\n");
+        report.append("- ความเสี่ยงสูง: ").append(isHighRisk() ? "ใช่" : "ไม่").append("\n\n");
+
+        // คำแนะนำ
+        report.append("คำแนะนำ:\n");
+        report.append(getRecommendationWithEmoji()).append("\n\n");
+
+        // ข้อมูลเพิ่มเติม
+        if (isHighRisk()) {
+            report.append("⚠️ การดำเนินการเร่งด่วน:\n");
+            report.append("1. หยุดสูบบุหรี่ทันที\n");
+            report.append("2. ปรึกษาแพทย์หรือผู้เชี่ยวชาญด้านการเลิกบุหรี่\n");
+            report.append("3. เข้าร่วมโปรแกรมการเลิกบุหรี่\n");
+            report.append("4. หลีกเลี่ยงสภาพแวดล้อมที่มีการสูบบุหรี่\n");
+            report.append("5. ติดตามอาการถอนจากนิโคตินอย่างใกล้ชิด\n\n");
+        }
+
+        report.append("=== สิ้นสุดรายงาน ===");
+
+        return report.toString();
+    }
     /**
      * อัปเดตคะแนนและระดับความเสี่ยงบน UI
      */
@@ -811,33 +965,43 @@ public class SmookingFragment extends Fragment {
         if (tvSmokingScore != null) {
             tvSmokingScore.setText(String.valueOf(score));
 
+            // เปลี่ยนสีพื้นหลังตามช่วงคะแนน
             if (score >= 0 && score <= 3) {
+                // ไม่มีความเสี่ยง - สีเขียว
                 tvSmokingScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
                 tvSmokingScore.setTextColor(Color.WHITE);
             } else if (score >= 4 && score <= 26) {
+                // ความเสี่ยงปานกลาง - สีส้ม
                 tvSmokingScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
                 tvSmokingScore.setTextColor(Color.WHITE);
-            } else {
+            } else if (score >= 27) {
+                // ความเสี่ยงสูง - สีแดง
                 tvSmokingScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
                 tvSmokingScore.setTextColor(Color.WHITE);
             }
         }
 
         if (tvSmokingRiskLevel != null) {
+            String emoji = getSmokingEmoji(score);
             String riskLevel;
 
+            // กำหนดระดับความเสี่ยงตามคะแนนและเปลี่ยนสีฟอนต์ พร้อม emoji
             if (score >= 0 && score <= 3) {
-                riskLevel = "ไม่มีความเสี่ยง";
-                tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_green));
+                riskLevel = emoji + " ไม่มีความเสี่ยง";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_green);
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
             } else if (score >= 4 && score <= 26) {
-                riskLevel = "ความเสี่ยงปานกลาง";
-                tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_orange));
+                riskLevel = emoji + " ความเสี่ยงปานกลาง";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_orange);
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_orange));
-            } else {
-                riskLevel = "ความเสี่ยงสูง";
-                tvSmokingRiskLevel.setBackgroundColor(getResources().getColor(R.color.light_red));
+            } else if (score >= 27) {
+                riskLevel = emoji + " ความเสี่ยงสูง ต้องเลิกสูบ";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_red);
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+            } else {
+                riskLevel = "😐 ยังไม่ได้ประเมิน";
+                tvSmokingRiskLevel.setBackgroundResource(R.color.light_gray);
+                tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
             }
 
             tvSmokingRiskLevel.setText(riskLevel);
@@ -1040,6 +1204,7 @@ public class SmookingFragment extends Fragment {
 
             smokerInfo = new SmokerInfo();
 
+            // รีเซ็ตการแสดงผลพร้อม emoji
             if (tvSmokingScore != null) {
                 tvSmokingScore.setText("-");
                 tvSmokingScore.setBackgroundResource(R.color.light_gray);
@@ -1047,7 +1212,7 @@ public class SmookingFragment extends Fragment {
             }
 
             if (tvSmokingRiskLevel != null) {
-                tvSmokingRiskLevel.setText("ยังไม่ได้ประเมิน");
+                tvSmokingRiskLevel.setText("😐 ยังไม่ได้ประเมิน");
                 tvSmokingRiskLevel.setBackgroundResource(R.color.light_gray);
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
             }
@@ -1110,11 +1275,13 @@ public class SmookingFragment extends Fragment {
         String message;
 
         if (percentage == 100) {
-            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+            String riskInfo = getAssessmentResultWithEmoji();
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + riskInfo;
 
-            // แสดงผลการประเมินด้วย
-            String result = getAssessmentResult();
-            message += " - " + result;
+            // ตรวจสอบความเสี่ยงสูงและแจ้งเตือน
+            if (isHighRisk()) {
+                checkHighRiskSmokingAlert();
+            }
         } else if (percentage > 0) {
             message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
         } else {
@@ -1123,7 +1290,72 @@ public class SmookingFragment extends Fragment {
 
         Log.d(TAG, "Completion Status: " + message);
     }
+    public String getSummaryTextWithEmoji() {
+        if (!isFormComplete()) {
+            return "😐 ยังไม่ได้ประเมิน";
+        }
 
+        String riskLevel = getRiskLevelFromScoreWithEmoji();
+        String assessment = getAssessmentResultWithEmoji();
+
+        return riskLevel + " (" + assessment.split(" ", 2)[1] + ")"; // เอาแค่ข้อความหลัง emoji แรก
+    }
+    public String getDetailedAssessmentResultWithEmoji() {
+        if (!isFormComplete()) {
+            return "😐 ยังไม่ได้ประเมิน";
+        }
+
+        String emoji = getSmokingStatusEmoji();
+        String assessment = getAssessmentResult();
+        String riskLevel = getRiskLevelFromScore();
+        String recommendation = getRecommendation();
+        boolean isHighRiskUser = isHighRisk();
+
+        StringBuilder result = new StringBuilder();
+        result.append("=== ผลการประเมินความเสี่ยงจากการสูบบุหรี่ ===\n");
+        result.append("สถานะ: ").append(emoji).append(" ").append(assessment).append("\n");
+        result.append("ระดับความเสี่ยง: ").append(getRiskLevelFromScoreWithEmoji()).append("\n");
+        result.append("ความเสี่ยงสูง: ").append(isHighRiskUser ? "ใช่" : "ไม่").append("\n\n");
+
+        if (isHighRiskUser) {
+            result.append("⚠️ ความเสี่ยงสูง: ต้องการความช่วยเหลือเร่งด่วน\n");
+        }
+
+        result.append("\nคำแนะนำ:\n").append(getRecommendationWithEmoji());
+
+        return result.toString();
+    }
+    public String createExportReportWithEmoji() {
+        StringBuilder report = new StringBuilder();
+
+        report.append("SMOKING_ASSESSMENT_REPORT").append("\n");
+        report.append("TIMESTAMP:").append(System.currentTimeMillis()).append("\n");
+        report.append("PERSON_ID:").append(currentPersonId).append("\n");
+        report.append("VISIT_NO:").append(currentVisitNo).append("\n");
+
+        if (isFormComplete()) {
+            String emoji = getSmokingStatusEmoji();
+            String assessment = getAssessmentResult();
+            String riskLevel = getRiskLevelFromScore();
+
+            report.append("STATUS:").append(emoji).append(" ").append(assessment).append("\n");
+            report.append("RISK_LEVEL:").append(getRiskLevelFromScoreWithEmoji()).append("\n");
+            report.append("IS_HIGH_RISK:").append(isHighRisk()).append("\n");
+            report.append("COMPLETION:").append(getCompletionPercentage()).append("%\n");
+
+            // ข้อมูลการเลือก
+            if (smokerInfo != null) {
+                report.append("SMOKER_GROUP:").append(smokerInfo.getSmokerGroup()).append("\n");
+                report.append("SMOKER_ASSIST:").append(smokerInfo.getSmokerAssist()).append("\n");
+                report.append("SMOKER_REGULARLY:").append(smokerInfo.getSmokerRegularly()).append("\n");
+            }
+        } else {
+            report.append("STATUS:😐 INCOMPLETE").append("\n");
+            report.append("COMPLETION:").append(getCompletionPercentage()).append("%\n");
+        }
+
+        return report.toString();
+    }
     /**
      * ดึงผลการประเมิน
      */
@@ -1196,7 +1428,6 @@ public class SmookingFragment extends Fragment {
         return "ไม่ทราบระดับความเสี่ยง";
     }
 
-
     /**
      * ดึงคำแนะนำตามผลการประเมิน
      */
@@ -1254,7 +1485,6 @@ public class SmookingFragment extends Fragment {
         return false;
     }
 
-
     /**
      * ดึงคะแนนรวม
      */
@@ -1293,6 +1523,7 @@ public class SmookingFragment extends Fragment {
             return null;
         }
     }
+
     public ScreeningResultCodeDao.ScreeningStatistics getAdviceStatistics() {
         try {
             return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_SMOKING_ADVICE);
@@ -1344,5 +1575,45 @@ public class SmookingFragment extends Fragment {
     public void setPersonAndVisitInfo(int personId, int visitNo) {
         this.currentPersonId = personId;
         this.currentVisitNo = visitNo;
+    }
+    private String getSmokingEmoji(int score) {
+        if (score >= 0 && score <= 3) {
+            return "😊"; // ไม่มีความเสี่ยง - หน้ายิ้ม
+        } else if (score >= 4 && score <= 26) {
+            return "😟"; // ความเสี่ยงปานกลาง - หน้ากังวล
+        } else if (score >= 27) {
+            return "😰"; // ความเสี่ยงสูง - หน้าตกใจ/กังวลมาก
+        } else {
+            return "😐"; // ยังไม่ได้ประเมิน - หน้าเฉยๆ
+        }
+    }
+    private String getSmokingStatusEmoji() {
+        if (smokerInfo == null || smokerInfo.getSmokerGroup() == null) {
+            return "😐"; // ยังไม่ได้ประเมิน
+        }
+
+        String smokerGroup = smokerInfo.getSmokerGroup();
+        String smokerAssist = smokerInfo.getSmokerAssist();
+        String smokerRegularly = smokerInfo.getSmokerRegularly();
+
+        if ("1".equals(smokerGroup)) {
+            return "😊"; // ไม่เคยสูบ - หน้ายิ้ม
+        } else if ("2".equals(smokerGroup)) {
+            return "🙂"; // เคยสูบแต่เลิกแล้ว - หน้ายิ้มเบา
+        } else if ("3".equals(smokerGroup)) {
+            if ("1".equals(smokerAssist) || "2".equals(smokerAssist)) {
+                return "😟"; // สูบบางครั้ง - หน้ากังวล
+            } else if ("3".equals(smokerAssist)) {
+                if ("3".equals(smokerRegularly)) {
+                    return "😱"; // สูบเป็นประจำ + คำแนะนำระดับสูง - หน้าตกใจมาก
+                } else {
+                    return "😰"; // สูบเป็นประจำ - หน้าตกใจ/กังวลมาก
+                }
+            } else {
+                return "😟"; // สูบบุหรี่ทั่วไป - หน้ากังวล
+            }
+        }
+
+        return "😐"; // default
     }
 }

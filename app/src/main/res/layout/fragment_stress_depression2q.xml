@@ -241,6 +241,7 @@
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
+            android:visibility="gone"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
@@ -248,6 +249,34 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
+
+                <!-- หัวข้อผลการประเมิน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ผลการคัดกรอง 2Q"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+
+                    <!-- ปุ่ม info สำหรับแสดงเกณฑ์การประเมิน -->
+
+                </LinearLayout>
 
                 <TableLayout
                     android:layout_width="match_parent"
@@ -258,17 +287,6 @@
                     <TableRow
                         android:background="@drawable/gradient_header"
                         android:padding="12dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="การประเมิน"
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            android:textSize="14sp"
-                            android:gravity="center"
-                            android:padding="8dp" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -286,28 +304,6 @@
                     <TableRow
                         android:padding="12dp"
                         android:background="#FFFFFF">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@android:drawable/ic_dialog_info"
-                                android:tint="#673AB7"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="2Q"
-                                android:textSize="14sp"
-                                android:textColor="#2C3E50"
-                                android:textStyle="bold" />
-                        </LinearLayout>
 
                         <androidx.cardview.widget.CardView
                             android:layout_width="0dp"
@@ -332,8 +328,7 @@
                     </TableRow>
 
                     <!-- แถวแสดงหัวข้อผลการประเมิน -->
-                    <TableRow
-                        android:background="#E8F5E8">
+                    <TableRow >
 
                         <TextView
                             android:layout_width="0dp"
@@ -372,213 +367,197 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนตารางเกณฑ์การประเมิน (แบบใหม่) -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="#F8F9FA">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@android:drawable/ic_dialog_info"
-                        android:tint="#673AB7"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="เกณฑ์การคัดกรองโรคซึมเศร้า 2Q"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:textColor="#2C3E50" />
-                </LinearLayout>
-
-                <!-- ระดับ 1: ปกติ -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_green"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ตอบ 'ไม่มี' ทั้ง 2 ข้อ: ปกติ (1B0210)"
-                        android:textSize="13sp"
-                        android:textColor="#27AE60" />
-                </LinearLayout>
-
-                <!-- ระดับ 2: ผิดปกติ -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_red"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ตอบ 'มี' อย่างน้อย 1 ข้อ: ผิดปกติ (1B0211)"
-                        android:textSize="13sp"
-                        android:textColor="#E74C3C" />
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- ตารางเดิม (ซ่อนไว้) -->
+        <!-- ส่วน Gauge ใหม่ สำหรับ 2Q -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF"
-            android:visibility="gone">
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="10dp">
 
-                <TextView
+                <!-- หัวข้อ Gauge -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="📊 ผลการประเมิน"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="#2C3E50"
-                    android:gravity="center"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
 
-                <HorizontalScrollView
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📊 สถานะผลการประเมิน"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+
+                    <ImageView
+                        android:id="@+id/ivStress2qInfoButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#673AB7"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- Custom Gauge View สำหรับ 2Q -->
+                <th.in.ffc.app.form.screening.view.StressRiskGauge2QView
+                    android:id="@+id/stressRiskGauge"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="0dp" />
+
+                <!-- ข้อมูลระดับปัจจุบัน -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fillViewport="true">
+                    android:orientation="vertical"
+                    android:background="@drawable/risk_level_background"
+                    android:padding="16dp">
 
-                    <TableLayout
-                        android:id="@+id/depression2resultTable"
+                    <!-- คะแนนและ Emoji -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:stretchColumns="*"
-                        android:shrinkColumns="*"
-                        android:background="#FFFFFF">
+                        android:orientation="vertical">
 
-                        <!-- หัวตาราง -->
-                        <TableRow
-                            android:background="#673AB7"
-                            android:padding="12dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
 
                             <TextView
+                                android:id="@+id/tvStressGaugeEmoji"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="😊"
+                                android:textSize="32sp"
+                                android:layout_marginEnd="12dp" />
+
+                            <LinearLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="ผลการคัดกรอง"
-                                android:textStyle="bold"
-                                android:textColor="#FFFFFF"
-                                android:textSize="16sp"
-                                android:padding="8dp"
-                                android:gravity="center" />
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="การแปลผล"
-                                android:textStyle="bold"
-                                android:textColor="#FFFFFF"
-                                android:textSize="16sp"
-                                android:padding="8dp"
-                                android:gravity="center" />
-                        </TableRow>
+                                <TextView
+                                    android:id="@+id/tvStressGaugeScore"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="คะแนน: 0/2"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#2C3E50" />
 
-                        <!-- แถวปกติ -->
-                        <TableRow
-                            android:padding="12dp"
-                            android:background="#E8F5E8">
+                                <TextView
+                                    android:id="@+id/tvStressGaugeLevel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ปกติ"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#27AE60" />
+                            </LinearLayout>
+                        </LinearLayout>
 
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="ตอบว่า 'ไม่มี' ทั้ง 2 คำถาม"
-                                android:textSize="15sp"
-                                android:textColor="#2C3E50"
-                                android:padding="8dp"
-                                android:lineSpacingExtra="2dp" />
+                        <TextView
+                            android:id="@+id/tvStressGaugeCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1B0210"
+                            android:textSize="16sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:background="#F0F0F0"
+                            android:padding="4dp"
+                            android:layout_gravity="center_horizontal" />
+                    </LinearLayout>
 
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="ปกติ\n(1B0210)"
-                                android:textSize="15sp"
-                                android:textColor="#27AE60"
-                                android:textStyle="bold"
-                                android:padding="8dp"
-                                android:gravity="center"
-                                android:lineSpacingExtra="2dp" />
-                        </TableRow>
+                    <!-- คำแนะนำ -->
+                    <TextView
+                        android:id="@+id/tvStressGaugeRecommendation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="✅ สถานะปกติ"
+                        android:textSize="14sp"
+                        android:textColor="#27AE60"
+                        android:textStyle="italic"
+                        android:gravity="center"
+                        android:background="#E8F5E8"
+                        android:padding="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
-                        <!-- แถวผิดปกติ -->
-                        <TableRow
-                            android:padding="12dp"
-                            android:background="#FFEBEE">
+                <!-- ตัวควบคุมคะแนน (สำหรับทดสอบ - สามารถลบออกได้) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    android:id="@+id/layoutStressGaugeControl">
 
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="ตอบว่า 'มี' อย่างน้อย 1 คำถาม"
-                                android:textSize="15sp"
-                                android:textColor="#2C3E50"
-                                android:padding="8dp"
-                                android:lineSpacingExtra="2dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ทดสอบ Gauge (สำหรับ Debug):"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp" />
 
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="ผิดปกติ และส่งต่อเจ้าหน้าที่\n(1B0211)"
-                                android:textSize="15sp"
-                                android:textColor="#E74C3C"
-                                android:textStyle="bold"
-                                android:padding="8dp"
-                                android:gravity="center"
-                                android:lineSpacingExtra="2dp" />
-                        </TableRow>
-                    </TableLayout>
-                </HorizontalScrollView>
+                    <SeekBar
+                        android:id="@+id/seekBarStressGaugeTest"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="2"
+                        android:progress="0" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="start" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="2"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="end" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +33,14 @@ import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepressionLiveData;
 import th.in.ffc.app.form.screening.model.PersonData;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
+import th.in.ffc.app.form.screening.view.StressRiskGaugeST5View;
 import th.in.ffc.person.PersonScreeningForm15Activity;
 import th.in.ffc.provider.ScreeningResultCode;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
+import android.app.AlertDialog;
+import android.widget.ImageView;
 
 public class StressDepressionFragment extends Fragment {
 
@@ -72,6 +77,14 @@ public class StressDepressionFragment extends Fragment {
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false, false, false, false}; // ตรวจสอบว่าตอบคำถามครบหรือไม่
     private ScreeningResultCodeDao screeningResultCodeDao; // เพิ่มตัวแปรใหม่
+    private ImageView ivStressInfoButton;
+    private StressRiskGaugeST5View stressRiskGauge;
+    private TextView tvStressGaugeEmoji;
+    private TextView tvStressGaugeScore;
+    private TextView tvStressGaugeLevel;
+    private TextView tvStressGaugeCode;
+    private TextView tvStressGaugeRecommendation;
+    private SeekBar seekBarStressGaugeTest; // สำหรับทดสอบ (สามารถลบออกได้)
     public StressDepressionFragment() {
         // Required empty public constructor
     }
@@ -214,10 +227,514 @@ public class StressDepressionFragment extends Fragment {
         rdoObesityQ4 = view.findViewById(R.id.rdoObesityQ4);
         rdoObesityQ5 = view.findViewById(R.id.rdoObesityQ5);
         stressDepressionInfo = new StressDepressionInfo();
+        ivStressInfoButton = view.findViewById(R.id.ivStressInfoButton);
+        setupInfoButtonListener();
 
         setupRadioGroupListeners();
+        initializeStressGaugeViews(view);
         loadData();
         initializeTable(view);
+    }
+    private void initializeStressGaugeViews(View view) {
+        stressRiskGauge = view.findViewById(R.id.stressRiskGauge);
+        tvStressGaugeEmoji = view.findViewById(R.id.tvStressGaugeEmoji);
+        tvStressGaugeScore = view.findViewById(R.id.tvStressGaugeScore);
+        tvStressGaugeLevel = view.findViewById(R.id.tvStressGaugeLevel);
+        tvStressGaugeCode = view.findViewById(R.id.tvStressGaugeCode);
+        tvStressGaugeRecommendation = view.findViewById(R.id.tvStressGaugeRecommendation);
+
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarStressGaugeTest = view.findViewById(R.id.seekBarStressGaugeTest);
+        setupStressGaugeTestControls();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateStressGaugeDisplay();
+
+        Log.d(TAG, "Stress Gauge views initialized successfully");
+    }
+
+    /**
+     * Setup test controls for Stress Gauge (สำหรับทดสอบ - สามารถลบออกได้)
+     */
+    private void setupStressGaugeTestControls() {
+        if (seekBarStressGaugeTest != null) {
+            seekBarStressGaugeTest.setMax(15);
+            seekBarStressGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && stressRiskGauge != null) {
+                        stressRiskGauge.setScore(progress);
+                        updateStressGaugeDisplayWithScore(progress);
+                        Log.d(TAG, "Test gauge updated to score: " + progress);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+    private void updateStressGaugeDisplayWithScore(int score) {
+        if (stressRiskGauge == null) return;
+
+        StressRiskGaugeST5View.StressLevel currentLevel = StressRiskGaugeST5View.getStressLevelByScore(score);
+
+        // อัปเดตข้อความ
+        if (tvStressGaugeEmoji != null) tvStressGaugeEmoji.setText(currentLevel.emoji);
+        if (tvStressGaugeScore != null) tvStressGaugeScore.setText("คะแนน: " + score);
+        if (tvStressGaugeLevel != null) {
+            tvStressGaugeLevel.setText(currentLevel.label);
+            tvStressGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvStressGaugeCode != null) tvStressGaugeCode.setText(currentLevel.code);
+//        if (tvStressGaugeRecommendation != null) {
+//            tvStressGaugeRecommendation.setText(stressRiskGauge.getRecommendationWithEmoji());
+//        }
+    }
+
+    /**
+     * อัปเดตการแสดงผล Stress Gauge
+     */
+
+
+
+    /**
+     * แสดง/ซ่อน Test Controls
+     */
+
+
+    /**
+     * รีเซ็ต Stress Gauge
+     */
+
+
+
+    /**
+     * แสดง/ซ่อน Test Controls สำหรับ Stress Gauge
+     */
+    public void showStressGaugeTestControls(boolean show) {
+        if (getView() != null) {
+            View layoutStressGaugeControl = getView().findViewById(R.id.layoutStressGaugeControl);
+            if (layoutStressGaugeControl != null) {
+                layoutStressGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+                Log.d(TAG, "Stress Gauge test controls " + (show ? "shown" : "hidden"));
+            }
+        }
+    }
+    /**
+     * รีเซ็ต Stress Gauge
+     */
+    public void resetStressGauge() {
+        if (stressRiskGauge != null) {
+            stressRiskGauge.setScore(0);
+            updateStressGaugeDisplay();
+            Log.d(TAG, "Stress Gauge reset to 0");
+        }
+    }
+
+    /**
+     * อัปเดตการแสดงผล Stress Gauge
+     */
+    private void updateStressGaugeDisplay() {
+        if (stressRiskGauge == null) return;
+
+        int totalScore = currentScore; // ใช้ currentScore ที่มีอยู่แล้ว
+        StressRiskGaugeST5View.StressLevel currentLevel = getCurrentStressLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        stressRiskGauge.setScore(totalScore);
+
+        // อัปเดตข้อความ
+        if (tvStressGaugeEmoji != null) tvStressGaugeEmoji.setText(currentLevel.emoji);
+        if (tvStressGaugeScore != null) tvStressGaugeScore.setText("คะแนน: " + totalScore);
+        if (tvStressGaugeLevel != null) {
+            tvStressGaugeLevel.setText(currentLevel.label);
+            tvStressGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvStressGaugeCode != null) tvStressGaugeCode.setText(currentLevel.code);
+//        if (tvStressGaugeRecommendation != null) {
+//            tvStressGaugeRecommendation.setText(stressRiskGauge.getRecommendationWithEmoji());
+//        }
+
+        Log.d(TAG, "Stress Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label);
+    }
+
+    /**
+     * ดึงระดับความเครียดจากคะแนน
+     */
+    private StressRiskGaugeST5View.StressLevel getCurrentStressLevelFromScore(int score) {
+        return StressRiskGaugeST5View.getStressLevelByScore(score);
+    }
+
+    /**
+     * อัปเดต Stress Gauge ด้วยคะแนนใหม่
+     */
+    public void updateStressGaugeWithScore(int score) {
+        if (stressRiskGauge != null) {
+            stressRiskGauge.setScore(score);
+            updateStressGaugeDisplay();
+        }
+    }
+
+    /**
+     * ดึงระดับความเครียดปัจจุบันจาก Gauge
+     */
+    public StressRiskGaugeST5View.StressLevel getCurrentStressGaugeLevel() {
+        if (stressRiskGauge != null) {
+            return stressRiskGauge.getCurrentStressLevel();
+        }
+        return StressRiskGaugeST5View.getStressLevelByScore(0);
+    }
+
+    private String getStressEmoji(int score) {
+        if (score >= 0 && score <= 4) {
+            return "😊"; // เครียดน้อย - หน้ายิ้ม
+        } else if (score >= 5 && score <= 7) {
+            return "😐"; // เครียดปานกลาง - หน้าเฉยๆ
+        } else if (score >= 8 && score <= 9) {
+            return "😟"; // เครียดมาก - หน้ากังวล
+        } else if (score >= 10 && score <= 15) {
+            return "😰"; // เครียดมากที่สุด - หน้าตกใจ/กังวลมาก
+        } else {
+            return "🤔"; // ยังไม่ได้ประเมิน - หน้าคิด
+        }
+    }
+    public String getStressLevelWithEmoji() {
+        if (currentScore == 0) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        String emoji = getStressEmoji(currentScore);
+        String stressLevel = getStressLevelText(currentScore);
+        return String.format("%s %s", emoji, stressLevel);
+    }
+    public String getRecommendationWithEmoji() {
+        if (!isFormComplete()) {
+            return "📝 กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int score = currentScore;
+        String emoji = getStressEmoji(score);
+
+        if (score >= 0 && score <= 4) {
+            return emoji + " ระดับความเครียดของคุณอยู่ในเกณฑ์ปกติ ควรรักษาสุขภาพจิตที่ดีต่อไป";
+        } else if (score >= 5 && score <= 7) {
+            return emoji + " คุณมีความเครียดระดับปานกลาง ควรหาวิธีผ่อนคลายความเครียด เช่น ออกกำลังกาย ทำสมาธิ หรือทำกิจกรรมที่ชื่นชอบ";
+        } else if (score >= 8 && score <= 9) {
+            return emoji + " คุณมีความเครียดระดับมาก ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิตเพื่อรับคำแนะนำที่เหมาะสม";
+        } else if (score >= 10) {
+            return emoji + " คุณมีความเครียดระดับมากที่สุด ควรพบแพทย์หรือผู้เชี่ยวชาญด้านสุขภาพจิตโดยเร็วที่สุด";
+        }
+
+        return "🤔 ไม่สามารถประเมินได้";
+    }
+    public String getAssessmentSummaryWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        String emoji = getStressEmoji(currentScore);
+        String stressLevel = getStressLevelText(currentScore);
+        String resultCode = getResultCode(currentScore);
+
+        return String.format("%s คะแนน: %d, %s (รหัส: %s)",
+                emoji, currentScore, stressLevel, resultCode);
+    }
+    public void showCompletionStatusWithEmoji() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            String stressInfo = getStressLevelWithEmoji();
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + stressInfo;
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("StressDepression", "Completion Status: " + message);
+    }
+    public void checkHighRiskAlertWithEmoji() {
+        if (isFormComplete() && isHighRisk()) {
+            String emoji = getStressEmoji(currentScore);
+            String message = String.format(
+                    "%s ตรวจพบความเครียดระดับสูง\n\n" +
+                            "คะแนน: %d คะแนน\n" +
+                            "ระดับ: %s\n\n" +
+                            "คำแนะนำ: %s",
+                    emoji,
+                    currentScore,
+                    getStressLevelText(currentScore),
+                    ""
+            );
+
+            Log.w(TAG, message);
+
+            // แสดง Toast แจ้งเตือน
+            if (getContext() != null) {
+                Toast.makeText(getContext(),
+                        emoji + " ตรวจพบความเครียดระดับสูง",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    public String generateAssessmentReport() {
+        return generateAssessmentReportWithEmoji(); // ใช้ method ใหม่ที่มี emoji
+    }
+    public String generateAssessmentReportWithEmoji() {
+        StringBuilder report = new StringBuilder();
+
+        report.append("📊 รายงานการประเมินความเครียดและซึมเศร้า (ST5)\n\n");
+
+        if (!isFormComplete()) {
+            report.append("❌ สถานะ: ไม่สามารถสร้างรายงานได้\n");
+            report.append("🔍 เหตุผล: ข้อมูลไม่ครบถ้วน\n");
+            report.append("📝 ข้อที่ยังไม่ได้กรอก: ").append(getValidationMessage()).append("\n");
+            return report.toString();
+        }
+
+        // ข้อมูลพื้นฐาน
+        report.append("✅ สถานะการกรอกข้อมูล: ครบถ้วน (").append(getCompletionPercentage()).append("%)\n");
+        report.append("📅 วันที่ประเมิน: ").append(DateConverter.getCurrentWesternDateTime()).append("\n\n");
+
+        // ผลการประเมินจาก Gauge
+        StressRiskGaugeST5View.StressLevel level = getCurrentStressGaugeLevel();
+        report.append("🎯 ผลการประเมิน:\n");
+        report.append("- 📈 คะแนนรวม: ").append(currentScore).append(" คะแนน\n");
+        report.append("- ").append(level.emoji).append(" ระดับความเครียด: ").append(level.label).append("\n");
+        report.append("- 🏷️ รหัสผล: ").append(level.code).append("\n");
+        report.append("- 🚨 สถานะ: ").append(isHighRiskFromGauge() ? "ผิดปกติ" : "ปกติ").append("\n\n");
+
+        // การวิเคราะห์
+        report.append("🔍 การวิเคราะห์:\n");
+        report.append("- 📊 แนวโน้มความเสี่ยง: ").append(getStressRiskTrend()).append("\n");
+        report.append("- ⚠️ ความเสี่ยงสูง: ").append(isHighRiskFromGauge() ? "ใช่" : "ไม่").append("\n\n");
+
+        // คำแนะนำจาก Gauge
+        report.append("💡 คำแนะนำ:\n");
+        report.append(getRecommendationFromGauge()).append("\n\n");
+
+        // ข้อมูลเพิ่มเติม
+        if (isHighRiskFromGauge()) {
+            report.append("🚨 การดำเนินการเร่งด่วน:\n");
+            report.append("1. 👨‍⚕️ ปรึกษาแพทย์หรือผู้เชี่ยวชาญด้านสุขภาพจิต\n");
+            report.append("2. 🏥 พิจารณาเข้าร่วมโปรแกรมบำบัด\n");
+            report.append("3. 👀 ติดตามอาการอย่างใกล้ชิด\n");
+            report.append("4. 🛡️ หลีกเลี่ยงสถานการณ์เสี่ยง\n\n");
+        }
+
+        report.append("📋 สิ้นสุดรายงาน");
+
+        return report.toString();
+    }
+//    public void displayStressAssessmentResult() {
+//        StressDepressionFragment fragment = getStressDepressionFragment();
+//
+//        if (fragment != null && fragment.isFormComplete()) {
+//            // แสดงผลสรุปพร้อม emoji
+//            String summary = fragment.getAssessmentSummaryWithEmoji();
+//            TextView resultTextView = findViewById(R.id.tvStressResult);
+//            resultTextView.setText(summary);
+//
+//            // แสดงคำแนะนำพร้อม emoji
+//            String recommendation = fragment.getRecommendationWithEmoji();
+//            TextView recommendationTextView = findViewById(R.id.tvStressRecommendation);
+//            recommendationTextView.setText(recommendation);
+//
+//            // ตรวจสอบความเสี่ยงสูงและแจ้งเตือน
+//            if (fragment.isHighRisk()) {
+//                fragment.checkHighRiskAlertWithEmoji();
+//            }
+//        }
+//    }
+//    public void exportStressAssessmentReport() {
+//        StressDepressionFragment fragment = getStressDepressionFragment();
+//
+//        if (fragment != null && fragment.isFormComplete()) {
+//            String report = fragment.generateAssessmentReportWithEmoji();
+//
+//            // บันทึกรายงานหรือแชร์
+//            shareReport(report);
+//
+//            Log.d("StressAssessment", "📊 ส่งออกรายงานการประเมินความเครียด:\n" + report);
+//        }
+//    }
+//    public void bindStressAssessmentData(RecyclerView.ViewHolder holder, StressAssessmentData data) {
+//        // แสดงคะแนนพร้อม emoji
+//        String emoji = getStressEmojiByScore(data.getScore());
+//        holder.scoreTextView.setText(emoji + " " + data.getScore() + " คะแนน");
+//
+//        // แสดงระดับความเครียดพร้อม emoji
+//        String level = getStressLevelByScore(data.getScore());
+//        holder.levelTextView.setText(emoji + " " + level);
+//
+//        // เปลี่ยนสีพื้นหลังตามระดับ
+//        holder.itemView.setBackgroundColor(getScoreBackgroundColorByScore(data.getScore()));
+//    }
+    private String getStressEmojiByScore(int score) {
+        if (score >= 0 && score <= 4) return "😊";
+        else if (score >= 5 && score <= 7) return "😐";
+        else if (score >= 8 && score <= 9) return "😟";
+        else if (score >= 10 && score <= 15) return "😰";
+        else return "🤔";
+    }
+    private String getStressLevelByScore(int score) {
+        if (score >= 0 && score <= 4) return "เครียดน้อย";
+        else if (score >= 5 && score <= 7) return "เครียดปานกลาง";
+        else if (score >= 8 && score <= 9) return "เครียดมาก";
+        else if (score >= 10 && score <= 15) return "เครียดมากที่สุด";
+        else return "ยังไม่ได้ประเมิน";
+    }
+    private String getStressRiskTrend() {
+        if (!isFormComplete()) {
+            return "🤔 ไม่สามารถวิเคราะห์ได้";
+        }
+
+        if (currentScore >= 0 && currentScore <= 4) {
+            return "😊 ความเครียดต่ำ - สถานการณ์ปกติ";
+        } else if (currentScore >= 5 && currentScore <= 7) {
+            return "😐 ความเครียดปานกลาง - ควรติดตามและผ่อนคลาย";
+        } else if (currentScore >= 8 && currentScore <= 9) {
+            return "😟 ความเครียดมาก - ต้องการความช่วยเหลือ";
+        } else if (currentScore >= 10) {
+            return "😰 ความเครียดมากที่สุด - ต้องการการดูแลเร่งด่วน";
+        }
+
+        return "🤔 ไม่สามารถประเมินได้";
+    }
+    private void updateScoreDisplay() {
+        String resultCode = getResultCode(currentScore);
+        String stressLevel = getStressLevelText(currentScore);
+        String emoji = getStressEmoji(currentScore);
+
+        // อัพเดท TextView คะแนนในตาราง
+        if (tvStressScore != null) {
+            if (currentScore == 0) {
+                tvStressScore.setText("-");
+                tvStressScore.setBackgroundColor(Color.parseColor("#9E9E9E"));
+            } else {
+                tvStressScore.setText(String.valueOf(currentScore));
+                tvStressScore.setBackgroundColor(getScoreBackgroundColor(currentScore));
+
+                if (currentScore >= 5 && currentScore <= 7) {
+                    tvStressScore.setTextColor(Color.parseColor("#333333"));
+                } else {
+                    tvStressScore.setTextColor(Color.parseColor("#FFFFFF"));
+                }
+            }
+        }
+
+        // อัพเดท TextView ระดับความเครียดพร้อม emoji
+        if (tvStressLevel != null) {
+            if (currentScore == 0) {
+                tvStressLevel.setText("🤔 ยังไม่ได้ประเมิน");
+                tvStressLevel.setTextColor(Color.parseColor("#616161"));
+                tvStressLevel.setBackgroundColor(Color.parseColor("#F5F5F5"));
+            } else {
+                String displayText = String.format("%s %s (%s)", emoji, stressLevel, resultCode);
+                tvStressLevel.setText(displayText);
+
+                int backgroundColor = getScoreBackgroundColor(currentScore);
+                tvStressLevel.setBackgroundColor(backgroundColor);
+
+                if (currentScore >= 5 && currentScore <= 7) {
+                    tvStressLevel.setTextColor(Color.parseColor("#333333"));
+                } else {
+                    tvStressLevel.setTextColor(Color.parseColor("#FFFFFF"));
+                }
+            }
+        }
+
+        // อัปเดต Stress Gauge
+        updateStressGaugeDisplay();
+    }
+    public String getAssessmentSummaryWithGauge() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        StressRiskGaugeST5View.StressLevel level = getCurrentStressGaugeLevel();
+        String summary = String.format("%s คะแนน: %d, %s (รหัส: %s)",
+                level.emoji, currentScore, level.label, level.code);
+
+        if (isHighRiskFromGauge()) {
+            summary += " ⚠️ ระดับเสี่ยงสูง";
+        }
+
+        return summary;
+    }
+    public boolean isHighRiskFromGauge() {
+        return stressRiskGauge != null && stressRiskGauge.isHighRisk();
+    }
+
+    /**
+     * ดึงคำแนะนำจาก Gauge
+     */
+    public String getRecommendationFromGauge() {
+        if (stressRiskGauge != null) {
+            return stressRiskGauge.getRecommendationWithEmoji();
+        }
+        return "";
+//        return getRecommendationWithEmoji(); // fallback ไปใช้ method เดิม
+    }
+    private void setupInfoButtonListener() {
+        if (ivStressInfoButton != null) {
+            ivStressInfoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showStressCriteriaDialog();
+                }
+            });
+        }
+    }
+    private void showStressCriteriaDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+            // สร้าง custom layout สำหรับ dialog
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_stress_criteria, null);
+
+            builder.setView(dialogView);
+            builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            Log.d(TAG, "แสดง Dialog เกณฑ์การประเมินความเครียดสำเร็จ");
+
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการแสดง Dialog: " + e.getMessage());
+
+            // แสดง dialog แบบง่ายหากเกิดข้อผิดพลาด
+            showSimpleStressCriteriaDialog();
+        }
+    }
+    private void showSimpleStressCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "📊 เกณฑ์การประเมินความเครียดและซึมเศร้า (ST5)\n\n" +
+                "🟢 0-4 คะแนน: เครียดน้อย (1B132)\n" +
+                "🔶 ระดับปกติ ควรรักษาสุขภาพจิตที่ดีต่อไป\n\n" +
+
+                "🟡 5-7 คะแนน: เครียดปานกลาง (1B133)\n" +
+                "🔶 ควรหาวิธีผ่อนคลายความเครียด\n\n" +
+
+                "🟠 8-9 คะแนน: เครียดมาก (1B134)\n" +
+                "🔶 ควรปรึกษาผู้เชี่ยวชาญ\n\n" +
+
+                "🔴 10-15 คะแนน: เครียดมากที่สุด (1B135)\n" +
+                "🔶 ควรพบแพทย์โดยเร็วที่สุด\n\n";
+
+        builder.setTitle("📈 เกณฑ์การประเมิน")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
     public boolean saveToScreeningResultCode(int personId, int visitno, String userCreate) {
         try {
@@ -250,9 +767,18 @@ public class StressDepressionFragment extends Fragment {
             Uri result = screeningResultCodeDao.saveScreeningResult(data);
 
             if (result != null) {
-                Log.d(TAG, "บันทึกผลการคัดกรอง ST5 สำเร็จ: " + result.toString());
-                Log.d(TAG, "รายละเอียด: personId=" + personId + ", visitno=" + visitno +
-                        ", score=" + currentScore + ", resultCode=" + data.resultCode);
+                String emoji = getStressEmoji(currentScore);
+                String stressLevel = getStressLevelText(currentScore);
+
+                Log.d(TAG, emoji + " บันทึกผลการประเมิน ST5 สำเร็จ: " + stressLevel);
+
+                // แสดง Toast พร้อม emoji
+                if (getContext() != null) {
+                    Toast.makeText(getContext(),
+                            emoji + " บันทึกผลการประเมินความเครียด ST5 สำเร็จ",
+                            Toast.LENGTH_SHORT).show();
+                }
+
                 return true;
             } else {
                 Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผลการคัดกรอง ST5");
@@ -260,7 +786,7 @@ public class StressDepressionFragment extends Fragment {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Exception ในการบันทึกผลการคัดกรอง ST5");
+            Log.e(TAG, "❌ Exception ในการบันทึกผลการประเมิน ST5");
             return false;
         }
     }
@@ -546,69 +1072,26 @@ public class StressDepressionFragment extends Fragment {
      * คำนวณคะแนนและอัพเดทการแสดงผลแบบ real-time
      */
     private void calculateAndUpdateScore() {
-        // คำนวณคะแนนจากคำตอบปัจจุบัน
         currentScore = 0;
         for (int point : points) {
             currentScore += point;
         }
 
-        // อัพเดทการแสดงผล
+        // อัพเดทการแสดงผลพร้อม emoji
         updateScoreDisplay();
         updateTableHighlight();
+
+        // อัปเดต Stress Gauge ใหม่
+        updateStressGaugeDisplay();
+
+        // แสดงสถานะการกรอกข้อมูลพร้อม emoji
+        showCompletionStatusWithEmoji();
+
+        // ตรวจสอบความเสี่ยงสูงพร้อม emoji
+//        if (isFormComplete() && isHighRiskFromGauge()) {
+//            checkHighRiskAlertWithEmoji();
+//        }
     }
-
-    /**
-     * อัพเดทการแสดงผลคะแนนและผลการประเมิน - ใช้เฉพาะตารางใหม่
-     */
-    private void updateScoreDisplay() {
-        String resultCode = getResultCode(currentScore);
-        String stressLevel = getStressLevelText(currentScore);
-
-        // อัพเดท TextView คะแนนในตาราง
-        if (tvStressScore != null) {
-            if (currentScore == 0) {
-                tvStressScore.setText("-");
-                tvStressScore.setBackgroundColor(Color.parseColor("#9E9E9E")); // สีเทา
-            } else {
-                tvStressScore.setText(String.valueOf(currentScore));
-                // เปลี่ยนสีพื้นหลังตามระดับความเครียด
-                tvStressScore.setBackgroundColor(getScoreBackgroundColor(currentScore));
-
-                // ปรับสีข้อความให้อ่านง่าย (ขาวสำหรับพื้นหลังเข้ม, ดำสำหรับพื้นหลังอ่อน)
-                if (currentScore >= 5 && currentScore <= 7) {
-                    tvStressScore.setTextColor(Color.parseColor("#333333")); // ข้อความดำสำหรับพื้นหลังเหลือง
-                } else {
-                    tvStressScore.setTextColor(Color.parseColor("#FFFFFF")); // ข้อความขาวสำหรับพื้นหลังเข้ม
-                }
-            }
-        }
-
-        // อัพเดท TextView ระดับความเครียด
-        if (tvStressLevel != null) {
-            if (currentScore == 0) {
-                tvStressLevel.setText("ยังไม่ได้ประเมิน");
-                tvStressLevel.setTextColor(Color.parseColor("#616161"));
-                tvStressLevel.setBackgroundColor(Color.parseColor("#F5F5F5")); // พื้นหลังเทาอ่อน
-            } else {
-                tvStressLevel.setText(stressLevel + " (" + resultCode + ")");
-
-                // เปลี่ยนสีข้อความและพื้นหลังตามระดับความเครียด
-                int backgroundColor = getScoreBackgroundColor(currentScore);
-                tvStressLevel.setBackgroundColor(backgroundColor);
-
-                // ปรับสีข้อความให้อ่านง่าย
-                if (currentScore >= 5 && currentScore <= 7) {
-                    tvStressLevel.setTextColor(Color.parseColor("#333333")); // ข้อความดำสำหรับพื้นหลังเหลือง
-                } else {
-                    tvStressLevel.setTextColor(Color.parseColor("#FFFFFF")); // ข้อความขาวสำหรับพื้นหลังเข้ม
-                }
-            }
-        }
-    }
-
-    /**
-     * กำหนดสีพื้นหลังคะแนนตามระดับความเครียด
-     */
     private int getScoreBackgroundColor(int score) {
         if (score >= 0 && score <= 4) {
             return Color.parseColor("#4CAF50"); // เขียว - เครียดน้อย
@@ -892,24 +1375,20 @@ public class StressDepressionFragment extends Fragment {
      * ดึงข้อความแสดงรายละเอียดข้อที่ยังไม่ได้กรอก
      */
     public String getValidationMessage() {
-        StringBuilder message = new StringBuilder();
+        if (!isFormComplete()) {
+            ArrayList<Integer> unanswered = getUnansweredQuestions();
+            if (!unanswered.isEmpty()) {
+                StringBuilder message = new StringBuilder();
+                message.append("📝 ประเมินภาวะเครียด-ซึมเศร้า(ST 5): ยังไม่ได้ตอบข้อ ");
 
-        // ตรวจสอบว่าตอบคำถามครบหรือไม่
-        ArrayList<Integer> unansweredQuestions = getUnansweredQuestions();
-
-        if (!unansweredQuestions.isEmpty()) {
-            message.append("ประเมินภาวะเครียด-ซึมเศร้า(ST 5): ยังไม่ได้ตอบข้อ ");
-
-            // แสดงรายการข้อที่ยังไม่ได้ตอบ
-            for (int i = 0; i < unansweredQuestions.size(); i++) {
-                if (i > 0) {
-                    message.append(", ");
+                for (int i = 0; i < unanswered.size(); i++) {
+                    if (i > 0) message.append(", ");
+                    message.append(unanswered.get(i));
                 }
-                message.append(unansweredQuestions.get(i));
+                return message.toString();
             }
         }
-
-        return message.toString();
+        return "";
     }
 
     /**
@@ -979,6 +1458,11 @@ public class StressDepressionFragment extends Fragment {
         currentScore = 0;
         updateScoreDisplay();
         updateTableHighlight();
+
+        // รีเซ็ต Stress Gauge
+        resetStressGauge();
+
+        Log.d(TAG, "Form reset completed with Gauge");
     }
 
     /**
@@ -1018,28 +1502,21 @@ public class StressDepressionFragment extends Fragment {
      /**
      * แสดงสถานะการกรอกข้อมูล
      */
-    public void showCompletionStatus() {
-        int percentage = getCompletionPercentage();
-        String message;
+     public void showCompletionStatus() {
+         int percentage = getCompletionPercentage();
+         String message;
 
-        if (percentage == 100) {
-            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+         if (percentage == 100) {
+             String stressInfo = getStressLevelWithEmoji(); // ใช้ method ใหม่ที่มี emoji
+             message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + stressInfo;
+         } else if (percentage > 0) {
+             message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+         } else {
+             message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+         }
 
-            // แสดงระดับความเครียดด้วย
-            int score = stressDepressionInfo.getSum();
-            String stressLevel = getStressLevelText(score);
-            message += " - " + stressLevel;
-        } else if (percentage > 0) {
-            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
-        } else {
-            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
-        }
-
-        Log.d("StressDepression", "Completion Status: " + message);
-
-        // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
-        // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-    }
+         Log.d("StressDepression", "Completion Status: " + message);
+     }
 
     /**
      * ดึงรายชื่อคำถามที่ยังไม่ได้ตอบ
@@ -1144,22 +1621,8 @@ public class StressDepressionFragment extends Fragment {
      * แสดงคำแนะนำตามระดับความเครียด
      */
     public String getRecommendation() {
-        if (!isFormComplete()) {
-            return "กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
-        }
-
-        int score = currentScore;
-
-        if (score >= 0 && score <= 4) {
-            return "ระดับความเครียดของคุณอยู่ในเกณฑ์ปกติ ควรรักษาสุขภาพจิตที่ดีต่อไป";
-        } else if (score >= 5 && score <= 7) {
-            return "คุณมีความเครียดระดับปานกลาง ควรหาวิธีผ่อนคลายความเครียด เช่น ออกกำลังกาย ทำสมาธิ หรือทำกิจกรรมที่ชื่นชอบ";
-        } else if (score >= 8 && score <= 9) {
-            return "คุณมีความเครียดระดับมาก ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิตเพื่อรับคำแนะนำที่เหมาะสม";
-        } else if (score >= 10) {
-            return "คุณมีความเครียดระดับมากที่สุด ควรพบแพทย์หรือผู้เชี่ยวชาญด้านสุขภาพจิตโดยเร็วที่สุด";
-        }
-
-        return "";
+        return  "";
+        //return getRecommendationWithEmoji(); // ใช้ method ใหม่ที่มี emoji
     }
+
 }

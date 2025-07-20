@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/assistScrollView">
@@ -8,628 +9,400 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="5dp">
+        android:padding="0dp">
 
-        <TextView
+        <!-- หัวข้อหลัก -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="สรุปคะแนนแบบคัดกรอง ASSIST"
-            android:textSize="20sp"
-            android:textStyle="bold"
             android:layout_marginBottom="16dp"
-            android:visibility="gone"/>
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
-        <TableLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="5dp"
+                android:background="@drawable/gradient_header">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_assessment"
+                    android:tint="#FFFFFF"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="📊 สรุปคะแนนแบบคัดกรอง ASSIST"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center_vertical" />
+
+                <!-- ปุ่ม Info -->
+                <ImageView
+                    android:id="@+id/btnInfo"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_info_details"
+                    android:tint="#FFFFFF"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="ดูเกณฑ์การประเมิน" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ตารางคะแนน -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:stretchColumns="*">
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
-            <!-- Header Row -->
-            <TableRow
-                android:padding="0dp"
+            <TableLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:stretchColumns="*"
+                android:padding="0dp">
 
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:text=" "
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:background="@color/header_purple"
-                    android:padding="8dp"
-                    android:gravity="center" />
+                <!-- Header Row -->
+                <TableRow
+                    android:padding="0dp"
+                    android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="บันทึกคะแนน\nเฉพาะชนิดสาร"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:background="#5D4E75"
-                    android:padding="8dp" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:text="ประเภทสารเสพติด"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:background="@drawable/gradient_header"
+                        android:padding="12dp"
+                        android:gravity="center"
+                        android:textSize="14sp" />
 
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="ไม่ต้องบำบัด"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="คะแนน"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:background="@drawable/gradient_header"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:layout_marginStart="2dp" />
+                </TableRow>
 
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="ได้รับการบำบัดอย่างย่อ"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp" />
+                <!-- Row 1: ยาสูบ -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="🚬 a. ยาสูบ (บุหรี่, ซิการ์, ฯลฯ)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#F8F9FA"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreA"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="ได้รับการบำบัดรักษา\nเข้มข้นมากขึ้น"
-                    android:textColor="#000000"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp" />
-            </TableRow>
+                <!-- Row 2: แอลกอฮอล์ -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="🍺 b. แอลกอฮอล์ (สุรา, เบียร์, ไวน์)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#EEEEEE"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreB"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Data Rows with Background Colors -->
+                <!-- Row 3: กัญชา -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="🌿 c. กัญชา (กัญชาแห้ง, ยางกัญชา)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#F8F9FA"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreC"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 1: ยาสูบ -->
-            <TableRow android:padding="5dp">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="a. ยาสูบ"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:id="@+id/tvScoreA"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 4: โคเคน -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="❄️ d. โคเคน (โค้ก, แครัก)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#EEEEEE"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreD"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 2: แอลกอฮอล์ -->
-            <TableRow
-                android:padding="5dp"
-                android:background="#EEEEEE">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="b. แอลกอฮอล์"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreB"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-10"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="11-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 5: แอมเฟตามีน -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="💊 e. แอมเฟตามีน (ยาบ้า, ยาอี, ไอซ์)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#F8F9FA"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreE"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 3: กัญชา -->
-            <TableRow android:padding="5dp">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="c. กัญชา"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreC"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 6: สารระเหย -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="🧪 f. สารระเหย (กาว, ทินเนอร์, เบนซิน)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#EEEEEE"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreF"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 4: โคเคน -->
-            <TableRow
-                android:padding="5dp"
-                android:background="#EEEEEE">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="d. โคเคน"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreD"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 7: ยากล่อมประสาท -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="😴 g. ยากล่อมประสาท (วาเลี่ยม, โรฮิปนอล)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#F8F9FA"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreG"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 5: แอมเฟตามีน -->
-            <TableRow android:padding="5dp">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="e. แอมเฟตามีน"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreE"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 8: ยาหลอนประสาท -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="🌈 h. ยาหลอนประสาท (แอลเอสดี, เห็ดเมา)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#EEEEEE"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreH"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 6: สารระเหย -->
-            <TableRow
-                android:padding="5dp"
-                android:background="#EEEEEE">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="f. สารระเหย"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreF"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 9: สารกลุ่มฝิ่น -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="💉 i. สารกลุ่มฝิ่น (ฝิ่น, เฮโรอีน, มอร์ฟีน)"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#F8F9FA"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreI"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 7: ยากล่อมประสาท -->
-            <TableRow android:padding="5dp">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="g. ยากล่อมประสาท"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreG"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+                <!-- Row 10: สารอื่น ๆ -->
+                <TableRow
+                    android:padding="4dp"
+                    android:layout_marginBottom="4dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3"
+                        android:text="🔬 j. สารเสพติดอื่น ๆ"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#EEEEEE"
+                        android:gravity="center_vertical" />
+                    <TextView
+                        android:id="@+id/tvScoreJ"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="-"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="#FFFFFF"
+                        android:layout_marginStart="2dp"
+                        android:minHeight="48dp" />
+                </TableRow>
 
-            <!-- Row 8: ยาหลอนประสาท -->
-            <TableRow
-                android:padding="5dp"
-                android:background="#EEEEEE">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="h. ยาหลอนประสาท"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreH"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+            </TableLayout>
+        </androidx.cardview.widget.CardView>
 
-            <!-- Row 9: สารกลุ่มฝิ่น -->
-            <TableRow android:padding="5dp">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="i. สารกลุ่มฝิ่น"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreI"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
+        <!-- ช่องว่างด้านล่าง -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
 
-            <!-- Row 10: ใบกระท่อม -->
-<!--            <TableRow-->
-<!--                android:padding="5dp"-->
-<!--                android:background="#EEEEEE">-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="2"-->
-<!--                    android:text="j. ใบกระท่อม"-->
-<!--                    android:padding="8dp" />-->
-<!--                <TextView-->
-<!--                    android:id="@+id/tvScoreJ"-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:gravity="center"-->
-<!--                    android:padding="8dp" />-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:text="0-3"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="#C8E6C9"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold" />-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:text="4-26"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="#FFF9C4"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold" />-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:text="27+"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="#FFCDD2"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold" />-->
-<!--            </TableRow>-->
-
-<!--            &lt;!&ndash; Row 11: สารผสมนำในกระท่อม &ndash;&gt;-->
-<!--            <TableRow android:padding="5dp">-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="2"-->
-<!--                    android:text="k. สารผสมน้ำในกระท่อม"-->
-<!--                    android:padding="8dp" />-->
-<!--                <TextView-->
-<!--                    android:id="@+id/tvScoreK"-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:gravity="center"-->
-<!--                    android:padding="8dp" />-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:text="0-3"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="#C8E6C9"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold" />-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:text="4-26"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="#FFF9C4"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold" />-->
-<!--                <TextView-->
-<!--                    android:layout_width="0px"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_weight="1"-->
-<!--                    android:text="27+"-->
-<!--                    android:gravity="center"-->
-<!--                    android:background="#FFCDD2"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:textStyle="bold" />-->
-<!--            </TableRow>-->
-
-            <!-- Row 12: สารอื่น ๆ -->
-            <TableRow
-                android:padding="5dp"
-                android:background="#EEEEEE">
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="l. สารอื่น ๆ ระบุ........"
-                    android:padding="8dp" />
-                <TextView
-                    android:id="@+id/tvScoreJ"
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0-3"
-                    android:gravity="center"
-                    android:background="#C8E6C9"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="4-26"
-                    android:gravity="center"
-                    android:background="#FFF9C4"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="0px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="27+"
-                    android:gravity="center"
-                    android:background="#FFCDD2"
-                    android:padding="8dp"
-                    android:textStyle="bold" />
-            </TableRow>
-
-        </TableLayout>
     </LinearLayout>
 
 </ScrollView>

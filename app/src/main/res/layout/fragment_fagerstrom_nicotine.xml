@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="5dp">
 
         <!-- ส่วนหัวของหน้า -->
         <LinearLayout
@@ -60,7 +60,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="05dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -141,7 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -222,7 +222,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -279,7 +279,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -336,7 +336,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -393,7 +393,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -444,6 +444,7 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="6dp"
+            android:visibility="gone"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
@@ -475,6 +476,9 @@
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:textColor="#2C3E50" />
+
+                    <!-- ปุ่ม info สำหรับแสดงเกณฑ์การประเมิน -->
+
                 </LinearLayout>
 
                 <!-- ตารางแสดงคะแนน -->
@@ -498,17 +502,6 @@
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="2"
-                                android:text="การประเมิน"
-                                android:textColor="#FFFFFF"
-                                android:textStyle="bold"
-                                android:textSize="14sp"
-                                android:gravity="center"
-                                android:padding="8dp" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="คะแนน"
                                 android:textColor="#FFFFFF"
@@ -522,28 +515,6 @@
                         <TableRow
                             android:padding="12dp"
                             android:background="#FFFFFF">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_weight="2"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:src="@drawable/ic_smoking"
-                                    android:tint="#E74C3C"
-                                    android:layout_marginEnd="8dp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Fagerstrom"
-                                    android:textSize="14sp"
-                                    android:textColor="#2C3E50"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
 
                             <androidx.cardview.widget.CardView
                                 android:layout_width="0dp"
@@ -568,9 +539,7 @@
                         </TableRow>
 
                         <!-- แถวแสดงหัวข้อระดับการติดนิโคติน -->
-                        <TableRow
-
-                            android:background="#E8F5E8">
+                        <TableRow>
 
                             <TextView
                                 android:layout_width="0dp"
@@ -606,161 +575,207 @@
                                 android:scrollHorizontally="false" />
                         </TableRow>
                     </TableLayout>
-
-
                 </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-                <!-- เกณฑ์การประเมิน -->
-                <androidx.cardview.widget.CardView
+        <!-- เพิ่มส่วนนี้หลังจาก CardView ของผลการประเมินคะแนนเดิม -->
+
+        <!-- ส่วน Gauge ใหม่ -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <!-- หัวข้อ Gauge -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="1dp"
-                    app:cardBackgroundColor="#F8F9FA">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_smoking"
+                        android:tint="#E74C3C"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📊 ระดับการติดนิโคติน"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+
+                    <!-- ปุ่ม info สำหรับแสดงเกณฑ์การประเมิน -->
+                    <ImageView
+                        android:id="@+id/ivNicotineInfoButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_info"
+                        android:tint="#3498DB"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- Custom Gauge View -->
+                <th.in.ffc.app.form.screening.view.NicotineRiskGaugeView
+                    android:id="@+id/nicotineRiskGauge"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="0dp" />
+
+                <!-- ข้อมูลระดับปัจจุบัน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/risk_level_background"
+                    android:padding="16dp">
+
+                    <!-- คะแนนและ Emoji -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:id="@+id/tvGaugeEmoji"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="😊"
+                                android:textSize="32sp"
+                                android:layout_marginEnd="12dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvGaugeScore"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="คะแนน: 0"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#2C3E50" />
+
+                                <TextView
+                                    android:id="@+id/tvGaugeLevel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ไม่ติดนิโคติน"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#27AE60" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvGaugeCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1B500"
+                            android:textSize="16sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:background="#F0F0F0"
+                            android:padding="4dp"
+                            android:layout_gravity="center_horizontal" />
+
+                    </LinearLayout>
+
+                    <!-- คำแนะนำ -->
+                    <TextView
+                        android:id="@+id/tvGaugeRecommendation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="✅ ไม่ต้องการการบำบัด"
+                        android:textSize="14sp"
+                        android:textColor="#27AE60"
+                        android:textStyle="italic"
+                        android:gravity="center"
+                        android:background="#E8F5E8"
+                        android:padding="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- ตัวควบคุมคะแนน (สำหรับทดสอบ - สามารถลบออกได้) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    android:id="@+id/layoutGaugeControl">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ทดสอบ Gauge (สำหรับ Debug):"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarGaugeTest"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="10"
+                        android:progress="0" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="12dp">
+                            android:layout_weight="1"
+                            android:text="0"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="start" />
 
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_info"
-                                android:tint="#3498DB"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="เกณฑ์การประเมินการติดนิโคติน"
-                                android:textStyle="bold"
-                                android:textSize="14sp"
-                                android:textColor="#2C3E50" />
-                        </LinearLayout>
-
-                        <!-- ระดับ 1: 0-3 คะแนน -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_green"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0-3 คะแนน: ไม่นับว่าคุณติดสารนิโคติน"
-                                android:textSize="13sp"
-                                android:textColor="#27AE60" />
-                        </LinearLayout>
-
-                        <!-- ระดับ 2: 4-5 คะแนน -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_yellow"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="4-5 คะแนน: คุณติดสารนิโคตินในระดับปานกลาง"
-                                android:textSize="13sp"
-                                android:textColor="#F39C12" />
-                        </LinearLayout>
-
-                        <!-- ระดับ 3: 6-7 คะแนน -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_orange"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="6-7 คะแนน: คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง"
-                                android:textSize="13sp"
-                                android:textColor="#FF9800" />
-                        </LinearLayout>
-
-                        <!-- ระดับ 4: 8-9 คะแนน -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_red"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="8-9 คะแนน: คุณติดสารนิโคตินในระดับสูง"
-                                android:textSize="13sp"
-                                android:textColor="#E74C3C" />
-                        </LinearLayout>
-
-                        <!-- ระดับ 5: 10 คะแนน -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_dark_red"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="10 คะแนน: คุณติดสารนิโคตินในระดับสูงมาก"
-                                android:textSize="13sp"
-                                android:textColor="#C0392B" />
-                        </LinearLayout>
+                            android:layout_weight="1"
+                            android:text="10"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="end" />
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
         <!-- เก็บส่วนเก่าเป็น Hidden สำหรับ backward compatibility -->
         <LinearLayout
             android:layout_width="match_parent"

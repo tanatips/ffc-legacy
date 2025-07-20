@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,8 +44,11 @@ import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessmentSummary;
+import th.in.ffc.app.form.screening.view.SuicideRiskGaugeView;
 import th.in.ffc.person.PersonScreeningForm15Activity;
 import th.in.ffc.util.Log;
+import android.widget.ImageView;
+
 
 public class SuicideAssessment8qFragment extends Fragment {
 
@@ -64,6 +68,14 @@ public class SuicideAssessment8qFragment extends Fragment {
     // เพิ่มตัวแปรสำหรับติดตามสถานะการตอบคำถาม
     private boolean isFormValid = false;
     private boolean[] questionAnswered = {false, false, false, false, false, false, false, false}; // 8 ข้อ
+    private ImageView ivSuicide8qInfoButton;
+    private SuicideRiskGaugeView suicideRiskGauge;
+    private TextView tvGaugeEmoji;
+    private TextView tvGaugeScore;
+    private TextView tvGaugeLevel;
+    private TextView tvGaugeCode;
+    private TextView tvGaugeRecommendation;
+    private SeekBar seekBarGaugeTest;
 
     public SuicideAssessment8qFragment() {
         // Required empty public constructor
@@ -112,6 +124,9 @@ public class SuicideAssessment8qFragment extends Fragment {
         // Initialize new UI elements
         tv8qScore = view.findViewById(R.id.tv8qScore);
         tv8qResultDetail = view.findViewById(R.id.tv8qResultDetail);
+        ivSuicide8qInfoButton = view.findViewById(R.id.ivSuicide8qInfoButton);
+        setupInfoButtonListener();
+        initializeGaugeViews(view);
 
         // Initial display update
         updateScoreDisplay();
@@ -314,6 +329,441 @@ public class SuicideAssessment8qFragment extends Fragment {
             }
         });
     }
+    private void initializeGaugeViews(View view) {
+        suicideRiskGauge = view.findViewById(R.id.suicideRiskGauge);
+        tvGaugeEmoji = view.findViewById(R.id.tvGaugeEmoji);
+        tvGaugeScore = view.findViewById(R.id.tvGaugeScore);
+        tvGaugeLevel = view.findViewById(R.id.tvGaugeLevel);
+        tvGaugeCode = view.findViewById(R.id.tvGaugeCode);
+        tvGaugeRecommendation = view.findViewById(R.id.tvGaugeRecommendation);
+
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarGaugeTest = view.findViewById(R.id.seekBarGaugeTest);
+        setupGaugeTestControls();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateGaugeDisplay();
+    }
+    private void setupGaugeTestControls() {
+        if (seekBarGaugeTest != null) {
+            seekBarGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && suicideRiskGauge != null) {
+                        suicideRiskGauge.setScore(progress);
+                        SuicideRiskGaugeView.RiskLevel level = getCurrentRiskLevelFromScore(progress);
+
+                        // อัปเดตข้อความทดสอบ
+                        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(level.emoji);
+                        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + progress);
+                        if (tvGaugeLevel != null) {
+                            tvGaugeLevel.setText(level.label);
+                            tvGaugeLevel.setTextColor(Color.parseColor(level.color));
+                        }
+                        if (tvGaugeCode != null) tvGaugeCode.setText(level.code);
+//                        if (tvGaugeRecommendation != null) {
+//                            updateGaugeRecommendation(progress, level);
+//                        }
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+    public void showGaugeTestControls(boolean show) {
+        View layoutGaugeControl = getView().findViewById(R.id.layoutGaugeControl);
+        if (layoutGaugeControl != null) {
+            layoutGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    // Method สำหรับรีเซ็ต Gauge
+    public void resetGauge() {
+        if (suicideRiskGauge != null) {
+            suicideRiskGauge.setScore(0);
+            updateGaugeDisplay();
+        }
+    }
+    private void updateGaugeDisplay() {
+        if (suicideRiskGauge == null) return;
+
+        int totalScore = calculateTotalScore();
+        SuicideRiskGaugeView.RiskLevel currentLevel = getCurrentRiskLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        suicideRiskGauge.setScore(totalScore);
+
+        // อัปเดตข้อความ
+        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(currentLevel.emoji);
+        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + totalScore);
+        if (tvGaugeLevel != null) {
+            tvGaugeLevel.setText(currentLevel.label);
+            tvGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvGaugeCode != null) tvGaugeCode.setText(currentLevel.code);
+//        if (tvGaugeRecommendation != null) {
+//            updateGaugeRecommendation(totalScore, currentLevel);
+//        }
+
+        Log.d("SuicideAssessment8q", "Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label);
+    }
+    private void updateGaugeRecommendation(int totalScore, SuicideRiskGaugeView.RiskLevel level) {
+        String recommendation = "";
+        int backgroundColor = Color.parseColor("#F8F9FA");
+        int textColor = Color.parseColor("#2C3E50");
+
+        if (totalScore >= 17) {
+            recommendation = "🆘 ต้องการการแทรกแซงทันที!";
+            backgroundColor = Color.parseColor("#F8D7DA");
+            textColor = Color.parseColor("#E74C3C");
+        } else if (totalScore >= 9) {
+            recommendation = "🚨 ควรติดตามอย่างใกล้ชิด";
+            backgroundColor = Color.parseColor("#FFE4CC");
+            textColor = Color.parseColor("#E67E22");
+        } else if (totalScore >= 1) {
+            recommendation = "⚠️ ควรให้การสนับสนุน";
+            backgroundColor = Color.parseColor("#FFF3CD");
+            textColor = Color.parseColor("#F39C12");
+        } else {
+            recommendation = "✅ สถานะปกติ";
+            backgroundColor = Color.parseColor("#E8F5E8");
+            textColor = Color.parseColor("#27AE60");
+        }
+
+        tvGaugeRecommendation.setText(recommendation);
+        tvGaugeRecommendation.setTextColor(textColor);
+        tvGaugeRecommendation.setBackgroundColor(backgroundColor);
+    }
+    private SuicideRiskGaugeView.RiskLevel getCurrentRiskLevelFromScore(int score) {
+        if (score == 0) {
+            return new SuicideRiskGaugeView.RiskLevel(0, 0, "ไม่มีแนวโน้มฆ่าตัวตายในปัจจุบัน", "#27AE60", "😊", "1B0270");
+        } else if (score >= 1 && score <= 8) {
+            return new SuicideRiskGaugeView.RiskLevel(1, 8, "มีแนวโน้มฆ่าตัวตายในปัจจุบัน ระดับต่ำ", "#F39C12", "😐", "1B0271");
+        } else if (score >= 9 && score <= 16) {
+            return new SuicideRiskGaugeView.RiskLevel(9, 16, "มีแนวโน้มฆ่าตัวตายในปัจจุบัน ระดับปานกลาง", "#E67E22", "😟", "1B0272");
+        } else {
+            return new SuicideRiskGaugeView.RiskLevel(17, 52, "มีแนวโน้มฆ่าตัวตายในปัจจุบัน ระดับเสี่ยงสูง", "#E74C3C", "😰", "1B0273");
+        }
+    }
+
+    private void setupInfoButtonListener() {
+        if (ivSuicide8qInfoButton != null) {
+            ivSuicide8qInfoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showSuicide8qCriteriaDialog();
+                }
+            });
+        }
+    }
+    private void showSimpleSuicide8qCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "📊 เกณฑ์การประเมินความเสี่ยงการฆ่าตัวตาย 8Q\n\n" +
+                "😊 0 คะแนน: ไม่มีความเสี่ยง (1B0270)\n" +
+                "🔶 ไม่มีแนวโน้มฆ่าตัวตายในปัจจุบัน\n\n" +
+
+                "😐 1-8 คะแนน: ความเสี่ยงต่ำ (1B0271)\n" +
+                "🔶 ให้คำปรึกษาและสนับสนุน\n\n" +
+
+                "😟 9-16 คะแนน: ความเสี่ยงปานกลาง (1B0272)\n" +
+                "🔶 ต้องติดตามอย่างใกล้ชิด\n\n" +
+
+                "😰 ≥ 17 คะแนน: ความเสี่ยงสูง (1B0273)\n" +
+                "🔶 ต้องการการแทรกแซงทันที!\n\n" +
+
+                "⚠️ หมายเหตุ: ความเสี่ยงสูงต้องการการแทรกแซงทันที\n" +
+                "ควรส่งต่อผู้เชี่ยวชาญและติดตามอย่างใกล้ชิด\n\n";
+
+        builder.setTitle("📈 เกณฑ์การประเมิน 8Q")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private String get8qEmoji(int totalScore) {
+        if (totalScore == 0) {
+            return "😊"; // ไม่มีความเสี่ยง - หน้ายิ้ม
+        } else if (totalScore >= 1 && totalScore <= 8) {
+            return "😐"; // ความเสี่ยงต่ำ - หน้าเฉยๆ
+        } else if (totalScore >= 9 && totalScore <= 16) {
+            return "😟"; // ความเสี่ยงปานกลาง - หน้ากังวล
+        } else if (totalScore >= 17) {
+            return "😰"; // ความเสี่ยงสูง - หน้าตกใจ
+        }
+        return "🤔"; // ยังไม่ได้ประเมิน
+    }
+    private String get8qCriticalEmoji(boolean isCritical) {
+        return isCritical ? "⚠️" : "";
+    }
+    public String getResultDescriptionWithEmoji(int totalScore) {
+        String emoji = get8qEmoji(totalScore);
+
+        if (totalScore == 0) {
+            return emoji + " ไม่มีความเสี่ยงต่อการฆ่าตัวตาย";
+        } else if (totalScore >= 1 && totalScore <= 8) {
+            return emoji + " มีความเสี่ยงต่อการฆ่าตัวตายระดับต่ำ";
+        } else if (totalScore >= 9 && totalScore <= 16) {
+            return emoji + " มีความเสี่ยงต่อการฆ่าตัวตายระดับปานกลาง";
+        } else if (totalScore >= 17) {
+            return emoji + " มีความเสี่ยงต่อการฆ่าตัวตายระดับสูง";
+        }
+        return "";
+    }
+    public String getRecommendationWithEmoji() {
+        if (!isFormComplete()) {
+            return "📝 กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int totalScore = calculateTotalScore();
+        String emoji = get8qEmoji(totalScore);
+        String criticalEmoji = get8qCriticalEmoji(totalScore >= 17);
+
+        if (totalScore >= 17) {
+            return criticalEmoji + " ความเสี่ยงสูงมาก! ต้องดำเนินการแทรกแซงทันที และส่งต่อผู้เชี่ยวชาญ";
+        } else if (totalScore >= 9) {
+            return emoji + " ความเสี่ยงปานกลาง ควรให้คำปรึกษาและติดตามอย่างใกล้ชิด";
+        } else if (totalScore >= 1) {
+            return emoji + " ความเสี่ยงต่ำ ควรให้การสนับสนุนและคำแนะนำ";
+        } else {
+            return emoji + " ไม่มีความเสี่ยง ควรส่งเสริมสุขภาพจิตต่อไป";
+        }
+    }
+    public String getSummaryTextWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        int score = calculateTotalScore();
+        String emoji = get8qEmoji(score);
+        String resultDescription = getResultDescriptionWithEmoji(score);
+        String criticalEmoji = get8qCriticalEmoji(score >= 17);
+
+        String summary = String.format("คะแนน: %d - %s", score, resultDescription);
+
+        if (score >= 17) {
+            summary += " (" + criticalEmoji + " วิกฤติ!)";
+        } else if (score >= 9) {
+            summary += " (" + criticalEmoji + " ต้องติดตาม)";
+        }
+
+        return summary;
+    }
+    public void showCompletionStatusWithEmoji() {
+        int percentage = getCompletionPercentage();
+        String message;
+
+        if (percentage == 100) {
+            String resultInfo = getResultDescriptionWithEmoji(calculateTotalScore());
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + resultInfo;
+        } else if (percentage > 0) {
+            message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
+        } else {
+            message = "❌ ยังไม่ได้กรอกข้อมูล (0%)";
+        }
+
+        Log.d("SuicideAssessment8q", "Completion Status: " + message);
+    }
+    public String getValidationMessage() {
+        StringBuilder message = new StringBuilder();
+
+        List<Integer> unansweredQuestions = getUnansweredQuestions();
+
+        if (!unansweredQuestions.isEmpty()) {
+            message.append("การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q): ยังไม่ได้ตอบข้อ ");
+            for (int i = 0; i < unansweredQuestions.size(); i++) {
+                if (i > 0) {
+                    message.append(", ");
+                }
+                message.append(unansweredQuestions.get(i));
+            }
+        }
+
+        return message.toString();
+    }
+    public List<Integer> getUnansweredQuestions() {
+        List<Integer> unanswered = new ArrayList<>();
+
+        if (suicideAssessment8qInfo == null) {
+            for (int i = 1; i <= 8; i++) {
+                unanswered.add(i);
+            }
+            return unanswered;
+        }
+
+        String[] answers = {
+                suicideAssessment8qInfo.getQ1(),
+                suicideAssessment8qInfo.getQ2(),
+                suicideAssessment8qInfo.getQ3(),
+                suicideAssessment8qInfo.getQ4(),
+                suicideAssessment8qInfo.getQ5(),
+                suicideAssessment8qInfo.getQ6(),
+                suicideAssessment8qInfo.getQ7(),
+                suicideAssessment8qInfo.getQ8()
+        };
+
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i] == null || answers[i].equals("0") || answers[i].isEmpty()) {
+                unanswered.add(i + 1);
+            }
+        }
+
+        return unanswered;
+    }
+    public String getDetailedValidationMessage() {
+        if (suicideAssessment8qInfo == null) {
+            return "การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q):\n• ยังไม่ได้กรอกข้อมูลใดๆ";
+        }
+
+        List<String> missingQuestions = new ArrayList<>();
+        String[] questionDescriptions = {
+                "ข้อ 1: คิดอยากตาย หรือ คิดว่าตายไปจะดีกว่า",
+                "ข้อ 2: อยากทำร้ายตัวเอง หรือ ทำให้ตัวเองบาดเจ็บ",
+                "ข้อ 3: คิดเกี่ยวกับการฆ่าตัวตาย",
+                "ข้อ 4: แผนการที่จะฆ่าตัวตาย",
+                "ข้อ 5: ได้เตรียมการที่จะทำร้ายตนเองหรือเตรียมการจะฆ่าตัวตาย",
+                "ข้อ 6: ได้ทำให้ตนเองบาดเจ็บแต่ไม่ตั้งใจที่จะทำให้เสียชีวิต",
+                "ข้อ 7: ได้พยายามฆ่าตัวตายโดยคาดหวัง/ตั้งใจที่จะให้ตาย",
+                "ข้อ 8: ท่านเคยพยายามฆ่าตัวตาย"
+        };
+
+        String[] answers = {
+                suicideAssessment8qInfo.getQ1(),
+                suicideAssessment8qInfo.getQ2(),
+                suicideAssessment8qInfo.getQ3(),
+                suicideAssessment8qInfo.getQ4(),
+                suicideAssessment8qInfo.getQ5(),
+                suicideAssessment8qInfo.getQ6(),
+                suicideAssessment8qInfo.getQ7(),
+                suicideAssessment8qInfo.getQ8()
+        };
+
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i] == null || answers[i].equals("0") || answers[i].isEmpty()) {
+                missingQuestions.add(questionDescriptions[i]);
+            }
+        }
+
+        // ตรวจสอบคำถามย่อย Q3_2_1
+        if (suicideAssessment8qInfo.getQ3().equals("2") &&
+                (suicideAssessment8qInfo.getQ3_2_1().equals("0") || suicideAssessment8qInfo.getQ3_2_1().isEmpty())) {
+            missingQuestions.add("คำถามย่อย 3.1: ท่านสามารถควบคุมความอยากฆ่าตัวตายได้หรือไม่");
+        }
+
+        if (!missingQuestions.isEmpty()) {
+            StringBuilder message = new StringBuilder("การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q):\n");
+            message.append("กรุณาตอบคำถามที่ยังไม่ได้ตอบ:\n");
+            for (String question : missingQuestions) {
+                message.append("• ").append(question).append("\n");
+            }
+            return message.toString().trim();
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+    public int getCompletionPercentage() {
+        if (suicideAssessment8qInfo == null) {
+            return 0;
+        }
+
+        int completedQuestions = 0;
+        int totalQuestions = 8;
+
+        // ตรวจสอบคำถามหลัก 8 ข้อ
+        String[] answers = {
+                suicideAssessment8qInfo.getQ1(),
+                suicideAssessment8qInfo.getQ2(),
+                suicideAssessment8qInfo.getQ3(),
+                suicideAssessment8qInfo.getQ4(),
+                suicideAssessment8qInfo.getQ5(),
+                suicideAssessment8qInfo.getQ6(),
+                suicideAssessment8qInfo.getQ7(),
+                suicideAssessment8qInfo.getQ8()
+        };
+
+        for (String answer : answers) {
+            if (answer != null && !answer.equals("0") && !answer.isEmpty()) {
+                completedQuestions++;
+            }
+        }
+
+        // ตรวจสอบคำถามย่อย Q3_2_1 หากจำเป็น
+        if (suicideAssessment8qInfo.getQ3().equals("2")) {
+            if (!suicideAssessment8qInfo.getQ3_2_1().equals("0") &&
+                    !suicideAssessment8qInfo.getQ3_2_1().isEmpty()) {
+                // คำถามย่อยนี้ไม่นับเป็นคำถามแยก แต่เป็นส่วนหนึ่งของ Q3
+            }
+        }
+
+        return (completedQuestions * 100) / totalQuestions;
+    }
+
+    public String getHighRiskQuestionAdviceWithEmoji() {
+        if (suicideAssessment8qInfo == null) return "";
+
+        StringBuilder advice = new StringBuilder();
+        advice.append("📋 คำแนะนำเพิ่มเติม:\n");
+
+        // ตรวจสอบคำถามที่ให้คะแนนสูงพร้อม emoji
+        if ("2".equals(suicideAssessment8qInfo.getQ1())) {
+            advice.append("💭 พบการคิดทำร้ายตนเอง - ต้องประเมินความปลอดภัยทันที\n");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ2())) {
+            advice.append("🔪 มีความรู้สึกอยากทำร้ายตัวเอง - ควรส่งต่อผู้เชี่ยวชาญ\n");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ3())) {
+            advice.append("💀 มีแผนการฆ่าตัวตาย - ความเสี่ยงสูงมาก\n");
+            if ("2".equals(suicideAssessment8qInfo.getQ3_2_1())) {
+                advice.append("🚨 ไม่สามารถควบคุมตนเองได้ - จำเป็นต้องมีการดูแลอย่างใกล้ชิด\n");
+            }
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ4())) {
+            advice.append("📋 มีแผนการฆ่าตัวตายที่ชัดเจน - ต้องแทรกแซงทันที\n");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ5())) {
+            advice.append("🎯 มีการเตรียมการฆ่าตัวตาย - ความเสี่ยงสูงมาก\n");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ6())) {
+            advice.append("🩹 เคยทำร้ายตัวเอง - เพิ่มความเสี่ยง\n");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ7())) {
+            advice.append("⚰️ มีประวัติพยายามฆ่าตัวตายอย่างจริงจัง - ความเสี่ยงสูงมาก\n");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ8())) {
+            advice.append("🔄 เคยพยายามฆ่าตัวตาย - เพิ่มความเสี่ยงการกระทำซ้ำ\n");
+        }
+
+        return advice.toString();
+    }
+    private void showSuicide8qCriteriaDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+            // สร้าง custom layout สำหรับ dialog
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_suicide_8q_criteria, null);
+
+            builder.setView(dialogView);
+            builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            Log.d("SuicideAssessment8q", "แสดง Dialog เกณฑ์การประเมิน 8Q สำเร็จ");
+
+        } catch (Exception e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการแสดง Dialog: " + e.getMessage());
+
+            // แสดง dialog แบบง่ายหากเกิดข้อผิดพลาด
+            showSimpleSuicide8qCriteriaDialog();
+        }
+    }
+
     private void updateScoreDisplay() {
         int totalScore = calculateTotalScore();
 
@@ -390,47 +840,68 @@ public class SuicideAssessment8qFragment extends Fragment {
 
         String resultText = "";
         String resultCode = "";
+        String emoji = "";
+        String statusEmoji = "";
         int backgroundColor = Color.parseColor("#F8F9FA");
         int textColor = Color.parseColor("#2C3E50");
 
         if (totalScore == 0) {
+            emoji = "😊";
+            statusEmoji = "✅";
             resultText = "ไม่มีความเสี่ยงต่อการฆ่าตัวตาย";
             resultCode = "1B0270";
             backgroundColor = Color.parseColor("#E8F5E8");
             textColor = Color.parseColor("#27AE60");
         } else if (totalScore >= 1 && totalScore <= 8) {
+            emoji = "😐";
+            statusEmoji = "⚠️";
             resultText = "มีความเสี่ยงต่อการฆ่าตัวตายระดับต่ำ";
             resultCode = "1B0271";
             backgroundColor = Color.parseColor("#FFF3CD");
             textColor = Color.parseColor("#F39C12");
         } else if (totalScore >= 9 && totalScore <= 16) {
+            emoji = "😟";
+            statusEmoji = "🚨";
             resultText = "มีความเสี่ยงต่อการฆ่าตัวตายระดับปานกลาง";
             resultCode = "1B0272";
             backgroundColor = Color.parseColor("#FFE4CC");
             textColor = Color.parseColor("#E67E22");
         } else if (totalScore >= 17) {
+            emoji = "😰";
+            statusEmoji = "🆘";
             resultText = "มีความเสี่ยงต่อการฆ่าตัวตายระดับสูง";
             resultCode = "1B0273";
             backgroundColor = Color.parseColor("#F8D7DA");
             textColor = Color.parseColor("#E74C3C");
         }
 
-        String finalText = resultText + "\n(" + resultCode + ")";
+        // สร้างข้อความหลักพร้อม emoji
+        String finalText = emoji + " " + resultText + "\n(" + resultCode + ")";
 
-        // เพิ่มคำเตือนพิเศษสำหรับความเสี่ยงสูง
-        if (totalScore >= 17) {
-            finalText += "\n⚠️ ต้องการการแทรกแซงทันที!";
-            textColor = Color.parseColor("#E74C3C");
-        } else if (totalScore >= 9) {
-            finalText += "\n⚠️ ควรติดตามอย่างใกล้ชิด";
-            textColor = Color.parseColor("#E67E22");
-        }
+        // เพิ่มคำเตือนพิเศษสำหรับแต่ละระดับพร้อม emoji
+//        if (totalScore >= 17) {
+//            finalText += "\n" + statusEmoji + " ต้องการการแทรกแซงทันที!";
+//            finalText += "\n🏥 ส่งต่อผู้เชี่ยวชาญโดยด่วน";
+//            textColor = Color.parseColor("#E74C3C");
+//        } else if (totalScore >= 9) {
+//            finalText += "\n" + statusEmoji + " ควรติดตามอย่างใกล้ชิด";
+//            finalText += "\n👨‍⚕️ แนะนำพบแพทย์เพื่อปรึกษา";
+//            textColor = Color.parseColor("#E67E22");
+//        } else if (totalScore >= 1) {
+//            finalText += "\n" + statusEmoji + " ควรให้การสนับสนุน";
+//            finalText += "\n🤝 ให้คำปรึกษาและกำลังใจ";
+//            textColor = Color.parseColor("#F39C12");
+//        } else {
+//            finalText += "\n" + statusEmoji + " สถานะปกติ";
+//            finalText += "\n🌟 ควรส่งเสริมสุขภาพจิตต่อไป";
+//            textColor = Color.parseColor("#27AE60");
+//        }
 
         tv8qResultDetail.setText(finalText);
         tv8qResultDetail.setTextColor(textColor);
         tv8qResultDetail.setBackgroundColor(backgroundColor);
 
-        Log.d("SuicideAssessment8q", "Result displayed: " + finalText);
+        Log.d("SuicideAssessment8q", "Result displayed with emoji: " + finalText);
     }
     private void loadData(){
         SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(getContext());
@@ -636,22 +1107,22 @@ public class SuicideAssessment8qFragment extends Fragment {
         if (totalScore == 0) {
             row0.setBackgroundColor(highlightNone);
             resultCode = "1B0270";
-            riskLevel = "ไม่มีความเสี่ยง";
+            riskLevel = "ไม่มีแนวโน้มฆ่าตัวต่ายในปัจจุบัน";
             highlightColor = highlightNone;
         } else if (totalScore >= 1 && totalScore <= 8) {
             row1_8.setBackgroundColor(highlightLow);
             resultCode = "1B0271";
-            riskLevel = "ความเสี่ยงต่ำ";
+            riskLevel = "มีแนวโน้มฆ่าตัวต่ายในปัจจุบัน ระดับต่ำ";
             highlightColor = highlightLow;
         } else if (totalScore >= 9 && totalScore <= 16) {
             row9_16.setBackgroundColor(highlightMedium);
             resultCode = "1B0272";
-            riskLevel = "ความเสี่ยงปานกลาง";
+            riskLevel = "มีแนวโน้มฆ่าตัวต่ายในปัจจุบัน ระดับปานกลาง";
             highlightColor = highlightMedium;
         } else if (totalScore >= 17) {
             row17plus.setBackgroundColor(highlightHigh);
             resultCode = "1B0273";
-            riskLevel = "ความเสี่ยงสูง";
+            riskLevel = "มีแนวโน้มฆ่าตัวต่ายในปัจจุบัน ระดับสูง";
             highlightColor = highlightHigh;
         }
 
@@ -866,7 +1337,7 @@ public class SuicideAssessment8qFragment extends Fragment {
             JSONObject results = new JSONObject();
             results.put("total_score", totalScore);
             results.put("result_code", getResultCode(totalScore));
-            results.put("result_description", getResultDescription(totalScore));
+            results.put("result_description", getResultDescriptionWithEmoji(totalScore));
             results.put("risk_level", getRiskLevel(totalScore));
             results.put("is_complete", isFormComplete());
             jsonData.put("results", results);
@@ -947,9 +1418,12 @@ public class SuicideAssessment8qFragment extends Fragment {
     private void updateScoreAndHighlight() {
         int totalScore = calculateTotalScore();
 
-        // อัปเดตการแสดงผลใหม่
+        // อัปเดตการแสดงผลเดิม
         updateScoreDisplay();
         updateResultDisplay(totalScore);
+
+        // อัปเดต Gauge ใหม่
+        updateGaugeDisplay();
 
         // เรียกใช้การ highlight ตารางเดิม (ถ้ายังต้องการ)
         highlightScoreRow(totalScore);
@@ -958,10 +1432,13 @@ public class SuicideAssessment8qFragment extends Fragment {
         updateRadioButtonColors();
         checkCriticalQuestions();
 
+        // แจ้งเตือนหากมีความเสี่ยงสูง
+//        checkAndNotifyRiskLevel(totalScore);
+
         // อัปเดตสถานะการกรอกข้อมูลใน Activity หลัก
         updateFormStatusInActivity();
 
-        Log.d("SuicideAssessment8q", "Score and highlight updated - Total: " + totalScore);
+        Log.d("SuicideAssessment8q", "Score, highlight and gauge updated - Total: " + totalScore);
     }
     /**
      * อัปเดตสถานะการกรอกข้อมูลใน Activity หลัก
@@ -1008,35 +1485,27 @@ public class SuicideAssessment8qFragment extends Fragment {
      * ตรวจสอบและแจ้งเตือนระดับความเสี่ยงอัตโนมัติ
      */
     private void checkAndNotifyRiskLevel(int totalScore) {
+        String emoji = get8qEmoji(totalScore);
+        String criticalEmoji = get8qCriticalEmoji(totalScore >= 17);
+
         if (totalScore >= 17) {
             // ความเสี่ยงสูงมาก - แจ้งเตือนทันที
             Toast.makeText(getContext(),
-                    "⚠️ ความเสี่ยงสูงมาก: " + totalScore + " คะแนน\n" +
+                    criticalEmoji + " ความเสี่ยงสูงมาก: " + totalScore + " คะแนน\n" +
                             "จำเป็นต้องดำเนินการแทรกแซงทันที",
                     Toast.LENGTH_SHORT).show();
-//            showRiskAlert("⚠️ ความเสี่ยงสูงมาก",
-//                    "คะแนน " + totalScore + " แสดงความเสี่ยงสูงมากต่อการฆ่าตัวตาย\n" +
-//                            "จำเป็นต้องดำเนินการแทรกแซงทันที",
-//                    Color.parseColor("#D32F2F"));
         } else if (totalScore >= 9) {
             // ความเสี่ยงปานกลาง
             Toast.makeText(getContext(),
-                    "ℹ️ ความเสี่ยงปานกลาง: " + totalScore + " คะแนน\n" +
+                    emoji + " ความเสี่ยงปานกลาง: " + totalScore + " คะแนน\n" +
                             "ควรให้คำปรึกษาและติดตามอย่างใกล้ชิด",
                     Toast.LENGTH_SHORT).show();
-//            showRiskAlert("⚠️ ความเสี่ยงปานกลาง",
-//                    "คะแนน " + totalScore + " แสดงความเสี่ยงปานกลางต่อการฆ่าตัวตาย\n" +
-//                            "ควรให้คำปรึกษาและติดตามอย่างใกล้ชิด",
-//                    Color.parseColor("#F57C00"));
         } else if (totalScore >= 1) {
             // ความเสี่ยงต่ำ
             Toast.makeText(getContext(),
-                    "ℹ️ ความเสี่ยงต่ำ: " + totalScore + " คะแนน\n" +
+                    emoji + " ความเสี่ยงต่ำ: " + totalScore + " คะแนน\n" +
                             "ควรให้คำแนะนำและสนับสนุน",
                     Toast.LENGTH_SHORT).show();
-//            showRiskInfo("ℹ️ ความเสี่ยงต่ำ",
-//                    "คะแนน " + totalScore + " แสดงความเสี่ยงต่ำต่อการฆ่าตัวตาย\n" +
-//                            "ควรให้คำแนะนำและสนับสนุน");
         }
     }
     /**
@@ -1275,16 +1744,168 @@ public class SuicideAssessment8qFragment extends Fragment {
         if (getView() != null) {
             clearAllRadioGroups();
 
-            // รีเซ็ตการแสดงผล
+            // รีเซ็ตการแสดงผลพร้อม emoji
             updateScoreDisplay();
             if (tv8qResultDetail != null) {
-                tv8qResultDetail.setText("ยังไม่ได้ประเมิน");
+                tv8qResultDetail.setText("🤔 ยังไม่ได้ประเมิน");
                 tv8qResultDetail.setTextColor(Color.parseColor("#7F8C8D"));
                 tv8qResultDetail.setBackgroundColor(Color.parseColor("#F8F9FA"));
             }
         }
+        resetGauge();
+    }
+    public void updateGaugeWithScore(int score) {
+        if (suicideRiskGauge != null) {
+            suicideRiskGauge.setScore(score);
+            updateGaugeDisplay();
+        }
+    }
+    public SuicideRiskGaugeView.RiskLevel getCurrentGaugeLevel() {
+        if (suicideRiskGauge != null) {
+            return suicideRiskGauge.getCurrentRiskLevel();
+        }
+        return getCurrentRiskLevelFromScore(0);
+    }
+    public boolean hasDataChanged() {
+        if (suicideAssessment8qInfo == null) {
+            return false;
+        }
+
+        String[] answers = {
+                suicideAssessment8qInfo.getQ1(),
+                suicideAssessment8qInfo.getQ2(),
+                suicideAssessment8qInfo.getQ3(),
+                suicideAssessment8qInfo.getQ4(),
+                suicideAssessment8qInfo.getQ5(),
+                suicideAssessment8qInfo.getQ6(),
+                suicideAssessment8qInfo.getQ7(),
+                suicideAssessment8qInfo.getQ8()
+        };
+
+        for (String answer : answers) {
+            if (answer != null && !answer.equals("0") && !answer.isEmpty()) {
+                return true;
+            }
+        }
+
+        // ตรวจสอบคำถามย่อย
+        if (!suicideAssessment8qInfo.getQ3_2_1().equals("0") &&
+                !suicideAssessment8qInfo.getQ3_2_1().isEmpty()) {
+            return true;
+        }
+
+        return false;
+    }
+    public boolean hasRiskAnswers() {
+        if (suicideAssessment8qInfo == null) {
+            return false;
+        }
+
+        String[] answers = {
+                suicideAssessment8qInfo.getQ1(),
+                suicideAssessment8qInfo.getQ2(),
+                suicideAssessment8qInfo.getQ3(),
+                suicideAssessment8qInfo.getQ4(),
+                suicideAssessment8qInfo.getQ5(),
+                suicideAssessment8qInfo.getQ6(),
+                suicideAssessment8qInfo.getQ7(),
+                suicideAssessment8qInfo.getQ8()
+        };
+
+        for (String answer : answers) {
+            if ("2".equals(answer)) { // ตอบ "มี"
+                return true;
+            }
+        }
+
+        // ตรวจสอบคำถามย่อย
+        if ("2".equals(suicideAssessment8qInfo.getQ3_2_1())) {
+            return true;
+        }
+
+        return false;
+    }
+    public List<String> getRiskAnswers() {
+        List<String> riskAnswers = new ArrayList<>();
+
+        if (suicideAssessment8qInfo == null) {
+            return riskAnswers;
+        }
+
+        if ("2".equals(suicideAssessment8qInfo.getQ1())) {
+            riskAnswers.add("ข้อ 1: คิดอยากตาย");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ2())) {
+            riskAnswers.add("ข้อ 2: อยากทำร้ายตัวเอง");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ3())) {
+            riskAnswers.add("ข้อ 3: คิดเกี่ยวกับการฆ่าตัวตาย");
+            if ("2".equals(suicideAssessment8qInfo.getQ3_2_1())) {
+                riskAnswers.add("ข้อ 3.1: ไม่สามารถควบคุมความคิดได้");
+            }
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ4())) {
+            riskAnswers.add("ข้อ 4: มีแผนการฆ่าตัวตาย");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ5())) {
+            riskAnswers.add("ข้อ 5: มีการเตรียมการฆ่าตัวตาย");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ6())) {
+            riskAnswers.add("ข้อ 6: เคยทำร้ายตัวเองโดยไม่ตั้งใจให้ตาย");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ7())) {
+            riskAnswers.add("ข้อ 7: เคยพยายามฆ่าตัวตายอย่างจริงจัง");
+        }
+        if ("2".equals(suicideAssessment8qInfo.getQ8())) {
+            riskAnswers.add("ข้อ 8: เคยพยายามฆ่าตัวตาย");
+        }
+
+        return riskAnswers;
+    }
+    public String getAssessmentSummaryWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 การประเมินยังไม่สมบูรณ์";
+        }
+
+        int score = calculateTotalScore();
+        String emoji = get8qEmoji(score);
+        String resultDescription = getResultDescriptionWithEmoji(score);
+        String criticalEmoji = get8qCriticalEmoji(score >= 17);
+
+        StringBuilder summary = new StringBuilder();
+        summary.append("📊 สรุปการประเมิน 8Q:\n");
+        summary.append("คะแนนรวม: ").append(score).append(" คะแนน\n");
+        summary.append("ผลการประเมิน: ").append(resultDescription).append("\n");
+
+        if (score >= 17) {
+            summary.append(criticalEmoji).append(" สถานะ: วิกฤติ - ต้องการการแทรกแซงทันที!\n");
+        } else if (score >= 9) {
+            summary.append("⚠️ สถานะ: ต้องติดตามอย่างใกล้ชิด\n");
+        } else if (score >= 1) {
+            summary.append("ℹ️ สถานะ: ควรให้การสนับสนุน\n");
+        } else {
+            summary.append("✅ สถานะ: ปกติ\n");
+        }
+
+        // เพิ่มรายการคำตอบที่เป็นความเสี่ยง
+        List<String> riskAnswers = getRiskAnswers();
+        if (!riskAnswers.isEmpty()) {
+            summary.append("\n🚨 พบสัญญาณเตือน:\n");
+            for (String risk : riskAnswers) {
+                summary.append("• ").append(risk).append("\n");
+            }
+        }
+
+        return summary.toString();
     }
 
+    public boolean isHighRisk() {
+        if (!isFormComplete()) {
+            return false;
+        }
+
+        return calculateTotalScore() >= 17;
+    }
     private void clearAllRadioGroups() {
         if (getView() == null) return;
 

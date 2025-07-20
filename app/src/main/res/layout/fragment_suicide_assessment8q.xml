@@ -72,6 +72,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- คำถามทั้ง 8 ข้อ (เหมือนเดิม) -->
         <!-- คำถามที่ 1 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -358,7 +359,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- คำถามที่ 4-8 (ใช้รูปแบบเดียวกัน) -->
+        <!-- คำถามที่ 4 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -728,13 +729,14 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนแสดงผลแบบใหม่ (คล้าย 9Q) -->
+        <!-- ส่วนแสดงผลแบบใหม่ (คล้าย 2Q และ 9Q) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
+            android:visibility="gone"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
@@ -742,6 +744,43 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
+
+                <!-- หัวข้อผลการประเมิน -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_dialog_alert"
+                        android:tint="#E74C3C"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ผลการคัดกรอง 8Q"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#2C3E50" />
+
+                    <!-- ปุ่ม info สำหรับแสดงเกณฑ์การประเมิน -->
+<!--                    <ImageView-->
+<!--                        android:id="@+id/ivSuicide8qInfoButton"-->
+<!--                        android:layout_width="28dp"-->
+<!--                        android:layout_height="28dp"-->
+<!--                        android:src="@android:drawable/ic_dialog_info"-->
+<!--                        android:tint="#E74C3C"-->
+<!--                        android:background="?android:attr/selectableItemBackgroundBorderless"-->
+<!--                        android:padding="4dp"-->
+<!--                        android:clickable="true"-->
+<!--                        android:focusable="true" />-->
+                </LinearLayout>
 
                 <TableLayout
                     android:layout_width="match_parent"
@@ -752,17 +791,6 @@
                     <TableRow
                         android:background="@drawable/gradient_header"
                         android:padding="12dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:text="การประเมิน"
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            android:textSize="14sp"
-                            android:gravity="center"
-                            android:padding="8dp" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -780,28 +808,6 @@
                     <TableRow
                         android:padding="12dp"
                         android:background="#FFFFFF">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@android:drawable/ic_dialog_alert"
-                                android:tint="#E74C3C"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="8Q"
-                                android:textSize="14sp"
-                                android:textColor="#2C3E50"
-                                android:textStyle="bold" />
-                        </LinearLayout>
 
                         <androidx.cardview.widget.CardView
                             android:layout_width="0dp"
@@ -850,7 +856,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_span="2"
-                            android:text="ยังไม่ได้ประเมิน"
+                            android:text="🤔 ยังไม่ได้ประเมิน"
                             android:gravity="center"
                             android:padding="16dp"
                             android:textStyle="bold"
@@ -866,129 +872,195 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ส่วนตารางเกณฑ์การประเมินแบบใหม่ -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="#F8F9FA">
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="10dp">
 
+                <!-- หัวข้อ Gauge -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="16dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@android:drawable/ic_dialog_info"
                         android:tint="#E74C3C"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="เกณฑ์การประเมินความเสี่ยงการฆ่าตัวตาย 8Q"
+                        android:layout_weight="1"
+                        android:text="📊 ระดับความเสี่ยง"
                         android:textStyle="bold"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textColor="#2C3E50" />
+                    <ImageView
+                        android:id="@+id/ivSuicide8qInfoButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        android:tint="#E74C3C"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
 
-                <!-- ระดับ 1: ไม่มีความเสี่ยง -->
+                <!-- Custom Gauge View -->
+                <th.in.ffc.app.form.screening.view.SuicideRiskGaugeView
+                    android:id="@+id/suicideRiskGauge"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="0dp" />
+
+                <!-- ข้อมูลระดับปัจจุบัน -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:background="@drawable/risk_level_background"
+                    android:padding="16dp">
 
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_green"
-                        android:layout_marginEnd="8dp" />
+                    <!-- คะแนนและ Emoji -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0 คะแนน: ไม่มีความเสี่ยง (1B0270)"
-                        android:textSize="13sp"
-                        android:textColor="#27AE60" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/tvGaugeEmoji"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="😊"
+                            android:textSize="32sp"
+                            android:layout_marginEnd="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvGaugeScore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="คะแนน: 0"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="#2C3E50" />
+
+                            <TextView
+                                android:id="@+id/tvGaugeLevel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ไม่มีความเสี่ยง"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#27AE60" />
+                        </LinearLayout>
+                    </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvGaugeCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1B0270"
+                            android:textSize="16sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:background="#F0F0F0"
+                            android:padding="4dp"
+                            android:layout_gravity="center_horizontal" />
+
+                    </LinearLayout>
+                    <!-- คำแนะนำ -->
+                    <TextView
+                        android:id="@+id/tvGaugeRecommendation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="✅ สถานะปกติ"
+                        android:textSize="14sp"
+                        android:textColor="#27AE60"
+                        android:textStyle="italic"
+                        android:gravity="center"
+                        android:background="#E8F5E8"
+                        android:padding="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        />
                 </LinearLayout>
 
-                <!-- ระดับ 2: ความเสี่ยงต่ำ -->
+                <!-- ตัวควบคุมคะแนน (สำหรับทดสอบ - สามารถลบออกได้) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_yellow"
-                        android:layout_marginEnd="8dp" />
+                    android:orientation="vertical"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"
+                    android:id="@+id/layoutGaugeControl">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="1-8 คะแนน: ความเสี่ยงต่ำ (1B0271)"
-                        android:textSize="13sp"
-                        android:textColor="#F39C12" />
-                </LinearLayout>
+                        android:text="ทดสอบ Gauge (สำหรับ Debug):"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp" />
 
-                <!-- ระดับ 3: ความเสี่ยงปานกลาง -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_orange"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <SeekBar
+                        android:id="@+id/seekBarGaugeTest"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="9-16 คะแนน: ความเสี่ยงปานกลาง (1B0272)"
-                        android:textSize="13sp"
-                        android:textColor="#E67E22" />
-                </LinearLayout>
+                        android:max="52"
+                        android:progress="0" />
 
-                <!-- ระดับ 4: ความเสี่ยงสูง -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <View
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:background="@drawable/circle_red"
-                        android:layout_marginEnd="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="≥ 17 คะแนน: ความเสี่ยงสูง (1B0273)"
-                        android:textSize="13sp"
-                        android:textColor="#E74C3C" />
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="start" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="52"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:gravity="end" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -1028,184 +1100,33 @@
                     android:stretchColumns="*"
                     android:background="#FFFFFF">
 
-                    <!-- Header Row -->
-                    <TableRow
-                        android:background="@color/table_header_suicide"
-                        android:padding="12dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="คะแนน"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="3"
-                            android:gravity="center"
-                            android:text="การแปลผล"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="รหัส"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </TableRow>
-
-                    <!-- Score Rows -->
+                    <!-- ตารางเดิมถูกซ่อนไว้ -->
                     <TableRow
                         android:id="@+id/scoreRow0"
                         android:background="@drawable/table_row_selector"
                         android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="0"
-                            android:textColor="@color/text_dark"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="3"
-                            android:padding="4dp"
-                            android:text="ไม่มีแนวโน้มฆ่าตัวตายในปัจจุบัน"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="1B0270"
-                            android:textColor="@color/text_dark"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
                     </TableRow>
 
                     <TableRow
                         android:id="@+id/scoreRow1_8"
                         android:background="@drawable/table_row_selector"
                         android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="1-8"
-                            android:textColor="@color/text_dark"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="3"
-                            android:padding="4dp"
-                            android:text="มีแนวโน้มฆ่าตัวตายในปัจจุบัน ระดับน้อย"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="1B0271"
-                            android:textColor="@color/text_dark"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
                     </TableRow>
 
                     <TableRow
                         android:id="@+id/scoreRow9_16"
                         android:background="@drawable/table_row_selector"
                         android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="9-16"
-                            android:textColor="@color/text_dark"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="3"
-                            android:padding="4dp"
-                            android:text="มีแนวโน้มฆ่าตัวตายในปัจจุบัน ระดับปานกลาง"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="1B0272"
-                            android:textColor="@color/text_dark"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
                     </TableRow>
 
                     <TableRow
                         android:id="@+id/scoreRow17plus"
                         android:background="@drawable/table_row_selector"
                         android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="≥17"
-                            android:textColor="@color/text_dark"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="3"
-                            android:padding="4dp"
-                            android:text="มีแนวโน้มฆ่าตัวตายในปัจจุบัน ระดับรุนแรง"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="1B0273"
-                            android:textColor="@color/text_dark"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
                     </TableRow>
                 </TableLayout>
             </LinearLayout>
+
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>

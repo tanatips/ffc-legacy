@@ -285,6 +285,18 @@
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:textColor="#2C3E50" />
+
+                    <!-- ปุ่ม info สำหรับแสดงเกณฑ์การประเมิน -->
+                    <ImageView
+                        android:id="@+id/ivInfoButton"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_info"
+                        android:tint="#3498DB"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
 
                 <!-- ตารางแสดงคะแนน -->
@@ -305,8 +317,6 @@
                             android:background="@drawable/gradient_header"
                             android:padding="12dp">
 
-
-
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -323,7 +333,6 @@
                         <TableRow
                             android:padding="12dp"
                             android:background="#FFFFFF">
-
 
                             <androidx.cardview.widget.CardView
                                 android:layout_width="0dp"
@@ -348,8 +357,7 @@
                         </TableRow>
 
                         <!-- แถวแสดงหัวข้อระดับความเสี่ยง -->
-                        <TableRow
-                            >
+                        <TableRow>
 
                             <TextView
                                 android:layout_width="0dp"
@@ -385,107 +393,6 @@
                                 android:scrollHorizontally="false" />
                         </TableRow>
                     </TableLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- เกณฑ์การประเมิน -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="1dp"
-                    app:cardBackgroundColor="#F8F9FA">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="12dp">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_info"
-                                android:tint="#3498DB"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="เกณฑ์การประเมินบุหรี่"
-                                android:textStyle="bold"
-                                android:textSize="14sp"
-                                android:textColor="#2C3E50" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_green"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0-3 คะแนน: ไม่มีความเสี่ยง"
-                                android:textSize="13sp"
-                                  />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="8dp">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_yellow"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="4-26 คะแนน: ความเสี่ยงปานกลาง"
-                                android:textSize="13sp"
-                                />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
-
-                            <View
-                                android:layout_width="12dp"
-                                android:layout_height="12dp"
-                                android:background="@drawable/circle_red"
-                                android:layout_marginEnd="8dp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="27+ คะแนน: ความเสี่ยงสูง ต้องเลิกสูบ"
-                                android:textSize="13sp"
-                                />
-                        </LinearLayout>
-                    </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

@@ -142,7 +142,8 @@ public class CryptographerService extends IntentService {
             temp_encryptDb.createNewFile();
 
             mCrypto = new Cryptographer(Cryptographer.getKey(),
-                    Cryptographer.ALGORITHM_FFC);boolean success = mCrypto.encrypt(plainDb, temp_encryptDb);
+                    Cryptographer.ALGORITHM_FFC);
+            boolean success = mCrypto.encrypt(plainDb, temp_encryptDb);
             mCrypto.close();
             mCrypto = null;
             Log.d("EN", "encrypt=" + success);
@@ -158,10 +159,11 @@ public class CryptographerService extends IntentService {
                     encryptDb.delete();
                 success &= temp_encryptDb.renameTo(encryptDb);
                 Log.d("EN", "rename=" + success);
-
-                if (success)
-                    success &= plainDb.delete();
-                Log.d("EN", "delete plain=" + success);
+                // delete old plain db เขต 19/07/2568 ลอง command การลบฐานข้อมูล plain db ออกไปก่อน
+                // เนื่องจากฐานข้อมูล plain db จะถูกสร้างใหม่ทุกครั้งที่เปิดแอป
+//                if (success)
+//                    success &= plainDb.delete();
+//                Log.d("EN", "delete plain=" + success);
                 return success;
 
             } else {

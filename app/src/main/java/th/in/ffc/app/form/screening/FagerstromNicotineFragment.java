@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,10 +14,12 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +33,8 @@ import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.util.Log;
-
+import th.in.ffc.app.form.screening.view.NicotineRiskGaugeView;
+import android.widget.SeekBar;
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link FagerstromNicotineFragment#newInstance} factory method to
@@ -60,9 +64,20 @@ public class FagerstromNicotineFragment extends Fragment {
     private TextView tvNicotineAddictionLevel;
     private boolean isUpdatingFromCode = false;
 
+    // เพิ่มตัวแปรสำหรับปุ่ม info
+    private ImageView ivNicotineInfoButton;
+
     private int white;
     private int light_gray;
     private int highlightColor;
+
+    private NicotineRiskGaugeView nicotineRiskGauge;
+    private TextView tvGaugeEmoji;
+    private TextView tvGaugeScore;
+    private TextView tvGaugeLevel;
+    private TextView tvGaugeCode;
+    private TextView tvGaugeRecommendation;
+    private SeekBar seekBarGaugeTest;
 
     public FagerstromNicotineFragment() {
 
@@ -121,6 +136,9 @@ public class FagerstromNicotineFragment extends Fragment {
         tvNicotineScore = view.findViewById(R.id.tvNicotineScore);
         tvNicotineAddictionLevel = view.findViewById(R.id.tvNicotineAddictionLevel);
 
+        // เชื่อมโยงปุ่ม info
+        ivNicotineInfoButton = view.findViewById(R.id.ivNicotineInfoButton);
+
         nicotineInfo = new NicotineInfo();
         rdoNicotineQ1 = view.findViewById(R.id.rdoNicotineQ1);
         rdoNicotineQ2 = view.findViewById(R.id.rdoNicotineQ2);
@@ -129,6 +147,8 @@ public class FagerstromNicotineFragment extends Fragment {
         rdoNicotineQ5 = view.findViewById(R.id.rdoNicotineQ5);
         rdoNicotineQ6 = view.findViewById(R.id.rdoNicotineQ6);
 
+        setupListeners();
+        initializeGaugeViews(view);
         // เพิ่มการ observe คะแนนจาก SharedViewModel
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
@@ -150,6 +170,18 @@ public class FagerstromNicotineFragment extends Fragment {
                     Log.e("FagerstromNicotineFragment", "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
                     updateNicotineScore(0); // ใช้ค่าเริ่มต้นเป็น 0
                 }
+            }
+        });
+
+        loadData();
+    }
+
+    private void setupListeners() {
+        // เพิ่ม listener สำหรับปุ่ม info
+        ivNicotineInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNicotineCriteriaDialog();
             }
         });
 
@@ -298,7 +330,211 @@ public class FagerstromNicotineFragment extends Fragment {
                 calculatePoints();
             }
         });
-        loadData();
+    }
+    private void initializeGaugeViews(View view) {
+        nicotineRiskGauge = view.findViewById(R.id.nicotineRiskGauge);
+        tvGaugeEmoji = view.findViewById(R.id.tvGaugeEmoji);
+        tvGaugeScore = view.findViewById(R.id.tvGaugeScore);
+        tvGaugeLevel = view.findViewById(R.id.tvGaugeLevel);
+        tvGaugeCode = view.findViewById(R.id.tvGaugeCode);
+        tvGaugeRecommendation = view.findViewById(R.id.tvGaugeRecommendation);
+
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarGaugeTest = view.findViewById(R.id.seekBarGaugeTest);
+        setupGaugeTestControls();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateGaugeDisplay();
+    }
+
+    /**
+     * Setup gauge test controls (for debugging)
+     */
+    private void setupGaugeTestControls() {
+        if (seekBarGaugeTest != null) {
+            seekBarGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && nicotineRiskGauge != null) {
+                        nicotineRiskGauge.setScore(progress);
+                        NicotineRiskGaugeView.AddictionLevel level = getCurrentAddictionLevelFromScore(progress);
+
+                        // อัปเดตข้อความทดสอบ
+                        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(level.emoji);
+                        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + progress);
+                        if (tvGaugeLevel != null) {
+                            tvGaugeLevel.setText(level.label);
+                            tvGaugeLevel.setTextColor(Color.parseColor(level.color));
+                        }
+                        if (tvGaugeCode != null) tvGaugeCode.setText(level.code);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+    private String getNicotineCode() {
+        if (nicotineInfo == null) {
+            return "1B500"; // default code
+        }
+
+        // ดึง code จากข้อ 1 (จำนวนบุหรี่ต่อวัน)
+        String q1Code = "";
+        switch (nicotineInfo.getNicotine1()) {
+            case "1":
+                q1Code = "1B501"; // 10 มวนหรือน้อยกว่า
+                break;
+            case "2":
+                q1Code = "1B502"; // 11-20 มวน
+                break;
+            case "3":
+                q1Code = "1B503"; // 21-30 มวน
+                break;
+            case "4":
+                q1Code = "1B503"; // มากกว่า 31 มวน (ใช้ code เดียวกับ 21-30)
+                break;
+            default:
+                q1Code = "1B500"; // default
+        }
+
+        // ดึง code จากข้อ 2 (เวลาที่สูบบุหรี่มวนแรก)
+        String q2Code = "";
+        switch (nicotineInfo.getNicotine2()) {
+            case "1":
+                q2Code = "1B504"; // ภายใน 5 นาที
+                break;
+            case "2":
+                q2Code = "1B504"; // 6-30 นาที (ใช้ code เดียวกับ ภายใน 5 นาที)
+                break;
+            case "3":
+                q2Code = "1B505"; // 31-60 นาที
+                break;
+            case "4":
+                q2Code = "1B506"; // มากกว่า 60 นาที
+                break;
+            default:
+                q2Code = "1B500"; // default
+        }
+        String code = "";
+        // ถ้าตอบข้อ 1 แล้ว ให้ใช้ code จากข้อ 1
+        if (!nicotineInfo.getNicotine1().equals("0")) {
+            code = q1Code;
+        }
+        // ถ้าตอบข้อ 2 แล้ว ให้ใช้ code จากข้อ 2
+        if (!nicotineInfo.getNicotine2().equals("0")) {
+            code +=","+q2Code;
+        }
+        return code;
+    }
+    /**
+     * Show/hide gauge test controls
+     */
+    public void showGaugeTestControls(boolean show) {
+        View layoutGaugeControl = getView().findViewById(R.id.layoutGaugeControl);
+        if (layoutGaugeControl != null) {
+            layoutGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    /**
+     * Reset gauge to zero
+     */
+    public void resetGauge() {
+        if (nicotineRiskGauge != null) {
+            nicotineRiskGauge.setScore(0);
+            updateGaugeDisplay();
+        }
+    }
+
+    /**
+     * Update gauge display with current score
+     */
+    private void updateGaugeDisplay() {
+        if (nicotineRiskGauge == null) return;
+
+        int totalScore = getCurrentNicotineScore();
+        NicotineRiskGaugeView.AddictionLevel currentLevel = getCurrentAddictionLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        nicotineRiskGauge.setScore(totalScore);
+
+        // อัปเดตข้อความ
+        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(currentLevel.emoji);
+        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + totalScore);
+        if (tvGaugeLevel != null) {
+            tvGaugeLevel.setText(currentLevel.label);
+            tvGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvGaugeCode != null) tvGaugeCode.setText(getNicotineCode()); // ใช้ code จากคำตอบจริง
+
+        Log.d("FagerstromNicotineFragment", "Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label + ", Code: " + getNicotineCode());
+    }
+    private int getCurrentNicotineScore() {
+        if (nicotineInfo != null && nicotineInfo.getSum() != null) {
+            return nicotineInfo.getSum();
+        }
+        return 0;
+    }
+
+    /**
+     * Get addiction level from score for nicotine assessment
+     */
+    private NicotineRiskGaugeView.AddictionLevel getCurrentAddictionLevelFromScore(int fagerstromScore) {
+        String currentCode = getNicotineCode(); // ใช้ code จากคำตอบจริง
+
+        if (fagerstromScore >= 0 && fagerstromScore <= 3) {
+            return new NicotineRiskGaugeView.AddictionLevel(0, 3, "ไม่นับว่าคุณติดสารนิโคติน", "#27AE60", "😊", currentCode);
+        } else if (fagerstromScore >= 4 && fagerstromScore <= 5) {
+            return new NicotineRiskGaugeView.AddictionLevel(4, 5, "คุณติดสารนิโคตินในระดับปานกลาง", "#F1C40F", "🙂", currentCode);
+        } else if (fagerstromScore >= 6 && fagerstromScore <= 7) {
+            return new NicotineRiskGaugeView.AddictionLevel(6, 7, "คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง", "#FF9800", "😟", currentCode);
+        } else if (fagerstromScore >= 8 && fagerstromScore <= 9) {
+            return new NicotineRiskGaugeView.AddictionLevel(8, 9, "คุณติดสารนิโคตินในระดับสูง", "#E74C3C", "😰", currentCode);
+        } else {
+            return new NicotineRiskGaugeView.AddictionLevel(10, 10, "คุณติดสารนิโคตินในระดับสูงมาก", "#C0392B", "😱", currentCode);
+        }
+    }
+
+    /**
+     * Update gauge with specific score
+     */
+    public void updateGaugeWithScore(int score) {
+        if (nicotineRiskGauge != null) {
+            nicotineRiskGauge.setScore(score);
+            updateGaugeDisplay();
+        }
+    }
+
+    /**
+     * Get current gauge level
+     */
+    public NicotineRiskGaugeView.AddictionLevel getCurrentGaugeLevel() {
+        if (nicotineRiskGauge != null) {
+            return nicotineRiskGauge.getCurrentAddictionLevel();
+        }
+        return getCurrentAddictionLevelFromScore(0);
+    }
+
+    /**
+     * แสดง Dialog เกณฑ์การประเมินการติดนิโคติน
+     */
+    private void showNicotineCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom layout สำหรับ dialog
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_nicotine_criteria, null);
+
+        builder.setView(dialogView);
+//        builder.setTitle("เกณฑ์การประเมินการติดนิโคติน");
+        builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**
@@ -348,39 +584,40 @@ public class FagerstromNicotineFragment extends Fragment {
         }
 
         if (tvNicotineAddictionLevel != null) {
+            String emoji = getNicotineEmoji(score); // เพิ่ม emoji
             String addictionLevel;
 
-            // กำหนดระดับการติดนิโคตินตามคะแนน
+            // กำหนดระดับการติดนิโคตินตามคะแนน พร้อม emoji
             if (score >= 0 && score <= 3) {
-                addictionLevel = "ไม่นับว่าคุณติดสารนิโคติน";
+                addictionLevel = emoji + " ไม่นับว่าคุณติดสารนิโคติน";
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_green);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_green));
             } else if (score >= 4 && score <= 5) {
-                addictionLevel = "คุณติดสารนิโคตินในระดับปานกลาง";
+                addictionLevel = emoji + " คุณติดสารนิโคตินในระดับปานกลาง";
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_yellow);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_yellow));
             } else if (score >= 6 && score <= 7) {
-                addictionLevel = "คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง";
+                addictionLevel = emoji + " คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง";
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_orange);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_orange));
             } else if (score >= 8 && score <= 9) {
-                addictionLevel = "คุณติดสารนิโคตินในระดับสูง";
+                addictionLevel = emoji + " คุณติดสารนิโคตินในระดับสูง";
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_red);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_red));
             } else if (score >= 10) {
-                addictionLevel = "คุณติดสารนิโคตินในระดับสูงมาก";
+                addictionLevel = emoji + " คุณติดสารนิโคตินในระดับสูงมาก";
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_dark_red);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.dark_dark_red));
             } else {
-                addictionLevel = "ยังไม่ได้ประเมิน";
+                addictionLevel = "😐 ยังไม่ได้ประเมิน";
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_gray);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.darker_gray));
             }
 
             tvNicotineAddictionLevel.setText(addictionLevel);
         }
+        updateGaugeWithScore(score);
     }
-
     private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
         android.graphics.drawable.GradientDrawable gradient = new android.graphics.drawable.GradientDrawable(
                 android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
@@ -409,6 +646,7 @@ public class FagerstromNicotineFragment extends Fragment {
 
         // อัปเดตการแสดงผลแบบใหม่
         updateNicotineScore(score);
+        updateGaugeDisplay();
     }
 
     private void updateInterpretation(int score) {
@@ -450,19 +688,132 @@ public class FagerstromNicotineFragment extends Fragment {
      * ฟังก์ชันสำหรับรับข้อความแปลผลคะแนน
      */
     private String getScoreInterpretation(int score) {
+        String emoji = getNicotineEmoji(score);
+
         if (score >= 0 && score <= 3) {
-            return "ไม่นับว่าคุณติดสารนิโคติน";
+            return emoji + " ไม่นับว่าคุณติดสารนิโคติน";
         } else if (score >= 4 && score <= 5) {
-            return "คุณติดสารนิโคตินในระดับปานกลาง";
+            return emoji + " คุณติดสารนิโคตินในระดับปานกลาง";
         } else if (score >= 6 && score <= 7) {
-            return "คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง";
+            return emoji + " คุณติดสารนิโคตินในระดับปานกลางและมีแนวโน้มอย่างมากในการพัฒนาไปเป็นการติดนิโคตินระดับสูง";
         } else if (score >= 8 && score <= 9) {
-            return "คุณติดสารนิโคตินในระดับสูง";
+            return emoji + " คุณติดสารนิโคตินในระดับสูง";
         } else if (score == 10) {
-            return "คุณติดสารนิโคตินในระดับสูงมาก";
+            return emoji + " คุณติดสารนิโคตินในระดับสูงมาก";
         } else {
-            return "คะแนนไม่อยู่ในช่วงที่กำหนด";
+            return "😐 คะแนนไม่อยู่ในช่วงที่กำหนด";
         }
+    }
+    private void showHighRiskNicotineNotification() {
+        if (isHighRiskNicotine()) {
+            try {
+                int score = nicotineInfo.getSum();
+                String emoji = getNicotineEmoji(score);
+                String riskLevel = getScoreInterpretation(score);
+
+                String message = String.format(
+                        "%s ตรวจพบการติดนิโคตินระดับสูง\n\n" +
+                                "คะแนน: %d คะแนน\n" +
+                                "ระดับ: %s\n\n" +
+                                "จำเป็นต้องได้รับการดูแลเป็นพิเศษ",
+                        emoji, score, riskLevel.replace(emoji + " ", "")
+                );
+
+                Log.w("FagerstromNicotineFragment", message);
+
+                // แสดง Toast แจ้งเตือน
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), emoji + " ตรวจพบการติดนิโคตินระดับสูง",
+                            Toast.LENGTH_LONG).show();
+                }
+
+            } catch (Exception e) {
+                Log.e("FagerstromNicotineFragment", "เกิดข้อผิดพลาดในการแสดงการแจ้งเตือน: " + e.getMessage());
+            }
+        }
+    }
+    public String getNicotineRecommendation() {
+        if (nicotineInfo == null || nicotineInfo.getSum() == null) {
+            return "กรุณากรอกข้อมูลให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int score = nicotineInfo.getSum();
+        String emoji = getNicotineEmoji(score);
+
+        if (score >= 0 && score <= 3) {
+            return emoji + " แนะนำ: คงสภาพปัจจุบัน หลีกเลี่ยงการสูบบุหรี่";
+        } else if (score >= 4 && score <= 5) {
+            return emoji + " แนะนำ: พิจารณาการให้คำปรึกษาเบื้องต้น และการสร้างแรงจูงใจในการเลิกบุหรี่";
+        } else if (score >= 6 && score <= 7) {
+            return emoji + " แนะนำ: ต้องการการให้คำปรึกษาเชิงลึก และการติดตามอย่างใกล้ชิด";
+        } else if (score >= 8 && score <= 9) {
+            return emoji + " แนะนำ: ต้องการการบำบัดเข้มข้น รวมถึงการใช้ยาช่วยเลิกบุหรี่";
+        } else if (score >= 10) {
+            return emoji + " แนะนำ: ต้องการการบำบัดเข้มข้นอย่างเร่งด่วน ปรึกษาแพทย์ผู้เชี่ยวชาญ";
+        } else {
+            return "😐 ไม่สามารถให้คำแนะนำได้";
+        }
+    }
+    public String generateNicotineAssessmentReport() {
+        StringBuilder report = new StringBuilder();
+
+        report.append("=== รายงานการประเมินการติดนิโคติน (Fagerstrom) ===\n\n");
+
+        if (!isFormComplete()) {
+            report.append("สถานะ: ไม่สามารถสร้างรายงานได้\n");
+            report.append("เหตุผล: ข้อมูลไม่ครบถ้วน\n");
+            report.append("ข้อที่ยังไม่ได้กรอก: ").append(getValidationMessage()).append("\n");
+            return report.toString();
+        }
+
+        // ข้อมูลพื้นฐาน
+        report.append("สถานะการกรอกข้อมูล: ครบถ้วน (").append(getCompletionPercentage()).append("%)\n");
+        report.append("วันที่ประเมิน: ").append(System.currentTimeMillis()).append("\n\n");
+
+        // ผลการประเมิน
+        int score = nicotineInfo.getSum();
+        String emoji = getNicotineEmoji(score);
+        report.append("ผลการประเมิน:\n");
+        report.append("- คะแนนรวม: ").append(score).append(" คะแนน\n");
+        report.append("- ระดับการติด: ").append(getScoreInterpretation(score)).append("\n");
+        report.append("- ความเสี่ยงสูง: ").append(isHighRiskNicotine() ? "ใช่" : "ไม่").append("\n\n");
+
+        // คำแนะนำ
+        report.append("คำแนะนำ:\n");
+        report.append(getNicotineRecommendation()).append("\n\n");
+
+        // ข้อมูลเพิ่มเติม
+        if (isHighRiskNicotine()) {
+            report.append("⚠️ การดำเนินการเร่งด่วน:\n");
+            report.append("1. ปรึกษาแพทย์หรือผู้เชี่ยวชาญด้านการเลิกบุหรี่\n");
+            report.append("2. พิจารณาใช้ยาช่วยเลิกบุหรี่\n");
+            report.append("3. เข้าร่วมโปรแกรมการเลิกบุหรี่\n");
+            report.append("4. หลีกเลี่ยงสถานการณ์เสี่ยง\n");
+            report.append("5. ติดตามอาการขาดนิโคตินอย่างใกล้ชิด\n\n");
+        }
+
+        report.append("=== สิ้นสุดรายงาน ===");
+
+        return report.toString();
+    }
+    public void checkHighRiskNicotineAlert() {
+        if (isFormComplete() && isHighRiskNicotine()) {
+            showHighRiskNicotineNotification();
+        }
+    }
+    public boolean isHighRiskNicotine() {
+        if (nicotineInfo == null || nicotineInfo.getSum() == null) {
+            return false;
+        }
+        return nicotineInfo.getSum() >= 8; // คะแนน 8 ขึ้นไปถือว่าเสี่ยงสูง
+    }
+    public String getNicotineRiskLevelWithEmoji() {
+        if (nicotineInfo == null || nicotineInfo.getSum() == null) {
+            return "😐 ยังไม่ได้ประเมิน";
+        }
+
+        int score = nicotineInfo.getSum();
+        return getScoreInterpretation(score);
     }
 
     private void loadData() {
@@ -612,6 +963,7 @@ public class FagerstromNicotineFragment extends Fragment {
         assistScore.setNicotineScore(nicotineInfo.getSum().toString());
         assistScore.setPersonId(nicotineInfo.getPersonId());
         shareViewModel.setAssistScoreMutableLiveData(assistScore);
+        updateGaugeDisplay();
     }
 
     public boolean isFormComplete() {
@@ -727,7 +1079,7 @@ public class FagerstromNicotineFragment extends Fragment {
             points = new ArrayList<>();
             points.addAll(Arrays.asList(0, 0, 0, 0, 0, 0));
 
-            // รีเซ็ตการแสดงผลแบบใหม่
+            // รีเซ็ตการแสดงผลแบบใหม่พร้อม emoji
             if (tvNicotineScore != null) {
                 tvNicotineScore.setText("-");
                 tvNicotineScore.setBackgroundResource(R.color.light_gray);
@@ -735,7 +1087,7 @@ public class FagerstromNicotineFragment extends Fragment {
             }
 
             if (tvNicotineAddictionLevel != null) {
-                tvNicotineAddictionLevel.setText("ยังไม่ได้ประเมิน");
+                tvNicotineAddictionLevel.setText("😐 ยังไม่ได้ประเมิน");
                 tvNicotineAddictionLevel.setBackgroundResource(R.color.light_gray);
                 tvNicotineAddictionLevel.setTextColor(getResources().getColor(R.color.darker_gray));
             }
@@ -794,7 +1146,13 @@ public class FagerstromNicotineFragment extends Fragment {
         String message;
 
         if (percentage == 100) {
-            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%)";
+            String riskInfo = getNicotineRiskLevelWithEmoji();
+            message = "✅ ข้อมูลครบถ้วน (" + percentage + "%) - " + riskInfo;
+
+            // ตรวจสอบความเสี่ยงสูงและแจ้งเตือน
+            if (isHighRiskNicotine()) {
+                checkHighRiskNicotineAlert();
+            }
         } else if (percentage > 0) {
             message = "⚠️ ข้อมูลไม่ครบถ้วน (" + percentage + "%) - " + getValidationMessage();
         } else {
@@ -802,7 +1160,6 @@ public class FagerstromNicotineFragment extends Fragment {
         }
 
         Log.d("FagerstromNicotineFragment", "Completion Status: " + message);
-
         // สามารถแสดง Toast หรือ Snackbar ได้ที่นี่
         // Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
@@ -879,4 +1236,20 @@ public class FagerstromNicotineFragment extends Fragment {
             }
         }
     }
+    private String getNicotineEmoji(int score) {
+        if (score >= 0 && score <= 3) {
+            return "😊"; // ไม่ติด - หน้ายิ้ม
+        } else if (score >= 4 && score <= 5) {
+            return "🙂"; // ติดระดับปานกลาง - หน้ายิ้มเบาๆ
+        } else if (score >= 6 && score <= 7) {
+            return "😟"; // ติดระดับปานกลาง-สูง - หน้ากังวล
+        } else if (score >= 8 && score <= 9) {
+            return "😰"; // ติดระดับสูง - หน้าตกใจ/กังวลมาก
+        } else if (score >= 10) {
+            return "😱"; // ติดระดับสูงมาก - หน้าตกใจมาก
+        } else {
+            return "😐"; // ยังไม่ได้ประเมิน - หน้าเฉยๆ
+        }
+    }
+
 }

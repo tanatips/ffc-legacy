@@ -50,6 +50,7 @@ public class ScreeningResultCode implements BaseColumns {
     public static final String TYPE_STRESS_DEPRESSION_9Q = "9Q";
     public static final String TYPE_SUICIDE_ASSESSMENT_8Q = "8Q";
     public static final String TYPE_STRESS_DEPRESSION_ST5 = "ST5";
+    public static final String TYPE_ALCOHOL_SCREENING = "ALCOHOL";
     public static final String TYPE_SMOKING_ASSESSMENT = "SMOKING";
 
     public static final String TYPE_SMOKING_RISK = "SMOKING";
@@ -57,7 +58,10 @@ public class ScreeningResultCode implements BaseColumns {
     public static final String TYPE_SMOKING_ADVICE = "SMOKING_ADVICE";
 
     // ค่าคงที่สำหรับระดับความเสี่ยง
+    public static final String RISK_NONE = "NONE";
     public static final String RISK_NORMAL = "NORMAL";
+
+    public static final String RISK_MEDIUM = "MEDIUM";
     public static final String RISK_LOW = "LOW";
     public static final String RISK_MODERATE = "MODERATE";
     public static final String RISK_HIGH = "HIGH";
@@ -66,6 +70,106 @@ public class ScreeningResultCode implements BaseColumns {
     // ค่าคงที่สำหรับสถานะ
     public static final String STATUS_ACTIVE = "ACTIVE";
     public static final String STATUS_INACTIVE = "INACTIVE";
+
+    public static final String ALCOHOL_RESULT_NO_DRINKING = "1B600";
+    public static final String ALCOHOL_RESULT_BRIEF_ADVICE = "1B610";
+    public static final String ALCOHOL_RESULT_BRIEF_COUNSELING = "1B611";
+    public static final String ALCOHOL_RESULT_INTENSIVE_TREATMENT = "1B612";
+
+    public static final String ALCOHOL_DESC_NO_DRINKING = "ไม่ดื่ม";
+    public static final String ALCOHOL_DESC_BRIEF_ADVICE = "ไม่ต้องบำบัด - การให้คำแนะนำ (brief advice)";
+    public static final String ALCOHOL_DESC_BRIEF_COUNSELING = "บำบัดอย่างย่อ - การให้คำปรึกษาแบบสั้น (brief counseling)";
+    public static final String ALCOHOL_DESC_INTENSIVE_TREATMENT = "บำบัดเข้มข้น - การส่งต่อเพื่อรับการประเมินและการบำบัดโดยผู้เชี่ยวชาญ (refer)";
+
+    public static final int ALCOHOL_SCORE_NO_DRINKING = 0;
+    public static final int ALCOHOL_SCORE_LOW_RISK_MIN = 1;
+    public static final int ALCOHOL_SCORE_LOW_RISK_MAX = 10;
+    public static final int ALCOHOL_SCORE_MEDIUM_RISK_MIN = 11;
+    public static final int ALCOHOL_SCORE_MEDIUM_RISK_MAX = 26;
+    public static final int ALCOHOL_SCORE_HIGH_RISK_MIN = 27;
+
+    public static final String ALCOHOL_RECOMMENDATION_NO_DRINKING =
+            "ไม่ดื่มเครื่องดื่มแอลกอฮอล์ ให้คงสภาพปัจจุบัน";
+    public static final String ALCOHOL_RECOMMENDATION_LOW_RISK =
+            "ความเสี่ยงต่ำ - ให้คำแนะนำเกี่ยวกับการดื่มอย่างปลอดภัย";
+    public static final String ALCOHOL_RECOMMENDATION_MEDIUM_RISK =
+            "ความเสี่ยงปานกลาง - แนะนำให้ได้รับการปรึกษาแบบสั้นและลดการดื่ม";
+    public static final String ALCOHOL_RECOMMENDATION_HIGH_RISK =
+            "ความเสี่ยงสูง - แนะนำให้ได้รับการบำบัดเข้มข้นจากผู้เชี่ยวชาญ";
+    public static String getAlcoholResultCode(int score) {
+        if (score == ALCOHOL_SCORE_NO_DRINKING) {
+            return ALCOHOL_RESULT_NO_DRINKING;
+        } else if (score >= ALCOHOL_SCORE_LOW_RISK_MIN && score <= ALCOHOL_SCORE_LOW_RISK_MAX) {
+            return ALCOHOL_RESULT_BRIEF_ADVICE;
+        } else if (score >= ALCOHOL_SCORE_MEDIUM_RISK_MIN && score <= ALCOHOL_SCORE_MEDIUM_RISK_MAX) {
+            return ALCOHOL_RESULT_BRIEF_COUNSELING;
+        } else if (score >= ALCOHOL_SCORE_HIGH_RISK_MIN) {
+            return ALCOHOL_RESULT_INTENSIVE_TREATMENT;
+        }
+        return ALCOHOL_RESULT_NO_DRINKING;
+    }
+
+    /**
+     * ดึงคำอธิบายผลการประเมินตามคะแนนแอลกอฮอล์
+     */
+    public static String getAlcoholResultDescription(int score) {
+        if (score == ALCOHOL_SCORE_NO_DRINKING) {
+            return ALCOHOL_DESC_NO_DRINKING;
+        } else if (score >= ALCOHOL_SCORE_LOW_RISK_MIN && score <= ALCOHOL_SCORE_LOW_RISK_MAX) {
+            return ALCOHOL_DESC_BRIEF_ADVICE;
+        } else if (score >= ALCOHOL_SCORE_MEDIUM_RISK_MIN && score <= ALCOHOL_SCORE_MEDIUM_RISK_MAX) {
+            return ALCOHOL_DESC_BRIEF_COUNSELING;
+        } else if (score >= ALCOHOL_SCORE_HIGH_RISK_MIN) {
+            return ALCOHOL_DESC_INTENSIVE_TREATMENT;
+        }
+        return ALCOHOL_DESC_NO_DRINKING;
+    }
+
+    /**
+     * ดึงระดับความเสี่ยงตามคะแนนแอลกอฮอล์
+     */
+    public static String getAlcoholRiskLevel(int score) {
+        if (score == ALCOHOL_SCORE_NO_DRINKING) {
+            return RISK_NONE;
+        } else if (score >= ALCOHOL_SCORE_LOW_RISK_MIN && score <= ALCOHOL_SCORE_LOW_RISK_MAX) {
+            return RISK_LOW;
+        } else if (score >= ALCOHOL_SCORE_MEDIUM_RISK_MIN && score <= ALCOHOL_SCORE_MEDIUM_RISK_MAX) {
+            return RISK_MEDIUM;
+        } else if (score >= ALCOHOL_SCORE_HIGH_RISK_MIN) {
+            return RISK_HIGH;
+        }
+        return RISK_NONE;
+    }
+
+    /**
+     * ดึงคำแนะนำตามคะแนนแอลกอฮอล์
+     */
+    public static String getAlcoholRecommendation(int score) {
+        if (score == ALCOHOL_SCORE_NO_DRINKING) {
+            return ALCOHOL_RECOMMENDATION_NO_DRINKING;
+        } else if (score >= ALCOHOL_SCORE_LOW_RISK_MIN && score <= ALCOHOL_SCORE_LOW_RISK_MAX) {
+            return ALCOHOL_RECOMMENDATION_LOW_RISK;
+        } else if (score >= ALCOHOL_SCORE_MEDIUM_RISK_MIN && score <= ALCOHOL_SCORE_MEDIUM_RISK_MAX) {
+            return ALCOHOL_RECOMMENDATION_MEDIUM_RISK;
+        } else if (score >= ALCOHOL_SCORE_HIGH_RISK_MIN) {
+            return ALCOHOL_RECOMMENDATION_HIGH_RISK;
+        }
+        return ALCOHOL_RECOMMENDATION_NO_DRINKING;
+    }
+
+    /**
+     * ตรวจสอบว่าเป็นผลผิดปกติหรือไม่
+     */
+    public static boolean isAlcoholAbnormal(int score) {
+        return score >= ALCOHOL_SCORE_MEDIUM_RISK_MIN;
+    }
+
+    /**
+     * ตรวจสอบว่าเป็นความเสี่ยงสูงหรือไม่
+     */
+    public static boolean isAlcoholHighRisk(int score) {
+        return score >= ALCOHOL_SCORE_HIGH_RISK_MIN;
+    }
 
     // คำสั่ง SQL สำหรับสร้างตาราง
     public static final String CREATE_TABLE =

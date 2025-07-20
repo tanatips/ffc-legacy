@@ -210,5 +210,37 @@
     <color name="light_dark_red">#FFCDD2</color>
     <color name="dark_dark_red">#8B0000</color>
 
+    <!-- Suicide Risk Gauge Colors -->
+<!--    <color name="risk_none">#27AE60</color>-->
+<!--    <color name="risk_low">#F39C12</color>-->
+<!--    <color name="risk_medium">#E67E22</color>-->
+<!--    <color name="risk_high">#E74C3C</color>-->
+
+    <!-- Background Colors -->
+    <color name="risk_none_bg">#E8F5E8</color>
+    <color name="risk_low_bg">#FFF3CD</color>
+    <color name="risk_medium_bg">#FFE4CC</color>
+    <color name="risk_high_bg">#F8D7DA</color>
+
+    <!-- Gauge Colors -->
+    <color name="gauge_background">#F8F9FA</color>
+    <color name="gauge_border">#E5E7EB</color>
+    <color name="gauge_needle">#2C3E50</color>
+    <color name="gauge_center">#2C3E50</color>
+    <color name="gauge_text">#2C3E50</color>
+
+    <!-- Suicide Assessment Colors -->
+<!--    <color name="suicide_primary">#E74C3C</color>-->
+<!--    <color name="suicide_secondary">#C0392B</color>-->
+<!--    <color name="table_header_suicide">#E74C3C</color>-->
+
+<!--    &lt;!&ndash; Common Colors &ndash;&gt;-->
+<!--    <color name="white">#FFFFFF</color>-->
+<!--    <color name="light_gray">#F5F5F5</color>-->
+<!--    <color name="text_dark">#2C3E50</color>-->
+<!--    <color name="highlight_yellow">#FFE066</color>-->
+<!--    <color name="highlight_green">#C8E6C9</color>-->
+<!--    <color name="highlight_red">#EF9A9A</color>-->
+<!--    <color name="warning_light">#FFAB91</color>-->
 
 </resources>

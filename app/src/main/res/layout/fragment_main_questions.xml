@@ -57,5 +57,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <FrameLayout
+            android:id="@+id/assist_summary_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 </ScrollView>

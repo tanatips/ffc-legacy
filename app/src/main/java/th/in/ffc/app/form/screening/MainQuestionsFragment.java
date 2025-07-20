@@ -25,7 +25,9 @@ import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
+import th.in.ffc.person.AssistScoreFragment;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.util.Log;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,78 +36,48 @@ import th.in.ffc.person.PersonScreeningForm15Activity;
  */
 public class MainQuestionsFragment extends Fragment {
 
-//    private ArrayList<SubstanceItem> substanceListOne;
-//    private ArrayList<SubstanceItem> substanceListTwo;
-//    private ArrayList<SubstanceItem> substanceListThree;
-//    private ArrayList<SubstanceItem> substanceListFour;
-//    private ArrayList<SubstanceItem> substanceListFive;
-//    private ArrayList<SubstanceItem> substanceListSix;
-//    private ArrayList<SubstanceItem> substanceListSeven;
+    private static final String TAG = "MainQuestionsFragment";
+
     private DrugsLiveData drugsLiveData;
-//    private SharedViewModel viewModel;
     private QuestionOneFragment questionOneFragment;
     private QuestionTwoFragment questionTwoFragment;
-
     private QuestionThreeFragment questionThreeFragment;
-
     private QuestionFourFragment questionFourFragment;
-
     private QuestionFiveFragment questionFiveFragment;
-
     private QuestionSixFragment questionSixFragment;
     private QuestionSevenFragment questionSevenFragment;
-
-    public QuestionOneFragment getQuestionOneFragment() {
-        return questionOneFragment;
-    }
-
-    public QuestionTwoFragment getQuestionTwoFragment() {
-        return questionTwoFragment;
-    }
-
-    public QuestionThreeFragment getQuestionThreeFragment() {
-        return questionThreeFragment;
-    }
-
-    public QuestionFourFragment getQuestionFourFragment() {
-        return questionFourFragment;
-    }
-
-    public QuestionFiveFragment getQuestionFiveFragment() {
-        return questionFiveFragment;
-    }
-
-    public QuestionSixFragment getQuestionSixFragment() {
-        return questionSixFragment;
-    }
-
-    public QuestionSevenFragment getQuestionSevenFragment() {
-        return questionSevenFragment;
-    }
-
-    public QuestionEightFragment getQuestionEightFragment() {
-        return questionEightFragment;
-    }
-
     private QuestionEightFragment questionEightFragment;
 
+    // เพิ่ม AssistScoreFragment
+    private AssistScoreFragment assistScoreFragment;
+
     private QuestionsStateViewModel questionsStateViewModel;
+
+    // Getters สำหรับ fragments
+    public QuestionOneFragment getQuestionOneFragment() { return questionOneFragment; }
+    public QuestionTwoFragment getQuestionTwoFragment() { return questionTwoFragment; }
+    public QuestionThreeFragment getQuestionThreeFragment() { return questionThreeFragment; }
+    public QuestionFourFragment getQuestionFourFragment() { return questionFourFragment; }
+    public QuestionFiveFragment getQuestionFiveFragment() { return questionFiveFragment; }
+    public QuestionSixFragment getQuestionSixFragment() { return questionSixFragment; }
+    public QuestionSevenFragment getQuestionSevenFragment() { return questionSevenFragment; }
+    public QuestionEightFragment getQuestionEightFragment() { return questionEightFragment; }
+
+    // เพิ่ม getter สำหรับ AssistScoreFragment
+    public AssistScoreFragment getAssistScoreFragment() { return assistScoreFragment; }
 
     public MainQuestionsFragment() {
         // Required empty public constructor
     }
 
-
     public static MainQuestionsFragment newInstance(String param1, String param2) {
         MainQuestionsFragment fragment = new MainQuestionsFragment();
-
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        questionsStateViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         questionsStateViewModel = new ViewModelProvider(requireActivity()).get(QuestionsStateViewModel.class);
     }
 
@@ -113,19 +85,18 @@ public class MainQuestionsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อแสดง/ซ่อน AssistScoreFragment
+        observeQuestionOneChanges();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main_questions, container, false);
 
-
         if (savedInstanceState == null) {
-            // สร้าง fragment ของคำถามที่ 1 และ 2
-
             initializeData();
 
-            // เพิ่ม fragment ลงใน container
+            // เพิ่ม fragment ลงใน container (รวม AssistScoreFragment)
             getChildFragmentManager()
                     .beginTransaction()
                     .add(R.id.question_one_container, questionOneFragment)
@@ -136,10 +107,15 @@ public class MainQuestionsFragment extends Fragment {
                     .add(R.id.question_six_container, questionSixFragment)
                     .add(R.id.question_seven_container, questionSevenFragment)
                     .add(R.id.question_eight_container, questionEightFragment)
+                    .add(R.id.assist_summary_container, assistScoreFragment)
                     .commitNow();
+
+            // ซ่อน AssistScoreFragment ในตอนเริ่มต้น
+            hideAssistScoreFragment();
         }
         return view;
     }
+
     private void initializeData() {
         // สร้าง template list หลักที่จะใช้เป็นต้นแบบ
         ArrayList<SubstanceItem> templateList = createSubstanceTemplateList();
@@ -155,9 +131,10 @@ public class MainQuestionsFragment extends Fragment {
         // ตั้งค่าเริ่มต้นให้ ViewModel
         initializeViewModel(templateList);
 
-        // สร้างและตั้งค่า Fragments
+        // สร้างและตั้งค่า Fragments (รวม AssistScoreFragment)
         createAndSetupFragments(fragmentLists);
     }
+
     private ArrayList<SubstanceItem> createSubstanceTemplateList() {
         ArrayList<SubstanceItem> templateList = new ArrayList<>();
         templateList.add(new SubstanceItem("a", "a. ผลิตภัณฑ์ยาสูบ", "บุหรี่ ยาเส้นแบบเคี้ยว ซิการ์ ฯลฯ"));
@@ -172,6 +149,7 @@ public class MainQuestionsFragment extends Fragment {
         templateList.add(new SubstanceItem("j", "j. สารเสพติดอื่น ๆ", ""));
         return templateList;
     }
+
     private ArrayList<SubstanceItem> copySubstanceList(ArrayList<SubstanceItem> templateList) {
         ArrayList<SubstanceItem> newList = new ArrayList<>();
         for (SubstanceItem item : templateList) {
@@ -179,8 +157,9 @@ public class MainQuestionsFragment extends Fragment {
         }
         return newList;
     }
+
     private void createAndSetupFragments(Map<String, ArrayList<SubstanceItem>> fragmentLists) {
-        // สร้าง fragments
+        // สร้าง fragments (รวม AssistScoreFragment)
         questionOneFragment = new QuestionOneFragment();
         questionTwoFragment = new QuestionTwoFragment();
         questionThreeFragment = new QuestionThreeFragment();
@@ -190,14 +169,17 @@ public class MainQuestionsFragment extends Fragment {
         questionSevenFragment = new QuestionSevenFragment();
         questionEightFragment = new QuestionEightFragment();
 
+        // สร้าง AssistScoreFragment
+        assistScoreFragment = new AssistScoreFragment();
+
         // ตั้งค่า arguments สำหรับแต่ละ fragment
         questionOneFragment.setArguments(createBundle(fragmentLists.get("one")));
         questionTwoFragment.setArguments(createBundle(fragmentLists.get("two")));
         questionThreeFragment.setArguments(createBundle(fragmentLists.get("three")));
         questionFourFragment.setArguments(createBundle(fragmentLists.get("four")));
+
         // ตัดคำถาม a ออกจาก substanceList สำหรับ questionFiveFragment
         ArrayList<SubstanceItem> fiveList = fragmentLists.get("five");
-        // สร้าง list ใหม่ที่ไม่มีคำถาม a
         ArrayList<SubstanceItem> modifiedFiveList = new ArrayList<>();
         for (SubstanceItem item : fiveList) {
             if (!item.getId().equals("a")) {
@@ -206,17 +188,17 @@ public class MainQuestionsFragment extends Fragment {
         }
         questionFiveFragment.setArguments(createBundle(modifiedFiveList));
 
-//        questionFiveFragment.setArguments(createBundle(fragmentLists.get("five")));
         questionSixFragment.setArguments(createBundle(fragmentLists.get("six")));
         questionSevenFragment.setArguments(createBundle(fragmentLists.get("seven")));
     }
+
     private Bundle createBundle(ArrayList<SubstanceItem> list) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("substanceList", list);
         return bundle;
     }
-    private void initializeViewModel(ArrayList<SubstanceItem> templateList) {
 
+    private void initializeViewModel(ArrayList<SubstanceItem> templateList) {
         // สำหรับ Question One
         if (questionsStateViewModel.getQuestionOneAnswers().getValue() == null) {
             Map<String, AnswerData> initialOneAnswers = new HashMap<>();
@@ -226,7 +208,7 @@ public class MainQuestionsFragment extends Fragment {
             questionsStateViewModel.initQuestionOneAnswers(initialOneAnswers);
         }
 
-        // สำหรับ Question Two และ Three (คงเดิม)
+        // สำหรับ Question Two และอื่นๆ
         Map<String, AnswerData> initialAnswers = new HashMap<>();
         Map<String, AnswerFrequencyData> initialFrequencyAnswers = new HashMap<>();
         for (SubstanceItem item : templateList) {
@@ -255,18 +237,94 @@ public class MainQuestionsFragment extends Fragment {
             questionsStateViewModel.initQuestionEightAnswers(initialFrequencyAnswers);
         }
     }
-    private boolean isAllQuestionsAnswered(Map<String, Boolean> answers) {
-        return answers != null && answers.size() == 10; // a ถึง j
+
+    /**
+     * สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อแสดง/ซ่อน AssistScoreFragment
+     */
+    private void observeQuestionOneChanges() {
+        if (questionsStateViewModel != null) {
+            questionsStateViewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answers -> {
+                if (answers != null) {
+                    checkAndToggleAssistScoreVisibility();
+                }
+            });
+        }
     }
 
-    private boolean hasAnySubstanceUse(Map<String, Boolean> answers) {
-        return answers.containsValue(true);
-    }
     /**
-     * คำนวณความสูงทั้งหมดของ Fragment รวมถึง Fragment ย่อยทั้งหมดภายใน
-     * ใช้สำหรับการปรับ ViewPager2 height ให้ถูกต้อง
-     *
-     * @return ความสูงรวมทั้งหมดเป็นพิกเซล
+     * ตรวจสอบและแสดง/ซ่อน AssistScoreFragment ตามการเลือกใน Question 1
+     */
+    private void checkAndToggleAssistScoreVisibility() {
+        boolean shouldShowAssistScore = shouldShowAssistScoreFragment();
+
+        if (shouldShowAssistScore) {
+            showAssistScoreFragment();
+        } else {
+            hideAssistScoreFragment();
+        }
+
+        Log.d(TAG, "AssistScore visibility: " + (shouldShowAssistScore ? "VISIBLE" : "HIDDEN"));
+    }
+
+    /**
+     * ตรวจสอบว่าควรแสดง AssistScoreFragment หรือไม่
+     */
+    private boolean shouldShowAssistScoreFragment() {
+        // แสดงเมื่อมีการใช้สารเสพติดอย่างน้อย 1 อย่าง และตอบคำถามครบถ้วน
+        return hasAnySubstanceUsed() && isAllDataComplete();
+    }
+
+    /**
+     * แสดง AssistScoreFragment
+     */
+    public void showAssistScoreFragment() {
+        if (assistScoreFragment != null) {
+            View containerView = getView();
+            if (containerView != null) {
+                View assistContainer = containerView.findViewById(R.id.assist_summary_container);
+                if (assistContainer != null) {
+                    assistContainer.setVisibility(View.VISIBLE);
+
+                    // เรียกใช้เมธอดอัพเดตคะแนนใน AssistScoreFragment
+                    if (assistScoreFragment.getView() != null) {
+                        assistScoreFragment.refreshScores();
+                    }
+
+                    Log.d(TAG, "AssistScoreFragment แสดงแล้ว");
+                }
+            }
+        }
+    }
+
+    /**
+     * ซ่อน AssistScoreFragment
+     */
+    public void hideAssistScoreFragment() {
+        if (assistScoreFragment != null) {
+            View containerView = getView();
+            if (containerView != null) {
+                View assistContainer = containerView.findViewById(R.id.assist_summary_container);
+                if (assistContainer != null) {
+                    assistContainer.setVisibility(View.GONE);
+                    Log.d(TAG, "AssistScoreFragment ซ่อนแล้ว");
+                }
+            }
+        }
+    }
+
+    /**
+     * บังคับรีเฟรช AssistScoreFragment
+     */
+    public void refreshAssistScoreFragment() {
+        if (assistScoreFragment != null && assistScoreFragment.getView() != null) {
+            assistScoreFragment.refreshScores();
+            checkAndToggleAssistScoreVisibility();
+            Log.d(TAG, "AssistScoreFragment รีเฟรชแล้ว");
+        }
+    }
+
+    /**
+     * คำนวณความสูงทั้งหมดของ Fragment รวมถึง AssistScoreFragment
      */
     public int calculateTotalHeight() {
         int totalHeight = 0;
@@ -277,7 +335,7 @@ public class MainQuestionsFragment extends Fragment {
         // เพิ่มค่า padding ของตัว Fragment หลัก
         totalHeight += view.getPaddingTop() + view.getPaddingBottom();
 
-        // หาความสูงของแต่ละ Fragment container
+        // หาความสูงของแต่ละ Fragment container (รวม assist_summary_container)
         int[] fragmentContainerIds = new int[] {
                 R.id.question_one_container,
                 R.id.question_two_container,
@@ -286,12 +344,13 @@ public class MainQuestionsFragment extends Fragment {
                 R.id.question_five_container,
                 R.id.question_six_container,
                 R.id.question_seven_container,
-                R.id.question_eight_container
+                R.id.question_eight_container,
+                R.id.assist_summary_container // เพิ่ม AssistScoreFragment container
         };
 
         for (int containerId : fragmentContainerIds) {
             View containerView = view.findViewById(containerId);
-            if (containerView != null) {
+            if (containerView != null && containerView.getVisibility() == View.VISIBLE) {
                 // คำนวณขนาดของ container
                 containerView.measure(
                         View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
@@ -303,80 +362,46 @@ public class MainQuestionsFragment extends Fragment {
                 if (childFragment != null && childFragment.getView() != null) {
                     View fragmentView = childFragment.getView();
 
-                    // ตรวจสอบความสูงของ content ที่อาจถูก expand/collapse
-                    ViewGroup contentLayout = null;
-
-                    // ค้นหา content layout ตามรูปแบบที่ใช้ใน Fragment ย่อย
-                    if (childFragment instanceof QuestionOneFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutOne);
-                    } else if (childFragment instanceof QuestionTwoFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutTwo);
-                    } else if (childFragment instanceof QuestionThreeFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutThree);
-                    } else if (childFragment instanceof QuestionFourFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutFour);
-                    } else if (childFragment instanceof QuestionFiveFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutFive);
-                    } else if (childFragment instanceof QuestionSixFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutSix);
-                    } else if (childFragment instanceof QuestionSevenFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutSeven);
-                    } else if (childFragment instanceof QuestionEightFragment) {
-                        contentLayout = fragmentView.findViewById(R.id.contentLayoutEight);
-                    }
-
-                    // ถ้าเจอ content layout และมันกำลังแสดงอยู่
-                    if (contentLayout != null && contentLayout.getVisibility() == View.VISIBLE) {
-                        // คำนวณความสูงของ content
-                        contentLayout.measure(
-                                View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                        );
-
-                        int contentHeight = contentLayout.getMeasuredHeight();
-
-                        // เพิ่มความสูงของส่วนหัว (header) ของแต่ละ Fragment ย่อย
-                        View headerLayout = null;
-                        if (childFragment instanceof QuestionOneFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutOne);
-                        } else if (childFragment instanceof QuestionTwoFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutTwo);
-                        } else if (childFragment instanceof QuestionThreeFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutThree);
-                        } else if (childFragment instanceof QuestionFourFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutFour);
-                        } else if (childFragment instanceof QuestionFiveFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutFive);
-                        } else if (childFragment instanceof QuestionSixFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutSix);
-                        } else if (childFragment instanceof QuestionSevenFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutSeven);
-                        } else if (childFragment instanceof QuestionEightFragment) {
-                            headerLayout = fragmentView.findViewById(R.id.headerLayoutEight);
-                        }
-                        // ทำแบบเดียวกันสำหรับ Fragment อื่นๆ
-
-                        int headerHeight = 0;
-                        if (headerLayout != null) {
-                            headerLayout.measure(
-                                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                            );
-                            headerHeight = headerLayout.getMeasuredHeight();
-                        }
-
-                        // รวมความสูงทั้งหมดของ Fragment นี้
-                        totalHeight += headerHeight + contentHeight;
-                    } else {
-                        // ถ้า content ถูก collapse ให้ใช้ความสูงของ Fragment ทั้งหมด
+                    // ตรวจสอบความสูงของ content สำหรับ AssistScoreFragment
+                    if (childFragment instanceof AssistScoreFragment) {
                         fragmentView.measure(
                                 View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
                                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
                         );
                         totalHeight += fragmentView.getMeasuredHeight();
+                        Log.d(TAG, "AssistScoreFragment height: " + fragmentView.getMeasuredHeight());
+                    } else {
+                        // ตรวจสอบความสูงของ content ที่อาจถูก expand/collapse สำหรับ fragment อื่นๆ
+                        ViewGroup contentLayout = getContentLayoutFromFragment(childFragment, fragmentView);
+
+                        if (contentLayout != null && contentLayout.getVisibility() == View.VISIBLE) {
+                            contentLayout.measure(
+                                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                            );
+
+                            int contentHeight = contentLayout.getMeasuredHeight();
+                            View headerLayout = getHeaderLayoutFromFragment(childFragment, fragmentView);
+
+                            int headerHeight = 0;
+                            if (headerLayout != null) {
+                                headerLayout.measure(
+                                        View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                                );
+                                headerHeight = headerLayout.getMeasuredHeight();
+                            }
+
+                            totalHeight += headerHeight + contentHeight;
+                        } else {
+                            fragmentView.measure(
+                                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                            );
+                            totalHeight += fragmentView.getMeasuredHeight();
+                        }
                     }
                 } else {
-                    // ถ้าไม่มี child fragment ให้ใช้ความสูงของ container
                     totalHeight += containerView.getMeasuredHeight();
                 }
 
@@ -390,9 +415,58 @@ public class MainQuestionsFragment extends Fragment {
         }
 
         // เพิ่มความสูงขั้นต่ำเพื่อป้องกันความผิดพลาด
-        int minHeight = 1500; // ปรับตามความเหมาะสม
+        int minHeight = 1500;
         return Math.max(totalHeight, minHeight);
     }
+
+    /**
+     * Helper method เพื่อดึง content layout จาก fragment
+     */
+    private ViewGroup getContentLayoutFromFragment(Fragment fragment, View fragmentView) {
+        if (fragment instanceof QuestionOneFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutOne);
+        } else if (fragment instanceof QuestionTwoFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutTwo);
+        } else if (fragment instanceof QuestionThreeFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutThree);
+        } else if (fragment instanceof QuestionFourFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutFour);
+        } else if (fragment instanceof QuestionFiveFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutFive);
+        } else if (fragment instanceof QuestionSixFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutSix);
+        } else if (fragment instanceof QuestionSevenFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutSeven);
+        } else if (fragment instanceof QuestionEightFragment) {
+            return fragmentView.findViewById(R.id.contentLayoutEight);
+        }
+        return null;
+    }
+
+    /**
+     * Helper method เพื่อดึง header layout จาก fragment
+     */
+    private View getHeaderLayoutFromFragment(Fragment fragment, View fragmentView) {
+        if (fragment instanceof QuestionOneFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutOne);
+        } else if (fragment instanceof QuestionTwoFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutTwo);
+        } else if (fragment instanceof QuestionThreeFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutThree);
+        } else if (fragment instanceof QuestionFourFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutFour);
+        } else if (fragment instanceof QuestionFiveFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutFive);
+        } else if (fragment instanceof QuestionSixFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutSix);
+        } else if (fragment instanceof QuestionSevenFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutSeven);
+        } else if (fragment instanceof QuestionEightFragment) {
+            return fragmentView.findViewById(R.id.headerLayoutEight);
+        }
+        return null;
+    }
+
     public void notifyChildFragmentStateChanged() {
         // บังคับให้ Fragment คำนวณขนาดใหม่
         View view = getView();
@@ -400,53 +474,18 @@ public class MainQuestionsFragment extends Fragment {
             view.requestLayout();
         }
 
+        // ตรวจสอบการแสดง AssistScoreFragment
+        checkAndToggleAssistScoreVisibility();
+
         // แจ้ง Activity ให้ปรับขนาด ViewPager
         if (getActivity() instanceof PersonScreeningForm15Activity) {
             new Handler().postDelayed(() -> {
                 ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
-            }, 300); // delay เล็กน้อยเพื่อให้ Fragment ย่อยได้คำนวณขนาดก่อน
+            }, 300);
         }
     }
-    // เพิ่มเมธอดนี้ใน MainQuestionsFragment.java
-//    public boolean isAllDataComplete() {
-//        boolean isComplete = true;
-//
-//        // ตรวจสอบความครบถ้วนของแต่ละ Fragment
-//        if (questionOneFragment != null && !questionOneFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionTwoFragment != null && !questionTwoFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionThreeFragment != null && !questionThreeFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionFourFragment != null && !questionFourFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionFiveFragment != null && !questionFiveFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionSixFragment != null && !questionSixFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionSevenFragment != null && !questionSevenFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        if (questionEightFragment != null && !questionEightFragment.validateAllQuestionsAnswered()) {
-//            isComplete = false;
-//        }
-//
-//        return isComplete;
-//    }
-//
+
+    // เมธอดเดิมทั้งหมด (ไม่เปลี่ยนแปลง)
     public String getDetailedValidationMessage() {
         List<String> allMessages = new ArrayList<>();
 
@@ -508,7 +547,7 @@ public class MainQuestionsFragment extends Fragment {
         }
 
         if (allMessages.isEmpty()) {
-            return ""; // ไม่มีข้อผิดพลาด
+            return "";
         }
 
         return "กรุณากรอกข้อมูลให้ครบถ้วน:\n\n" + String.join("\n\n", allMessages);
@@ -517,8 +556,6 @@ public class MainQuestionsFragment extends Fragment {
     public boolean isAllDataComplete() {
         return getDetailedValidationMessage().isEmpty();
     }
-
-    // เพิ่มเมธอดนี้ใน MainQuestionsFragment.java
 
     /**
      * ตรวจสอบว่าผู้ใช้เลือก "ไม่เคย" ใช้สารเสพติดทั้งหมดใน Question 1 หรือไม่
@@ -533,16 +570,13 @@ public class MainQuestionsFragment extends Fragment {
             return false;
         }
 
-        // ตรวจสอบว่าทุกสารเสพติดถูกเลือกเป็น "ไม่เคย" (false) หรือไม่
         for (Map.Entry<String, AnswerData> entry : answers.entrySet()) {
             AnswerData answer = entry.getValue();
 
-            // ถ้าไม่มีการตอบหรือยังไม่ได้เลือก
             if (answer == null || answer.isHasUsed() == null) {
                 return false;
             }
 
-            // ถ้ามีสารเสพติดใดที่เลือก "เคย" ใช้
             if (answer.isHasUsed()) {
                 return false;
             }
@@ -564,11 +598,9 @@ public class MainQuestionsFragment extends Fragment {
             return false;
         }
 
-        // ตรวจสอบว่ามีสารเสพติดใดที่เลือก "เคย" ใช้หรือไม่
         for (Map.Entry<String, AnswerData> entry : answers.entrySet()) {
             AnswerData answer = entry.getValue();
 
-            // ถ้ามีสารเสพติดใดที่เลือก "เคย" ใช้
             if (answer != null && answer.isHasUsed() != null && answer.isHasUsed()) {
                 return true;
             }
@@ -581,26 +613,22 @@ public class MainQuestionsFragment extends Fragment {
      * ตรวจสอบความครบถ้วนของข้อมูลตามเงื่อนไขการใช้สารเสพติด
      */
     public boolean isDataCompleteBasedOnSubstanceUse() {
-        // ก่อนอื่นต้องตรวจสอบว่า Question 1 ได้รับการตอบครบถ้วนหรือไม่
         if (questionOneFragment == null || !questionOneFragment.validateAllQuestionsAnswered()) {
             return false;
         }
 
-        // ถ้าไม่เคยใช้สารเสพติดเลย ถือว่าข้อมูลครบถ้วนแล้ว
         if (isAllSubstancesNeverUsed()) {
-            // แจ้งเตือนหากมีการเปลี่ยนจาก "เคย" เป็น "ไม่เคย"
             notifySubstanceUseChanges();
             return true;
         }
 
-        // ถ้าเคยใช้สารเสพติด ต้องตรวจสอบความครบถ้วนของคำถามอื่นๆ
         if (hasAnySubstanceUsed()) {
             return isAllDataComplete();
         }
 
-        // กรณีอื่นๆ ที่ไม่ควรเกิดขึ้น
         return false;
     }
+
     private void notifySubstanceUseChanges() {
         if (getActivity() instanceof PersonScreeningForm15Activity) {
             PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
@@ -610,7 +638,6 @@ public class MainQuestionsFragment extends Fragment {
                 boolean currentTobaccoUse = false;
                 boolean currentAlcoholUse = false;
 
-                // ตรวจสอบสถานะปัจจุบัน
                 AnswerData tobaccoAnswer = answers.get("a");
                 AnswerData alcoholAnswer = answers.get("b");
 
@@ -622,20 +649,17 @@ public class MainQuestionsFragment extends Fragment {
                     currentAlcoholUse = alcoholAnswer.isHasUsed();
                 }
 
-                // เรียกใช้เมธอดในกิจกรรมหลักเพื่อตรวจสอบการเปลี่ยนแปลง
                 activity.handleSubstanceUseChange(currentTobaccoUse, currentAlcoholUse);
             }
         }
     }
 
     public String getValidationMessageBasedOnSubstanceUse() {
-        // ตรวจสอบ Question 1 ก่อน
         if (questionOneFragment == null || !questionOneFragment.validateAllQuestionsAnswered()) {
             return questionOneFragment != null ? questionOneFragment.getValidationMessage() :
                     "กรุณาตอบคำถามที่ 1 ให้ครบถ้วน";
         }
 
-        // ถ้าไม่เคยใช้สารเสพติดเลย ไม่ต้องตอบคำถามอื่น
         if (isAllSubstancesNeverUsed()) {
             StringBuilder message = new StringBuilder();
             message.append("✅ ข้อมูลครบถ้วนแล้ว\n\n");
@@ -672,7 +696,6 @@ public class MainQuestionsFragment extends Fragment {
             return message.toString();
         }
 
-        // ถ้าเคยใช้สารเสพติด ต้องตอบคำถามอื่นๆ ให้ครบ
         if (hasAnySubstanceUsed()) {
             StringBuilder message = new StringBuilder();
             message.append("เนื่องจากท่านเลือก \"เคย\" ใช้สารเสพติดอย่างน้อย 1 อย่าง\n");
@@ -705,6 +728,7 @@ public class MainQuestionsFragment extends Fragment {
 
         return "";
     }
+
     public SubstanceChangeInfo getSubstanceChangeInfo() {
         if (questionOneFragment == null) {
             return new SubstanceChangeInfo(false, false, false, false);
@@ -732,10 +756,56 @@ public class MainQuestionsFragment extends Fragment {
         return new SubstanceChangeInfo(
                 currentTobaccoUse,
                 currentAlcoholUse,
-                true, // hasValidData
-                questionOneFragment.validateAllQuestionsAnswered() // isComplete
+                true,
+                questionOneFragment.validateAllQuestionsAnswered()
         );
     }
+
+    /**
+     * เมธอดสำหรับการจัดการ AssistScoreFragment เมื่อข้อมูลเปลี่ยนแปลง
+     */
+    public void onDataChanged() {
+        // รีเฟรช AssistScoreFragment เมื่อข้อมูลเปลี่ยนแปลง
+        refreshAssistScoreFragment();
+
+        // แจ้งให้ parent activity ทราบ
+        notifyChildFragmentStateChanged();
+
+        Log.d(TAG, "ข้อมูลเปลี่ยนแปลง - รีเฟรช AssistScoreFragment");
+    }
+
+    /**
+     * ตรวจสอบสถานะการแสดง AssistScoreFragment
+     */
+    public boolean isAssistScoreFragmentVisible() {
+        View containerView = getView();
+        if (containerView != null) {
+            View assistContainer = containerView.findViewById(R.id.assist_summary_container);
+            return assistContainer != null && assistContainer.getVisibility() == View.VISIBLE;
+        }
+        return false;
+    }
+
+    /**
+     * อัพเดตคะแนนใน AssistScoreFragment แบบบังคับ
+     */
+    public void forceUpdateAssistScores() {
+        if (assistScoreFragment != null && assistScoreFragment.getView() != null) {
+            assistScoreFragment.forceRefreshAllScores();
+            Log.d(TAG, "บังคับอัพเดตคะแนนทั้งหมดใน AssistScoreFragment");
+        }
+    }
+
+    /**
+     * ดึงข้อมูลสรุปจาก AssistScoreFragment
+     */
+    public String getAssistScoreSummary() {
+        if (assistScoreFragment != null && isAssistScoreFragmentVisible()) {
+            return assistScoreFragment.getScoreSummary();
+        }
+        return "ไม่มีข้อมูลสรุปคะแนน";
+    }
+
     public static class SubstanceChangeInfo {
         public final boolean hasTobaccoUse;
         public final boolean hasAlcoholUse;

@@ -408,6 +408,13 @@ public class FormDialogFragment extends DialogFragment {
                     if (!alcoholFragment.isDataConsistentWithScore()) {
                         isFormValid = false;
                         errorMessage = "ข้อมูลที่เลือกไม่สอดคล้องกับคะแนนประเมิน\nกรุณาตรวจสอบและแก้ไขให้ถูกต้อง";
+                    } else {
+                        // เมื่อข้อมูลครบถ้วนและถูกต้อง ให้บันทึกลง ScreeningResultCode
+                        boolean saveSuccess = saveAlcoholToDatabase(alcoholFragment, activity);
+                        if (!saveSuccess) {
+                            isFormValid = false;
+                            errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมินแอลกอฮอล์ กรุณาลองใหม่อีกครั้ง";
+                        }
                     }
                 }
             }
@@ -460,6 +467,53 @@ public class FormDialogFragment extends DialogFragment {
             dismiss();
         }
     }
+    private boolean saveAlcoholToDatabase(AlcoholFragment alcoholFragment, PersonScreeningForm15Activity activity) {
+        try {
+            // ตรวจสอบข้อมูลที่จำเป็นก่อน
+            if (!validateRequiredDataForSaving(activity)) {
+                Log.e("FormDialogFragment", "ข้อมูลที่จำเป็นสำหรับการบันทึกแอลกอฮอล์ไม่ครบถ้วน");
+                alcoholFragment.showSaveResult(false, "ไม่พบข้อมูลที่จำเป็นสำหรับการบันทึก");
+                return false;
+            }
+
+            // ดึงข้อมูลที่จำเป็น
+            int personId = getPersonIdFromActivity(activity);
+            int visitno = getVisitNoFromActivity(activity);
+            UserSessionManager sessionManager = new UserSessionManager(getContext());
+            String userCreate = sessionManager.getUser();
+
+            // เรียกใช้ method บันทึกจาก AlcoholFragment
+            boolean saveSuccess = alcoholFragment.saveToScreeningResultCode(personId, visitno, userCreate);
+
+            if (saveSuccess) {
+                Log.d("FormDialogFragment", "บันทึกผลการประเมินแอลกอฮอล์สำเร็จ - " +
+                        "personId: " + personId + ", visitno: " + visitno);
+
+                // แสดงผลการบันทึกให้ผู้ใช้ทราบ
+                alcoholFragment.showSaveResult(true, "บันทึกสำเร็จ");
+
+                // ตรวจสอบความเสี่ยงสูงและแสดงการเตือน
+//                if (alcoholFragment.isHighRisk()) {
+//                    showGeneralHighRiskAlert(
+//                            "⚠️ ตรวจพบความเสี่ยงสูงจากการดื่มแอลกอฮอล์",
+//                            "ผลการประเมิน: " + alcoholFragment.getRiskLevelFromScore(),
+//                            alcoholFragment.getRecommendation()
+//                    );
+//                }
+
+                return true;
+            } else {
+                Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการบันทึกผลการประเมินแอลกอฮอล์");
+                alcoholFragment.showSaveResult(false, "ไม่สามารถบันทึกข้อมูลได้");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e("FormDialogFragment", "Exception ในการบันทึกผลการประเมินแอลกอฮอล์: " + e.getMessage());
+            alcoholFragment.showSaveResult(false, "เกิดข้อผิดพลาด: " + e.getMessage());
+            return false;
+        }
+    }
     private boolean saveSmokingToDatabase(SmookingFragment smokingFragment, PersonScreeningForm15Activity activity) {
         try {
             // ตรวจสอบข้อมูลที่จำเป็นก่อน
@@ -483,7 +537,7 @@ public class FormDialogFragment extends DialogFragment {
                         "personId: " + personId + ", visitno: " + visitno);
 
                 // แสดงผลการบันทึกให้ผู้ใช้ทราบ
-                smokingFragment.showSaveResult(true, "บันทึกสำเร็จ");
+//                smokingFragment.showSaveResult(true, "บันทึกสำเร็จ");
 
                 // ตรวจสอบความเสี่ยงสูงและแสดงการเตือน
 //                if (smokingFragment.isHighRisk()) {
@@ -1053,9 +1107,24 @@ public class FormDialogFragment extends DialogFragment {
                 // แสดงสถานะการกรอกข้อมูล
                 alcoholFragment.showCompletionStatus();
 
-                // แสดงระดับความเสี่ยง
-                String riskLevel = alcoholFragment.getRiskLevelFromScore();
-                Log.d("FormDialogFragment", "ระดับความเสี่ยงจากการดื่มสุรา: " + riskLevel);
+                // แสดงระดับความเสี่ยงและสรุปผล
+                if (isComplete) {
+                    String riskLevel = alcoholFragment.getRiskLevelFromScore();
+                    int currentScore = alcoholFragment.getCurrentAlcoholScore();
+                    String summary = alcoholFragment.getAssessmentSummary();
+
+                    Log.d("FormDialogFragment", "ผลการประเมินแอลกอฮอล์: " + summary);
+                    Log.d("FormDialogFragment", "ระดับความเสี่ยง: " + riskLevel + " (คะแนน: " + currentScore + ")");
+
+                    // ตรวจสอบความเสี่ยงสูง
+                    if (alcoholFragment.isHighRisk()) {
+                        Log.w("AlcoholFragment", "พบผู้มีความเสี่ยงสูงจากการดื่มแอลกอฮอล์!");
+
+                        // แสดงการเตือนเพิ่มเติมหากจำเป็น
+                        String recommendation = alcoholFragment.getRecommendation();
+                        Log.w("AlcoholFragment", "คำแนะนำ: " + recommendation);
+                    }
+                }
             }
         } else {
             // อัปเดตสถานะสำหรับ Fragment อื่นๆ
@@ -1108,6 +1177,9 @@ public class FormDialogFragment extends DialogFragment {
         }
     }
     private int getTitleBackgroundColor(String title) {
+        if(title==null){
+            return Color.parseColor("#F8F9FA");
+        }
         if(!title.isEmpty()) {
             if (title.contains("ซึมเศร้า")) {
                 return Color.parseColor("#F3E5F5"); // ม่วงอ่อน
