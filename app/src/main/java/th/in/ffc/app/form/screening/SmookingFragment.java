@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
+import th.in.ffc.app.form.screening.view.SmokingRiskGaugeView;
 import th.in.ffc.provider.ScreeningResultCode;
 import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
@@ -74,6 +76,16 @@ public class SmookingFragment extends Fragment {
     private ScreeningResultCodeDao screeningResultCodeDao;
     private int currentPersonId = -1;
     private int currentVisitNo = -1;
+
+    private SmokingRiskGaugeView smokingRiskGauge;
+    private TextView tvGaugeEmoji;
+    private TextView tvGaugeScore;
+    private TextView tvGaugeLevel;
+    private TextView tvGaugeCode;
+    private TextView tvGaugeRecommendation;
+    private SeekBar seekBarGaugeTest;
+
+    private boolean isUpdatingFromScore = false;
 
     public SmookingFragment() {
         // Required empty public constructor
@@ -121,6 +133,11 @@ public class SmookingFragment extends Fragment {
 
         // สังเกตการเปลี่ยนแปลงข้อมูลจาก ViewModel
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        initializeViews(view);
+        initializeGaugeViews(view);
+        setupListeners();
+        loadData();
+
         viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
             if (personInfo != null && personInfo.getId() != null) {
                 currentPersonId = Integer.parseInt(personInfo.getId());
@@ -129,21 +146,232 @@ public class SmookingFragment extends Fragment {
                 }
                 // ดึงข้อมูลคะแนนการสูบบุหรี่จาก SfDrugsDao
                 loadSmokingScore(personInfo.getId());
+
+                // ตรวจสอบข้อมูลที่มีอยู่แล้วใน ScreeningResultCode
+                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
+                    loadFromScreeningResultCode(Integer.valueOf(personInfo.getId()), Integer.valueOf(personInfo.getVisitId()));
+                }
             }
         });
 
         // สังเกตคะแนน nicotine จาก AssistScore
-        viewModel.getAssistScoreMutableLiveData().observe(getViewLifecycleOwner(), data -> {
-            if (data.getPersonId() != null && data.getNicotineScore() != null) {
-                try {
-                    int nicotineScore = Integer.parseInt(data.getNicotineScore());
-                    updateSmokingScore(nicotineScore);
-                } catch (NumberFormatException e) {
-                    Log.e(TAG, "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
-                    updateSmokingScore(0);
+//        viewModel.getAssistScoreMutableLiveData().observe(getViewLifecycleOwner(), data -> {
+//            if (data != null && data.getPersonId() != null && data.getNicotineScore() != null && !isUpdatingFromScore) {
+//                try {
+//                    int nicotineScore = Integer.parseInt(data.getNicotineScore());
+//                    syncSmokingScoreFromAssistFragment(nicotineScore);
+//                } catch (NumberFormatException e) {
+//                    Log.e(TAG, "ไม่สามารถแปลงคะแนน nicotine เป็นตัวเลขได้: " + data.getNicotineScore());
+//                    syncSmokingScoreFromAssistFragment(0);
+//                }
+//            }
+//        });
+    }
+    private void initializeGaugeViews(View view) {
+        smokingRiskGauge = view.findViewById(R.id.smokingRiskGauge);
+        tvGaugeEmoji = view.findViewById(R.id.tvGaugeEmoji);
+        tvGaugeScore = view.findViewById(R.id.tvGaugeScore);
+        tvGaugeLevel = view.findViewById(R.id.tvGaugeLevel);
+        tvGaugeCode = view.findViewById(R.id.tvGaugeCode);
+        tvGaugeRecommendation = view.findViewById(R.id.tvGaugeRecommendation);
+
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarGaugeTest = view.findViewById(R.id.seekBarGaugeTest);
+        setupGaugeTestControls();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateGaugeDisplay();
+    }
+    public void showGaugeTestControls(boolean show) {
+        View layoutGaugeControl = getView().findViewById(R.id.layoutGaugeControl);
+        if (layoutGaugeControl != null) {
+            layoutGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+    public void resetGauge() {
+        if (smokingRiskGauge != null) {
+            smokingRiskGauge.setScore(0);
+            updateGaugeDisplay();
+        }
+    }
+
+    private void setupGaugeTestControls() {
+        if (seekBarGaugeTest != null) {
+            seekBarGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && smokingRiskGauge != null) {
+                        smokingRiskGauge.setScore(progress);
+                        SmokingRiskGaugeView.RiskLevel level = getCurrentRiskLevelFromScore(progress);
+
+                        // อัปเดตข้อความทดสอบ
+                        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(level.emoji);
+                        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + progress);
+                        if (tvGaugeLevel != null) {
+                            tvGaugeLevel.setText(level.label);
+                            tvGaugeLevel.setTextColor(Color.parseColor(level.color));
+                        }
+                        if (tvGaugeCode != null) tvGaugeCode.setText(level.code);
+                    }
                 }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+
+    private void calculateAndSyncSmokingScore() {
+        try {
+            int totalScore = calculateCurrentScore();
+
+            // อัปเดต UI ใน SmookingFragment (รวมถึง gauge)
+            updateSmokingScore(totalScore);
+
+            // ส่งคะแนนไปยัง ViewModel เพื่อให้ AssistScoreFragment ใช้แสดงใน tvScoreA
+            updateSmokingScoreInViewModel(totalScore);
+
+            Log.d(TAG, "คะแนนการสูบบุหรี่รวม (ซิงค์): " + totalScore);
+
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการคำนวณและซิงค์คะแนนการสูบบุหรี่: " + e.getMessage());
+            displayScoreError();
+        }
+    }
+    private void syncSmokingScoreFromAssistFragment(int score) {
+        // แสดงคะแนนจาก AssistScoreFragment ใน tvSmokingScore
+        if (tvSmokingScore != null) {
+            String currentScore = tvSmokingScore.getText().toString();
+            if (!currentScore.equals(String.valueOf(score))) {
+                tvSmokingScore.setText(String.valueOf(score));
+
+                // เปลี่ยนสีพื้นหลังตามช่วงคะแนน
+                updateScoreBackground(score);
+
+                Log.d(TAG, "ซิงค์คะแนนจาก AssistScoreFragment ใน tvSmokingScore: " + score);
             }
-        });
+        }
+
+        // อัพเดตระดับความเสี่ยงและสีฟอนต์
+        updateRiskLevelDisplay(score);
+
+        // อัปเดต Gauge ด้วยคะแนนใหม่ (เพิ่มบรรทัดนี้)
+        updateGaugeWithScore(score);
+
+        Log.d(TAG, "อัพเดตระดับความเสี่ยงและ Gauge จากการซิงค์: " + score);
+    }
+    private void updateScoreBackground(int score) {
+        if (tvSmokingScore == null) return;
+
+        if (score >= 0 && score <= 3) {
+            // ไม่มีความเสี่ยง - สีเขียว
+            tvSmokingScore.setBackground(createGradientDrawable("#27AE60", "#2ECC71"));
+            tvSmokingScore.setTextColor(Color.WHITE);
+        } else if (score >= 4 && score <= 26) {
+            // ความเสี่ยงปานกลาง - สีส้ม
+            tvSmokingScore.setBackground(createGradientDrawable("#F39C12", "#E67E22"));
+            tvSmokingScore.setTextColor(Color.WHITE);
+        } else if (score >= 27) {
+            // ความเสี่ยงสูง - สีแดง
+            tvSmokingScore.setBackground(createGradientDrawable("#E74C3C", "#C0392B"));
+            tvSmokingScore.setTextColor(Color.WHITE);
+        }
+    }
+
+    /**
+     * อัปเดตการแสดงผลระดับความเสี่ยง
+     */
+    private void updateRiskLevelDisplay(int score) {
+        if (tvSmokingRiskLevel == null) return;
+
+        String emoji = getSmokingEmoji(score);
+        String riskLevel;
+
+        // กำหนดระดับความเสี่ยงตามคะแนนและเปลี่ยนสีฟอนต์ พร้อม emoji
+        if (score >= 0 && score <= 3) {
+            riskLevel = emoji + " ไม่มีความเสี่ยง";
+            tvSmokingRiskLevel.setBackgroundResource(R.color.light_green);
+            tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_green));
+        } else if (score >= 4 && score <= 26) {
+            riskLevel = emoji + " ความเสี่ยงปานกลาง";
+            tvSmokingRiskLevel.setBackgroundResource(R.color.light_orange);
+            tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_orange));
+        } else if (score >= 27) {
+            riskLevel = emoji + " ความเสี่ยงสูง ต้องเลิกสูบ";
+            tvSmokingRiskLevel.setBackgroundResource(R.color.light_red);
+            tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.dark_red));
+        } else {
+            riskLevel = "😐 ยังไม่ได้ประเมิน";
+            tvSmokingRiskLevel.setBackgroundResource(R.color.light_gray);
+            tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
+        }
+
+        tvSmokingRiskLevel.setText(riskLevel);
+    }
+    /**
+     * แสดงข้อผิดพลาดในการคำนวณคะแนน
+     */
+    private void displayScoreError() {
+        if (tvSmokingScore != null) {
+            tvSmokingScore.setText("-");
+            tvSmokingScore.setBackgroundResource(R.color.light_gray);
+            tvSmokingScore.setTextColor(getResources().getColor(R.color.darker_gray));
+        }
+        if (tvSmokingRiskLevel != null) {
+            tvSmokingRiskLevel.setText("😕 ไม่สามารถคำนวณได้");
+            tvSmokingRiskLevel.setBackgroundResource(R.color.light_gray);
+        }
+
+        // รีเซ็ต gauge เป็น 0 (เพิ่มบรรทัดนี้)
+        if (smokingRiskGauge != null) {
+            smokingRiskGauge.setScore(0);
+            updateGaugeDisplay();
+        }
+    }
+    /**
+     * อัปเดต ViewModel กับคะแนนการสูบบุหรี่
+     */
+    private void updateSmokingScoreInViewModel(int score) {
+        try {
+            isUpdatingFromScore = true;
+
+            SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+            // สร้าง AssistScore object ใหม่หรือใช้ที่มีอยู่
+            th.in.ffc.app.form.screening.model.AssistScore assistScore =
+                    new th.in.ffc.app.form.screening.model.AssistScore();
+
+            // ตั้งค่าข้อมูลพื้นฐาน
+            viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+                if (personInfo != null && personInfo.getId() != null) {
+                    assistScore.setPersonId(personInfo.getId());
+                    assistScore.setNicotineScore(String.valueOf(score));
+
+                    // รักษาคะแนนแอลกอฮอล์ที่มีอยู่แล้ว (ถ้ามี)
+                    th.in.ffc.app.form.screening.model.AssistScore currentScore =
+                            viewModel.getAssistScoreMutableLiveData().getValue();
+                    if (currentScore != null && currentScore.getAlcoholScore() != null) {
+                        assistScore.setAlcoholScore(currentScore.getAlcoholScore());
+                    }
+
+                    // อัพเดตใน ViewModel
+                    viewModel.setAssistScoreMutableLiveData(assistScore);
+
+                    Log.d(TAG, "ส่งคะแนนการสูบบุหรี่ไป AssistScoreFragment ผ่าน ViewModel: " + score);
+
+                    // ปิด observer หลังจากใช้งานแล้ว
+                    viewModel.getPersonInfoLiveDataMutableLiveData().removeObservers(this);
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการส่งข้อมูลไป ViewModel: " + e.getMessage());
+        } finally {
+            isUpdatingFromScore = false;
+        }
     }
 
     private void initializeViews(View view) {
@@ -169,9 +397,95 @@ public class SmookingFragment extends Fragment {
         // เชื่อมโยงปุ่ม info
         ivInfoButton = view.findViewById(R.id.ivInfoButton);
     }
+    /**
+     * อัปเดต Gauge display ด้วยคะแนนปัจจุบัน
+     */
+    private void updateGaugeDisplay() {
+        if (smokingRiskGauge == null) return;
+
+        // ดึงคะแนนจาก TextView แทนการใช้ getCurrentSmokingScore()
+        int totalScore = 0;
+        if (tvSmokingScore != null && !tvSmokingScore.getText().toString().equals("-")) {
+            try {
+                totalScore = Integer.parseInt(tvSmokingScore.getText().toString());
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "ไม่สามารถแปลงคะแนนเป็นตัวเลขได้");
+                totalScore = 0;
+            }
+        }
+
+        SmokingRiskGaugeView.RiskLevel currentLevel = getCurrentRiskLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        smokingRiskGauge.setScore(totalScore);
+
+        // อัปเดตข้อความ
+        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(currentLevel.emoji);
+        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + totalScore);
+        if (tvGaugeLevel != null) {
+            tvGaugeLevel.setText(currentLevel.label);
+            tvGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvGaugeCode != null) tvGaugeCode.setText(currentLevel.code);
+
+        Log.d(TAG, "Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label);
+    }
+
+    public int getCurrentSmokingScore() {
+        if (tvSmokingScore != null && !tvSmokingScore.getText().toString().equals("-")) {
+            try {
+                return Integer.parseInt(tvSmokingScore.getText().toString());
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "ไม่สามารถแปลงคะแนนการสูบบุหรี่เป็นตัวเลขได้");
+            }
+        }
+        return 0;
+    }
+    private SmokingRiskGaugeView.RiskLevel getCurrentRiskLevelFromScore(int score) {
+        if (score >= 0 && score <= 3) {
+            return new SmokingRiskGaugeView.RiskLevel(0, 3, "ไม่มีความเสี่ยง", "#27AE60", "😊", "1B520");
+        } else if (score >= 4 && score <= 26) {
+            return new SmokingRiskGaugeView.RiskLevel(4, 27, "ความเสี่ยงปานกลาง", "#F39C12", "🙂", "1B522");
+        } else if (score >= 27 ) {
+            return new SmokingRiskGaugeView.RiskLevel(28, 33, "ความเสี่ยงสูง", "#E67E22", "😟", "1B523");
+        } else {
+            return new SmokingRiskGaugeView.RiskLevel(21, 30, "ความเสี่ยงสูงมาก", "#E67E22", "😰", "1B523");
+        }
+    }
+
+    /**
+     * อัปเดต Gauge ด้วยคะแนนที่ระบุ
+     */
+    public void updateGaugeWithScore(int score) {
+        if (smokingRiskGauge != null) {
+            smokingRiskGauge.setScore(score);
+
+            // อัปเดตข้อความทั้งหมดด้วย
+            SmokingRiskGaugeView.RiskLevel currentLevel = getCurrentRiskLevelFromScore(score);
+
+            if (tvGaugeEmoji != null) tvGaugeEmoji.setText(currentLevel.emoji);
+            if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + score);
+            if (tvGaugeLevel != null) {
+                tvGaugeLevel.setText(currentLevel.label);
+                tvGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+            }
+            if (tvGaugeCode != null) tvGaugeCode.setText(currentLevel.code);
+
+            Log.d(TAG, "อัปเดต Gauge ด้วยคะแนน: " + score);
+        }
+    }
+
+    /**
+     * ดึงระดับ Gauge ปัจจุบัน
+     */
+    public SmokingRiskGaugeView.RiskLevel getCurrentGaugeLevel() {
+        if (smokingRiskGauge != null) {
+            return smokingRiskGauge.getCurrentRiskLevel();
+        }
+        return getCurrentRiskLevelFromScore(0);
+    }
 
     private void setupListeners() {
-        // เพิ่ม listener สำหรับปุ่ม info
         ivInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,6 +517,8 @@ public class SmookingFragment extends Fragment {
 
                 dataPasser.onSmokerInfo(smokerInfo);
 
+//                calculateAndSyncSmokingScore();
+
                 Log.d(TAG, "Selected SmokerGroup: " + data + ", Form Complete: " + isFormComplete());
             }
         });
@@ -230,6 +546,8 @@ public class SmookingFragment extends Fragment {
 
                 dataPasser.onSmokerInfo(smokerInfo);
 
+//                calculateAndSyncSmokingScore();
+
                 Log.d(TAG, "Selected SmokerAssist: " + data + ", Form Complete: " + isFormComplete());
             }
         });
@@ -253,6 +571,7 @@ public class SmookingFragment extends Fragment {
                 shareViewModel.setSmookingMutableLiveData(smookingLiveData);
 
                 dataPasser.onSmokerInfo(smokerInfo);
+//                calculateAndSyncSmokingScore();
 
                 Log.d(TAG, "Selected SmokerRegularly: " + data + ", Form Complete: " + isFormComplete());
             }
@@ -271,6 +590,7 @@ public class SmookingFragment extends Fragment {
                     if (smookingLiveData.getSelectedRdoSmokerRegularly() != null) {
                         rdoSmokerRegularly.check(smookingLiveData.getSelectedRdoSmokerRegularly());
                     }
+//                    calculateAndSyncSmokingScore();
                 } finally {
                     isUpdatingFromCode = false;
                 }
@@ -706,14 +1026,14 @@ public class SmookingFragment extends Fragment {
                 if (adviceData != null) {
                     Log.d(TAG, "พบข้อมูลการให้คำแนะนำเดิม: " + adviceData.resultCode + " - " + adviceData.resultDescription);
 
-                    Toast.makeText(getContext(),
-                            "โหลดข้อมูลการประเมินการสูบบุหรี่เดิม: " + statusData.resultDescription +
-                                    " และ " + adviceData.resultDescription,
-                            Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(),
+//                            "โหลดข้อมูลการประเมินการสูบบุหรี่เดิม: " + statusData.resultDescription +
+//                                    " และ " + adviceData.resultDescription,
+//                            Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(),
-                            "โหลดข้อมูลการประเมินการสูบบุหรี่เดิม: " + statusData.resultDescription,
-                            Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(),
+//                            "โหลดข้อมูลการประเมินการสูบบุหรี่เดิม: " + statusData.resultDescription,
+//                            Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Log.d(TAG, "ไม่พบข้อมูลการประเมินการสูบบุหรี่เดิม");
@@ -770,10 +1090,11 @@ public class SmookingFragment extends Fragment {
                 }
             }
 
-            updateSmokingScore(totalScore);
+            updateSmokingScore(totalScore); // เรียก updateSmokingScore ที่จะอัปเดต gauge ด้วย
             Log.d(TAG, "โหลดคะแนนการสูบบุหรี่สำเร็จ: " + totalScore);
         } catch (Exception e) {
             Log.e(TAG, "เกิดข้อผิดพลาดในการโหลดคะแนน: " + e.getMessage());
+            displayScoreError();
         }
     }
 
@@ -1006,6 +1327,7 @@ public class SmookingFragment extends Fragment {
 
             tvSmokingRiskLevel.setText(riskLevel);
         }
+        updateGaugeWithScore(score);
     }
 
     private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
@@ -1216,6 +1538,10 @@ public class SmookingFragment extends Fragment {
                 tvSmokingRiskLevel.setBackgroundResource(R.color.light_gray);
                 tvSmokingRiskLevel.setTextColor(getResources().getColor(R.color.darker_gray));
             }
+
+            // รีเซ็ต gauge (เพิ่มบรรทัดนี้)
+            resetGauge();
+
         } finally {
             isUpdatingFromCode = false;
         }

@@ -87,6 +87,11 @@ public class MainQuestionsFragment extends Fragment {
 
         // สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อแสดง/ซ่อน AssistScoreFragment
         observeQuestionOneChanges();
+
+        // คำนวณความสูงเริ่มต้นหลังจาก View พร้อม
+        view.post(() -> {
+            forceRecalculateHeight();
+        });
     }
 
     @Override
@@ -289,7 +294,7 @@ public class MainQuestionsFragment extends Fragment {
                     if (assistScoreFragment.getView() != null) {
                         assistScoreFragment.refreshScores();
                     }
-
+                    forceRecalculateHeight();
                     Log.d(TAG, "AssistScoreFragment แสดงแล้ว");
                 }
             }
@@ -306,6 +311,10 @@ public class MainQuestionsFragment extends Fragment {
                 View assistContainer = containerView.findViewById(R.id.assist_summary_container);
                 if (assistContainer != null) {
                     assistContainer.setVisibility(View.GONE);
+
+                    // บังคับคำนวณความสูงใหม่เมื่อซ่อน AssistScoreFragment
+                    forceRecalculateHeight();
+
                     Log.d(TAG, "AssistScoreFragment ซ่อนแล้ว");
                 }
             }
@@ -330,7 +339,7 @@ public class MainQuestionsFragment extends Fragment {
         int totalHeight = 0;
         View view = getView();
 
-        if (view == null) return totalHeight;
+        if (view == null) return 2000; // ค่าเริ่มต้นที่ปลอดภัย
 
         // เพิ่มค่า padding ของตัว Fragment หลัก
         totalHeight += view.getPaddingTop() + view.getPaddingBottom();
@@ -350,60 +359,11 @@ public class MainQuestionsFragment extends Fragment {
 
         for (int containerId : fragmentContainerIds) {
             View containerView = view.findViewById(containerId);
-            if (containerView != null && containerView.getVisibility() == View.VISIBLE) {
-                // คำนวณขนาดของ container
-                containerView.measure(
-                        View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                );
+            if (containerView != null) {
 
-                // เข้าถึง Fragment ที่อยู่ภายใน container
-                Fragment childFragment = getChildFragmentManager().findFragmentById(containerId);
-                if (childFragment != null && childFragment.getView() != null) {
-                    View fragmentView = childFragment.getView();
-
-                    // ตรวจสอบความสูงของ content สำหรับ AssistScoreFragment
-                    if (childFragment instanceof AssistScoreFragment) {
-                        fragmentView.measure(
-                                View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                        );
-                        totalHeight += fragmentView.getMeasuredHeight();
-                        Log.d(TAG, "AssistScoreFragment height: " + fragmentView.getMeasuredHeight());
-                    } else {
-                        // ตรวจสอบความสูงของ content ที่อาจถูก expand/collapse สำหรับ fragment อื่นๆ
-                        ViewGroup contentLayout = getContentLayoutFromFragment(childFragment, fragmentView);
-
-                        if (contentLayout != null && contentLayout.getVisibility() == View.VISIBLE) {
-                            contentLayout.measure(
-                                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                            );
-
-                            int contentHeight = contentLayout.getMeasuredHeight();
-                            View headerLayout = getHeaderLayoutFromFragment(childFragment, fragmentView);
-
-                            int headerHeight = 0;
-                            if (headerLayout != null) {
-                                headerLayout.measure(
-                                        View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                                );
-                                headerHeight = headerLayout.getMeasuredHeight();
-                            }
-
-                            totalHeight += headerHeight + contentHeight;
-                        } else {
-                            fragmentView.measure(
-                                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                            );
-                            totalHeight += fragmentView.getMeasuredHeight();
-                        }
-                    }
-                } else {
-                    totalHeight += containerView.getMeasuredHeight();
-                }
+                // คำนวณความสูงของ Fragment แต่ละตัว
+                int fragmentHeight = calculateFragmentHeight(containerId, containerView);
+                totalHeight += fragmentHeight;
 
                 // เพิ่ม margin ระหว่าง containers
                 ViewGroup.MarginLayoutParams params =
@@ -411,13 +371,138 @@ public class MainQuestionsFragment extends Fragment {
                 if (params != null) {
                     totalHeight += params.topMargin + params.bottomMargin;
                 }
+
+                Log.d(TAG, "Container " + getResourceName(containerId) + " height: " + fragmentHeight);
             }
         }
 
         // เพิ่มความสูงขั้นต่ำเพื่อป้องกันความผิดพลาด
-        int minHeight = 1500;
-        return Math.max(totalHeight, minHeight);
+        int minHeight = 2000;
+        int finalHeight = Math.max(totalHeight, minHeight);
+
+        Log.d(TAG, "Total calculated height: " + finalHeight);
+        return finalHeight;
     }
+    private int calculateFragmentHeight(int containerId, View containerView) {
+        Fragment childFragment = getChildFragmentManager().findFragmentById(containerId);
+
+        if (childFragment == null || childFragment.getView() == null) {
+            // ถ้าไม่พบ Fragment ให้ใช้ความสูงพื้นฐาน
+            return 200;
+        }
+
+        View fragmentView = childFragment.getView();
+
+        // กรณีพิเศษสำหรับ AssistScoreFragment
+        if (childFragment instanceof AssistScoreFragment) {
+            return calculateAssistScoreFragmentHeight(fragmentView);
+        }
+
+        // กรณีทั่วไปสำหรับ Question Fragments
+        return calculateQuestionFragmentHeight(childFragment, fragmentView);
+    }
+    private int calculateAssistScoreFragmentHeight(View fragmentView) {
+        if (fragmentView.getVisibility() == View.GONE) {
+            return 0;
+        }
+
+        fragmentView.measure(
+                View.MeasureSpec.makeMeasureSpec(getView().getWidth(), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+
+        int height = fragmentView.getMeasuredHeight();
+        Log.d(TAG, "AssistScoreFragment height: " + height);
+        return Math.max(height, 300); // ความสูงขั้นต่ำ
+    }
+    private int calculateQuestionFragmentHeight(Fragment fragment, View fragmentView) {
+        ViewGroup contentLayout = getContentLayoutFromFragment(fragment, fragmentView);
+        View headerLayout = getHeaderLayoutFromFragment(fragment, fragmentView);
+
+        int totalFragmentHeight = 0;
+
+        // คำนวณความสูงของ Header (แสดงเสมอ)
+        if (headerLayout != null) {
+            headerLayout.measure(
+                    View.MeasureSpec.makeMeasureSpec(getView().getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            );
+            totalFragmentHeight += headerLayout.getMeasuredHeight();
+        }
+
+        // คำนวณความสูงของ Content (ถ้าแสดงอยู่)
+        if (contentLayout != null && contentLayout.getVisibility() == View.VISIBLE) {
+            // Force measure content layout
+            contentLayout.measure(
+                    View.MeasureSpec.makeMeasureSpec(getView().getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            );
+
+            int contentHeight = contentLayout.getMeasuredHeight();
+            totalFragmentHeight += contentHeight;
+
+            Log.d(TAG, fragment.getClass().getSimpleName() + " - Content visible, height: " + contentHeight);
+        } else {
+            Log.d(TAG, fragment.getClass().getSimpleName() + " - Content collapsed");
+        }
+
+        // ความสูงขั้นต่ำสำหรับแต่ละ Fragment (header + padding)
+        int minFragmentHeight = 100;
+        return Math.max(totalFragmentHeight, minFragmentHeight);
+    }
+    private String getResourceName(int resourceId) {
+        try {
+            return getResources().getResourceEntryName(resourceId);
+        } catch (Exception e) {
+            return "unknown_" + resourceId;
+        }
+    }
+
+    /**
+     * บังคับให้คำนวณความสูงใหม่และรีเฟรช ViewPager
+     */
+    public void forceRecalculateHeight() {
+        View view = getView();
+        if (view != null) {
+            // บังคับให้ทุก Fragment วัดขนาดใหม่
+            view.post(() -> {
+                forceRemeasureAllFragments();
+
+                // แจ้ง Activity ให้ปรับขนาด ViewPager
+                if (getActivity() instanceof PersonScreeningForm15Activity) {
+                    new Handler().postDelayed(() -> {
+                        ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+                    }, 100);
+                }
+            });
+        }
+    }
+    private void forceRemeasureAllFragments() {
+        int[] containerIds = {
+                R.id.question_one_container,
+                R.id.question_two_container,
+                R.id.question_three_container,
+                R.id.question_four_container,
+                R.id.question_five_container,
+                R.id.question_six_container,
+                R.id.question_seven_container,
+                R.id.question_eight_container,
+                R.id.assist_summary_container
+        };
+
+        for (int containerId : containerIds) {
+            View container = getView().findViewById(containerId);
+            if (container != null) {
+                container.requestLayout();
+
+                Fragment fragment = getChildFragmentManager().findFragmentById(containerId);
+                if (fragment != null && fragment.getView() != null) {
+                    fragment.getView().requestLayout();
+                }
+            }
+        }
+    }
+
 
     /**
      * Helper method เพื่อดึง content layout จาก fragment
@@ -468,21 +553,13 @@ public class MainQuestionsFragment extends Fragment {
     }
 
     public void notifyChildFragmentStateChanged() {
+        Log.d(TAG, "Child fragment state changed - recalculating height");
+
         // บังคับให้ Fragment คำนวณขนาดใหม่
-        View view = getView();
-        if (view != null) {
-            view.requestLayout();
-        }
+        forceRecalculateHeight();
 
         // ตรวจสอบการแสดง AssistScoreFragment
         checkAndToggleAssistScoreVisibility();
-
-        // แจ้ง Activity ให้ปรับขนาด ViewPager
-        if (getActivity() instanceof PersonScreeningForm15Activity) {
-            new Handler().postDelayed(() -> {
-                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
-            }, 300);
-        }
     }
 
     // เมธอดเดิมทั้งหมด (ไม่เปลี่ยนแปลง)

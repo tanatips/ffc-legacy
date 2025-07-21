@@ -914,7 +914,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         // 1. หมวดหมู่ การคัดกรองสารเสพติด
         List<String> addictionScreening = new ArrayList<>();
         addictionScreening.add("แบบคัดกรองการใช้สารเสพติด");
-        addictionScreening.add("สรุปคะแนนแบบคัดกรอง ASSIST");
+//        addictionScreening.add("สรุปคะแนนแบบคัดกรอง ASSIST");
 
         // เพิ่มเมนูการสูบบุหรี่เฉพาะเมื่อมีการใช้ยาสูบ
         if (hasTobaccoUse) {

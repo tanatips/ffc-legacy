@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -34,6 +37,8 @@ import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.app.form.screening.model.PersonData;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
+import th.in.ffc.app.form.screening.view.BloodSugarGaugeView;
+import th.in.ffc.app.form.screening.view.DiabetesRiskGaugeView;
 import th.in.ffc.util.Log;
 
 public class HealthRiskAssessmentFragment extends Fragment {
@@ -75,6 +80,22 @@ public class HealthRiskAssessmentFragment extends Fragment {
     private boolean hasAutoSelectedOnce = false;
 
     private boolean fisrtTime = true;
+    private DiabetesRiskGaugeView diabetesRiskGauge;
+    private TextView tvGaugeEmoji;
+    private TextView tvGaugeScore;
+    private TextView tvGaugeLevel;
+    private TextView tvGaugeCode;
+    private TextView tvGaugeRecommendation;
+    private ImageView ivDiabetesInfoButton;
+    private SeekBar seekBarGaugeTest;
+
+    private BloodSugarGaugeView bloodSugarGauge;
+    private TextView tvBloodSugarEmoji;
+    private TextView tvBloodSugarLevel;
+    private TextView tvBloodSugarValue;
+    private TextView tvBloodSugarUnit;
+    private TextView tvBloodSugarRecommendation;
+    private ImageView ivBloodSugarInfoButton;
 
     public HealthRiskAssessmentFragment() {
         // Required empty public constructor
@@ -118,7 +139,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        healthRiskAssessmentInfo = new HealthRiskAssessmentInfo();
+//        healthRiskAssessmentInfo = new HealthRiskAssessmentInfo();
 
         if (healthRiskAssessmentLiveData == null) {
             healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
@@ -127,6 +148,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             }
         }
         // Initialize UI components
+
         setupRadioGroups(view);
         editFcbg = view.findViewById(R.id.edtFCBG);
         editFpg = view.findViewById(R.id.edtFPG);
@@ -134,9 +156,11 @@ public class HealthRiskAssessmentFragment extends Fragment {
         // เชื่อมโยง TextView สำหรับแสดงผลแบบใหม่
         tvHealthRiskScore = view.findViewById(R.id.tvHealthRiskScore);
         tvHealthRiskLevel = view.findViewById(R.id.tvHealthRiskLevel);
-
-        // Setup listeners and observers
         loadData();
+        initializeGaugeViews(view);
+        initializeBloodSugarGaugeViews(view);
+        // Setup listeners and observers
+
         setupGlucoseInputListeners();
         setupFocusListeners();
         setupPersonDataObserver();
@@ -147,7 +171,289 @@ public class HealthRiskAssessmentFragment extends Fragment {
             setPersonDataFromOtherScreens(arguments);
         }
     }
+    private void initializeGaugeViews(View view) {
+        diabetesRiskGauge = view.findViewById(R.id.diabetesRiskGauge);
+        tvGaugeEmoji = view.findViewById(R.id.tvGaugeEmoji);
+        tvGaugeScore = view.findViewById(R.id.tvGaugeScore);
+        tvGaugeLevel = view.findViewById(R.id.tvGaugeLevel);
+        tvGaugeCode = view.findViewById(R.id.tvGaugeCode);
+        tvGaugeRecommendation = view.findViewById(R.id.tvGaugeRecommendation);
+        ivDiabetesInfoButton = view.findViewById(R.id.ivDiabetesInfoButton);
 
+        // สำหรับทดสอบ (สามารถลบออกได้)
+        seekBarGaugeTest = view.findViewById(R.id.seekBarGaugeTest);
+        setupGaugeTestControls();
+
+        // ตั้งค่าปุ่ม info
+        setupInfoButtonListener();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateGaugeDisplay();
+    }
+    private void setupGaugeTestControls() {
+        if (seekBarGaugeTest != null) {
+            seekBarGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && diabetesRiskGauge != null) {
+                        diabetesRiskGauge.setScore(progress);
+                        DiabetesRiskGaugeView.RiskLevel level = getCurrentRiskLevelFromScore(progress);
+
+                        // อัปเดตข้อความทดสอบ
+                        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(level.emoji);
+                        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + progress);
+                        if (tvGaugeLevel != null) {
+                            tvGaugeLevel.setText(level.label);
+                            tvGaugeLevel.setTextColor(Color.parseColor(level.color));
+                        }
+                        if (tvGaugeCode != null) tvGaugeCode.setText(level.code);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+    }
+    private void initializeBloodSugarGaugeViews(View view) {
+        bloodSugarGauge = view.findViewById(R.id.bloodSugarGauge);
+        tvBloodSugarEmoji = view.findViewById(R.id.tvBloodSugarEmoji);
+        tvBloodSugarLevel = view.findViewById(R.id.tvBloodSugarLevel);
+        tvBloodSugarValue = view.findViewById(R.id.tvBloodSugarValue);
+        tvBloodSugarUnit = view.findViewById(R.id.tvBloodSugarUnit);
+        tvBloodSugarRecommendation = view.findViewById(R.id.tvBloodSugarRecommendation);
+        ivBloodSugarInfoButton = view.findViewById(R.id.ivBloodSugarInfoButton);
+
+        // ตั้งค่าปุ่ม info
+        setupBloodSugarInfoButtonListener();
+
+        // อัปเดต Gauge ครั้งแรก
+        updateBloodSugarGaugeDisplay();
+    }
+
+    private void setupBloodSugarInfoButtonListener() {
+        if (ivBloodSugarInfoButton != null) {
+            ivBloodSugarInfoButton.setOnClickListener(v -> showBloodSugarCriteriaDialog());
+        }
+    }
+
+    private void showBloodSugarCriteriaDialog() {
+
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_blood_sugar_criteria, null);
+
+            builder.setView(dialogView);
+            builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            Log.d("BloodSugarGauge", "แสดง Dialog เกณฑ์ระดับน้ำตาลในเลือดสำเร็จ");
+
+        } catch (Exception e) {
+            Log.e("BloodSugarGauge", "เกิดข้อผิดพลาดในการแสดง Dialog: " + e.getMessage());
+            showSimpleBloodSugarCriteriaDialog();
+        }
+    }
+    private void showSimpleBloodSugarCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "🩸 เกณฑ์ระดับน้ำตาลในเลือด (mg/dL)\n\n" +
+                "😊 น้อยกว่า 100: ปกติ\n" +
+                "🔶 รักษาสุขภาพให้ดีต่อไป\n\n" +
+
+                "😐 100-125: เสี่ยงต่อการเป็นโรคเบาหวาน\n" +
+                "🔶 ควบคุมอาหาร ออกกำลังกาย\n" +
+                "🔶 ตรวจติดตามเป็นประจำ\n\n" +
+
+                "😟 ตั้งแต่ 126 ขึ้นไป: เป็นโรคเบาหวาน\n" +
+                "🔶 ควรพบแพทย์เพื่อรับการรักษา\n" +
+                "🔶 ควบคุมระดับน้ำตาลอย่างเข้มงวด\n\n";
+
+        builder.setTitle("📊 เกณฑ์ระดับน้ำตาลในเลือด")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void updateBloodSugarGaugeDisplay() {
+        if (bloodSugarGauge == null) return;
+
+        // ดึงค่าน้ำตาลจาก FPG (ให้ความสำคัญกับ FPG ก่อน)
+        double glucoseValue = getCurrentGlucoseValue();
+
+        if (glucoseValue > 0) {
+            // อัปเดต Gauge
+            bloodSugarGauge.setGlucoseLevel(glucoseValue);
+            BloodSugarGaugeView.BloodSugarLevel currentLevel = bloodSugarGauge.getCurrentBloodSugarLevel();
+
+            // อัปเดตข้อความ
+            if (tvBloodSugarEmoji != null) tvBloodSugarEmoji.setText(currentLevel.emoji);
+            if (tvBloodSugarValue != null) tvBloodSugarValue.setText(String.format("%.0f", glucoseValue));
+            if (tvBloodSugarUnit != null) tvBloodSugarUnit.setText("mg/dL");
+            if (tvBloodSugarLevel != null) {
+                tvBloodSugarLevel.setText(currentLevel.label);
+                tvBloodSugarLevel.setTextColor(Color.parseColor(currentLevel.color));
+            }
+            if (tvBloodSugarRecommendation != null) {
+                tvBloodSugarRecommendation.setText(bloodSugarGauge.getRecommendation());
+//                tvBloodSugarRecommendation.setVisibility(View.VISIBLE);
+            }
+
+            Log.d("BloodSugarGauge", "Updated - Glucose: " + glucoseValue + ", Level: " + currentLevel.label);
+        } else {
+            // รีเซ็ตเมื่อไม่มีค่า
+            resetBloodSugarGauge();
+        }
+    }
+    private double getCurrentGlucoseValue() {
+        double glucoseValue = 0.0;
+
+        // ลองดึงค่าจาก FPG ก่อน (ให้ความสำคัญกับ FPG)
+        if (editFpg != null && !editFpg.getText().toString().trim().isEmpty()) {
+            try {
+                glucoseValue = Double.parseDouble(editFpg.getText().toString().trim());
+            } catch (NumberFormatException e) {
+                // ไม่สามารถแปลงได้
+            }
+        }
+
+        // ถ้าไม่มี FPG ให้ลองดึงจาก FCBG
+        if (glucoseValue == 0.0 && editFcbg != null && !editFcbg.getText().toString().trim().isEmpty()) {
+            try {
+                glucoseValue = Double.parseDouble(editFcbg.getText().toString().trim());
+            } catch (NumberFormatException e) {
+                // ไม่สามารถแปลงได้
+            }
+        }
+
+        return glucoseValue;
+    }
+
+    public void resetBloodSugarGauge() {
+        if (bloodSugarGauge != null) {
+            bloodSugarGauge.resetGauge();
+
+            if (tvBloodSugarEmoji != null) tvBloodSugarEmoji.setText("❓");
+            if (tvBloodSugarValue != null) tvBloodSugarValue.setText("-");
+            if (tvBloodSugarUnit != null) tvBloodSugarUnit.setText("mg/dL");
+            if (tvBloodSugarLevel != null) {
+                tvBloodSugarLevel.setText("ยังไม่ได้ตรวจ");
+                tvBloodSugarLevel.setTextColor(getResources().getColor(R.color.text_secondary));
+            }
+            if (tvBloodSugarRecommendation != null) {
+                tvBloodSugarRecommendation.setVisibility(View.GONE);
+            }
+        }
+    }
+
+
+    private void setupInfoButtonListener() {
+        if (ivDiabetesInfoButton != null) {
+            ivDiabetesInfoButton.setOnClickListener(v -> showDiabetesCriteriaDialog());
+        }
+    }
+    private void showDiabetesCriteriaDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_diabetes_criteria, null);
+
+            builder.setView(dialogView);
+            builder.setPositiveButton("ตกลง", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            Log.d("HealthRiskAssessment", "แสดง Dialog เกณฑ์การประเมินเบาหวานสำเร็จ");
+
+        } catch (Exception e) {
+            Log.e("HealthRiskAssessment", "เกิดข้อผิดพลาดในการแสดง Dialog: " + e.getMessage());
+            showSimpleDiabetesCriteriaDialog();
+        }
+    }
+    private void showSimpleDiabetesCriteriaDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        String criteria = "🩺 เกณฑ์การประเมินความเสี่ยงโรคเบาหวาน\n\n" +
+                "😊 ≤ 2 คะแนน: เสี่ยงน้อย (< 5%)\n" +
+                "🔶 ตรวจสุขภาพประจำปี\n\n" +
+
+                "😐 3-5 คะแนน: เสี่ยงปานกลาง (5-10%)\n" +
+                "🔶 ปรับพฤติกรรม ตรวจน้ำตาลทุก 1-3 ปี\n\n" +
+
+                "😟 6-8 คะแนน: เสี่ยงสูง (11-20%)\n" +
+                "🔶 ตรวจน้ำตาลด่วน ปรับพฤติกรรมจริงจัง\n\n" +
+
+                "😰 > 8 คะแนน: เสี่ยงสูงมาก (> 20%)\n" +
+                "🔶 พบแพทย์ด่วน ตรวจวินิจฉัยและรักษา\n\n";
+
+        builder.setTitle("📊 เกณฑ์การประเมินเบาหวาน")
+                .setMessage(criteria)
+                .setPositiveButton("✅ ตกลง", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private DiabetesRiskGaugeView.RiskLevel getCurrentRiskLevelFromScore(int score) {
+        if (score >= 0 && score <= 2) {
+            return new DiabetesRiskGaugeView.RiskLevel(0, 2, "เสี่ยงน้อย (< 5%)", "#27AE60", "😊", "DB01");
+        } else if (score >= 3 && score <= 5) {
+            return new DiabetesRiskGaugeView.RiskLevel(3, 5, "เสี่ยงปานกลาง (5-10%)", "#F39C12", "😐", "DB02");
+        } else if (score >= 6 && score <= 8) {
+            return new DiabetesRiskGaugeView.RiskLevel(6, 8, "เสี่ยงสูง (11-20%)", "#FF9800", "😟", "DB03");
+        } else {
+            return new DiabetesRiskGaugeView.RiskLevel(9, 16, "เสี่ยงสูงมาก (> 20%)", "#E74C3C", "😰", "DB04");
+        }
+    }
+    private void updateGaugeDisplay() {
+        if (diabetesRiskGauge == null) return;
+
+        int totalScore = calculateTotalScore();
+        DiabetesRiskGaugeView.RiskLevel currentLevel = getCurrentRiskLevelFromScore(totalScore);
+
+        // อัปเดต Gauge
+        diabetesRiskGauge.setScore(totalScore);
+        if (tvGaugeScore != null) tvGaugeScore.setText("คะแนน: " + totalScore);
+        // อัปเดตข้อความ
+        if (tvGaugeEmoji != null) tvGaugeEmoji.setText(currentLevel.emoji);
+        if (tvGaugeLevel != null) {
+            tvGaugeLevel.setText(currentLevel.label);
+            tvGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+        }
+        if (tvGaugeCode != null) tvGaugeCode.setText(currentLevel.code);
+
+        Log.d("HealthRiskAssessment", "Gauge updated - Score: " + totalScore + ", Level: " + currentLevel.label);
+    }
+    public void updateGaugeWithScore(int score) {
+        if (diabetesRiskGauge != null) {
+            diabetesRiskGauge.setScore(score);
+            updateGaugeDisplay();
+        }
+    }
+    public void resetGauge() {
+        if (diabetesRiskGauge != null) {
+            diabetesRiskGauge.setScore(0);
+            updateGaugeDisplay();
+        }
+    }
+    public void showGaugeTestControls(boolean show) {
+        View layoutGaugeControl = getView().findViewById(R.id.layoutGaugeControl);
+        if (layoutGaugeControl != null) {
+            layoutGaugeControl.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+    public DiabetesRiskGaugeView.RiskLevel getCurrentGaugeLevel() {
+        if (diabetesRiskGauge != null) {
+            return diabetesRiskGauge.getCurrentRiskLevel();
+        }
+        return getCurrentRiskLevelFromScore(0);
+    }
     private void setupRadioGroups(View view) {
         rdoHealthRiskQ1 = view.findViewById(R.id.rdoHealthRiskQ1);
         rdoHealthRiskQ2 = view.findViewById(R.id.rdoHealthRiskQ2);
@@ -294,6 +600,8 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
     private void notifyDataPasser() {
         if (dataPasser != null && !isUpdating) {
+            Log.d("HealthRiskAssessment", "Notifying DataPasser - ID: " +
+                    (healthRiskAssessmentInfo != null ? healthRiskAssessmentInfo.getId() : "null"));
             dataPasser.onHealthRiskAssessmentInfo(healthRiskAssessmentInfo);
         }
     }
@@ -340,11 +648,22 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 isUpdating = true;
                 try {
-                    for (HealthRiskAssessmentInfo healthRiskAssessmentInfo1 : healthRiskAssessmentInfos) {
-                        Log.d("healthRiskAssessmentInfo1", "healthRiskAssessmentInfo1 infos:" + healthRiskAssessmentInfo1);
-                        setHealthRiskInfo(healthRiskAssessmentInfo1);
+                    if (!healthRiskAssessmentInfos.isEmpty()) {
+                        // มีข้อมูลเดิม
+                        for (HealthRiskAssessmentInfo healthRiskAssessmentInfo1 : healthRiskAssessmentInfos) {
+                            Log.d("healthRiskAssessmentInfo1", "Found existing data with ID: " + healthRiskAssessmentInfo1.getId());
+                            setHealthRiskInfo(healthRiskAssessmentInfo1);
+                            editFcbg.setText(healthRiskAssessmentInfo1.getFcbg());
+                            editFpg.setText(healthRiskAssessmentInfo1.getFpg());
+                        }
+                    } else {
+                        // ไม่มีข้อมูลเดิม - สร้างใหม่
+                        Log.d("HealthRiskAssessment", "No existing data found, creating new");
+                        if (healthRiskAssessmentInfo == null) {
+                            healthRiskAssessmentInfo = new HealthRiskAssessmentInfo();
+                        }
                     }
-                }finally {
+                } finally {
                     isUpdating = false;
                 }
             }
@@ -352,7 +671,14 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     public void setHealthRiskInfo(HealthRiskAssessmentInfo info) {
-        this.healthRiskAssessmentInfo = info;
+        if (info != null) {
+            this.healthRiskAssessmentInfo = info;
+            Log.d("HealthRiskAssessment", "Set HealthRiskInfo with ID: " + info.getId());
+        } else {
+            // สร้างใหม่เฉพาะเมื่อไม่มีข้อมูล
+            this.healthRiskAssessmentInfo = new HealthRiskAssessmentInfo();
+            Log.d("HealthRiskAssessment", "Created new HealthRiskInfo");
+        }
         loadExistingData();
     }
 
@@ -374,17 +700,33 @@ public class HealthRiskAssessmentFragment extends Fragment {
             loadQuestionSilently("rdoHealthRiskQ6_", healthRiskAssessmentInfo.getHealthRiskQ6());
 
             // Load glucose values
-            setTextSilently(editFcbg, healthRiskAssessmentInfo.getFcbg());
-            setTextSilently(editFpg, healthRiskAssessmentInfo.getFpg());
+//            setTextSilently(editFcbg, healthRiskAssessmentInfo.getFcbg());
+//            setTextSilently(editFpg, healthRiskAssessmentInfo.getFpg());
+
+//            editFcbg.setText(healthRiskAssessmentInfo.getFcbg());
+//            editFpg.setText(healthRiskAssessmentInfo.getFpg());
 
             updateScoreAndHighlight();
             updateGlucoseHighlightFromCurrentData();
+            updateBloodSugarGaugeDisplay();
 
         } finally {
             isUpdating = false;
         }
     }
-
+    public BloodSugarGaugeView.BloodSugarLevel getCurrentBloodSugarStatus() {
+        if (bloodSugarGauge != null) {
+            return bloodSugarGauge.getCurrentBloodSugarLevel();
+        }
+        return null;
+    }
+    public boolean hasGlucoseData() {
+        double glucose = getCurrentGlucoseValue();
+        return glucose > 0;
+    }
+    public double getDisplayedGlucoseValue() {
+        return getCurrentGlucoseValue();
+    }
     private void clearAllRadioSelections() {
         // รีเซ็ต user selection flags
         userHasSelectedQ1 = false;
@@ -633,8 +975,8 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 healthRiskAssessmentInfo.setFpg("");
             }
         }
-
         updateGlucoseHighlightFromCurrentData();
+        updateBloodSugarGaugeDisplay();
     }
 
     private String validateAndFormatNumber(String input) {
@@ -706,12 +1048,12 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 // Ignore
             }
         }
-
-        if (glucoseValue != null) {
-            highlightGlucoseRow(glucoseValue);
-        } else {
-            clearGlucoseHighlight();
-        }
+//
+//        if (glucoseValue != null) {
+//            highlightGlucoseRow(glucoseValue);
+//        } else {
+//            clearGlucoseHighlight();
+//        }
     }
 
     private void selectRadioButtonSilently(String radioButtonName) {
@@ -772,10 +1114,16 @@ public class HealthRiskAssessmentFragment extends Fragment {
     }
 
     public HealthRiskAssessmentInfo getHealthRiskAssessmentInfo() {
+        Log.d("HealthRiskAssessment", "Getting HealthRiskInfo - ID: " +
+                (healthRiskAssessmentInfo != null ? healthRiskAssessmentInfo.getId() : "null"));
         return healthRiskAssessmentInfo;
     }
 
     private int calculateTotalScore() {
+        if (healthRiskAssessmentInfo == null) {
+            Log.d("HealthRiskAssessment", "healthRiskAssessmentInfo is null, returning 0 score");
+            return 0;
+        }
         int totalScore = 0;
 
         // คะแนนอายุ
@@ -856,6 +1204,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
             tvHealthRiskLevel.setText(riskLevel);
         }
+        updateGaugeWithScore(score);
     }
 
     private android.graphics.drawable.GradientDrawable createGradientDrawable(String startColor, String endColor) {
@@ -917,27 +1266,27 @@ public class HealthRiskAssessmentFragment extends Fragment {
         highlightScoreRow(totalScore);
     }
 
-    private void highlightGlucoseRow(double glucoseValue) {
-        TableRow row1 = getView().findViewById(R.id.glucoseRow1);
-        TableRow row2 = getView().findViewById(R.id.glucoseRow2);
-        TableRow row3 = getView().findViewById(R.id.glucoseRow3);
-
-        int white = ContextCompat.getColor(requireContext(), R.color.white);
-        int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
-        int highlight = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
-
-        if (row1 != null) row1.setBackgroundColor(white);
-        if (row2 != null) row2.setBackgroundColor(light_gray);
-        if (row3 != null) row3.setBackgroundColor(white);
-
-        if (glucoseValue < 100) {
-            if (row1 != null) row1.setBackgroundColor(highlight);
-        } else if (glucoseValue >= 100 && glucoseValue <= 125) {
-            if (row2 != null) row2.setBackgroundColor(highlight);
-        } else if (glucoseValue >= 126) {
-            if (row3 != null) row3.setBackgroundColor(highlight);
-        }
-    }
+//    private void highlightGlucoseRow(double glucoseValue) {
+//        TableRow row1 = getView().findViewById(R.id.glucoseRow1);
+//        TableRow row2 = getView().findViewById(R.id.glucoseRow2);
+//        TableRow row3 = getView().findViewById(R.id.glucoseRow3);
+//
+//        int white = ContextCompat.getColor(requireContext(), R.color.white);
+//        int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+//        int highlight = ContextCompat.getColor(requireContext(), R.color.highlight_yellow);
+//
+//        if (row1 != null) row1.setBackgroundColor(white);
+//        if (row2 != null) row2.setBackgroundColor(light_gray);
+//        if (row3 != null) row3.setBackgroundColor(white);
+//
+//        if (glucoseValue < 100) {
+//            if (row1 != null) row1.setBackgroundColor(highlight);
+//        } else if (glucoseValue >= 100 && glucoseValue <= 125) {
+//            if (row2 != null) row2.setBackgroundColor(highlight);
+//        } else if (glucoseValue >= 126) {
+//            if (row3 != null) row3.setBackgroundColor(highlight);
+//        }
+//    }
 
     private void setupGlucoseInputListeners() {
         // FCBG Listener
@@ -958,17 +1307,20 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 if (text.isEmpty()) {
                     healthRiskAssessmentInfo.setFcbg("");
-                    clearGlucoseHighlight();
+//                    clearGlucoseHighlight();
+                    updateBloodSugarGaugeDisplay();
                     notifyDataPasser();
                 } else {
                     try {
                         double fcbgValue = Double.parseDouble(text);
                         healthRiskAssessmentInfo.setFcbg(text);
-                        highlightGlucoseRow(fcbgValue);
+//                        highlightGlucoseRow(fcbgValue);
+                        updateBloodSugarGaugeDisplay();
                         notifyDataPasser();
                     } catch (NumberFormatException e) {
                         healthRiskAssessmentInfo.setFcbg(text);
-                        clearGlucoseHighlight();
+//                        clearGlucoseHighlight();
+                        resetBloodSugarGauge();
                         notifyDataPasser();
                     }
                 }
@@ -993,17 +1345,20 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 if (text.isEmpty()) {
                     healthRiskAssessmentInfo.setFpg("");
-                    clearGlucoseHighlight();
+//                    clearGlucoseHighlight();
+                    updateBloodSugarGaugeDisplay();
                     notifyDataPasser();
                 } else {
                     try {
                         double fpgValue = Double.parseDouble(text);
                         healthRiskAssessmentInfo.setFpg(text);
-                        highlightGlucoseRow(fpgValue);
+//                        highlightGlucoseRow(fpgValue);
+                        updateBloodSugarGaugeDisplay();
                         notifyDataPasser();
                     } catch (NumberFormatException e) {
                         healthRiskAssessmentInfo.setFpg(text);
-                        clearGlucoseHighlight();
+//                        clearGlucoseHighlight();
+                        resetBloodSugarGauge();
                         notifyDataPasser();
                     }
                 }
@@ -1011,18 +1366,18 @@ public class HealthRiskAssessmentFragment extends Fragment {
         });
     }
 
-    private void clearGlucoseHighlight() {
-        TableRow row1 = getView() != null ? getView().findViewById(R.id.glucoseRow1) : null;
-        TableRow row2 = getView() != null ? getView().findViewById(R.id.glucoseRow2) : null;
-        TableRow row3 = getView() != null ? getView().findViewById(R.id.glucoseRow3) : null;
-
-        int white = ContextCompat.getColor(requireContext(), R.color.white);
-        int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
-
-        if (row1 != null) row1.setBackgroundColor(white);
-        if (row2 != null) row2.setBackgroundColor(light_gray);
-        if (row3 != null) row3.setBackgroundColor(white);
-    }
+//    private void clearGlucoseHighlight() {
+//        TableRow row1 = getView() != null ? getView().findViewById(R.id.glucoseRow1) : null;
+//        TableRow row2 = getView() != null ? getView().findViewById(R.id.glucoseRow2) : null;
+//        TableRow row3 = getView() != null ? getView().findViewById(R.id.glucoseRow3) : null;
+//
+//        int white = ContextCompat.getColor(requireContext(), R.color.white);
+//        int light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
+//
+//        if (row1 != null) row1.setBackgroundColor(white);
+//        if (row2 != null) row2.setBackgroundColor(light_gray);
+//        if (row3 != null) row3.setBackgroundColor(white);
+//    }
 
     // เพิ่มเมธอด validation ใน HealthRiskAssessmentFragment class
 
@@ -1177,7 +1532,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
         healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
 
         // ล้าง highlight
-        clearGlucoseHighlight();
+//        clearGlucoseHighlight();
 
         // รีเซ็ตการแสดงคะแนนแบบใหม่
         if (tvHealthRiskScore != null) {
