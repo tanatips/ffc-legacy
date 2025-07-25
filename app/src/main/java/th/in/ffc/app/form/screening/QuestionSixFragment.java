@@ -125,6 +125,35 @@ public class QuestionSixFragment extends Fragment implements OnFrequencySelected
 //        recyclerView.setAdapter(adapter);
         return view;
     }
+    public void clearAllData() {
+        try {
+            isUpdating[0] = true;
+
+            // ล้างข้อมูลใน selectedFrequencies
+            for (String key : selectedFrequencies.keySet()) {
+                selectedFrequencies.put(key, new AnswerFrequencyData(-1, ""));
+            }
+
+            // ล้างข้อมูลใน SubstanceItems
+            for (SubstanceItem item : substanceList) {
+                item.setFrequency(0);
+                item.setOtherDrugs("");
+            }
+
+            // อัพเดต ViewModel
+            viewModel.setQuestionSixAnswers(new HashMap<>(selectedFrequencies));
+
+            // อัพเดต UI
+            updateUI(selectedFrequencies);
+
+            Log.d("QuestionSixFragment", "ล้างข้อมูลทั้งหมดเสร็จสิ้น");
+        } catch (Exception e) {
+            Log.e("QuestionSixFragment", "เกิดข้อผิดพลาดในการล้างข้อมูล: " + e.getMessage());
+        } finally {
+            isUpdating[0] = false;
+        }
+    }
+
     private void notifyParentOfChange() {
         // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
         Fragment parentFragment = getParentFragment();

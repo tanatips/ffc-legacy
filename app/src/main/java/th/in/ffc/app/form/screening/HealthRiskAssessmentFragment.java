@@ -262,7 +262,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
     private void showSimpleBloodSugarCriteriaDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
-        String criteria = "🩸 เกณฑ์ระดับน้ำตาลในเลือด (mg/dL)\n\n" +
+        String criteria = "🩸 เกณฑ์ระดับน้ำตาลในเลือด (มก/ดล)\n\n" +
                 "😊 น้อยกว่า 100: ปกติ\n" +
                 "🔶 รักษาสุขภาพให้ดีต่อไป\n\n" +
 
@@ -296,7 +296,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             // อัปเดตข้อความ
             if (tvBloodSugarEmoji != null) tvBloodSugarEmoji.setText(currentLevel.emoji);
             if (tvBloodSugarValue != null) tvBloodSugarValue.setText(String.format("%.0f", glucoseValue));
-            if (tvBloodSugarUnit != null) tvBloodSugarUnit.setText("mg/dL");
+            if (tvBloodSugarUnit != null) tvBloodSugarUnit.setText("มก/ดล");
             if (tvBloodSugarLevel != null) {
                 tvBloodSugarLevel.setText(currentLevel.label);
                 tvBloodSugarLevel.setTextColor(Color.parseColor(currentLevel.color));
@@ -342,7 +342,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
             if (tvBloodSugarEmoji != null) tvBloodSugarEmoji.setText("❓");
             if (tvBloodSugarValue != null) tvBloodSugarValue.setText("-");
-            if (tvBloodSugarUnit != null) tvBloodSugarUnit.setText("mg/dL");
+            if (tvBloodSugarUnit != null) tvBloodSugarUnit.setText("มก/ดล");
             if (tvBloodSugarLevel != null) {
                 tvBloodSugarLevel.setText("ยังไม่ได้ตรวจ");
                 tvBloodSugarLevel.setTextColor(getResources().getColor(R.color.text_secondary));
@@ -1907,7 +1907,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
             status = "สงสัยเป็นเบาหวาน";
         }
 
-        return String.format("%s: %.0f mg/dL - %s", type, glucoseValue, status);
+        return String.format("%s: %.0f มก/ดล - %s", type, glucoseValue, status);
     }
 
     /**

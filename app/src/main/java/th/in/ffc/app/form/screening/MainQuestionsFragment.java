@@ -1,5 +1,6 @@
 package th.in.ffc.app.form.screening;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,13 +13,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.datalive.DrugsLiveData;
+import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.model.AnswerData;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
@@ -65,6 +70,7 @@ public class MainQuestionsFragment extends Fragment {
 
     // เพิ่ม getter สำหรับ AssistScoreFragment
     public AssistScoreFragment getAssistScoreFragment() { return assistScoreFragment; }
+    private OnDataPass dataPasser;
 
     public MainQuestionsFragment() {
         // Required empty public constructor
@@ -73,6 +79,15 @@ public class MainQuestionsFragment extends Fragment {
     public static MainQuestionsFragment newInstance(String param1, String param2) {
         MainQuestionsFragment fragment = new MainQuestionsFragment();
         return fragment;
+    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            dataPasser = (OnDataPass) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
     }
 
     @Override
@@ -86,7 +101,7 @@ public class MainQuestionsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อแสดง/ซ่อน AssistScoreFragment
-        observeQuestionOneChanges();
+//        observeQuestionOneChanges();
 
         // คำนวณความสูงเริ่มต้นหลังจาก View พร้อม
         view.post(() -> {
@@ -116,7 +131,7 @@ public class MainQuestionsFragment extends Fragment {
                     .commitNow();
 
             // ซ่อน AssistScoreFragment ในตอนเริ่มต้น
-            hideAssistScoreFragment();
+//            hideAssistScoreFragment();
         }
         return view;
     }
@@ -250,7 +265,7 @@ public class MainQuestionsFragment extends Fragment {
         if (questionsStateViewModel != null) {
             questionsStateViewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answers -> {
                 if (answers != null) {
-                    checkAndToggleAssistScoreVisibility();
+//                    checkAndToggleAssistScoreVisibility();
                 }
             });
         }
@@ -327,7 +342,7 @@ public class MainQuestionsFragment extends Fragment {
     public void refreshAssistScoreFragment() {
         if (assistScoreFragment != null && assistScoreFragment.getView() != null) {
             assistScoreFragment.refreshScores();
-            checkAndToggleAssistScoreVisibility();
+//            checkAndToggleAssistScoreVisibility();
             Log.d(TAG, "AssistScoreFragment รีเฟรชแล้ว");
         }
     }
@@ -559,7 +574,132 @@ public class MainQuestionsFragment extends Fragment {
         forceRecalculateHeight();
 
         // ตรวจสอบการแสดง AssistScoreFragment
-        checkAndToggleAssistScoreVisibility();
+//        checkAndToggleAssistScoreVisibility();
+    }
+    public void clearAllQuestionsWhenNeverUsed() {
+        if (isAllSubstancesNeverUsed()) {
+            Log.d(TAG, "ตรวจพบการเลือก 'ไม่เคย' ทั้งหมด - ล้างข้อมูลข้อ 2-8");
+
+            // ล้างข้อมูลใน ViewModel ทั้งหมด
+            clearViewModelData();
+
+            // ล้างข้อมูลใน Fragment แต่ละตัว
+            clearAllFragmentsData();
+
+            // ล้างข้อมูลใน Database
+            clearDatabaseData();
+
+            // รีเฟรช AssistScore
+            if (assistScoreFragment != null) {
+                assistScoreFragment.forceRefreshAllScores();
+            }
+
+            Log.d(TAG, "ล้างข้อมูลทั้งหมดเสร็จสิ้น");
+        }
+    }
+    private void clearViewModelData() {
+        if (questionsStateViewModel != null) {
+            // สร้าง empty data สำหรับแต่ละข้อ
+            Map<String, AnswerFrequencyData> emptyFrequencyData = new HashMap<>();
+
+            // สร้างข้อมูลว่างสำหรับทุก substance
+            String[] substanceIds = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+            for (String id : substanceIds) {
+                emptyFrequencyData.put(id, new AnswerFrequencyData(-1, ""));
+            }
+
+            // ล้างข้อมูลทุกข้อ
+            questionsStateViewModel.setQuestionTwoAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionThreeAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionFourAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionFiveAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionSixAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionSevenAnswers(new HashMap<>(emptyFrequencyData));
+
+            // ล้างข้อ 8 (injection)
+            Map<String, AnswerFrequencyData> emptyInjectionData = new HashMap<>();
+            emptyInjectionData.put("injection", new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionEightAnswers(emptyInjectionData);
+
+            Log.d(TAG, "ล้างข้อมูล ViewModel เสร็จสิ้น");
+        }
+    }
+    private void clearAllFragmentsData() {
+        // ล้างข้อมูลใน Fragment แต่ละตัว
+        if (questionTwoFragment != null) {
+            questionTwoFragment.clearAllData();
+        }
+        if (questionThreeFragment != null) {
+            questionThreeFragment.clearAllData();
+        }
+        if (questionFourFragment != null) {
+            questionFourFragment.clearAllData();
+        }
+        if (questionFiveFragment != null) {
+            questionFiveFragment.clearAllData();
+        }
+        if (questionSixFragment != null) {
+            questionSixFragment.clearAllData();
+        }
+        if (questionSevenFragment != null) {
+            questionSevenFragment.clearAllData();
+        }
+        if (questionEightFragment != null) {
+            questionEightFragment.clearAllData();
+        }
+
+        Log.d(TAG, "ล้างข้อมูล Fragments เสร็จสิ้น");
+    }
+    private void clearDatabaseData() {
+        try {
+            SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+            PersonInfoLiveData personInfoData = sharedViewModel.getPersonInfoLiveDataMutableLiveData().getValue();
+            String personInfoId = personInfoData != null ? personInfoData.getId() : null;
+
+            if (personInfoId != null && dataPasser != null) {
+                // สร้างข้อมูลว่างสำหรับส่งไปยัง Database
+                List<DrugsInfo> emptyDrugsInfoList = createEmptyDrugsInfoList(personInfoId);
+
+                // ส่งข้อมูลว่างไปยัง Database ผ่าน dataPasser
+                dataPasser.onDrugsTwoInfo(emptyDrugsInfoList);
+                dataPasser.onDrugsThreeInfo(emptyDrugsInfoList);
+                dataPasser.onDrugsFourInfo(emptyDrugsInfoList);
+                dataPasser.onDrugsFiveInfo(emptyDrugsInfoList);
+                dataPasser.onDrugsSixInfo(emptyDrugsInfoList);
+                dataPasser.onDrugsSevenInfo(emptyDrugsInfoList);
+                dataPasser.onDrugsEightInfo(emptyDrugsInfoList);
+                SfDrugsDao sfDrugsDao = new SfDrugsDao(requireContext());
+                String[] questions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"};
+                sfDrugsDao.deleteDrugsByPersonIdAndQuestions(personInfoId, questions);
+
+                Log.d(TAG, "ส่งข้อมูลว่างไปยัง Database เสร็จสิ้น");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการล้างข้อมูล Database: " + e.getMessage());
+        }
+    }
+
+    private List<DrugsInfo> createEmptyDrugsInfoList(String personInfoId) {
+        List<DrugsInfo> emptyList = new ArrayList<>();
+        String[] substanceIds = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "injection"};
+
+        SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        PersonInfoLiveData personInfoData = sharedViewModel.getPersonInfoLiveDataMutableLiveData().getValue();
+
+        for (String substanceId : substanceIds) {
+            DrugsInfo emptyInfo = new DrugsInfo();
+            emptyInfo.setPersonInfoId(personInfoId);
+            emptyInfo.setIdcard(personInfoData != null ? personInfoData.getIdcard() : "");
+            emptyInfo.setSubquestion(substanceId);
+            emptyInfo.setAnswer("-1"); // ค่าว่าง
+            emptyInfo.setOtherDrugs("");
+            emptyInfo.setUpdatedBy("SYSTEM");
+            emptyInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+
+            emptyList.add(emptyInfo);
+        }
+
+        return emptyList;
     }
 
     // เมธอดเดิมทั้งหมด (ไม่เปลี่ยนแปลง)

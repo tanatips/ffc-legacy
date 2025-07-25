@@ -342,6 +342,15 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                             break;
                         }
                     }
+                    if (isAllQuestionsAnswered() && isAllSubstancesNeverUsed()) {
+                        // หน่วงเวลาเล็กน้อยให้ UI อัพเดตก่อน แล้วค่อยล้างข้อมูล
+                        new Handler().postDelayed(() -> {
+                            Fragment parentFragment = getParentFragment();
+                            if (parentFragment instanceof MainQuestionsFragment) {
+                                ((MainQuestionsFragment) parentFragment).clearAllQuestionsWhenNeverUsed();
+                            }
+                        }, 200);
+                    }
                     // ค้นหาข้อมูลเดิมจาก drugsInfoMap
                     DrugsInfo existingInfo = drugsInfoMap.get(entry.getKey());
                     if (existingInfo != null) {
@@ -382,6 +391,23 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         }
         printCurrentSelections();
     }
+    private boolean isAllSubstancesNeverUsed() {
+        if (selectedAnswers == null || selectedAnswers.size() < substanceList.size()) {
+            return false;
+        }
+
+        for (Map.Entry<String, AnswerData> entry : selectedAnswers.entrySet()) {
+            AnswerData answer = entry.getValue();
+            if (answer == null || answer.isHasUsed() == null) {
+                return false;
+            }
+            if (answer.isHasUsed()) {
+                return false; // มีข้อใดข้อหนึ่งที่เลือก "เคย"
+            }
+        }
+        return true; // ทุกข้อเลือก "ไม่เคย"
+    }
+
      private void loadData() {
         SfDrugsDao sfDrugsDao = new SfDrugsDao(getContext());
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);

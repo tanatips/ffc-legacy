@@ -271,7 +271,7 @@ public class BloodSugarGaugeView extends View {
 
     // Method สำหรับแสดงหน่วย
     public String getUnit() {
-        return "mg/dL";
+        return "มก/ดล";
     }
 
     // Method สำหรับรีเซ็ต Gauge

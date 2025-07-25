@@ -95,6 +95,28 @@ public class QuestionEightFragment extends Fragment {
         });
         return view;
     }
+    public void clearAllData() {
+        try {
+            isUpdating[0] = true;
+
+            // รีเซ็ตค่าการเลือก
+            selectedOption = 0; // กลับไปเป็น "ไม่เคย"
+
+            // อัพเดต ViewModel
+            Map<String, AnswerFrequencyData> emptyData = new HashMap<>();
+            emptyData.put(INJECTION_KEY, new AnswerFrequencyData(-1, ""));
+            viewModel.setQuestionEightAnswers(emptyData);
+
+            // อัพเดต UI
+            updateRadioSelection();
+
+            Log.d("QuestionEightFragment", "ล้างข้อมูลทั้งหมดเสร็จสิ้น");
+        } catch (Exception e) {
+            Log.e("QuestionEightFragment", "เกิดข้อผิดพลาดในการล้างข้อมูล: " + e.getMessage());
+        } finally {
+            isUpdating[0] = false;
+        }
+    }
     private void notifyParentOfChange() {
         // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
         Fragment parentFragment = getParentFragment();

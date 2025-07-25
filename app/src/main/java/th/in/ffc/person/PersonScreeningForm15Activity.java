@@ -1224,23 +1224,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if(drugsInfo.getQuestion()!=null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }
@@ -1253,23 +1255,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if(drugsInfo.getQuestion()!=null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }
@@ -1282,23 +1286,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if(drugsInfo.getQuestion()!=null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }
@@ -1311,23 +1317,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if (drugsInfo.getQuestion() != null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }
@@ -1340,23 +1348,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if(drugsInfo.getQuestion()!=null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }
@@ -1369,23 +1379,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if (drugsInfo.getQuestion() != null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }
@@ -1398,23 +1410,25 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    sfDrugsDao.update(drugsInfo);
-                }
+                if(drugsInfo.getQuestion()!=null) {
+                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                        drugsInfo.setCreatedBy("SYSTEM");
+                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        String id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                    } else {
+                        // กำหนดค่าสำหรับการอัพเดต
+                        drugsInfo.setUpdatedBy("SYSTEM");
+                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        sfDrugsDao.update(drugsInfo);
+                    }
 
-                // Debug log
-                List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                if (drugs != null && !drugs.isEmpty()) {
-                    System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
                 }
             }
         }

@@ -14,7 +14,9 @@ import android.provider.BaseColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.provider.HouseProvider.Village;
@@ -514,10 +516,150 @@ public class ScreeningFormProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
-    }
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int rowsDeleted = 0;
 
+        switch (mUriMatcher.match(uri)) {
+            case SF_PERSON_INFO_ITEM_ID:
+                rowsDeleted = db.delete(SfPersonInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_SMOKER_INFO_ITEM_ID:
+                rowsDeleted = db.delete(SfSmokerInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_NICOTINE_INFO_ID:
+                rowsDeleted = db.delete(SfNicotineInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_STRESS_DEPRESSION_INFO_ID:
+                rowsDeleted = db.delete(SfStressDepressionInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_DRINKING_INFO_ID:
+                rowsDeleted = db.delete(SfDrinkingInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_STRESS_DEPRESSION_2Q_INFO_ID:
+                rowsDeleted = db.delete(SfStressDepression2qInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_STRESS_DEPRESSION_9Q_INFO_ID:
+                rowsDeleted = db.delete(SfStressDepression9qInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_SUICIDE_ASSESSMENT_8Q_INFO_ID:
+                rowsDeleted = db.delete(SfSuicideAssessment8qInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_HEALTH_RISK_ASSESSMENT_INFO_ID:
+                rowsDeleted = db.delete(SfHealthRiskAssessmentInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_TOKEN_ITEM_ID:
+                rowsDeleted = db.delete(SfToken.TABLENAME, selection, selectionArgs);
+                break;
+
+            // *** เพิ่มการรองรับ SF_DRUGS ใหม่ ***
+            case SF_DRUGS:
+            case SF_DRUGS_ITEMS:
+            case SF_DRUGS_ITEM_ID:
+                rowsDeleted = deleteDrugsData(db, uri, selection, selectionArgs);
+                break;
+
+            case SF_CARD_READING_HISTORY_ITEM_ID:
+                rowsDeleted = db.delete(SfCardReadingHistory.TABLENAME, selection, selectionArgs);
+                break;
+
+            case SF_CARDIOVASCULAR_RISK_INFO_ID:
+                rowsDeleted = db.delete(SfCardiovascularRiskInfo.TABLENAME, selection, selectionArgs);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+
+        // แจ้งเตือน observers เมื่อมีการเปลี่ยนแปลงข้อมูล
+        if (rowsDeleted > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsDeleted;
+    }
+    private int deleteDrugsData(SQLiteDatabase db, Uri uri, String selection, String[] selectionArgs) {
+        int rowsDeleted = 0;
+
+        try {
+            // ตรวจสอบ query parameters สำหรับการลบแบบเฉพาะเจาะจง
+            String personId = uri.getQueryParameter("person_id");
+            String question = uri.getQueryParameter("question");
+            String subquestion = uri.getQueryParameter("subquestion");
+
+            if (personId != null || question != null || subquestion != null) {
+                // สร้าง selection และ selectionArgs แบบ dynamic
+                StringBuilder whereClause = new StringBuilder();
+                List<String> whereArgs = new ArrayList<>();
+
+                if (personId != null) {
+                    whereClause.append("person_info_id = ?");
+                    whereArgs.add(personId);
+                }
+
+                if (question != null) {
+                    if (whereClause.length() > 0) {
+                        whereClause.append(" AND ");
+                    }
+                    whereClause.append("question = ?");
+                    whereArgs.add(question);
+                }
+
+                if (subquestion != null) {
+                    if (whereClause.length() > 0) {
+                        whereClause.append(" AND ");
+                    }
+                    whereClause.append("subquestion = ?");
+                    whereArgs.add(subquestion);
+                }
+
+                // เพิ่มเงื่อนไขจาก parameter ที่ส่งมา (ถ้ามี)
+                if (selection != null && !selection.isEmpty()) {
+                    if (whereClause.length() > 0) {
+                        whereClause.append(" AND ");
+                    }
+                    whereClause.append("(").append(selection).append(")");
+
+                    if (selectionArgs != null) {
+                        for (String arg : selectionArgs) {
+                            whereArgs.add(arg);
+                        }
+                    }
+                }
+
+                String finalSelection = whereClause.toString();
+                String[] finalSelectionArgs = whereArgs.toArray(new String[0]);
+
+                rowsDeleted = db.delete(SfDrugs.TABLENAME, finalSelection, finalSelectionArgs);
+
+                android.util.Log.d("ScreeningFormProvider",
+                        "Deleted " + rowsDeleted + " drugs records with conditions: " + finalSelection +
+                                " Args: " + java.util.Arrays.toString(finalSelectionArgs));
+
+            } else {
+                // การลบแบบปกติ (ใช้ selection และ selectionArgs ที่ส่งมา)
+                rowsDeleted = db.delete(SfDrugs.TABLENAME, selection, selectionArgs);
+
+                android.util.Log.d("ScreeningFormProvider",
+                        "Deleted " + rowsDeleted + " drugs records with selection: " + selection);
+            }
+
+        } catch (Exception e) {
+            android.util.Log.e("ScreeningFormProvider", "Error deleting drugs data: " + e.getMessage());
+            rowsDeleted = 0;
+        }
+
+        return rowsDeleted;
+    }
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();

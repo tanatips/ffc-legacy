@@ -30,20 +30,31 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_blood_drop"
+                    android:src="@drawable/ic_info"
                     android:tint="#E74C3C"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="เกณฑ์ระดับน้ำตาลในเลือด (มก/ดล)"
+                    android:text="เกณฑ์การประเมินความเสี่ยงโรคหัวใจและหลอดเลือด"
                     android:textStyle="bold"
                     android:textSize="16sp"
                     android:textColor="#2C3E50" />
             </LinearLayout>
 
-            <!-- ระดับ 1: น้อยกว่า 100 -->
+            <!-- คำอธิบายเบื้องต้น -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ความเสี่ยงต่อการเกิดโรคเส้นเลือดหัวใจและหลอดเลือดในระยะเวลา 10 ปี"
+                android:textSize="12sp"
+                android:textColor="#7F8C8D"
+                android:textStyle="italic"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- ระดับ 1: น้อยกว่า 10% -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,16 +80,26 @@
                         android:layout_marginEnd="8dp" />
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="น้อยกว่า 10%"
+                        android:textSize="14sp"
+                        android:textColor="#27AE60"
+                        android:textStyle="bold" />
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="น้อยกว่า 100 มก/ดล: ปกติ"
+                        android:text="กลุ่มเสี่ยงน้อย"
                         android:textSize="14sp"
                         android:textColor="#27AE60"
                         android:textStyle="bold" />
                 </LinearLayout>
+
             </LinearLayout>
 
-            <!-- ระดับ 2: 100-125 -->
+            <!-- ระดับ 2: 10-20% -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -99,14 +120,23 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="😐"
+                        android:text="😟"
                         android:textSize="20sp"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="10% - 20%"
+                        android:textSize="14sp"
+                        android:textColor="#F39C12"
+                        android:textStyle="bold" />
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="100-125 มก/ดล: เสี่ยงต่อการเป็นโรคเบาหวาน"
+                        android:text="กลุ่มเสี่ยงปานกลาง"
                         android:textSize="14sp"
                         android:textColor="#F39C12"
                         android:textStyle="bold" />
@@ -114,7 +144,7 @@
 
             </LinearLayout>
 
-            <!-- ระดับ 3: ตั้งแต่ 126 ขึ้นไป -->
+            <!-- ระดับ 3: มากกว่า 20% -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -135,44 +165,28 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="😟"
+                        android:text="😰"
                         android:textSize="20sp"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="มากกว่า 20%"
+                        android:textSize="14sp"
+                        android:textColor="#E74C3C"
+                        android:textStyle="bold" />
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ตั้งแต่ 126 มก/ดล ขึ้นไป: เป็นโรคเบาหวาน"
+                        android:text="กลุ่มเสี่ยงสูง"
                         android:textSize="14sp"
                         android:textColor="#E74C3C"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <!-- หมายเหตุ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="#E9ECEF"
-                android:padding="8dp"
-                android:layout_marginTop="8dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_info"
-                    android:tint="#6C757D"
-                    android:layout_marginEnd="6dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="หมายเหตุ: เกณฑ์นี้ใช้สำหรับการตรวจระดับพลาสมากลูโคส (FPG)"
-                    android:textSize="11sp"
-                    android:textColor="#6C757D"
-                    android:textStyle="italic" />
             </LinearLayout>
 
         </LinearLayout>

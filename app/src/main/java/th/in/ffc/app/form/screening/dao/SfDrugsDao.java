@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,142 @@ public class SfDrugsDao {
     public static Uri getDrugsUriAppend(String name) {
         return Uri.withAppendedPath(ScreeningFormProvider.SfDrugs.CONTENT_URI, name);
     }
+    public static int deleteDrugsByPersonIdAndQuestion(String personInfoId, String question) {
+        try {
+            String select = "person_info_id = ? AND question = ?";
+            String[] selectionArgs = {personInfoId, question};
 
+            int deletedRows = mContext.getContentResolver().delete(
+                    getDrugsUriAppend("list"),
+                    select,
+                    selectionArgs
+            );
+
+            Log.d("SfDrugsDao", "Deleted " + deletedRows + " rows for personId: " +
+                    personInfoId + ", question: " + question);
+            return deletedRows;
+        } catch (Exception e) {
+            Log.e("SfDrugsDao", "Error deleting drugs info: " + e.getMessage());
+            return 0;
+        }
+    }
+    public static int deleteDrugsByPersonIdAndQuestionWithParams(String personInfoId, String question) {
+        try {
+            Uri deleteUri = createDeleteUriWithParams(personInfoId, question);
+
+            int deletedRows = mContext.getContentResolver().delete(deleteUri, null, null);
+
+            Log.d("SfDrugsDao", "Deleted " + deletedRows + " rows using parameters - PersonId: " +
+                    personInfoId + ", Question: " + question);
+            return deletedRows;
+        } catch (Exception e) {
+            Log.e("SfDrugsDao", "Error deleting drugs info with parameters: " + e.getMessage());
+            return 0;
+        }
+    }
+    public static Uri createDeleteUriWithParams(String personId, String question) {
+        Uri.Builder builder = ScreeningFormProvider.SfDrugs.CONTENT_URI.buildUpon();
+
+        if (personId != null) {
+            builder.appendQueryParameter("person_id", personId);
+        }
+
+        if (question != null) {
+            builder.appendQueryParameter("question", question);
+        }
+
+        return builder.build();
+    }
+
+    public static int deleteDrugsByPersonIdAndQuestions(String personInfoId, String[] questions) {
+        int totalDeleted = 0;
+
+        for (String question : questions) {
+            totalDeleted += deleteDrugsByPersonIdAndQuestionWithParams(personInfoId, question);
+        }
+
+        Log.d("SfDrugsDao", "Total deleted " + totalDeleted + " rows for personId: " +
+                personInfoId + ", questions: " + java.util.Arrays.toString(questions));
+        return totalDeleted;
+    }
+    public static boolean hasDrugsData(String personInfoId, String question) {
+        try {
+            StringBuilder select = new StringBuilder("person_info_id = ?");
+            List<String> selectionArgsList = new ArrayList<>();
+            selectionArgsList.add(personInfoId);
+
+            if (question != null && !question.isEmpty()) {
+                select.append(" AND question = ?");
+                selectionArgsList.add(question);
+            }
+
+            String[] selectionArgs = selectionArgsList.toArray(new String[0]);
+
+            Cursor cursor = mContext.getContentResolver().query(
+                    getDrugsUriAppend("list"),
+                    new String[]{"COUNT(*) as count"},
+                    select.toString(),
+                    selectionArgs,
+                    null
+            );
+
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int count = cursor.getInt(0);
+                        return count > 0;
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+
+            return false;
+        } catch (Exception e) {
+            Log.e("SfDrugsDao", "Error checking drugs data: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static int deleteDrugsByPersonIdQuestionAndSubquestion(String personInfoId, String question, String subquestion) {
+        try {
+            String select = "person_info_id = ? AND question = ? AND subquestion = ?";
+            String[] selectionArgs = {personInfoId, question, subquestion};
+
+            int deletedRows = mContext.getContentResolver().delete(
+                    getDrugsUriAppend("list"),
+                    select,
+                    selectionArgs
+            );
+
+            Log.d("SfDrugsDao", "Deleted " + deletedRows + " rows for personId: " +
+                    personInfoId + ", question: " + question + ", subquestion: " + subquestion);
+            return deletedRows;
+        } catch (Exception e) {
+            Log.e("SfDrugsDao", "Error deleting specific drugs info: " + e.getMessage());
+            return 0;
+        }
+    }
+
+
+    public static int deleteAllDrugsByPersonId(String personInfoId) {
+        try {
+            String select = "person_info_id = ?";
+            String[] selectionArgs = {personInfoId};
+
+            int deletedRows = mContext.getContentResolver().delete(
+                    getDrugsUriAppend("list"),
+                    select,
+                    selectionArgs
+            );
+
+            Log.d("SfDrugsDao", "Deleted all " + deletedRows + " drugs records for personId: " + personInfoId);
+            return deletedRows;
+        } catch (Exception e) {
+            Log.e("SfDrugsDao", "Error deleting all drugs info: " + e.getMessage());
+            return 0;
+        }
+    }
     public static List<DrugsInfo> getSfDrugsAll() {
         Cursor cursor = mContext.getContentResolver().query(getDrugsUriAppend("list"), null, null, null, null);
         List<DrugsInfo> drugsList = new ArrayList<>();
@@ -80,6 +216,17 @@ public class SfDrugsDao {
             cursor.close();
         }
         return drugsList;
+    }
+    // deleteAllDrugsInfoByPersonId
+    public static int deleteAllDrugsInfoByPersonId(String personInfoId,String question) {
+        try {
+            String select = "PERSON_INFO_ID=? AND QUESTION=?";
+            String[] selectionArgs = {personInfoId, question};
+            return mContext.getContentResolver().delete(getDrugsUriAppend("list"), select, selectionArgs);
+        } catch (Exception e) {
+            Log.e("SfDrugsDao", "Error deleting drugs info by person ID: " + e.getMessage());
+            return 0;
+        }
     }
 
     public static long update(DrugsInfo drugs) {
