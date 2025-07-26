@@ -131,6 +131,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
         });
         return view;
     }
+
     public void clearAllData() {
         try {
             isUpdating[0] = true;
@@ -159,6 +160,43 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             isUpdating[0] = false;
         }
     }
+
+    /**
+     * เมธอดใหม่สำหรับล้างคำตอบของสารเสพติดที่ระบุ
+     */
+    public void clearAnswerForSubstance(String substanceId) {
+        try {
+            isUpdating[0] = true;
+
+            // ล้างข้อมูลของสารเสพติดที่ระบุ
+            selectedFrequencies.put(substanceId, new AnswerFrequencyData(0, "")); // 0 = ไม่เคย
+
+            // ล้างข้อมูลใน SubstanceItem ที่ตรงกัน
+            for (SubstanceItem item : substanceList) {
+                if (item.getId().equals(substanceId)) {
+                    item.setFrequency(0); // 0 = ไม่เคย
+                    item.setOtherDrugs("");
+                    break;
+                }
+            }
+
+            // อัพเดต ViewModel
+            viewModel.updateQuestionTwoAnswer(substanceId, 0, "");
+
+            // อัพเดต UI (แต่ไม่อัพเดตช่องที่กำลังแก้ไข)
+            updateUI(selectedFrequencies, substanceId);
+
+            // บันทึกข้อมูลลงฐานข้อมูล
+            prepareDrugsInfoForUpdate(substanceId, 0, "");
+
+            Log.d("QuestionTwoFragment", "ล้างข้อมูลสารเสพติด " + substanceId + " เสร็จสิ้น");
+        } catch (Exception e) {
+            Log.e("QuestionTwoFragment", "เกิดข้อผิดพลาดในการล้างข้อมูลสารเสพติด " + substanceId + ": " + e.getMessage());
+        } finally {
+            isUpdating[0] = false;
+        }
+    }
+
     private void notifyParentOfChange() {
         // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
         Fragment parentFragment = getParentFragment();
@@ -166,6 +204,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
         }
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -230,12 +269,8 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
         };
         viewModel.getQuestionTwoAnswers().observe(getViewLifecycleOwner(), answersObserver);
 
-        // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-//        if (isFirstLoad && !isDataLoaded) {
-//            Log.d("QuestionTwoFragment", "onViewCreated - Loading data from database");
-            loadData();
-//            isFirstLoad = false;
-//        }
+        // โหลดข้อมูลจาก DB
+        loadData();
 
         // เพิ่ม log เพื่อตรวจสอบค่าสุดท้าย
         for (SubstanceItem item : substanceList) {
@@ -244,6 +279,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                     " otherDrugs: " + item.getOtherDrugs());
         }
     }
+
     // แก้ไขเมธอด updateSubstanceItems เพื่อให้มั่นใจว่า substanceList จะถูกอัพเดตอย่างถูกต้อง
     private void updateSubstanceItems(Map<String, AnswerFrequencyData> frequencies) {
         for (SubstanceItem item : substanceList) {
@@ -288,7 +324,6 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
 
                     if (matchingDrug != null) {
                         // ถ้าพบข้อมูล ใช้ค่าจากฐานข้อมูล
-                        // แก้ไขตรงนี้ - ตรวจสอบให้มั่นใจว่ามีการแปลงข้อมูลที่ถูกต้อง
                         int frequency = 0;
                         try {
                             frequency = Integer.parseInt(matchingDrug.getAnswer());
@@ -373,6 +408,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             });
         }
     }
+
     // เพิ่ม overload สำหรับความเข้ากันได้กับโค้ดเดิม
     private void updateUI(Map<String, AnswerFrequencyData> answers) {
         updateUI(answers, null);
@@ -517,6 +553,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
 
         dataPasser.onDrugsTwoInfo(drugsInfosToUpdate);
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -533,11 +570,13 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             }
         }
     }
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable("selectedFrequencies", new HashMap<>(selectedFrequencies));
     }
+
     private void calculateAndSetContentHeight() {
         if (recyclerView == null || adapter == null) return;
 
@@ -559,6 +598,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
         params.height =  (int) Math.round(totalHeight*6.1);
         contentLayout.setLayoutParams(params);
     }
+
     public boolean validateAllQuestionsAnswered() {
         // ตรวจสอบว่าทุกคำถามมีคำตอบครบหรือไม่
         if (selectedFrequencies == null || selectedFrequencies.isEmpty()) {
@@ -584,6 +624,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
 
         return true;
     }
+
     public String getValidationMessage() {
         List<String> missingAnswers = new ArrayList<>();
         List<String> missingDetails = new ArrayList<>();
@@ -637,4 +678,3 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
         }
     }
 }
-

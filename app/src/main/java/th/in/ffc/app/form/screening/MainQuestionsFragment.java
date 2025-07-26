@@ -270,6 +270,98 @@ public class MainQuestionsFragment extends Fragment {
             });
         }
     }
+    public void clearQuestionTwoAnswerForSubstance(String substanceId) {
+        Log.d("MainQuestionsFragment", "Clearing Q2 answer for substance: " + substanceId);
+
+        // ค้นหา QuestionTwoFragment และล้างคำตอบของสารเสพติดที่ระบุ
+        if (questionTwoFragment != null) {
+            questionTwoFragment.clearAnswerForSubstance(substanceId);
+        }
+
+        // ล้างคำตอบในคำถาม 3-8 สำหรับสารเสพติดนั้นด้วย (ถ้ามี)
+        clearSubsequentQuestionsForSubstance(substanceId);
+    }
+    private void clearSubsequentQuestionsForSubstance(String substanceId) {
+        try {
+            // ล้างคำตอบในคำถามที่ 3-8 ตามสารเสพติดที่ระบุ
+
+            // คำถามที่ 3 - ล้างคำตอบของสารเสพติดที่ระบุ
+            if (questionThreeFragment != null) {
+                // สมมติว่า QuestionThreeFragment มีเมธอด clearAnswerForSubstance
+                // questionThreeFragment.clearAnswerForSubstance(substanceId);
+            }
+
+            // คำถามที่ 4 - ล้างคำตอบของสารเสพติดที่ระบุ
+            if (questionFourFragment != null) {
+                // questionFourFragment.clearAnswerForSubstance(substanceId);
+            }
+
+            // คำถามที่ 5 - ล้างคำตอบของสารเสพติดที่ระบุ
+            if (questionFiveFragment != null) {
+                // questionFiveFragment.clearAnswerForSubstance(substanceId);
+            }
+
+            // คำถามที่ 6 - ล้างคำตอบของสารเสพติดที่ระบุ
+            if (questionSixFragment != null) {
+                // questionSixFragment.clearAnswerForSubstance(substanceId);
+            }
+
+            // คำถามที่ 7 - ล้างคำตอบของสารเสพติดที่ระบุ
+            if (questionSevenFragment != null) {
+                // questionSevenFragment.clearAnswerForSubstance(substanceId);
+            }
+
+            // คำถามที่ 8 - ล้างคำตอบของสารเสพติดที่ระบุ
+            if (questionEightFragment != null) {
+                // questionEightFragment.clearAnswerForSubstance(substanceId);
+            }
+
+            Log.d("MainQuestionsFragment", "Cleared subsequent questions for substance: " + substanceId);
+
+        } catch (Exception e) {
+            Log.e("MainQuestionsFragment", "Error clearing subsequent questions for substance " + substanceId + ": " + e.getMessage());
+        }
+    }
+
+    private void clearAllSubsequentQuestions() {
+        try {
+            // ล้างคำตอบในคำถามที่ 3
+            if (questionThreeFragment != null) {
+                // สมมติว่า QuestionThreeFragment มีเมธอด clearAllData
+                // questionThreeFragment.clearAllData();
+            }
+
+            // ล้างคำตอบในคำถามที่ 4
+            if (questionFourFragment != null) {
+                // questionFourFragment.clearAllData();
+            }
+
+            // ล้างคำตอบในคำถามที่ 5
+            if (questionFiveFragment != null) {
+                // questionFiveFragment.clearAllData();
+            }
+
+            // ล้างคำตอบในคำถามที่ 6
+            if (questionSixFragment != null) {
+                // questionSixFragment.clearAllData();
+            }
+
+            // ล้างคำตอบในคำถามที่ 7
+            if (questionSevenFragment != null) {
+                // questionSevenFragment.clearAllData();
+            }
+
+            // ล้างคำตอบในคำถามที่ 8
+            if (questionEightFragment != null) {
+                // questionEightFragment.clearAllData();
+            }
+
+            Log.d("MainQuestionsFragment", "Cleared all subsequent questions");
+
+        } catch (Exception e) {
+            Log.e("MainQuestionsFragment", "Error clearing all subsequent questions: " + e.getMessage());
+        }
+    }
 
     /**
      * ตรวจสอบและแสดง/ซ่อนข้อ 3, 4, 5 ตามการเลือกใน Question 2
@@ -779,6 +871,11 @@ public class MainQuestionsFragment extends Fragment {
 
         // ตรวจสอบการแสดง/ซ่อนข้อ 3, 4, 5
         checkAndToggleQuestions345Visibility();
+        if (getActivity() instanceof PersonScreeningForm15Activity) {
+            new Handler().postDelayed(() -> {
+                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+            }, 200);
+        }
     }
 
     public void clearAllQuestionsWhenNeverUsed() {

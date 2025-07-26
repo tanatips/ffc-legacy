@@ -98,6 +98,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
     private Context mContext;
     public static final String EXTRA_PCUCODE = "pcucode";
     PersonInfo personInfo;
+
+    public static boolean isPartialValidationMode = false;
     // เพิ่ม interface สำหรับปุ่ม
     public interface OnButtonClickListener {
         void onButtonClick(PersonInfo person, int position);
@@ -127,6 +129,15 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         PersonInfo person = personList.get(position);
         holder.tvName.setText(person.getFname() + " " + person.getLname());
         holder.tvPersonId.setText(person.getId());
+
+        // แสดงโหมดการตรวจสอบปัจจุบัน
+        if (isPartialValidationMode) {
+            holder.tvValidationMode.setText("⚡ โหมดบางส่วน");
+            holder.tvValidationMode.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_dark));
+        } else {
+            holder.tvValidationMode.setText("🔍 โหมดปกติ");
+            holder.tvValidationMode.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_blue_dark));
+        }
         // เพิ่มการแสดง Visit Number
         if (person.getVisitId() != null && !person.getVisitId().isEmpty()) {
             holder.tvVisitNumber.setText("หมายเลขการเข้ารับบริการ: " + person.getVisitId());
@@ -175,7 +186,6 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             Date date = inputFormat.parse(dateTimeString);
             return outputFormat.format(date);
         } catch (ParseException e) {
-            // ถ้า parse ไม่ได้ ให้แสดงข้อมูลเดิม
             return dateTimeString;
         }
     }
@@ -186,7 +196,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
     }
 
     class PersonViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvPersonId, tvVisitNumber, tvVisitDate, tvDataStatus;
+        TextView tvName, tvPersonId, tvVisitNumber, tvVisitDate, tvDataStatus, tvValidationMode;
         Button btnSubmitClaim;
         boolean isButtonClicked = false;
 
@@ -198,6 +208,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             tvVisitNumber = itemView.findViewById(R.id.tvVisitNumber);
             tvVisitDate = itemView.findViewById(R.id.tvVisitDate);
             tvDataStatus = itemView.findViewById(R.id.tvDataStatus);
+            tvValidationMode = itemView.findViewById(R.id.tvValidationMode);
             btnSubmitClaim = itemView.findViewById(R.id.btnSubmitClaim);
             btnSubmitClaim.setOnClickListener(v -> {
                 if (listener != null && getBindingAdapterPosition() != RecyclerView.NO_POSITION) {
@@ -508,11 +519,120 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
     }
 
     // เพิ่มเมธอดใหม่สำหรับตรวจสอบความสมบูรณ์ของข้อมูล
+//    private DataCompletionStatus checkDataCompleteness(PersonInfo person, Context context) {
+//        if (context == null) return new DataCompletionStatus(false, "ไม่สามารถตรวจสอบข้อมูลได้");
+//
+//        try {
+//            // ตรวจสอบข้อมูลพื้นฐาน
+//            if (person.getId() == null || person.getId().isEmpty()) {
+//                return new DataCompletionStatus(false, "ไม่พบข้อมูลผู้ป่วย");
+//            }
+//
+//            int personId = Integer.parseInt(person.getId());
+//            List<String> missingAssessments = new ArrayList<>();
+//
+//            // ตรวจสอบข้อมูลพื้นฐานของผู้ป่วย
+//            boolean hasBasicInfo = isBasicInfoComplete(person);
+//            if (!hasBasicInfo) missingAssessments.add("ข้อมูลพื้นฐาน");
+//
+//            // 1. ตรวจสอบสารเสพติด (Drug Assessment) - ต้องตรวจสอบก่อนเสมอ
+//            SfDrugsDao drugDao = new SfDrugsDao(context);
+//            List<DrugsInfo> drugInfos = drugDao.getSfDrugsByPersonInfoId(personId);
+//            boolean hasDrugAssessment = !drugInfos.isEmpty() && isDrugsComplete(drugInfos);
+//            if (!hasDrugAssessment) {
+//                missingAssessments.add("แบบประเมินสารเสพติด");
+//                // หากยังไม่มีการประเมินสารเสพติด ให้ข้ามการตรวจสอบบุหรี่และสุรา
+//            } else {
+//                // มีการประเมินสารเสพติดแล้ว - ตรวจสอบว่าต้องการประเมินบุหรี่และสุราหรือไม่
+//                SubstanceUseStatus substanceStatus = getSubstanceUseStatus(drugInfos);
+//
+//                // 2. ตรวจสอบการสูบบุหรี่ (เฉพาะกรณีที่เคยสูบบุหรี่)
+//                if (substanceStatus.usesTobacco) {
+//                    SfSmokerInfoDao smokingDao = new SfSmokerInfoDao(context);
+//                    List<SmokerInfo> smokingInfos = smokingDao.getByPersonId(personId);
+//                    boolean hasSmokingAssessment = !smokingInfos.isEmpty() && isSmokingAssessmentComplete(smokingInfos.get(0));
+//                    if (!hasSmokingAssessment) missingAssessments.add("แบบประเมินการสูบบุหรี่");
+//
+//                    // 3. ตรวจสอบการติดบุหรี่ (เฉพาะกรณีที่เคยสูบบุหรี่)
+//                    SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(context);
+//                    List<NicotineInfo> smokingAddictionInfos = sfNicotineInfoDao.getByPersonId(personId);
+//                    boolean hasSmokingAddiction = !smokingAddictionInfos.isEmpty() && isNicotineComplete(smokingAddictionInfos.get(0));
+//                    if (!hasSmokingAddiction) missingAssessments.add("แบบประเมินการติดบุหรี่");
+//                } else {
+//                    Log.d("DATA_CHECK", "ข้ามการตรวจสอบบุหรี่ - ไม่เคยสูบบุหรี่");
+//                }
+//
+//                // 4. ตรวจสอบการดื่มสุรา (เฉพาะกรณีที่เคยดื่มสุรา)
+//                if (substanceStatus.usesAlcohol) {
+//                    SfDrinkingInfoDao alcoholDao = new SfDrinkingInfoDao(context);
+//                    List<DrinkingInfo> alcoholInfos = alcoholDao.getByPersonId(personId);
+//                    boolean hasAlcoholAssessment = !alcoholInfos.isEmpty() && isAlcoholAssessmentComplete(alcoholInfos.get(0));
+//                    if (!hasAlcoholAssessment) missingAssessments.add("แบบประเมินการดื่มสุรา");
+//                } else {
+//                    Log.d("DATA_CHECK", "ข้ามการตรวจสอบสุรา - ไม่เคยดื่มสุรา");
+//                }
+//            }
+//
+//            // 5. ตรวจสอบ ST-5 (Stress Test 5) - จำเป็นเสมอ
+//            SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(context);
+//            List<StressDepressionInfo> st5Infos = sfStressDepressionInfoDao.getByPersonId(personId);
+//            boolean hasSt5Assessment = !st5Infos.isEmpty() && isSt5AssessmentComplete(st5Infos.get(0));
+//            if (!hasSt5Assessment) missingAssessments.add("แบบประเมิน ST-5");
+//
+//            // 6. ตรวจสอบ 2Q (Depression 2 Questions) - จำเป็นเสมอ
+//            SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
+//            List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
+//            boolean has2qAssessment = !depression2qInfos.isEmpty() && is2qAssessmentComplete(depression2qInfos.get(0));
+//            if (!has2qAssessment) missingAssessments.add("แบบประเมิน 2Q");
+//
+//            // 7. ตรวจสอบ 9Q (Depression 9 Questions) - จำเป็นเสมอ
+//            SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
+//            List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
+//            boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
+//            if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
+//
+//            // 8. ตรวจสอบ 8Q (Suicide Assessment 8 Questions) - จำเป็นเสมอ
+//            SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
+//            List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
+//            boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
+//            if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
+//
+//            // 9. ตรวจสอบโรคเบาหวาน (Health Risk Assessment - Diabetes) - จำเป็นเสมอ
+//            SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
+//            List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
+//            boolean hasHealthRisk = !healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0));
+//            if (!hasHealthRisk) missingAssessments.add("แบบประเมินโรคเบาหวาน");
+//
+//            // 10. ตรวจสอบโรคหัวใจและหลอดเลือด (Cardiovascular Risk) - จำเป็นเสมอ
+//            SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
+//            List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
+//            boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0));
+//            if (!hasCardioRisk) missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด");
+//
+//            // 11. ตรวจสอบการให้คำปรึกษาและแนะนำ (Counseling) - จำเป็นเสมอ
+//            CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
+//            List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(String.valueOf(personId));
+//            boolean hasCounseling = !counselingInfos.isEmpty() && isCounselingComplete(counselingInfos.get(0));
+//            if (!hasCounseling) missingAssessments.add("การให้คำปรึกษาและแนะนำ");
+//
+//            // สรุปผลการตรวจสอบ
+//            if (missingAssessments.isEmpty()) {
+//                return new DataCompletionStatus(true, "ข้อมูลครบถ้วนทุกแบบประเมิน - พร้อมส่ง Claim");
+//            } else {
+//                String missingText = String.join(", ", missingAssessments);
+//                return new DataCompletionStatus(false, "ข้อมูลไม่ครบ: " + missingText);
+//            }
+//
+//        } catch (Exception e) {
+//            Log.e("PersonAdapter", "Error checking data completeness: " + e.getMessage());
+//            return new DataCompletionStatus(false, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูล");
+//        }
+//    }
+
     private DataCompletionStatus checkDataCompleteness(PersonInfo person, Context context) {
         if (context == null) return new DataCompletionStatus(false, "ไม่สามารถตรวจสอบข้อมูลได้");
 
         try {
-            // ตรวจสอบข้อมูลพื้นฐาน
             if (person.getId() == null || person.getId().isEmpty()) {
                 return new DataCompletionStatus(false, "ไม่พบข้อมูลผู้ป่วย");
             }
@@ -520,102 +640,201 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             int personId = Integer.parseInt(person.getId());
             List<String> missingAssessments = new ArrayList<>();
 
-            // ตรวจสอบข้อมูลพื้นฐานของผู้ป่วย
+            // ตรวจสอบข้อมูลพื้นฐาน
             boolean hasBasicInfo = isBasicInfoComplete(person);
             if (!hasBasicInfo) missingAssessments.add("ข้อมูลพื้นฐาน");
 
-            // 1. ตรวจสอบสารเสพติด (Drug Assessment) - ต้องตรวจสอบก่อนเสมอ
-            SfDrugsDao drugDao = new SfDrugsDao(context);
-            List<DrugsInfo> drugInfos = drugDao.getSfDrugsByPersonInfoId(personId);
-            boolean hasDrugAssessment = !drugInfos.isEmpty() && isDrugsComplete(drugInfos);
-            if (!hasDrugAssessment) {
-                missingAssessments.add("แบบประเมินสารเสพติด");
-                // หากยังไม่มีการประเมินสารเสพติด ให้ข้ามการตรวจสอบบุหรี่และสุรา
+            if (isPartialValidationMode) {
+                // โหมดบางส่วน - ง่ายๆ
+                return checkPartialMode(personId, context, missingAssessments);
             } else {
-                // มีการประเมินสารเสพติดแล้ว - ตรวจสอบว่าต้องการประเมินบุหรี่และสุราหรือไม่
-                SubstanceUseStatus substanceStatus = getSubstanceUseStatus(drugInfos);
-
-                // 2. ตรวจสอบการสูบบุหรี่ (เฉพาะกรณีที่เคยสูบบุหรี่)
-                if (substanceStatus.usesTobacco) {
-                    SfSmokerInfoDao smokingDao = new SfSmokerInfoDao(context);
-                    List<SmokerInfo> smokingInfos = smokingDao.getByPersonId(personId);
-                    boolean hasSmokingAssessment = !smokingInfos.isEmpty() && isSmokingAssessmentComplete(smokingInfos.get(0));
-                    if (!hasSmokingAssessment) missingAssessments.add("แบบประเมินการสูบบุหรี่");
-
-                    // 3. ตรวจสอบการติดบุหรี่ (เฉพาะกรณีที่เคยสูบบุหรี่)
-                    SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(context);
-                    List<NicotineInfo> smokingAddictionInfos = sfNicotineInfoDao.getByPersonId(personId);
-                    boolean hasSmokingAddiction = !smokingAddictionInfos.isEmpty() && isNicotineComplete(smokingAddictionInfos.get(0));
-                    if (!hasSmokingAddiction) missingAssessments.add("แบบประเมินการติดบุหรี่");
-                } else {
-                    Log.d("DATA_CHECK", "ข้ามการตรวจสอบบุหรี่ - ไม่เคยสูบบุหรี่");
-                }
-
-                // 4. ตรวจสอบการดื่มสุรา (เฉพาะกรณีที่เคยดื่มสุรา)
-                if (substanceStatus.usesAlcohol) {
-                    SfDrinkingInfoDao alcoholDao = new SfDrinkingInfoDao(context);
-                    List<DrinkingInfo> alcoholInfos = alcoholDao.getByPersonId(personId);
-                    boolean hasAlcoholAssessment = !alcoholInfos.isEmpty() && isAlcoholAssessmentComplete(alcoholInfos.get(0));
-                    if (!hasAlcoholAssessment) missingAssessments.add("แบบประเมินการดื่มสุรา");
-                } else {
-                    Log.d("DATA_CHECK", "ข้ามการตรวจสอบสุรา - ไม่เคยดื่มสุรา");
-                }
-            }
-
-            // 5. ตรวจสอบ ST-5 (Stress Test 5) - จำเป็นเสมอ
-            SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(context);
-            List<StressDepressionInfo> st5Infos = sfStressDepressionInfoDao.getByPersonId(personId);
-            boolean hasSt5Assessment = !st5Infos.isEmpty() && isSt5AssessmentComplete(st5Infos.get(0));
-            if (!hasSt5Assessment) missingAssessments.add("แบบประเมิน ST-5");
-
-            // 6. ตรวจสอบ 2Q (Depression 2 Questions) - จำเป็นเสมอ
-            SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
-            List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
-            boolean has2qAssessment = !depression2qInfos.isEmpty() && is2qAssessmentComplete(depression2qInfos.get(0));
-            if (!has2qAssessment) missingAssessments.add("แบบประเมิน 2Q");
-
-            // 7. ตรวจสอบ 9Q (Depression 9 Questions) - จำเป็นเสมอ
-            SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
-            List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
-            boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
-            if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
-
-            // 8. ตรวจสอบ 8Q (Suicide Assessment 8 Questions) - จำเป็นเสมอ
-            SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
-            List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
-            boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
-            if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
-
-            // 9. ตรวจสอบโรคเบาหวาน (Health Risk Assessment - Diabetes) - จำเป็นเสมอ
-            SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
-            List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
-            boolean hasHealthRisk = !healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0));
-            if (!hasHealthRisk) missingAssessments.add("แบบประเมินโรคเบาหวาน");
-
-            // 10. ตรวจสอบโรคหัวใจและหลอดเลือด (Cardiovascular Risk) - จำเป็นเสมอ
-            SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
-            List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
-            boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0));
-            if (!hasCardioRisk) missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด");
-
-            // 11. ตรวจสอบการให้คำปรึกษาและแนะนำ (Counseling) - จำเป็นเสมอ
-            CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
-            List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(String.valueOf(personId));
-            boolean hasCounseling = !counselingInfos.isEmpty() && isCounselingComplete(counselingInfos.get(0));
-            if (!hasCounseling) missingAssessments.add("การให้คำปรึกษาและแนะนำ");
-
-            // สรุปผลการตรวจสอบ
-            if (missingAssessments.isEmpty()) {
-                return new DataCompletionStatus(true, "ข้อมูลครบถ้วนทุกแบบประเมิน - พร้อมส่ง Claim");
-            } else {
-                String missingText = String.join(", ", missingAssessments);
-                return new DataCompletionStatus(false, "ข้อมูลไม่ครบ: " + missingText);
+                // โหมดปกติ - เดิม
+                return checkStrictMode(personId, context, missingAssessments);
             }
 
         } catch (Exception e) {
             Log.e("PersonAdapter", "Error checking data completeness: " + e.getMessage());
             return new DataCompletionStatus(false, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูล");
         }
+    }
+    private DataCompletionStatus checkPartialMode(int personId, Context context, List<String> missingAssessments) {
+        // 1. การคัดกรองสารเสพติด - ต้องมี
+        SfDrugsDao drugDao = new SfDrugsDao(context);
+        List<DrugsInfo> drugInfos = drugDao.getSfDrugsByPersonInfoId(personId);
+        boolean hasDrugAssessment = !drugInfos.isEmpty() && isDrugsComplete(drugInfos);
+        if (!hasDrugAssessment) {
+            missingAssessments.add("แบบคัดกรองการใช้สารเสพติด");
+        }
+
+        // 2. ภาวะเครียด-ซึมเศร้า - อย่างน้อย 1 ใน 4
+        boolean hasMentalHealth = false;
+
+        // ตรวจสอบ ST-5
+        SfStressDepressionInfoDao st5Dao = new SfStressDepressionInfoDao(context);
+        List<StressDepressionInfo> st5Infos = st5Dao.getByPersonId(personId);
+        if (!st5Infos.isEmpty() && isSt5AssessmentComplete(st5Infos.get(0))) {
+            hasMentalHealth = true;
+        }
+
+        // ตรวจสอบ 2Q
+        if (!hasMentalHealth) {
+            SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
+            List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
+            if (!depression2qInfos.isEmpty() && is2qAssessmentComplete(depression2qInfos.get(0))) {
+                hasMentalHealth = true;
+            }
+        }
+
+        // ตรวจสอบ 9Q
+        if (!hasMentalHealth) {
+            SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
+            List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
+            if (!depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0))) {
+                hasMentalHealth = true;
+            }
+        }
+
+        // ตรวจสอบ 8Q
+        if (!hasMentalHealth) {
+            SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
+            List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
+            if (!depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0))) {
+                hasMentalHealth = true;
+            }
+        }
+
+        if (!hasMentalHealth) {
+            missingAssessments.add("ภาวะเครียด-ซึมเศร้า (อย่างน้อย 1 ใน 4 แบบ)");
+        }
+
+        // 3. ความเสี่ยงด้านสุขภาพ - อย่างน้อย 1 ใน 2
+        boolean hasHealthRisk = false;
+
+        // ตรวจสอบเบาหวาน
+        SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
+        List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
+        if (!healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0))) {
+            hasHealthRisk = true;
+        }
+
+        // ตรวจสอบหัวใจและหลอดเลือด
+        if (!hasHealthRisk) {
+            SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
+            List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
+            if (!cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0))) {
+                hasHealthRisk = true;
+            }
+        }
+
+        if (!hasHealthRisk) {
+            missingAssessments.add("ความเสี่ยงด้านสุขภาพ (อย่างน้อย 1 ใน 2 แบบ)");
+        }
+
+        // 4. การให้คำปรึกษา - ต้องมีเสมอ
+        CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
+        List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(String.valueOf(personId));
+        boolean hasCounseling = !counselingInfos.isEmpty() && isCounselingComplete(counselingInfos.get(0));
+        if (!hasCounseling) {
+            missingAssessments.add("การให้คำปรึกษาและแนะนำ");
+        }
+
+        // สรุปผล
+        if (missingAssessments.isEmpty()) {
+            return new DataCompletionStatus(true, "ข้อมูลครบถ้วน (โหมดบางส่วน)");
+        } else {
+            String missingText = String.join(", ", missingAssessments);
+            return new DataCompletionStatus(false, "ข้อมูลไม่ครบ: " + missingText);
+        }
+    }
+    private DataCompletionStatus checkStrictMode(int personId, Context context, List<String> missingAssessments) {
+        // 1. ตรวจสอบสารเสพติด
+        SfDrugsDao sfDrugsDao = new SfDrugsDao(context);
+        List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(personId);
+        boolean hasDrugAssessment = !drugsInfos.isEmpty() && isDrugsComplete(drugsInfos);
+        if (!hasDrugAssessment) {
+            missingAssessments.add("แบบประเมินสารเสพติด");
+        } else {
+            // ตรวจสอบการใช้สารเสพติดเพื่อดูว่าต้องทำแบบประเมินเพิ่มหรือไม่
+            SubstanceUseStatus substanceStatus = getSubstanceUseStatus(drugsInfos);
+
+            // ตรวจสอบการสูบบุหรี่
+            if (substanceStatus.usesTobacco) {
+                SfSmokerInfoDao smokingDao = new SfSmokerInfoDao(context);
+                List<SmokerInfo> smokingInfos = smokingDao.getByPersonId(personId);
+                boolean hasSmokingAssessment = !smokingInfos.isEmpty() && isSmokingAssessmentComplete(smokingInfos.get(0));
+                if (!hasSmokingAssessment) missingAssessments.add("แบบประเมินการสูบบุหรี่");
+
+                SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(context);
+                List<NicotineInfo> smokingAddictionInfos = sfNicotineInfoDao.getByPersonId(personId);
+                boolean hasSmokingAddiction = !smokingAddictionInfos.isEmpty() && isNicotineComplete(smokingAddictionInfos.get(0));
+                if (!hasSmokingAddiction) missingAssessments.add("แบบประเมินการติดบุหรี่");
+            }
+
+            // ตรวจสอบการดื่มสุรา
+            if (substanceStatus.usesAlcohol) {
+                SfDrinkingInfoDao alcoholDao = new SfDrinkingInfoDao(context);
+                List<DrinkingInfo> alcoholInfos = alcoholDao.getByPersonId(personId);
+                boolean hasAlcoholAssessment = !alcoholInfos.isEmpty() && isAlcoholAssessmentComplete(alcoholInfos.get(0));
+                if (!hasAlcoholAssessment) missingAssessments.add("แบบประเมินการดื่มสุรา");
+            }
+        }
+
+        // 2-5. ตรวจสอบภาวะเครียด-ซึมเศร้า (ทุกแบบ)
+        SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(context);
+        List<StressDepressionInfo> st5Infos = sfStressDepressionInfoDao.getByPersonId(personId);
+        boolean hasSt5Assessment = !st5Infos.isEmpty() && isSt5AssessmentComplete(st5Infos.get(0));
+        if (!hasSt5Assessment) missingAssessments.add("แบบประเมิน ST-5");
+
+        SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
+        List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
+        boolean has2qAssessment = !depression2qInfos.isEmpty() && is2qAssessmentComplete(depression2qInfos.get(0));
+        if (!has2qAssessment) missingAssessments.add("แบบประเมิน 2Q");
+
+        SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
+        List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
+        boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
+        if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
+
+        SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
+        List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
+        boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
+        if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
+
+        // 6-7. ตรวจสอบความเสี่ยงด้านสุขภาพ (ทุกแบบ)
+        SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
+        List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
+        boolean hasHealthRisk = !healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0));
+        if (!hasHealthRisk) missingAssessments.add("แบบประเมินโรคเบาหวาน");
+
+        SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
+        List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
+        boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0));
+        if (!hasCardioRisk) missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด");
+
+        // 8. การให้คำปรึกษา
+        CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
+        List<CounselingInfo> counselingInfos = counselingDao.getCounselingByPersonId(String.valueOf(personId));
+        boolean hasCounseling = !counselingInfos.isEmpty() && isCounselingComplete(counselingInfos.get(0));
+        if (!hasCounseling) missingAssessments.add("การให้คำปรึกษาและแนะนำ");
+
+        // สรุปผล
+        if (missingAssessments.isEmpty()) {
+            return new DataCompletionStatus(true, "ข้อมูลครบถ้วนทุกแบบประเมิน");
+        } else {
+            String missingText = String.join(", ", missingAssessments);
+            return new DataCompletionStatus(false, "ข้อมูลไม่ครบ: " + missingText);
+        }
+    }
+    public static void setValidationMode(boolean isPartialMode) {
+        isPartialValidationMode = isPartialMode;
+        Log.d("VALIDATION_MODE", "Set to: " + (isPartialMode ? "Partial" : "Strict"));
+    }
+    public static boolean isPartialMode() {
+        return isPartialValidationMode;
+    }
+
+    public static String getCurrentModeText() {
+        return isPartialValidationMode ? "⚡ โหมดบางส่วน" : "🔍 โหมดปกติ";
     }
     private SubstanceUseStatus getSubstanceUseStatus(List<DrugsInfo> drugInfos) {
         SubstanceUseStatus status = new SubstanceUseStatus();

@@ -16,7 +16,9 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -44,9 +46,11 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import th.in.ffc.R;
@@ -138,6 +142,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Objects;
+import android.widget.Switch;
+import android.widget.CompoundButton;
 
 public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass {
 
@@ -202,18 +208,28 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private LinearLayout counselingInfoContainer;
     private TextView textCounselingType;
     private TextView textCounselingDetail;
+    private Switch switchValidationMode;
 
+    private LinearLayout validationModeHeader;
+    private FrameLayout validationModeContainer;
+    private ImageView validationModeExpandIcon;
+    private TextView textCurrentValidationMode;
+    private boolean isPersonAgeValid = false;
+    private int personAge = 0;
+    private String personAgeGroup = "";
+    private FrameLayout personInfoContainer;
+    private ImageView personInfoExpandIcon;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_screening_form15);
         initializeCounselingInfo();
         mContext = this;
-
+        setupValidationModeSwitch();
         // เปลี่ยนจาก getBaseContext() เป็น this
         View personInfoHeader = findViewById(R.id.personInfoHeader);
-        final FrameLayout personInfoContainer = findViewById(R.id.personInfoContainer);
-        final ImageView personInfoExpandIcon = findViewById(R.id.personInfoExpandIcon);
+        personInfoContainer = findViewById(R.id.personInfoContainer);
+        personInfoExpandIcon = findViewById(R.id.personInfoExpandIcon);
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
@@ -267,10 +283,402 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         // ตรวจสอบสถานะการส่งข้อมูล
         checkSendStatus();
     }
+    private boolean validateAgeForAssessment(String formName) {
+        // ตรวจสอบอายุจาก PersonInfo
+        if (personInfo == null || personInfo.getBirthday() == null || personInfo.getBirthday().isEmpty()) {
+            showAgeRequiredDialog();
+            return false;
+        }
+
+        // คำนวณและตรวจสอบอายุ
+        updatePersonAgeInfo();
+
+        if (!isPersonAgeValid) {
+            showInvalidAgeDialog(formName);
+            return false;
+        }
+
+        return true;
+    }
+    private void showInvalidAgeDialog(String formName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View titleView = createWarningTitleView("อายุไม่อยู่ในเกณฑ์", R.drawable.ic_warning);
+
+        String message = "ไม่สามารถทำแบบประเมิน \"" + formName + "\" ได้\n\n" +
+                "📊 อายุปัจจุบัน: " + personAge + " ปี\n\n" +
+                "📋 เกณฑ์อายุสำหรับแบบประเมิน:\n" +
+                "✅ อายุ 15-34 ปี: การคัดกรองพื้นฐาน\n" +
+                "✅ อายุ 35-59 ปี: การคัดกรองแบบละเอียด\n\n" +
+                "กรุณาตรวจสอบข้อมูลวันเกิด หรือปรึกษาเจ้าหน้าที่";
+
+        builder.setCustomTitle(titleView)
+                .setMessage(message)
+                .setPositiveButton("แก้ไขวันเกิด", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        // ขยายส่วนข้อมูลบุคคลหากยังไม่ขยาย
+                        if (personInfoContainer != null && personInfoContainer.getVisibility() != View.VISIBLE) {
+                            personInfoContainer.setVisibility(View.VISIBLE);
+                            personInfoExpandIcon.setImageResource(R.drawable.ic_expand_less_black);
+                        }
+
+                        scrollToPersonInfo();
+                        dialog.dismiss();
+                    }
+                })
+                .setNeutralButton("ดูข้อมูลอายุ", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showDetailedAgeInfo();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("ปิด", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                if (positiveButton != null) {
+                    positiveButton.setTextColor(Color.parseColor("#FF9800"));
+                    positiveButton.setTypeface(null, Typeface.BOLD);
+                }
+
+                if (neutralButton != null) {
+                    neutralButton.setTextColor(Color.parseColor("#2196F3"));
+                }
+
+                if (negativeButton != null) {
+                    negativeButton.setTextColor(Color.parseColor("#757575"));
+                }
+            }
+        });
+
+        dialog.show();
+    }
+    private View createWarningTitleView(String title, int iconRes) {
+        LinearLayout titleLayout = new LinearLayout(this);
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#FFF3E0"));
+
+        ImageView iconView = new ImageView(this);
+        iconView.setImageResource(iconRes);
+        iconView.setColorFilter(Color.parseColor("#FF9800"));
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        TextView titleTextView = new TextView(this);
+        titleTextView.setText(title);
+        titleTextView.setTextColor(Color.parseColor("#FF9800"));
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
+    }
+    private void showDetailedAgeInfo() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_detailed_age_info, null);
+        TextView tvCurrentAge = dialogView.findViewById(R.id.tvCurrentAge);
+        TextView tvAgeGroup = dialogView.findViewById(R.id.tvAgeGroup);
+        TextView tvAssessmentInfo = dialogView.findViewById(R.id.tvAssessmentInfo);
+        TextView tvRecommendation = dialogView.findViewById(R.id.tvRecommendation);
+
+        tvCurrentAge.setText("อายุปัจจุบัน: " + personAge + " ปี");
+
+        String ageGroupText;
+        String assessmentText;
+        String recommendationText;
+
+        if (personAge < 15) {
+            ageGroupText = "กลุ่มอายุ: น้อยกว่า 15 ปี";
+            assessmentText = "❌ ไม่อยู่ในเกณฑ์สำหรับแบบประเมินนี้";
+            recommendationText = "💡 แนะนำ: ปรึกษาเจ้าหน้าที่เพื่อขอคำแนะนำเกี่ยวกับการดูแลสุขภาพที่เหมาะสมกับวัย";
+        } else if (personAge >= 15 && personAge <= 34) {
+            ageGroupText = "กลุ่มอายุ: 15-34 ปี (วัยหนุ่มสาว)";
+            assessmentText = "✅ เหมาะสำหรับการคัดกรองพื้นฐาน\n" +
+                    "📋 แบบประเมินที่แนะนำ:\n" +
+                    "• การใช้สารเสพติด\n" +
+                    "• ภาวะเครียดและซึมเศร้า\n" +
+                    "• ความเสี่ยงด้านสุขภาพทั่วไป";
+            recommendationText = "💡 แนะนำ: เน้นการป้องกันและสร้างพฤติกรรมสุขภาพที่ดี";
+        } else if (personAge >= 35 && personAge <= 59) {
+            ageGroupText = "กลุ่มอายุ: 35-59 ปี (วัยกลางคน)";
+            assessmentText = "✅ เหมาะสำหรับการคัดกรองแบบละเอียด\n" +
+                    "📋 แบบประเมินที่แนะนำ:\n" +
+                    "• การใช้สารเสพติด\n" +
+                    "• ภาวะเครียดและซึมเศร้า\n" +
+                    "• ความเสี่ยงโรคเบาหวาน\n" +
+                    "• ความเสี่ยงโรคหัวใจและหลอดเลือด";
+            recommendationText = "💡 แนะนำ: เน้นการคัดกรองโรคเรื้อรังและการดูแลสุขภาพเชิงป้องกัน";
+        } else {
+            ageGroupText = "กลุ่มอายุ: มากกว่า 59 ปี";
+            assessmentText = "❌ ไม่อยู่ในเกณฑ์สำหรับแบบประเมินนี้";
+            recommendationText = "💡 แนะนำ: ปรึกษาแพทย์เพื่อขอคำแนะนำเกี่ยวกับการดูแลสุขภาพที่เหมาะสมกับวัย";
+        }
+
+        tvAgeGroup.setText(ageGroupText);
+        tvAssessmentInfo.setText(assessmentText);
+        tvRecommendation.setText(recommendationText);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View titleView = createInfoTitleView("ข้อมูลอายุและแบบประเมิน", R.drawable.ic_info);
+
+        builder.setCustomTitle(titleView)
+                .setView(dialogView)
+                .setPositiveButton("เข้าใจแล้ว", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private View createInfoTitleView(String title, int iconRes) {
+        LinearLayout titleLayout = new LinearLayout(this);
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#E3F2FD"));
+
+        ImageView iconView = new ImageView(this);
+        iconView.setImageResource(iconRes);
+        iconView.setColorFilter(Color.parseColor("#2196F3"));
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        TextView titleTextView = new TextView(this);
+        titleTextView.setText(title);
+        titleTextView.setTextColor(Color.parseColor("#2196F3"));
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
+    }
+
+    private void showAgeRequiredDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View titleView = createInfoTitleView("ข้อมูลไม่ครบถ้วน", R.drawable.ic_info);
+
+        builder.setCustomTitle(titleView)
+                .setMessage("กรุณากรอกข้อมูลวันเกิดในส่วนข้อมูลบุคคลก่อน\nเพื่อให้ระบบตรวจสอบอายุสำหรับการทำแบบประเมิน")
+                .setPositiveButton("ไปกรอกข้อมูล", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // ขยายส่วนข้อมูลบุคคลหากยังไม่ขยาย
+                        if (personInfoContainer != null && personInfoContainer.getVisibility() != View.VISIBLE) {
+                            personInfoContainer.setVisibility(View.VISIBLE);
+                            personInfoExpandIcon.setImageResource(R.drawable.ic_expand_less_black);
+                        }
+
+                        // Focus ไปที่ช่องวันเกิด (ถ้าเป็นไปได้)
+                        scrollToPersonInfo();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("ยกเลิก", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void scrollToPersonInfo() {
+        new Handler().postDelayed(() -> {
+            View personInfoHeader = findViewById(R.id.personInfoHeader);
+            if (personInfoHeader != null) {
+                personInfoHeader.requestFocus();
+
+                // เอฟเฟกต์กะพริบเบาๆ เพื่อดึงดูดความสนใจ
+                ObjectAnimator fadeOut = ObjectAnimator.ofFloat(personInfoHeader, "alpha", 1f, 0.3f);
+                ObjectAnimator fadeIn = ObjectAnimator.ofFloat(personInfoHeader, "alpha", 0.3f, 1f);
+
+                fadeOut.setDuration(300);
+                fadeIn.setDuration(300);
+
+                fadeOut.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fadeIn.start();
+                    }
+                });
+
+                fadeOut.start();
+            }
+        }, 500);
+    }
+
+    private void updatePersonAgeInfo() {
+        if (personInfo != null && personInfo.getBirthday() != null && !personInfo.getBirthday().isEmpty()) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                Date birth = sdf.parse(personInfo.getBirthday());
+
+                if (birth != null) {
+                    Calendar birthCal = Calendar.getInstance();
+                    birthCal.setTime(birth);
+
+                    Calendar today = Calendar.getInstance();
+
+                    int age = today.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR);
+
+                    if (today.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) {
+                        age--;
+                    }
+
+                    personAge = age;
+                    isPersonAgeValid = (age >= 15 && age <= 59);
+
+                    if (age >= 15 && age <= 34) {
+                        personAgeGroup = "15-34";
+                    } else if (age >= 35 && age <= 59) {
+                        personAgeGroup = "35-59";
+                    } else {
+                        personAgeGroup = "INVALID";
+                    }
+
+                    Log.d("PersonScreeningForm15Activity",
+                            "Age updated - Age: " + age + ", Valid: " + isPersonAgeValid + ", Group: " + personAgeGroup);
+                }
+            } catch (Exception e) {
+                Log.e("PersonScreeningForm15Activity", "Error calculating age: " + e.getMessage());
+                personAge = 0;
+                isPersonAgeValid = false;
+                personAgeGroup = "INVALID";
+            }
+        }
+    }
+    private void setupValidationModeSwitch() {
+        // ค้นหา views ที่เกี่ยวข้อง
+        validationModeHeader = findViewById(R.id.validationModeHeader);
+        validationModeContainer = findViewById(R.id.validationModeContainer);
+        validationModeExpandIcon = findViewById(R.id.validationModeExpandIcon);
+        textCurrentValidationMode = findViewById(R.id.textCurrentValidationMode);
+        switchValidationMode = findViewById(R.id.switchValidationMode);
+
+        // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
+        validationModeHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleValidationModeVisibility();
+            }
+        });
+
+        // ตั้งค่าเริ่มต้นตามสถานะปัจจุบัน
+        switchValidationMode.setChecked(PersonAdapter.isPartialMode());
+        updateValidationModeDisplay();
+
+        // ตั้งค่า listener
+        switchValidationMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // เปลี่ยนโหมดการตรวจสอบ
+                PersonAdapter.setValidationMode(isChecked);
+
+                // อัปเดตการแสดงผล
+                updateValidationModeDisplay();
+
+                // แสดงข้อความแจ้งเตือน
+                String modeText = isChecked ? "โหมดบางส่วน" : "โหมดปกติ";
+                String message = "เปลี่ยนเป็น " + modeText + " แล้ว";
+                Toast.makeText(PersonScreeningForm15Activity.this, message, Toast.LENGTH_SHORT).show();
+
+                Log.d("VALIDATION_MODE", "Changed to: " + modeText);
+
+                // ปิด container หลังจากเปลี่ยนโหมดแล้ว (เลือกใช้หรือไม่)
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (validationModeContainer.getVisibility() == View.VISIBLE) {
+                            toggleValidationModeVisibility();
+                        }
+                    }
+                }, 1500); // ปิดหลังจาก 1.5 วินาที
+            }
+        });
+    }
+    private void updateValidationModeDisplay() {
+        boolean isPartialMode = PersonAdapter.isPartialMode();
+        String currentMode = isPartialMode ? "โหมดบางส่วน" : "โหมดปกติ";
+        textCurrentValidationMode.setText(currentMode);
+
+        // เปลี่ยนสีตามโหมด
+        int textColor = isPartialMode ? Color.parseColor("#FF9800") : Color.parseColor("#4CAF50");
+        textCurrentValidationMode.setTextColor(textColor);
+    }
+    private void toggleValidationModeVisibility() {
+        if (validationModeContainer.getVisibility() == View.VISIBLE) {
+            // ซ่อน
+            validationModeContainer.setVisibility(View.GONE);
+            validationModeExpandIcon.setImageResource(R.drawable.ic_expand_more_black);
+
+            // Animation สำหรับการหมุนไอคอน
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(validationModeExpandIcon, "rotation", 180f, 0f);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.start();
+
+        } else {
+            // แสดง
+            validationModeContainer.setVisibility(View.VISIBLE);
+            validationModeExpandIcon.setImageResource(R.drawable.ic_expand_less_black);
+
+            // Animation สำหรับการหมุนไอคอน
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(validationModeExpandIcon, "rotation", 0f, 180f);
+            rotateAnimator.setDuration(200);
+            rotateAnimator.start();
+        }
+    }
     private void initializeCounselingInfo() {
         counselingInfoContainer = findViewById(R.id.counselingInfoContainer);
         textCounselingType = findViewById(R.id.textCounselingType);
         textCounselingDetail = findViewById(R.id.textCounselingDetail);
+        setupValidationModeCollapsible();
+    }
+    private void setupValidationModeCollapsible() {
+        validationModeHeader = findViewById(R.id.validationModeHeader);
+        validationModeContainer = findViewById(R.id.validationModeContainer);
+        validationModeExpandIcon = findViewById(R.id.validationModeExpandIcon);
+        textCurrentValidationMode = findViewById(R.id.textCurrentValidationMode);
+
+        // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
+        validationModeHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleValidationModeVisibility();
+            }
+        });
+
+        // ตั้งค่าเริ่มต้น
+        updateValidationModeDisplay();
     }
     private void checkSendStatus() {
         if (this.personInfo != null) {
@@ -312,39 +720,42 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
                 try {
-                    savePerson();
-                    if (personInfo.getId() != null) {
-                        saveSmoker();
-                        saveStressDepression();
-                        saveNicotine();
-                        saveDrinking();
-                        saveStressDepression2q();
-                        saveStressDepression9q();
-                        saveSuicideAssessment8q();
-                        saveHealthRiskAssessment();
-                        saveCardiovascularRisk();
-                        saveDrugsOne();
-                        saveDrugsTwo();
-                        saveDrugsThree();
-                        saveDrugsFour();
-                        saveDrugsFive();
-                        saveDrugsSix();
-                        saveDrugsSeven();
-                        saveDrugsEight();
-                        saveCounseling();
-                        saveVisit();
-                        saveVisitDiag();
-
-                        // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
+                    if (personInfo != null) {
+                        savePerson();
                         if (personInfo.getId() != null) {
-                            checkExistingData(personInfo.getId());
-                        }
+                            saveSmoker();
+                            saveStressDepression();
+                            saveNicotine();
+                            saveDrinking();
+                            saveStressDepression2q();
+                            saveStressDepression9q();
+                            saveSuicideAssessment8q();
+                            saveHealthRiskAssessment();
+                            saveCardiovascularRisk();
+                            saveDrugsOne();
+                            saveDrugsTwo();
+                            saveDrugsThree();
+                            saveDrugsFour();
+                            saveDrugsFive();
+                            saveDrugsSix();
+                            saveDrugsSeven();
+                            saveDrugsEight();
+                            saveCounseling();
+                            saveVisit();
+                            saveVisitDiag();
+                            // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
+                            if (personInfo.getId() != null) {
+                                checkExistingData(personInfo.getId());
+                            }
 
-                        Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } catch (Exception e) {
-                    Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                }
+                    } catch(Exception e){
+                        Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                    }
+
+
             }
         });
 
@@ -610,7 +1021,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             showRestrictionDialog(message);
             return;
         }
-
+        if (!validateAgeForAssessment(formName)) {
+            return; // หยุดการทำงานถ้าอายุไม่อยู่ในเกณฑ์
+        }
         Fragment fragment = fragmentMap.get(formName);
         if (fragment != null) {
             if (this.personInfo != null) {
@@ -986,6 +1399,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private String savePerson() {
         SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
         UserSessionManager userSessionManager = new UserSessionManager(mContext);
+        if(this.personInfo == null) {return "";}
         if (this.personInfo.getId() == null || Objects.equals(this.personInfo.getId(), "")){
             this.personInfo.setCreated_by(userSessionManager.getUser());
             this.personInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
@@ -1684,6 +2098,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         System.out.println(msg);
         this.personInfo = data;
 
+        updatePersonAgeInfo();
+
         // ป้องกัน infinite loop - อัพเดต PersonData เฉพาะเมื่อไม่ใช่การ auto-select
         if (sharedViewModel != null && !isUpdatingPersonData) {
             isUpdatingPersonData = true;
@@ -1865,6 +2281,18 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         System.out.println(msg);
        // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
     }
+
+    public boolean isPersonAgeValid() {
+        return isPersonAgeValid;
+    }
+
+    public int getPersonAge() {
+        return personAge;
+    }
+
+    public String getPersonAgeGroup() {
+        return personAgeGroup;
+    }
     // เพิ่มเมธอดสำหรับตรวจสอบความครบถ้วนของข้อมูล StressDepression9q
     private boolean isStressDepression9qDataComplete(StressDepression9qInfo data) {
         if (data == null) return false;
@@ -1889,9 +2317,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +" "+data.getQ7()
                 +" "+data.getQ8()
                 ;
-        if(this.suicideAssessment8qInfo==null){
+//        if(this.suicideAssessment8qInfo==null){
             this.suicideAssessment8qInfo = data;
-        }
+//        }
 
         // ตรวจสอบความครบถ้วนของข้อมูล
         boolean isComplete = isSuicideAssessment8qDataComplete(data);
@@ -1937,9 +2365,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 +" "+data.getHealthRiskQ5()
                 +" "+data.getHealthRiskQ6()
                 ;
-        if(this.healthRiskAssessmentInfo==null){
-            this.healthRiskAssessmentInfo = data;
-        }
+         this.healthRiskAssessmentInfo = data;
 
         // ป้องกัน infinite loop - อัพเดต PersonData เฉพาะเมื่อไม่ใช่การ auto-select
         if (sharedViewModel != null && !isUpdatingPersonData) {
@@ -2542,5 +2968,482 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 //        Intent encrypter = new Intent(getBaseContext(), CryptographerService.class);
 //        encrypter.setAction(Action.ENCRYPT);
 //        startService(encrypter);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("PersonScreeningForm15Activity", "onResume - Refreshing data like first time");
+
+        // โหลดข้อมูลใหม่เหมือนตอนเปิดหน้าจอครั้งแรก
+        refreshAllDataOnResume();
+    }
+
+    /**
+     * รีเฟรชข้อมูลทั้งหมดเหมือนตอนเปิดหน้าจอครั้งแรก
+     */
+    private void refreshAllDataOnResume() {
+        try {
+            Log.d("PersonScreeningForm15Activity", "เริ่มรีเฟรชข้อมูลทั้งหมด");
+
+            // 1. รีเซ็ตสถานะต่างๆ
+            resetInitialStates();
+
+            // 2. โหลดข้อมูลบุคคลใหม่
+            reloadPersonInfoData();
+
+            // 3. ตรวจสอบการใช้สารเสพติดและอัพเดตเมนู
+            new Handler().postDelayed(() -> {
+                checkSubstanceUseAndUpdateMenu();
+                prepareListData();
+                updateExpandableListAdapter();
+
+                // 4. ตรวจสอบข้อมูลที่มีอยู่แล้ว
+                if (personInfo != null && personInfo.getId() != null) {
+                    checkExistingData(personInfo.getId());
+                }
+
+                // 5. รีเฟรชการแสดงผลข้อมูลที่เกี่ยวข้อง
+                refreshDisplayData();
+
+                Log.d("PersonScreeningForm15Activity", "รีเฟรชข้อมูลเสร็จสิ้น");
+
+            }, 500); // หน่วงเวลาเล็กน้อยเพื่อให้ UI พร้อม
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการรีเฟรชข้อมูล: " + e.getMessage());
+        }
+    }
+
+    /**
+     * รีเซ็ตสถานะเริ่มต้นต่างๆ
+     */
+    private void resetInitialStates() {
+        // รีเซ็ตสถานะการโหลดครั้งแรก
+        isInitialLoad = true;
+        isUpdatingPersonData = false;
+
+        // รีเซ็ตสถานะการใช้สารเสพติด
+        previousTobaccoUse = false;
+        previousAlcoholUse = false;
+        hasTobaccoUse = false;
+        hasAlcoholUse = false;
+
+        // รีเซ็ตสถานะอายุ
+        isPersonAgeValid = false;
+        personAge = 0;
+        personAgeGroup = "";
+
+        Log.d("PersonScreeningForm15Activity", "รีเซ็ตสถานะเริ่มต้นเสร็จสิ้น");
+    }
+
+    /**
+     * โหลดข้อมูลบุคคลใหม่
+     */
+    private void reloadPersonInfoData() {
+        String personId = getIntent().getStringExtra("person_id");
+        String visitId = getIntent().getStringExtra("visit_id");
+
+        if (personId != null) {
+            // โหลดข้อมูลจากฐานข้อมูลใหม่
+            reloadPersonInfoFromDatabase(personId);
+
+            // ตั้งค่า ViewModels ใหม่
+            setupViewModelsAgain(personId, visitId);
+
+            Log.d("PersonScreeningForm15Activity", "โหลดข้อมูลบุคคลใหม่สำหรับ ID: " + personId);
+        }
+    }
+
+    /**
+     * โหลดข้อมูลบุคคลจากฐานข้อมูลใหม่
+     */
+    private void reloadPersonInfoFromDatabase(String personId) {
+        try {
+            SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(mContext);
+            List<PersonInfo> personInfos = sfPersonInfoDao.getSfPersonInfoById(Integer.parseInt(personId));
+
+            if (!personInfos.isEmpty()) {
+                this.personInfo = personInfos.get(0);
+
+                // อัพเดตข้อมูลอายุ
+                updatePersonAgeInfo();
+
+                // อัพเดตข้อมูลใน SharedViewModel
+                updatePersonDataFromCurrentInfo();
+
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูลบุคคลจากฐานข้อมูลสำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูลบุคคล: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ตั้งค่า ViewModels ใหม่
+     */
+    private void setupViewModelsAgain(String personId, String visitId) {
+        if (sharedViewModel != null) {
+            // ตั้งค่า PersonInfoLiveData ใหม่
+            PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
+            personInfoLiveData.setId(personId);
+            personInfoLiveData.setVisitId(visitId);
+            sharedViewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
+
+            // ตั้งค่า LiveData อื่นๆ ใหม่
+            setupOtherLiveDataAgain(personId, visitId);
+
+            Log.d("PersonScreeningForm15Activity", "ตั้งค่า ViewModels ใหม่เสร็จสิ้น");
+        }
+    }
+
+    /**
+     * ตั้งค่า LiveData อื่นๆ ใหม่
+     */
+    private void setupOtherLiveDataAgain(String personId, String visitId) {
+        // SmookingLiveData
+        SmookingLiveData smookingLiveData = new SmookingLiveData();
+        smookingLiveData.setPersonId(personId);
+        smookingLiveData.setVisitId(visitId);
+        sharedViewModel.setSmookingMutableLiveData(smookingLiveData);
+
+        // CigaretteAddictionTestLiveData
+        CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
+        cigaretteAddictionTestLiveData.setPersonId(personId);
+        cigaretteAddictionTestLiveData.setVisitId(visitId);
+        sharedViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
+
+        // StressDepressionLiveData
+        StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
+        stressDepressionLiveData.setPersonId(personId);
+        stressDepressionLiveData.setVisitId(visitId);
+        sharedViewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
+
+        // StressDepression2qLiveData
+        StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
+        stressDepression2qLiveData.setPersonId(personId);
+        stressDepression2qLiveData.setVisitId(visitId);
+        sharedViewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
+
+        // StressDepression9qLiveData
+        StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
+        stressDepression9qLiveData.setPersonId(personId);
+        stressDepression9qLiveData.setVisitId(visitId);
+        sharedViewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
+
+        // SuicideAssessment8qLiveData
+        SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
+        suicideAssessment8qLiveData.setPersonId(personId);
+        suicideAssessment8qLiveData.setVisitId(visitId);
+        sharedViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+
+        // HealthRiskAssessmentLiveData
+        HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
+        healthRiskAssessmentLiveData.setPersonId(personId);
+        healthRiskAssessmentLiveData.setVisitId(visitId);
+        sharedViewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+
+        // CardiovascularRiskLiveData
+        CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
+        cardiovascularRiskLiveData.setPersonId(personId);
+        cardiovascularRiskLiveData.setVisitId(visitId);
+        sharedViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
+
+        // DrugsLiveData
+        DrugsLiveData drugsLiveData = new DrugsLiveData();
+        drugsLiveData.setPersonId(personId);
+        drugsLiveData.setVisitId(visitId);
+        sharedViewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
+
+        // CounselingLiveData
+        CounselingLiveData counselingLiveData = new CounselingLiveData();
+        counselingLiveData.setPersonId(personId);
+        counselingLiveData.setVisitId(visitId);
+        sharedViewModel.setCounselingLiveData(counselingLiveData);
+    }
+
+    /**
+     * อัพเดต ExpandableListAdapter
+     */
+    private void updateExpandableListAdapter() {
+        if (expandableListView != null) {
+            expandableListAdapter = new ScreeningExpandableListAdapter(
+                    PersonScreeningForm15Activity.this,
+                    categoryList,
+                    subcategoryMap
+            );
+            expandableListView.setAdapter(expandableListAdapter);
+
+            // ตั้งค่า listeners ใหม่
+            setupExpandableListViewListeners();
+
+            // ขยายรายการทั้งหมดแบบอัตโนมัติ
+            expandAllGroups();
+
+            Log.d("PersonScreeningForm15Activity", "อัพเดต ExpandableListAdapter เสร็จสิ้น");
+        }
+    }
+
+    /**
+     * รีเฟรชการแสดงผลข้อมูลต่างๆ
+     */
+    private void refreshDisplayData() {
+        // รีเฟรชการแสดงผลข้อมูลการให้คำปรึกษา
+        loadExistingCounselingData();
+
+        // รีเฟรชการแสดงผลโหมด validation
+        updateValidationModeDisplay();
+
+        // ตรวจสอบสถานะการส่งข้อมูล
+        checkSendStatus();
+
+        // อัพเดตการแสดงผลข้อมูลบุคคลในส่วนหัว
+        refreshPersonInfoDisplay();
+
+        Log.d("PersonScreeningForm15Activity", "รีเฟรชการแสดงผลข้อมูลเสร็จสิ้น");
+    }
+
+    /**
+     * รีเฟรชการแสดงผลข้อมูลบุคคลในส่วนหัว
+     */
+    private void refreshPersonInfoDisplay() {
+        if (personInfo != null) {
+            // อัพเดตข้อมูลที่แสดงในส่วนหัว (ถ้ามี)
+            // สามารถเพิ่มการอัพเดต UI อื่นๆ ได้ที่นี่
+
+            // ตัวอย่าง: อัพเดตชื่อในหัวเรื่อง
+            String title = "แบบคัดกรองสุขภาพ";
+            if (personInfo.getFname() != null && personInfo.getLname() != null) {
+                title += " - " + personInfo.getFname() + " " + personInfo.getLname();
+            }
+
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(title);
+            }
+
+            Log.d("PersonScreeningForm15Activity", "รีเฟรชการแสดงผลข้อมูลบุคคลเสร็จสิ้น");
+        }
+    }
+
+    /**
+     * โหลดข้อมูลต่างๆ จากฐานข้อมูลใหม่
+     */
+    private void reloadAllRelatedData(String personId) {
+        try {
+            Integer iPersonId = Integer.valueOf(personId);
+
+            // โหลดข้อมูลการสูบบุหรี่
+            reloadSmokerData(iPersonId);
+
+            // โหลดข้อมูลการดื่มสุรา
+            reloadDrinkingData(iPersonId);
+
+            // โหลดข้อมูล Nicotine
+            reloadNicotineData(iPersonId);
+
+            // โหลดข้อมูล Stress Depression
+            reloadStressDepressionData(iPersonId);
+
+            // โหลดข้อมูล Health Risk Assessment
+            reloadHealthRiskAssessmentData(iPersonId);
+
+            // โหลดข้อมูล Cardiovascular Risk
+            reloadCardiovascularRiskData(iPersonId);
+
+            // โหลดข้อมูล Drugs
+            reloadDrugsData(iPersonId);
+
+            Log.d("PersonScreeningForm15Activity", "โหลดข้อมูลที่เกี่ยวข้องทั้งหมดเสร็จสิ้น");
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูลที่เกี่ยวข้อง: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูลการสูบบุหรี่ใหม่
+     */
+    private void reloadSmokerData(Integer personId) {
+        try {
+            SfSmokerInfoDao sfSmokerInfoDao = new SfSmokerInfoDao(mContext);
+            List<SmokerInfo> smokers = sfSmokerInfoDao.getByPersonId(personId);
+
+            if (!smokers.isEmpty()) {
+                this.smokerInfo = smokers.get(0);
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูลการสูบบุหรี่ใหม่สำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูลการสูบบุหรี่: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูลการดื่มสุราใหม่
+     */
+    private void reloadDrinkingData(Integer personId) {
+        try {
+            SfDrinkingInfoDao sfDrinkingInfoDao = new SfDrinkingInfoDao(mContext);
+            List<DrinkingInfo> drinkings = sfDrinkingInfoDao.getByPersonId(personId);
+
+            if (!drinkings.isEmpty()) {
+                this.drinkingInfo = drinkings.get(0);
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูลการดื่มสุราใหม่สำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูลการดื่มสุรา: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูล Nicotine ใหม่
+     */
+    private void reloadNicotineData(Integer personId) {
+        try {
+            SfNicotineInfoDao sfNicotineInfoDao = new SfNicotineInfoDao(mContext);
+            List<NicotineInfo> nicotines = sfNicotineInfoDao.getByPersonId(personId);
+
+            if (!nicotines.isEmpty()) {
+                this.nicotineInfo = nicotines.get(0);
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูล Nicotine ใหม่สำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูล Nicotine: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูล Stress Depression ใหม่
+     */
+    private void reloadStressDepressionData(Integer personId) {
+        try {
+            // Stress Depression
+            SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(mContext);
+            List<StressDepressionInfo> stressDepressions = sfStressDepressionInfoDao.getByPersonId(personId);
+            if (!stressDepressions.isEmpty()) {
+                this.stressDepressionInfo = stressDepressions.get(0);
+            }
+
+            // Stress Depression 2Q
+            SfStressDepression2qInfoDao sfStressDepression2qInfoDao = new SfStressDepression2qInfoDao(mContext);
+            List<StressDepression2qInfo> stressDepression2qs = sfStressDepression2qInfoDao.getByPersonId(personId);
+            if (!stressDepression2qs.isEmpty()) {
+                this.stressDepression2qInfo = stressDepression2qs.get(0);
+            }
+
+            // Stress Depression 9Q
+            SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(mContext);
+            List<StressDepression9qInfo> stressDepression9qs = sfStressDepression9qInfoDao.getByPersonId(personId);
+            if (!stressDepression9qs.isEmpty()) {
+                this.stressDepression9qInfo = stressDepression9qs.get(0);
+            }
+
+            // Suicide Assessment 8Q
+            SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(mContext);
+            List<SuicideAssessment8qInfo> suicideAssessment8qs = sfSuicideAssessment8qInfoDao.getByPersonId(personId);
+            if (!suicideAssessment8qs.isEmpty()) {
+                this.suicideAssessment8qInfo = suicideAssessment8qs.get(0);
+            }
+
+            Log.d("PersonScreeningForm15Activity", "โหลดข้อมูล Stress Depression ใหม่สำเร็จ");
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูล Stress Depression: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูล Health Risk Assessment ใหม่
+     */
+    private void reloadHealthRiskAssessmentData(Integer personId) {
+        try {
+            SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
+            List<HealthRiskAssessmentInfo> healthRisks = sfHealthRiskAssessmentInfoDao.getByPersonId(personId);
+
+            if (!healthRisks.isEmpty()) {
+                this.healthRiskAssessmentInfo = healthRisks.get(0);
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูล Health Risk Assessment ใหม่สำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูล Health Risk Assessment: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูล Cardiovascular Risk ใหม่
+     */
+    private void reloadCardiovascularRiskData(Integer personId) {
+        try {
+            SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(mContext);
+            List<CardiovascularRiskInfo> cardiovascularRisks = sfCardiovascularRiskInfoDao.getByPersonId(personId);
+
+            if (!cardiovascularRisks.isEmpty()) {
+                this.cardiovascularRiskInfo = cardiovascularRisks.get(0);
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูล Cardiovascular Risk ใหม่สำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูล Cardiovascular Risk: " + e.getMessage());
+        }
+    }
+
+    /**
+     * โหลดข้อมูล Drugs ใหม่
+     */
+    private void reloadDrugsData(Integer personId) {
+        try {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(personId);
+
+            if (!drugs.isEmpty()) {
+                // แยกข้อมูล Drugs ตามคำถาม
+                this.drugsOneInfos = new ArrayList<>();
+                this.drugsTwoInfos = new ArrayList<>();
+                this.drugsThreeInfos = new ArrayList<>();
+                this.drugsFourInfos = new ArrayList<>();
+                this.drugsFiveInfos = new ArrayList<>();
+                this.drugsSixInfos = new ArrayList<>();
+                this.drugsSevenInfos = new ArrayList<>();
+                this.drugsEightInfos = new ArrayList<>();
+
+                for (DrugsInfo drug : drugs) {
+                    switch (drug.getQuestion()) {
+                        case "Q1":
+                            this.drugsOneInfos.add(drug);
+                            break;
+                        case "Q2":
+                            this.drugsTwoInfos.add(drug);
+                            break;
+                        case "Q3":
+                            this.drugsThreeInfos.add(drug);
+                            break;
+                        case "Q4":
+                            this.drugsFourInfos.add(drug);
+                            break;
+                        case "Q5":
+                            this.drugsFiveInfos.add(drug);
+                            break;
+                        case "Q6":
+                            this.drugsSixInfos.add(drug);
+                            break;
+                        case "Q7":
+                            this.drugsSevenInfos.add(drug);
+                            break;
+                        case "Q8":
+                            this.drugsEightInfos.add(drug);
+                            break;
+                    }
+                }
+
+                Log.d("PersonScreeningForm15Activity", "โหลดข้อมูล Drugs ใหม่สำเร็จ");
+            }
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการโหลดข้อมูล Drugs: " + e.getMessage());
+        }
+    }
+
+    /**
+     * รีเฟรชข้อมูลแบบครบถ้วน (สำหรับเรียกใช้จากภายนอก)
+     */
+    public void forceRefreshAllData() {
+        Log.d("PersonScreeningForm15Activity", "forceRefreshAllData - เริ่มรีเฟรชข้อมูลแบบบังคับ");
+        refreshAllDataOnResume();
     }
 }

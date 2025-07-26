@@ -164,32 +164,12 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
 //    return view;
 //}
     private void notifyParentOfChange() {
-        // เพิ่ม Log เพื่อตรวจสอบ
-//        Log.d("QuestionOneFragment", "notifyParentOfChange called");
-//
-//        // วัดขนาดของ RecyclerView (สำคัญ!)
-//        if (recyclerView != null && recyclerView.getAdapter() != null) {
-//            recyclerView.post(() -> {
-//                recyclerView.measure(
-//                        View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
-//                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-//                );
-//                Log.d("QuestionOneFragment", "RecyclerView measured height: " + recyclerView.getMeasuredHeight());
-//            });
-//        }
-
         // แจ้ง parent fragment
         Fragment parentFragment = getParentFragment();
         if (parentFragment instanceof MainQuestionsFragment) {
             ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
         }
 
-        // เพิ่มหน่วงเวลาการรีเฟรชให้นานขึ้น (ถ้าจำเป็น)
-//        if (getActivity() instanceof PersonScreeningForm15Activity) {
-//            new Handler().postDelayed(() -> {
-//                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
-//            }, 350); // เพิ่มเวลาหน่วงเป็น 350ms
-//        }
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -206,7 +186,6 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         // ตรวจสอบว่ามีข้อมูลใน ViewModel หรือไม่
         Map<String, AnswerData> viewModelAnswers = questionsViewModel.getQuestionOneAnswers().getValue();
         if (viewModelAnswers != null && !viewModelAnswers.isEmpty()) {
-            // ถ้ามีข้อมูลใน ViewModel ให้ใช้ข้อมูลนั้น
             selectedAnswers = new HashMap<>(viewModelAnswers);
             updateUI(selectedAnswers);
             isDataLoaded = true;
@@ -216,8 +195,6 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
             if (answers != null && isAdded() && !isUpdating[0]) {
                 isUpdating[0] = true;
                 try {
-//                  // ไม่อัพเดต selectedAnswers จาก ViewModel แล้ว
-//                  // เพราะเราต้องการเก็บค่าที่ผู้ใช้เลือกไว้ระหว่างสลับแท็บ
                     updateUI(selectedAnswers);
                 } finally {
                     isUpdating[0] = false;
@@ -225,10 +202,8 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
             }
         };
         questionsViewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answersObserver);
+        loadData();
 
-//        if (!isDataLoaded) {
-            loadData();
-//        }
     }
     @Override
     public void onDestroyView() {
@@ -264,19 +239,19 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         return fragment;
     }
     private void printCurrentSelections() {
-    StringBuilder result = new StringBuilder("Current selections:\n");
-    for (Map.Entry<String, AnswerData> entry : selectedAnswers.entrySet()) {
-        result.append(entry.getKey())
-                .append(": hasUsed=")
-                .append(entry.getValue().isHasUsed());
-        if (entry.getKey().equals("j")) {
-            result.append(", otherSubstance=")
-                    .append(entry.getValue().getOtherDrugs());
+        StringBuilder result = new StringBuilder("Current selections:\n");
+        for (Map.Entry<String, AnswerData> entry : selectedAnswers.entrySet()) {
+            result.append(entry.getKey())
+                    .append(": hasUsed=")
+                    .append(entry.getValue().isHasUsed());
+            if (entry.getKey().equals("j")) {
+                result.append(", otherSubstance=")
+                        .append(entry.getValue().getOtherDrugs());
+            }
+            result.append("\n");
         }
-        result.append("\n");
+        Log.d("QuestionOneFragment", result.toString());
     }
-    Log.d("QuestionOneFragment", result.toString());
-}
     public Map<String, AnswerData> getSelectedAnswers() {
         return new HashMap<>(selectedAnswers);
     }
@@ -284,6 +259,18 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     // เมธอดสำหรับตรวจสอบว่าตอบครบทุกข้อหรือยัง
     public boolean isAllQuestionsAnswered() {
         return selectedAnswers.size() == substanceList.size();
+    }
+    private void clearQuestionTwoAnswerForSubstance(String substanceId) {
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof MainQuestionsFragment) {
+            ((MainQuestionsFragment) parentFragment).clearQuestionTwoAnswerForSubstance(substanceId);
+        }
+    }
+    private void clearAllSubsequentQuestions() {
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment instanceof MainQuestionsFragment) {
+            ((MainQuestionsFragment) parentFragment).clearAllQuestionsWhenNeverUsed();
+        }
     }
 
     @Override
@@ -345,12 +332,18 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                     if (isAllQuestionsAnswered() && isAllSubstancesNeverUsed()) {
                         // หน่วงเวลาเล็กน้อยให้ UI อัพเดตก่อน แล้วค่อยล้างข้อมูล
                         new Handler().postDelayed(() -> {
-                            Fragment parentFragment = getParentFragment();
-                            if (parentFragment instanceof MainQuestionsFragment) {
-                                ((MainQuestionsFragment) parentFragment).clearAllQuestionsWhenNeverUsed();
-                            }
+                            clearAllSubsequentQuestions();
                         }, 200);
                     }
+//                    if (isAllQuestionsAnswered() && isAllSubstancesNeverUsed()) {
+//                        // หน่วงเวลาเล็กน้อยให้ UI อัพเดตก่อน แล้วค่อยล้างข้อมูล
+//                        new Handler().postDelayed(() -> {
+//                            Fragment parentFragment = getParentFragment();
+//                            if (parentFragment instanceof MainQuestionsFragment) {
+//                                ((MainQuestionsFragment) parentFragment).clearAllQuestionsWhenNeverUsed();
+//                            }
+//                        }, 200);
+//                    }
                     // ค้นหาข้อมูลเดิมจาก drugsInfoMap
                     DrugsInfo existingInfo = drugsInfoMap.get(entry.getKey());
                     if (existingInfo != null) {
@@ -487,8 +480,6 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-//        outState.putSerializable("selectedFrequencies", new HashMap<>(selectedFrequencies));
-//        outState.putBoolean("isExpanded", isExpanded);
     }
 
     @Override

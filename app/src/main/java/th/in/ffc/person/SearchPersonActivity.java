@@ -27,6 +27,7 @@ public class SearchPersonActivity extends AppCompatActivity {
     private List<PersonInfo> personList;
     private SfPersonInfoDao personInfoDao;
     private List<PersonInfo> results;
+    private boolean isFirstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,4 +82,17 @@ public class SearchPersonActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isFirstTime) {
+            performSearch();
+
+            // แสดงข้อความแจ้งให้ทราบว่าข้อมูลได้รับการอัพเดตแล้ว
+            Toast.makeText(this, "🔄 อัพเดตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
+        } else {
+            // หลังจากเปิดครั้งแรกแล้ว ให้เปลี่ยนสถานะ
+            isFirstTime = false;
+        }
+    }
 }

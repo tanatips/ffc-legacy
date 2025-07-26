@@ -18,6 +18,123 @@
         android:text="@string/pp_fee_schedule_15_34"
         android:layout_marginBottom="20dp" />
 
+    <!-- Header สำหรับโหมดการตรวจสอบ (คลิกได้) -->
+    <LinearLayout
+        android:id="@+id/validationModeHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F0F0F0"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🔧 การตั้งค่าโหมดการตรวจสอบ"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="#4A4A4A" />
+
+        <ImageView
+            android:id="@+id/validationModeExpandIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_expand_more_black" />
+
+    </LinearLayout>
+
+    <!-- Container สำหรับเนื้อหาโหมดการตรวจสอบ (พับได้) -->
+    <FrameLayout
+        android:id="@+id/validationModeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="12dp">
+
+            <!-- Switch สำหรับเปลี่ยนโหมดการตรวจสอบ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="เปิดใช้โหมดการตรวจสอบบางส่วน"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:textColor="#4A4A4A" />
+
+                <Switch
+                    android:id="@+id/switchValidationMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textOff="ปกติ"
+                    android:textOn="บางส่วน"
+                    android:checked="false" />
+
+            </LinearLayout>
+
+            <!-- คำอธิบายสั้นๆ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💡 โหมดปกติ: ต้องทำครบทุกแบบประเมินในแต่ละหัวข้อ\n🔧 โหมดบางส่วน: ทำอย่างน้อย 1 แบบประเมินในแต่ละหัวข้อ"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:background="#F8F9FA"
+                android:padding="8dp"
+                android:layout_marginTop="8dp" />
+
+            <!-- สถานะปัจจุบัน -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                android:background="#E3F2FD"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="สถานะปัจจุบัน: "
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:textColor="#1976D2" />
+
+                <TextView
+                    android:id="@+id/textCurrentValidationMode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="โหมดปกติ"
+                    android:textSize="12sp"
+                    android:textColor="#1976D2"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

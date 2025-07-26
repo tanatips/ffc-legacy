@@ -164,6 +164,8 @@ public class PersonInfoFragment extends Fragment {
 
     private boolean isEditMode = false;
     private String originalIdCard = "";
+    private boolean isValidAge = false;
+    private int currentAge = 0;
 
 
 
@@ -194,6 +196,161 @@ public class PersonInfoFragment extends Fragment {
 
         districtInfos  = new ArrayList<>();
         subDistrictInfos = new ArrayList<>();
+    }
+    private boolean validateAge(String birthDate) {
+        if (birthDate == null || birthDate.isEmpty()) {
+            return false;
+        }
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            Date birth = sdf.parse(birthDate);
+
+            if (birth == null) {
+                return false;
+            }
+
+            // คำนวณอายุ
+            Calendar birthCal = Calendar.getInstance();
+            birthCal.setTime(birth);
+
+            Calendar today = Calendar.getInstance();
+
+            int age = today.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR);
+
+            // ปรับอายุถ้ายังไม่ถึงวันเกิดในปีนี้
+            if (today.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) {
+                age--;
+            }
+
+            currentAge = age;
+
+            // ตรวจสอบช่วงอายุ: 15-59 ปี
+            boolean isValid = (age >= 15 && age <= 59);
+
+            Log.d("PersonInfoFragment", "Age validation - Age: " + age + ", Valid: " + isValid);
+
+            return isValid;
+
+        } catch (Exception e) {
+            Log.e("PersonInfoFragment", "Error calculating age: " + e.getMessage());
+            return false;
+        }
+    }
+    private void showAgeValidationDialog(int age) {
+        // ป้องกันการเปิด Dialog ซ้ำ
+        if (isDialogShowing) {
+            return;
+        }
+
+        isDialogShowing = true;
+
+        // สร้าง custom view สำหรับ dialog
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_age_warning, null);
+        TextView tvMessage = dialogView.findViewById(R.id.tvAgeMessage);
+        TextView tvAgeInfo = dialogView.findViewById(R.id.tvAgeInfo);
+
+        String message;
+        String ageInfo = "อายุปัจจุบันของท่าน: " + age + " ปี";
+
+        if (age < 15) {
+            message = "แบบประเมินนี้เหมาะสำหรับผู้ที่มีอายุ 15-59 ปี\n\n" +
+                    "ท่านมีอายุน้อยกว่า 15 ปี จึงไม่สามารถทำแบบประเมินนี้ได้\n\n";
+        } else {
+            message = "แบบประเมินนี้เหมาะสำหรับผู้ที่มีอายุ 15-59 ปี\n\n" +
+                    "ท่านมีอายุมากกว่า 59 ปี จึงไม่สามารถทำแบบประเมินนี้ได้\n\n";
+        }
+
+        tvMessage.setText(message);
+        tvAgeInfo.setText(ageInfo);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("อายุไม่อยู่ในเกณฑ์")
+                .setView(dialogView)
+                .setIcon(R.drawable.ic_warning)
+                .setPositiveButton("ปิด", (dialog, which) -> {
+
+                    clearInvalidAgeData();
+                    isDialogShowing = false;
+                    dialog.dismiss();
+                })
+                .setOnDismissListener(dialog -> {
+                    isDialogShowing = false;
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private String getAgeGroupDescription(int age) {
+        if (age >= 15 && age <= 34) {
+            return "กลุ่มอายุ 15-34 ปี: เหมาะสำหรับการคัดกรองพื้นฐาน";
+        } else if (age >= 35 && age <= 59) {
+            return "กลุ่มอายุ 35-59 ปี: เหมาะสำหรับการคัดกรองแบบละเอียด รวมถึงการตรวจเบาหวานและหัวใจ";
+        } else {
+            return "อายุไม่อยู่ในเกณฑ์สำหรับแบบประเมินนี้";
+        }
+    }
+    private void showAgeGroupInfo(int age) {
+        String ageGroupMsg = getAgeGroupDescription(age);
+
+        // แสดง Toast ข้อมูลกลุ่มอายุ
+        Toast.makeText(getContext(),
+                "อายุ: " + age + " ปี\n" + ageGroupMsg,
+                Toast.LENGTH_LONG).show();
+    }
+    private void clearInvalidAgeData() {
+        // หยุดการทำงานของ TextWatcher ชั่วคราว
+        isValidatingIdCard = true;
+
+        try {
+            // เคลียร์เลขบัตรประชาชน
+            citizenId.setText("");
+            citizenId.setError(null);
+            personInfo.setIdcard("");
+
+            // เคลียร์ชื่อ
+            fname.setText("");
+            fname.setError(null);
+            personInfo.setFname("");
+
+            // เคลียร์นามสกุล
+            lname.setText("");
+            lname.setError(null);
+            personInfo.setLname("");
+
+            // เคลียร์วันเกิด
+            txtBirthDay.setText("");
+            txtBirthDay.setError(null);
+            personInfo.setBirthday("");
+
+            // เคลียร์เพศ
+            rdoMale.setChecked(false);
+            rdoFemale.setChecked(false);
+            personInfo.setGender("");
+
+            // เคลียร์รูปภาพ
+            imgPerson.setImageResource(R.drawable.ic_person);
+            personInfo.setPhoto(null);
+
+            // รีเซ็ตค่าการตรวจสอบอายุ
+            currentAge = 0;
+            isValidAge = false;
+
+            // อัพเดท PersonInfo ใน dataPasser
+            dataPasser.onPersonInfo(personInfo);
+
+            // Focus ไปที่ช่องเลขบัตรประชาชน
+            citizenId.requestFocus();
+
+            Toast.makeText(getContext(), "เคลียร์ข้อมูลเนื่องจากอายุไม่อยู่ในเกณฑ์", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Log.e("PersonInfoFragment", "Error clearing invalid age data: " + e.getMessage());
+        } finally {
+            // คืนค่าสถานะการทำงานของ TextWatcher
+            isValidatingIdCard = false;
+        }
     }
     private void setupBmiInfoButton() {
         View view = getView();
@@ -671,6 +828,16 @@ public class PersonInfoFragment extends Fragment {
                                             if (westernDate != null) {
                                                 personInfo.setBirthday(westernDate);
                                             }
+                                            // ตรวจสอบอายุทันทีหลังจากเลือกวันเกิด
+                                            isValidAge = validateAge(westernDate);
+
+                                            if (!isValidAge) {
+                                                // แสดง Dialog เตือนถ้าอายุไม่อยู่ในเกณฑ์
+                                                showAgeValidationDialog(currentAge);
+                                            } else {
+                                                // แสดงข้อมูลกลุ่มอายุถ้าอายุอยู่ในเกณฑ์
+                                                showAgeGroupInfo(currentAge);
+                                            }
                                         } catch (Exception e) {
                                             Log.e("Date Conversion", "Error converting birth date: " + e.getMessage());
                                         }
@@ -987,7 +1154,19 @@ public class PersonInfoFragment extends Fragment {
                         Calendar selectedDate = Calendar.getInstance();
                         selectedDate.set(year, month, dayOfMonth);
                         if(editText == txtBirthDay) {
-                            this.personInfo.setBirthday(convertToWesternDate(editText.getText().toString()));
+                            String westernDate = convertToWesternDate(editText.getText().toString());
+                            this.personInfo.setBirthday(westernDate);
+
+                            // ตรวจสอบอายุทันทีหลังจากเลือกวันเกิด
+                            isValidAge = validateAge(westernDate);
+
+                            if (!isValidAge) {
+                                // แสดง Dialog เตือนถ้าอายุไม่อยู่ในเกณฑ์
+                                showAgeValidationDialog(currentAge);
+                            } else {
+                                // แสดงข้อมูลกลุ่มอายุถ้าอายุอยู่ในเกณฑ์
+                                showAgeGroupInfo(currentAge);
+                            }
                         }
                         else if(editText == txtAuthenDate) {
                             this.personInfo.setAuthen_date(convertToWesternDate(editText.getText().toString()));
@@ -1026,6 +1205,14 @@ public class PersonInfoFragment extends Fragment {
             fname.setText(person.getFname());
             lname.setText(person.getLname());
             txtBirthDay.setText(DateConverter.convertToThaiBuddhistDate(person.getBirthday()));
+            if (person.getBirthday() != null && !person.getBirthday().isEmpty()) {
+                isValidAge = validateAge(person.getBirthday());
+                if (isValidAge) {
+                    Log.d("PersonInfoFragment", "Loaded person age: " + currentAge + " years, Age group: " + getAgeGroup());
+                } else {
+                    Log.w("PersonInfoFragment", "Loaded person has invalid age: " + currentAge + " years");
+                }
+            }
             txtAuthenDate.setText(DateConverter.convertToThaiBuddhistDateTime(person.getAuthen_date()));
             if ("M".equals(person.getGender())) {
                 rdoMale.setChecked(true);
@@ -1255,7 +1442,10 @@ public class PersonInfoFragment extends Fragment {
                 personInfo.setGender("F");
             }
             String birthDay = getTextFromEditText(txtBirthDay);
-            personInfo.setBirthday(convertToWesternDate(birthDay));
+            String westernBirthDay = convertToWesternDate(birthDay);
+            personInfo.setBirthday(westernBirthDay);
+
+            isValidAge = validateAge(westernBirthDay);
 
             // Contact and Hospital Information
             personInfo.setPhone(getTextFromEditText(txtPhoneNo));
@@ -2195,6 +2385,24 @@ public class PersonInfoFragment extends Fragment {
             lname.setError(null);
         }
 
+        // Validate Birth Date and Age
+        String birthDateText = txtBirthDay.getText().toString().trim();
+        if (birthDateText.isEmpty()) {
+            txtBirthDay.setError("กรุณาเลือกวันเกิด");
+            isValid = false;
+            isValidAge = false;
+        } else {
+            String westernDate = convertToWesternDate(birthDateText);
+            isValidAge = validateAge(westernDate);
+
+            if (!isValidAge) {
+                txtBirthDay.setError("อายุต้องอยู่ในช่วง 15-59 ปี (อายุปัจจุบัน: " + currentAge + " ปี)");
+                isValid = false;
+            } else {
+                txtBirthDay.setError(null);
+            }
+        }
+
         // Validate numeric fields
         try {
             if (!txtWeight.getText().toString().trim().isEmpty()) {
@@ -2231,6 +2439,7 @@ public class PersonInfoFragment extends Fragment {
             isValid = false;
         }
 
+        isValid = isValid && isValidAge;
         // เก็บสถานะการ validate ไว้ใน PersonInfo สำหรับใช้ตอนบันทึก
         if (personInfo != null) {
             personInfo.setValidationPassed(isValid);
@@ -2247,6 +2456,23 @@ public class PersonInfoFragment extends Fragment {
         // รีเซ็ตสถานะเมื่อ Fragment ถูกทำลาย
         isDialogShowing = false;
         isValidatingIdCard = false;
+    }
+    public boolean isAgeValidForAssessment() {
+        return isValidAge && currentAge >= 15 && currentAge <= 59;
+    }
+
+    // เพิ่มเมธอดสำหรับ get อายุปัจจุบัน
+    public int getCurrentAge() {
+        return currentAge;
+    }
+    public String getAgeGroup() {
+        if (currentAge >= 15 && currentAge <= 34) {
+            return "15-34";
+        } else if (currentAge >= 35 && currentAge <= 59) {
+            return "35-59";
+        } else {
+            return "INVALID";
+        }
     }
     /**
      * แยกและจัดรูปแบบข้อความ Error จากข้อความที่มี JSON
