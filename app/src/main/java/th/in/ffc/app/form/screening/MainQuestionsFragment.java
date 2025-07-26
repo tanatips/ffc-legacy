@@ -100,8 +100,8 @@ public class MainQuestionsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อแสดง/ซ่อน AssistScoreFragment
-//        observeQuestionOneChanges();
+        // สังเกตการเปลี่ยนแปลงของ Question 2 เพื่อซ่อน/แสดงข้อ 3, 4, 5
+        observeQuestionTwoChanges();
 
         // คำนวณความสูงเริ่มต้นหลังจาก View พร้อม
         view.post(() -> {
@@ -259,6 +259,204 @@ public class MainQuestionsFragment extends Fragment {
     }
 
     /**
+     * สังเกตการเปลี่ยนแปลงของ Question 2 เพื่อซ่อน/แสดงข้อ 3, 4, 5
+     */
+    private void observeQuestionTwoChanges() {
+        if (questionsStateViewModel != null) {
+            questionsStateViewModel.getQuestionTwoAnswers().observe(getViewLifecycleOwner(), answers -> {
+                if (answers != null) {
+                    checkAndToggleQuestions345Visibility();
+                }
+            });
+        }
+    }
+
+    /**
+     * ตรวจสอบและแสดง/ซ่อนข้อ 3, 4, 5 ตามการเลือกใน Question 2
+     */
+    private void checkAndToggleQuestions345Visibility() {
+        boolean shouldHideQuestions345 = isAllQuestionTwoAnswersNever();
+
+        if (shouldHideQuestions345) {
+            hideQuestions345();
+            clearQuestions345Data();
+        } else {
+            showQuestions345();
+        }
+
+        Log.d(TAG, "Questions 3,4,5 visibility: " + (shouldHideQuestions345 ? "HIDDEN" : "VISIBLE"));
+    }
+
+    /**
+     * ตรวจสอบว่าข้อ 2 เลือก "ไม่เคย" (frequency = 0) ทั้งหมดหรือไม่
+     */
+    private boolean isAllQuestionTwoAnswersNever() {
+        Map<String, AnswerFrequencyData> answers = questionsStateViewModel.getQuestionTwoAnswers().getValue();
+
+        if (answers == null || answers.isEmpty()) {
+            return false;
+        }
+
+        // ตรวจสอบว่าทุกรายการในข้อ 2 มีการเลือกแล้วหรือไม่
+        for (Map.Entry<String, AnswerFrequencyData> entry : answers.entrySet()) {
+            AnswerFrequencyData data = entry.getValue();
+
+            // ถ้ายังไม่มีการเลือก (frequency = -1) ให้ return false
+            if (data == null || data.getFrequency() == -1) {
+                return false;
+            }
+
+            // ถ้ามีการเลือกที่ไม่ใช่ "ไม่เคย" (frequency != 0) ให้ return false
+            if (data.getFrequency() != 0) {
+                return false;
+            }
+        }
+
+        return true; // ทุกรายการเลือก "ไม่เคย" (frequency = 0)
+    }
+
+    /**
+     * ซ่อนข้อ 3, 4, 5
+     */
+    private void hideQuestions345() {
+        View containerView = getView();
+        if (containerView != null) {
+            View question3Container = containerView.findViewById(R.id.question_three_container);
+            View question4Container = containerView.findViewById(R.id.question_four_container);
+            View question5Container = containerView.findViewById(R.id.question_five_container);
+
+            if (question3Container != null) {
+                question3Container.setVisibility(View.GONE);
+            }
+            if (question4Container != null) {
+                question4Container.setVisibility(View.GONE);
+            }
+            if (question5Container != null) {
+                question5Container.setVisibility(View.GONE);
+            }
+
+            forceRecalculateHeight();
+            Log.d(TAG, "ซ่อนข้อ 3, 4, 5 แล้ว");
+        }
+    }
+
+    /**
+     * แสดงข้อ 3, 4, 5
+     */
+    private void showQuestions345() {
+        View containerView = getView();
+        if (containerView != null) {
+            View question3Container = containerView.findViewById(R.id.question_three_container);
+            View question4Container = containerView.findViewById(R.id.question_four_container);
+            View question5Container = containerView.findViewById(R.id.question_five_container);
+
+            if (question3Container != null) {
+                question3Container.setVisibility(View.VISIBLE);
+            }
+            if (question4Container != null) {
+                question4Container.setVisibility(View.VISIBLE);
+            }
+            if (question5Container != null) {
+                question5Container.setVisibility(View.VISIBLE);
+            }
+
+            forceRecalculateHeight();
+            Log.d(TAG, "แสดงข้อ 3, 4, 5 แล้ว");
+        }
+    }
+
+    /**
+     * ล้างข้อมูลในข้อ 3, 4, 5 เมื่อซ่อน
+     */
+    private void clearQuestions345Data() {
+        Log.d(TAG, "เริ่มล้างข้อมูลข้อ 3, 4, 5");
+
+        // ล้างข้อมูลใน ViewModel
+        clearQuestions345ViewModel();
+
+        // ล้างข้อมูลใน Fragments
+        clearQuestions345Fragments();
+
+        // ล้างข้อมูลใน Database
+        clearQuestions345Database();
+
+        Log.d(TAG, "ล้างข้อมูลข้อ 3, 4, 5 เสร็จสิ้น");
+    }
+
+    /**
+     * ล้างข้อมูลใน ViewModel สำหรับข้อ 3, 4, 5
+     */
+    private void clearQuestions345ViewModel() {
+        if (questionsStateViewModel != null) {
+            Map<String, AnswerFrequencyData> emptyFrequencyData = new HashMap<>();
+
+            // สร้างข้อมูลว่างสำหรับทุก substance
+            String[] substanceIds = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+            for (String id : substanceIds) {
+                emptyFrequencyData.put(id, new AnswerFrequencyData(-1, ""));
+            }
+
+            // ล้างข้อมูลข้อ 3, 4, 5
+            questionsStateViewModel.setQuestionThreeAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionFourAnswers(new HashMap<>(emptyFrequencyData));
+            questionsStateViewModel.setQuestionFiveAnswers(new HashMap<>(emptyFrequencyData));
+
+            Log.d(TAG, "ล้างข้อมูล ViewModel ข้อ 3, 4, 5 เสร็จสิ้น");
+        }
+    }
+
+    /**
+     * ล้างข้อมูลใน Fragments สำหรับข้อ 3, 4, 5
+     */
+    private void clearQuestions345Fragments() {
+        if (questionThreeFragment != null) {
+            questionThreeFragment.clearAllData();
+        }
+        if (questionFourFragment != null) {
+            questionFourFragment.clearAllData();
+        }
+        if (questionFiveFragment != null) {
+            questionFiveFragment.clearAllData();
+        }
+
+        Log.d(TAG, "ล้างข้อมูล Fragments ข้อ 3, 4, 5 เสร็จสิ้น");
+    }
+
+    /**
+     * ล้างข้อมูลใน Database สำหรับข้อ 3, 4, 5
+     */
+    private void clearQuestions345Database() {
+        try {
+            SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+            PersonInfoLiveData personInfoData = sharedViewModel.getPersonInfoLiveDataMutableLiveData().getValue();
+            String personInfoId = personInfoData != null ? personInfoData.getId() : null;
+
+            if (personInfoId != null) {
+                // ล้างข้อมูลใน Database
+                SfDrugsDao sfDrugsDao = new SfDrugsDao(requireContext());
+                String[] questions = {"Q3", "Q4", "Q5"};
+                sfDrugsDao.deleteDrugsByPersonIdAndQuestions(personInfoId, questions);
+
+                Log.d(TAG, "ล้างข้อมูล Database ข้อ 3, 4, 5 เสร็จสิ้น");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "เกิดข้อผิดพลาดในการล้างข้อมูล Database ข้อ 3, 4, 5: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ตรวจสอบว่าข้อ 3, 4, 5 ถูกซ่อนอยู่หรือไม่
+     */
+    public boolean areQuestions345Hidden() {
+        View containerView = getView();
+        if (containerView != null) {
+            View question3Container = containerView.findViewById(R.id.question_three_container);
+            return question3Container != null && question3Container.getVisibility() == View.GONE;
+        }
+        return false;
+    }
+
+    /**
      * สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อแสดง/ซ่อน AssistScoreFragment
      */
     private void observeQuestionOneChanges() {
@@ -363,9 +561,9 @@ public class MainQuestionsFragment extends Fragment {
         int[] fragmentContainerIds = new int[] {
                 R.id.question_one_container,
                 R.id.question_two_container,
-                R.id.question_three_container,
-                R.id.question_four_container,
-                R.id.question_five_container,
+                R.id.question_three_container, // อาจถูกซ่อน
+                R.id.question_four_container,  // อาจถูกซ่อน
+                R.id.question_five_container,  // อาจถูกซ่อน
                 R.id.question_six_container,
                 R.id.question_seven_container,
                 R.id.question_eight_container,
@@ -374,7 +572,7 @@ public class MainQuestionsFragment extends Fragment {
 
         for (int containerId : fragmentContainerIds) {
             View containerView = view.findViewById(containerId);
-            if (containerView != null) {
+            if (containerView != null && containerView.getVisibility() == View.VISIBLE) {
 
                 // คำนวณความสูงของ Fragment แต่ละตัว
                 int fragmentHeight = calculateFragmentHeight(containerId, containerView);
@@ -388,6 +586,8 @@ public class MainQuestionsFragment extends Fragment {
                 }
 
                 Log.d(TAG, "Container " + getResourceName(containerId) + " height: " + fragmentHeight);
+            } else {
+                Log.d(TAG, "Container " + getResourceName(containerId) + " is hidden");
             }
         }
 
@@ -398,6 +598,7 @@ public class MainQuestionsFragment extends Fragment {
         Log.d(TAG, "Total calculated height: " + finalHeight);
         return finalHeight;
     }
+
     private int calculateFragmentHeight(int containerId, View containerView) {
         Fragment childFragment = getChildFragmentManager().findFragmentById(containerId);
 
@@ -575,7 +776,11 @@ public class MainQuestionsFragment extends Fragment {
 
         // ตรวจสอบการแสดง AssistScoreFragment
 //        checkAndToggleAssistScoreVisibility();
+
+        // ตรวจสอบการแสดง/ซ่อนข้อ 3, 4, 5
+        checkAndToggleQuestions345Visibility();
     }
+
     public void clearAllQuestionsWhenNeverUsed() {
         if (isAllSubstancesNeverUsed()) {
             Log.d(TAG, "ตรวจพบการเลือก 'ไม่เคย' ทั้งหมด - ล้างข้อมูลข้อ 2-8");
@@ -702,7 +907,7 @@ public class MainQuestionsFragment extends Fragment {
         return emptyList;
     }
 
-    // เมธอดเดิมทั้งหมด (ไม่เปลี่ยนแปลง)
+    // เมธอดเดิมทั้งหมด (แก้ไขเพื่อรองรับการซ่อน/แสดงข้อ 3, 4, 5)
     public String getDetailedValidationMessage() {
         List<String> allMessages = new ArrayList<>();
 
@@ -721,24 +926,27 @@ public class MainQuestionsFragment extends Fragment {
             }
         }
 
-        if (questionThreeFragment != null) {
-            String message = questionThreeFragment.getValidationMessage();
-            if (!message.isEmpty()) {
-                allMessages.add(message);
+        // ตรวจสอบข้อ 3, 4, 5 เฉพาะเมื่อไม่ถูกซ่อน
+        if (!areQuestions345Hidden()) {
+            if (questionThreeFragment != null) {
+                String message = questionThreeFragment.getValidationMessage();
+                if (!message.isEmpty()) {
+                    allMessages.add(message);
+                }
             }
-        }
 
-        if (questionFourFragment != null) {
-            String message = questionFourFragment.getValidationMessage();
-            if (!message.isEmpty()) {
-                allMessages.add(message);
+            if (questionFourFragment != null) {
+                String message = questionFourFragment.getValidationMessage();
+                if (!message.isEmpty()) {
+                    allMessages.add(message);
+                }
             }
-        }
 
-        if (questionFiveFragment != null) {
-            String message = questionFiveFragment.getValidationMessage();
-            if (!message.isEmpty()) {
-                allMessages.add(message);
+            if (questionFiveFragment != null) {
+                String message = questionFiveFragment.getValidationMessage();
+                if (!message.isEmpty()) {
+                    allMessages.add(message);
+                }
             }
         }
 
@@ -938,6 +1146,11 @@ public class MainQuestionsFragment extends Fragment {
             String detailedMessage = getDetailedValidationMessage();
             if (!detailedMessage.isEmpty()) {
                 message.append(detailedMessage);
+            } else {
+                // เพิ่มข้อความเกี่ยวกับการข้ามข้อ 3, 4, 5
+                if (areQuestions345Hidden()) {
+                    message.append("📌 หมายเหตุ: เนื่องจากข้อ 2 เลือก \"ไม่เคย\" ทั้งหมด จึงข้ามข้อ 3, 4, 5 ไปข้อ 6\n");
+                }
             }
 
             return message.toString();
