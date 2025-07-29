@@ -2,6 +2,8 @@ package th.in.ffc.app.form.screening;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,10 +12,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -27,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression2qLiveData;
@@ -34,6 +39,8 @@ import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.view.DepressionRiskGaugeView;
+import th.in.ffc.provider.ScreeningResultCode;
+import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.Log;
 import android.app.AlertDialog;
 import android.widget.ImageView;
@@ -74,7 +81,11 @@ public class StressDepression9qFragment extends Fragment {
     private TextView tvDepressionGaugeCode;
     private TextView tvDepressionGaugeRecommendation;
     private SeekBar seekBarDepressionGaugeTest;
+    // เพิ่ม field สำหรับ DAO
+    private ScreeningResultCodeDao screeningResultCodeDao;
 
+    private int currentPersonId = -1;
+    private int currentVisitNo = -1;
 
     public StressDepression9qFragment() {
         // Required empty public constructor
@@ -333,6 +344,7 @@ public class StressDepression9qFragment extends Fragment {
                 0,0,0,
                 0,0,0,
                 0,0,0));
+        screeningResultCodeDao = new ScreeningResultCodeDao(getContext());
     }
 
     private int sumPoints() {
@@ -348,6 +360,247 @@ public class StressDepression9qFragment extends Fragment {
         }
 
         return totalScore;
+    }
+    public boolean saveToScreeningResultCode(int personId, int visitno, String userCreate) {
+        try {
+            if (!isFormComplete()) {
+                Log.e("StressDepression9q", "ไม่สามารถบันทึกได้ - ข้อมูลไม่ครบถ้วน");
+                return false;
+            }
+
+            // สร้าง ScreeningResultData
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_STRESS_DEPRESSION_9Q; // "9Q"
+            data.totalScore = getTotalScore();
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode และ resultDescription ตาม 9Q
+            setResultCodeAndDescription9Q(data);
+
+            // กำหนด riskLevel และ isAbnormal
+            setRiskLevelAndAbnormal9Q(data);
+
+            // กำหนดคำแนะนำ
+            data.recommendation = getRecommendation9Q();
+
+            // กำหนดข้อมูลเพิ่มเติมสำหรับ 9Q
+            setAdditionalData9Q(data);
+
+            // บันทึกข้อมูล
+            Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d("StressDepression9q", "บันทึกผลการคัดกรอง 9Q สำเร็จ: " + result.toString());
+                Log.d("StressDepression9q", "รายละเอียด: personId=" + personId + ", visitno=" + visitno +
+                        ", score=" + data.totalScore + ", resultCode=" + data.resultCode +
+                        ", severity=" + getDepressionSeverity());
+                return true;
+            } else {
+                Log.e("StressDepression9q", "เกิดข้อผิดพลาดในการบันทึกผลการคัดกรอง 9Q");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e("StressDepression9q", "Exception ในการบันทึกผลการคัดกรอง 9Q: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void setResultCodeAndDescription9Q(ScreeningResultCodeDao.ScreeningResultData data) {
+        int totalScore = data.totalScore;
+
+        if (totalScore < 7) {
+            data.resultCode = "1B0260";
+            data.resultDescription = "ไม่มีอาการของโรคซึมเศร้า";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            data.resultCode = "1B0261";
+            data.resultDescription = "มีอาการของโรคซึมเศร้าระดับน้อย";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            data.resultCode = "1B0262";
+            data.resultDescription = "มีอาการของโรคซึมเศร้าระดับปานกลาง";
+        } else if (totalScore >= 19) {
+            data.resultCode = "1B0263";
+            data.resultDescription = "มีอาการของโรคซึมเศร้าระดับรุนแรง";
+        }
+    }
+    private void setRiskLevelAndAbnormal9Q(ScreeningResultCodeDao.ScreeningResultData data) {
+        int totalScore = data.totalScore;
+
+        if (totalScore < 7) {
+            data.riskLevel = ScreeningResultCode.RISK_NORMAL;
+            data.isAbnormal = false;
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            data.riskLevel = ScreeningResultCode.RISK_LOW;
+            data.isAbnormal = true;
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            data.riskLevel = ScreeningResultCode.RISK_MODERATE;
+            data.isAbnormal = true;
+        } else if (totalScore >= 19) {
+            data.riskLevel = ScreeningResultCode.RISK_HIGH;
+            data.isAbnormal = true;
+        }
+    }
+    private String getRecommendation9Q() {
+        if (!isFormComplete()) {
+            return "กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int totalScore = getTotalScore();
+
+        // ตรวจสอบความเสี่ยงการฆ่าตัวตายก่อน (ข้อ 9)
+        if (hasSuicidalRisk()) {
+            return "⚠️ พบความเสี่ยงในการทำร้ายตนเอง ควรพบแพทย์โดยด่วน และแนะนำให้ทำแบบประเมิน 8Q";
+        }
+
+        if (totalScore < 7) {
+            return "ไม่มีอาการของโรคซึมเศร้า ควรดูแลสุขภาพจิตให้ดีต่อไป";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return "มีอาการซึมเศร้าระดับน้อย ควรพักผ่อนให้เพียงพอ ออกกำลังกาย และทำกิจกรรมที่ชื่นชอบ";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return "มีอาการซึมเศร้าระดับปานกลาง ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิต";
+        } else if (totalScore >= 19) {
+            return "มีอาการซึมเศร้าระดับรุนแรง ควรพบแพทย์เพื่อรับการรักษาโดยเร็ว";
+        }
+
+        return "";
+    }
+    private void setAdditionalData9Q(ScreeningResultCodeDao.ScreeningResultData data) {
+        // กำหนดข้อมูลเพิ่มเติม
+        data.hasHighRisk = isHighRisk();
+
+        // กำหนดข้อมูลความเสี่ยงการฆ่าตัวตาย
+        boolean suicidalRisk = hasSuicidalRisk();
+        if (suicidalRisk) {
+            data.additionalInfo = "SUICIDAL_RISK=true";
+            data.requiresFollowUp = true;
+            data.followUpType = "8Q_ASSESSMENT";
+        }
+
+        // กำหนดระดับความรุนแรง
+        String severity = getDepressionSeverityLevel();
+        data.severityLevel = severity;
+    }
+
+
+    /**
+     * ดึงระดับความรุนแรงแบบสั้น
+     */
+    private String getDepressionSeverityLevel() {
+        int totalScore = getTotalScore();
+
+        if (totalScore < 7) {
+            return "NORMAL";
+        } else if (totalScore >= 7 && totalScore <= 12) {
+            return "MILD";
+        } else if (totalScore >= 13 && totalScore <= 18) {
+            return "MODERATE";
+        } else if (totalScore >= 19) {
+            return "SEVERE";
+        }
+
+        return "UNKNOWN";
+    }
+    public void loadFromScreeningResultCode(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_STRESS_DEPRESSION_9Q);
+
+            if (existingData != null) {
+                Log.d("StressDepression9q", "พบข้อมูลการประเมิน 9Q เดิม: คะแนน=" + existingData.totalScore +
+                        ", ผลการประเมิน=" + existingData.resultDescription);
+
+                Toast.makeText(getContext(),
+                        "โหลดข้อมูลการประเมิน 9Q เดิม: " + existingData.resultDescription,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d("StressDepression9q", "ไม่พบข้อมูลการประเมิน 9Q เดิม");
+            }
+        } catch (Exception e) {
+            Log.e("StressDepression9q", "เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน 9Q: " + e.getMessage());
+        }
+    }
+
+    public boolean hasExistingData(int personId, int visitno) {
+        try {
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_STRESS_DEPRESSION_9Q);
+            return existingData != null;
+        } catch (Exception e) {
+            Log.e("StressDepression9q", "เกิดข้อผิดพลาดในการตรวจสอบข้อมูลเดิม: " + e.getMessage());
+            return false;
+        }
+    }
+    public void showSaveResult(boolean success, String message) {
+        if (success) {
+            Toast.makeText(getContext(),
+                    "✅ บันทึกผลการประเมินซึมเศร้า 9Q สำเร็จ",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(),
+                    "❌ เกิดข้อผิดพลาดในการบันทึก: " + message,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public ScreeningResultCodeDao.ScreeningStatistics getStatistics() {
+        try {
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_STRESS_DEPRESSION_9Q);
+        } catch (Exception e) {
+            Log.e("StressDepression9q", "เกิดข้อผิดพลาดในการดึงสถิติ 9Q: " + e.getMessage());
+            return null;
+        }
+    }
+    public void showStatistics() {
+        ScreeningResultCodeDao.ScreeningStatistics stats = getStatistics();
+        if (stats != null) {
+            String message = String.format(
+                    "สถิติการประเมิน 9Q:\n" +
+                            "จำนวนทั้งหมด: %d ครั้ง\n" +
+                            "ปกติ: %d ครั้ง\n" +
+                            "ผิดปกติ: %d ครั้ง\n" +
+                            "คะแนนเฉลี่ย: %.1f\n" +
+                            "คะแนนสูงสุด: %d\n" +
+                            "คะแนนต่ำสุด: %d",
+                    stats.totalCount, stats.normalCount, stats.abnormalCount,
+                    stats.averageScore, stats.maxScore, stats.minScore
+            );
+
+            Log.d("StressDepression9q", message);
+        }
+    }
+    private View createCriticalRiskTitleView(String title) {
+        LinearLayout titleLayout = new LinearLayout(getContext());
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#FFCDD2")); // พื้นหลังแดงอ่อน
+
+        // เพิ่มไอคอนเตือนวิกฤต
+        ImageView iconView = new ImageView(getContext());
+        iconView.setImageResource(R.drawable.ic_warning);
+        iconView.setColorFilter(Color.parseColor("#D32F2F")); // สีแดงเข้ม
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(28), dpToPx(28)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        // เพิ่ม TextView สำหรับ title
+        TextView titleTextView = new TextView(getContext());
+        titleTextView.setText(title);
+        titleTextView.setTextColor(Color.parseColor("#D32F2F")); // สีแดงเข้ม
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -675,6 +928,23 @@ public class StressDepression9qFragment extends Fragment {
                 updateTableHighlight();
             }
         });
+
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+            if (personInfo != null && personInfo.getId() != null) {
+                int personId = Integer.parseInt(personInfo.getId());
+                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
+                    int visitno = Integer.parseInt(personInfo.getVisitId());
+
+                    // ตั้งค่าข้อมูลสำหรับการบันทึก
+                    currentPersonId = personId;
+                    currentVisitNo = visitno;
+
+                    // โหลดข้อมูลเดิมจาก ScreeningResultCode (ถ้ามี)
+                    loadFromScreeningResultCode(personId, visitno);
+                }
+            }
+        });
     }
     private void setupInfoButtonListener() {
         if (ivStress9qInfoButton != null) {
@@ -695,7 +965,9 @@ public class StressDepression9qFragment extends Fragment {
             throw new ClassCastException(context.toString() + " must implement OnDataPass");
         }
     }
-
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
     private void  loadData(){
         SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(getContext());
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);

@@ -33,6 +33,9 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.ArrayList;
+
+import th.in.ffc.BuildConfig;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
 import th.in.ffc.app.form.screening.MainQuestionsFragment;
@@ -365,22 +368,27 @@ public class FormDialogFragment extends DialogFragment {
                 if (!stress9qFragment.isFormComplete()) {
                     isFormValid = false;
                     errorMessage = stress9qFragment.getDetailedValidationMessage();
+                } else {
+                    // เมื่อข้อมูลครบถ้วน ให้บันทึกลง ScreeningResultCode
+                    boolean saveSuccess = saveStressDepression9qToDatabase(stress9qFragment, activity);
+                    if (!saveSuccess) {
+                        isFormValid = false;
+                        errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 9Q กรุณาลองใหม่อีกครั้ง";
+                    }
                 }
             }
             else if (contentFragment instanceof SuicideAssessment8qFragment) {
                 SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) contentFragment;
                 if (!suicide8qFragment.isFormComplete()) {
                     isFormValid = false;
-                    // ใช้ข้อความรายละเอียดจาก getIncompleteQuestions()
-                    String incompleteQuestions = suicide8qFragment.getIncompleteQuestions();
-                    if (!incompleteQuestions.isEmpty()) {
-                        errorMessage = incompleteQuestions;
-                    } else {
-                        errorMessage = "กรุณาตอบคำถามให้ครบถ้วนทุกข้อ (8 ข้อ)";
-                    }
+                    errorMessage = suicide8qFragment.getDetailedValidationMessage();
                 } else {
-                    // ตรวจสอบและแสดงการเตือนหากมีความเสี่ยงสูง
-                    suicide8qFragment.checkHighRiskAlert();
+                    // เมื่อข้อมูลครบถ้วน ให้บันทึกลง ScreeningResultCode
+                    boolean saveSuccess = saveSuicideAssessment8qToDatabase(suicide8qFragment, activity);
+                    if (!saveSuccess) {
+                        isFormValid = false;
+                        errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 9Q กรุณาลองใหม่อีกครั้ง";
+                    }
                 }
             }
             else if (contentFragment instanceof HealthRiskAssessmentFragment) {
@@ -466,6 +474,154 @@ public class FormDialogFragment extends DialogFragment {
             // ปิด Dialog เมื่อข้อมูลถูกต้อง
             dismiss();
         }
+    }
+    private boolean saveStressDepression9qToDatabase(StressDepression9qFragment stress9qFragment, PersonScreeningForm15Activity activity) {
+        try {
+            // ตรวจสอบข้อมูลที่จำเป็นก่อน
+            if (!validateRequiredDataForSaving(activity)) {
+                Log.e("FormDialogFragment", "ข้อมูลที่จำเป็นสำหรับการบันทึก 9Q ไม่ครบถ้วน");
+                stress9qFragment.showSaveResult(false, "ไม่พบข้อมูลที่จำเป็นสำหรับการบันทึก");
+                return false;
+            }
+
+            // ดึงข้อมูลที่จำเป็น
+            int personId = getPersonIdFromActivity(activity);
+            int visitno = getVisitNoFromActivity(activity);
+            UserSessionManager sessionManager = new UserSessionManager(getContext());
+            String userCreate = sessionManager.getUser();
+
+            // เรียกใช้ method บันทึกจาก StressDepression9qFragment
+            boolean saveSuccess = stress9qFragment.saveToScreeningResultCode(personId, visitno, userCreate);
+
+            if (saveSuccess) {
+                Log.d("FormDialogFragment", "บันทึกผลการประเมิน 9Q สำเร็จ - " +
+                        "personId: " + personId + ", visitno: " + visitno);
+
+                // แสดงผลการบันทึกให้ผู้ใช้ทราบ
+                stress9qFragment.showSaveResult(true, "บันทึกสำเร็จ");
+
+                // ตรวจสอบความเสี่ยงสูงและแสดงการเตือน
+//                if (stress9qFragment.isHighRisk()) {
+//                    String severity = stress9qFragment.getDepressionSeverity();
+//                    String recommendation = stress9qFragment.getRecommendation();
+//
+//                    showGeneralHighRiskAlert(
+//                            "⚠️ ตรวจพบภาวะซึมเศร้าระดับสูง",
+//                            "ผลการประเมิน 9Q: " + severity,
+//                            recommendation
+//                    );
+//                }
+
+                // ตรวจสอบความเสี่ยงการฆ่าตัวตาย
+//                if (stress9qFragment.hasSuicidalRisk()) {
+//                    showSuicidalRiskAlert(stress9qFragment);
+//                }
+
+                return true;
+            } else {
+                Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 9Q");
+                stress9qFragment.showSaveResult(false, "ไม่สามารถบันทึกข้อมูลได้");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e("FormDialogFragment", "Exception ในการบันทึกผลการประเมิน 9Q: " + e.getMessage());
+            stress9qFragment.showSaveResult(false, "เกิดข้อผิดพลาด: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * แสดงการเตือนความเสี่ยงการฆ่าตัวตาย
+     */
+    private void showSuicidalRiskAlert(StressDepression9qFragment stress9qFragment) {
+        String recommendation = stress9qFragment.get8QRecommendationText();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom title view สำหรับเตือนความเสี่ยงสูง
+        View titleView = createCriticalRiskTitleView("⚠️ ความเสี่ยงการทำร้ายตนเอง");
+
+        builder.setCustomTitle(titleView)
+                .setMessage("ผลการประเมิน 9Q พบความเสี่ยงการทำร้ายตนเอง\n\n" +
+                        "คำแนะนำ: " + recommendation + "\n\n" +
+                        "📞 กรุณาติดต่อ:\n" +
+                        "• แพทย์ประจำตัว\n" +
+                        "• ห้องฉุกเฉิน\n" +
+                        "• สายด่วนสุขภาพจิต 1323")
+                .setPositiveButton("เข้าใจแล้ว", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNeutralButton("ทำแบบประเมิน 8Q", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // เปิดแบบประเมิน 8Q
+                        if (getActivity() instanceof PersonScreeningForm15Activity) {
+                            PersonScreeningForm15Activity activity = (PersonScreeningForm15Activity) getActivity();
+                            // activity.openSuicideAssessment8qForm(); // ถ้ามี method นี้
+                            Log.d("FormDialogFragment", "ผู้ใช้เลือกทำแบบประเมิน 8Q");
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        // ปรับแต่งการแสดงผล
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+                if (positiveButton != null) {
+                    positiveButton.setTextColor(Color.parseColor("#E74C3C")); // สีแดง
+                    positiveButton.setTypeface(null, Typeface.BOLD);
+                }
+
+                if (neutralButton != null) {
+                    neutralButton.setTextColor(Color.parseColor("#27AE60")); // สีเขียว
+                    neutralButton.setTypeface(null, Typeface.BOLD);
+                }
+            }
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * สร้าง title view สำหรับความเสี่ยงวิกฤต
+     */
+    private View createCriticalRiskTitleView(String title) {
+        LinearLayout titleLayout = new LinearLayout(getContext());
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#FFCDD2")); // พื้นหลังแดงอ่อน
+
+        // เพิ่มไอคอนเตือนวิกฤต
+        ImageView iconView = new ImageView(getContext());
+        iconView.setImageResource(R.drawable.ic_warning);
+        iconView.setColorFilter(Color.parseColor("#D32F2F")); // สีแดงเข้ม
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(28), dpToPx(28)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        // เพิ่ม TextView สำหรับ title
+        TextView titleTextView = new TextView(getContext());
+        titleTextView.setText(title);
+        titleTextView.setTextColor(Color.parseColor("#D32F2F")); // สีแดงเข้ม
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
     }
     private boolean saveAlcoholToDatabase(AlcoholFragment alcoholFragment, PersonScreeningForm15Activity activity) {
         try {
@@ -1019,7 +1175,7 @@ public class FormDialogFragment extends DialogFragment {
                 activity.updateFormStatus(formTitle, isComplete);
 
                 // แสดงสถานะและคำแนะนำ
-                stress9qFragment.showCompletionStatus();
+                stress9qFragment.showCompletionStatusWithEmoji();
 
                 // ตรวจสอบความเสี่ยงสูง
                 if (stress9qFragment.isHighRisk()) {
@@ -1028,14 +1184,34 @@ public class FormDialogFragment extends DialogFragment {
                     // ตรวจสอบความเสี่ยงการฆ่าตัวตาย
                     if (stress9qFragment.hasSuicidalRisk()) {
                         Log.e("StressDepression9q", "⚠️ พบความเสี่ยงการฆ่าตัวตาย!");
-                        // แสดง Alert Dialog เตือน
+                        // การเตือนได้ทำไปแล้วใน saveStressDepression9qToDatabase
                     }
+                }
+
+                // แสดงข้อมูลสถิติ (เฉพาะในโหมด debug)
+                if (BuildConfig.DEBUG) {
+                    stress9qFragment.showStatistics();
                 }
 
                 // ตรวจสอบว่าควรทำ 8Q ต่อหรือไม่
                 if (stress9qFragment.shouldDo8QAssessment()) {
-                    Log.w("StressDepression9q", stress9qFragment.get8QRecommendationText());
-                    // สามารถแสดง Dialog แนะนำให้ทำ 8Q ต่อได้ที่นี่
+                    Log.w("StressDepression9q", stress9qFragment.get8QRecommendationTextWithEmoji());
+                    // แสดงคำแนะนำให้ทำ 8Q (ได้ทำไปแล้วใน showSuicidalRiskAlert)
+                }
+
+                // แสดงสรุปผลการประเมิน
+                if (isComplete) {
+                    String summary = stress9qFragment.getSummaryTextWithEmoji();
+                    String recommendation = stress9qFragment.getRecommendationWithEmoji();
+
+                    Log.d("StressDepression9q", "ผลการประเมิน 9Q: " + summary);
+                    Log.d("StressDepression9q", "คำแนะนำ: " + recommendation);
+
+                    // แสดงอาการที่พบบ่อย
+                    ArrayList<String> frequentSymptoms = stress9qFragment.getFrequentSymptoms();
+                    if (!frequentSymptoms.isEmpty()) {
+                        Log.d("StressDepression9q", "อาการที่พบบ่อย: " + String.join(", ", frequentSymptoms));
+                    }
                 }
             }
         } else if (formTitle.equals("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)")) {
@@ -1045,8 +1221,43 @@ public class FormDialogFragment extends DialogFragment {
                 boolean isComplete = suicide8qFragment.isFormComplete();
                 activity.updateFormStatus(formTitle, isComplete);
 
-                // แสดงสถานะการกรอกข้อมูล
-                suicide8qFragment.showCompletionStatus();
+                suicide8qFragment.showCompletionStatusWithEmoji();
+
+                if (suicide8qFragment.isHighRisk()) {
+                    Log.w("StressDepression9q", "พบผู้มีความเสี่ยงสูง!");
+
+                    // ตรวจสอบความเสี่ยงการฆ่าตัวตาย
+//                    if (suicide8qFragment.hasSuicidalRisk()) {
+//                        Log.e("StressDepression9q", "⚠️ พบความเสี่ยงการฆ่าตัวตาย!");
+//                        // การเตือนได้ทำไปแล้วใน saveStressDepression9qToDatabase
+//                    }
+                }
+
+                // แสดงข้อมูลสถิติ (เฉพาะในโหมด debug)
+//                if (BuildConfig.DEBUG) {
+//                    suicide8qFragment.showStatistics();
+//                }
+
+                // ตรวจสอบว่าควรทำ 8Q ต่อหรือไม่
+//                if (suicide8qFragment.shouldDo8QAssessment()) {
+//                    Log.w("StressDepression9q", suicide8qFragment.get8QRecommendationTextWithEmoji());
+//                    // แสดงคำแนะนำให้ทำ 8Q (ได้ทำไปแล้วใน showSuicidalRiskAlert)
+//                }
+
+                // แสดงสรุปผลการประเมิน
+                if (isComplete) {
+                    String summary = suicide8qFragment.getSummaryTextWithEmoji();
+                    String recommendation = suicide8qFragment.getRecommendationWithEmoji();
+
+                    Log.d("StressDepression9q", "ผลการประเมิน 9Q: " + summary);
+                    Log.d("StressDepression9q", "คำแนะนำ: " + recommendation);
+
+                    // แสดงอาการที่พบบ่อย
+//                    ArrayList<String> frequentSymptoms = suicide8qFragment.getFrequentSymptoms();
+//                    if (!frequentSymptoms.isEmpty()) {
+//                        Log.d("StressDepression9q", "อาการที่พบบ่อย: " + String.join(", ", frequentSymptoms));
+//                    }
+                }
             }
         } else if (formTitle.equals("แบบประเมินความเสี่ยงจากการสูบบุหรี่")) {
             if (contentFragment instanceof SmookingFragment) {
@@ -1198,5 +1409,165 @@ public class FormDialogFragment extends DialogFragment {
 
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+    private boolean saveSuicideAssessment8qToDatabase(SuicideAssessment8qFragment suicide8qFragment, PersonScreeningForm15Activity activity) {
+        try {
+            // ตรวจสอบข้อมูลที่จำเป็นก่อน
+            if (!validateRequiredDataForSaving(activity)) {
+                Log.e("FormDialogFragment", "ข้อมูลที่จำเป็นสำหรับการบันทึก 8Q ไม่ครบถ้วน");
+                suicide8qFragment.showSaveResult(false, "ไม่พบข้อมูลที่จำเป็นสำหรับการบันทึก");
+                return false;
+            }
+
+            // ดึงข้อมูลที่จำเป็น
+            int personId = getPersonIdFromActivity(activity);
+            int visitno = getVisitNoFromActivity(activity);
+            UserSessionManager sessionManager = new UserSessionManager(getContext());
+            String userCreate = sessionManager.getUser();
+
+            // เรียกใช้ method บันทึกจาก SuicideAssessment8qFragment
+            boolean saveSuccess = suicide8qFragment.saveToScreeningResultCode(personId, visitno, userCreate);
+
+            if (saveSuccess) {
+                Log.d("FormDialogFragment", "บันทึกผลการประเมิน 8Q สำเร็จ - " +
+                        "personId: " + personId + ", visitno: " + visitno);
+
+                // แสดงผลการบันทึกให้ผู้ใช้ทราบ
+                suicide8qFragment.showSaveResult(true, "บันทึกสำเร็จ");
+
+                // ตรวจสอบความเสี่ยงสูงและแสดงการเตือน
+//                if (suicide8qFragment.isCriticalRisk()) {
+//                    String criticalMessage = suicide8qFragment.getCriticalRiskMessage();
+//                    showCriticalSuicideRiskAlert(suicide8qFragment, criticalMessage);
+//                } else if (suicide8qFragment.isHighRisk()) {
+//                    String recommendation = suicide8qFragment.getRecommendationWithEmoji();
+//                    showGeneralHighRiskAlert(
+//                            "⚠️ ตรวจพบความเสี่ยงการฆ่าตัวตาย",
+//                            "ผลการประเมิน 8Q: " + suicide8qFragment.getAssessmentResultWithEmoji(),
+//                            recommendation
+//                    );
+//                }
+
+                return true;
+            } else {
+                Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 8Q");
+                suicide8qFragment.showSaveResult(false, "ไม่สามารถบันทึกข้อมูลได้");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e("FormDialogFragment", "Exception ในการบันทึกผลการประเมิน 8Q: " + e.getMessage());
+            suicide8qFragment.showSaveResult(false, "เกิดข้อผิดพลาด: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * แสดงการเตือนความเสี่ยงวิกฤตสำหรับการฆ่าตัวตาย
+     */
+    private void showCriticalSuicideRiskAlert(SuicideAssessment8qFragment suicide8qFragment, String criticalMessage) {
+        String followUpType = suicide8qFragment.getFollowUpType();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom title view สำหรับเตือนความเสี่ยงวิกฤต
+        View titleView = createCriticalRiskTitleView("🆘 ความเสี่ยงวิกฤต!");
+
+        builder.setCustomTitle(titleView)
+                .setMessage(criticalMessage + "\n\n" +
+                        "📞 ดำเนินการทันที:\n" +
+                        "• ส่งต่อผู้เชี่ยวชาญโดยด่วน\n" +
+                        "• ประเมินความปลอดภัยสิ่งแวดล้อม\n" +
+                        "• แจ้งญาติใกล้ชิด\n" +
+                        "• จัดการดูแลอย่างใกล้ชิด\n" +
+                        "• ติดต่อสายด่วนสุขภาพจิต 1323")
+                .setPositiveButton("รับทราบและดำเนินการ", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // บันทึก log สำหรับการติดตาม
+                        Log.e("SuicideAssessment8q", "ผู้ใช้รับทราบความเสี่ยงวิกฤต - ต้องติดตาม");
+                        dialog.dismiss();
+                    }
+                })
+//                .setNeutralButton("ดูรายงานสรุป", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        showSuicideAssessmentReport(suicide8qFragment);
+//                        dialog.dismiss();
+//                    }
+//                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        // ปรับแต่งการแสดงผล
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+
+                if (positiveButton != null) {
+                    positiveButton.setTextColor(Color.parseColor("#FFFFFF"));
+                    positiveButton.setBackgroundColor(Color.parseColor("#E74C3C"));
+                    positiveButton.setTypeface(null, Typeface.BOLD);
+                }
+
+                if (neutralButton != null) {
+                    neutralButton.setTextColor(Color.parseColor("#3498DB"));
+                    neutralButton.setTypeface(null, Typeface.BOLD);
+                }
+            }
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * แสดงรายงานสรุปการประเมิน 8Q
+     */
+    private void showSuicideAssessmentReport(SuicideAssessment8qFragment suicide8qFragment) {
+        String reportSummary = suicide8qFragment.getReportSummary();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom title view
+        LinearLayout titleLayout = new LinearLayout(getContext());
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+        titleLayout.setBackgroundColor(Color.parseColor("#E8F5E8"));
+
+        ImageView iconView = new ImageView(getContext());
+        iconView.setImageResource(R.drawable.ic_assignment);
+        iconView.setColorFilter(Color.parseColor("#27AE60"));
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        TextView titleTextView = new TextView(getContext());
+        titleTextView.setText("📋 รายงานการประเมิน 8Q");
+        titleTextView.setTextColor(Color.parseColor("#27AE60"));
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+        AlertDialog dialog = builder.create();
+        builder.setCustomTitle(titleLayout)
+                .setMessage(reportSummary)
+                .setPositiveButton("ปิด", null)
+                .setNegativeButton("พิมพ์รายงาน", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // สามารถเพิ่มฟังก์ชันพิมพ์รายงานได้ที่นี่
+                        Toast.makeText(getContext(),
+                                "ฟังก์ชันพิมพ์รายงานจะเพิ่มในเวอร์ชันถัดไป",
+                                Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+
+        dialog.show();
     }
 }

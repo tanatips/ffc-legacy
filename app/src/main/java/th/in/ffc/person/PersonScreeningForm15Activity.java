@@ -72,6 +72,8 @@ import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
 import th.in.ffc.app.form.screening.adapter.ScreeningExpandableListAdapter;
 import th.in.ffc.app.form.screening.dao.CounselingSignatureDao;
+import th.in.ffc.app.form.screening.dao.F43SpecialPPDao;
+import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
 import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
 import th.in.ffc.app.form.screening.dao.SfDrugsDao;
 import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
@@ -118,7 +120,10 @@ import th.in.ffc.dao.VisitDiagDao;
 import th.in.ffc.intent.Action;
 import th.in.ffc.model.Person;
 import th.in.ffc.provider.CounselingSignatureProvider;
+import th.in.ffc.provider.F43SpecialPP;
+import th.in.ffc.provider.F43SpecialPPProvider;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.provider.ScreeningResultCode;
 import th.in.ffc.security.CryptographerService;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
@@ -743,6 +748,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                             saveCounseling();
                             saveVisit();
                             saveVisitDiag();
+                            saveF43SpecialPP();
                             // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
                             if (personInfo.getId() != null) {
                                 checkExistingData(personInfo.getId());
@@ -771,6 +777,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             public void onClick(View view) {
                 ScreeningFormProvider.ReCreateTable(mContext);
                 CounselingSignatureProvider.ReCreateTable(mContext);
+                F43SpecialPPProvider.ReCreateTable(mContext);
                 Toast.makeText(getBaseContext(), "รีเซ็ตข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
             }
         });
@@ -2063,6 +2070,76 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         }
 
 
+    }
+    private void saveF43SpecialPP() {
+        try {
+            ScreeningResultCodeDao screeningResultCodeDao = new ScreeningResultCodeDao(mContext);
+            List<ScreeningResultCodeDao.ScreeningResultData> data = screeningResultCodeDao.getResultsByPersonId(Integer.valueOf(this.personInfo.getId()));
+            PersonDao personDao = new PersonDao(getBaseContext());
+            Person person = personDao.findByIdCard(this.personInfo.getIdcard());
+            F43SpecialPPDao f43SpecialPPDao = new F43SpecialPPDao(mContext);
+            UserSessionManager userSessionManager = new UserSessionManager(getBaseContext());
+
+            if (data != null && !data.isEmpty()) {
+                if(data.size()>0){
+                    f43SpecialPPDao.deleteAllServicesByVisitNo(data.get(0).visitno);
+                }
+                for (ScreeningResultCodeDao.ScreeningResultData result : data) {
+                    try {
+
+                        // สร้างข้อมูลสำหรับบันทึกใน f43specialpp
+                        F43SpecialPPDao.F43SpecialPPData f43SpecialPPData = new F43SpecialPPDao.F43SpecialPPData();
+
+
+                        // กำหนดข้อมูลพื้นฐาน
+                        f43SpecialPPData.pcucodeperson = userSessionManager.getPcuCode();
+                        f43SpecialPPData.pid = Integer.valueOf(person.getPid());
+                        f43SpecialPPData.dateserv = DateConverter.getCurrentWesternDate();
+                        f43SpecialPPData.ppspecial = result.resultCode;
+                        f43SpecialPPData.ppresult = null;
+                        f43SpecialPPData.pcucode = userSessionManager.getPcuCode();
+                        f43SpecialPPData.visitno = result.visitno;
+
+                        // กำหนดสถานที่ให้บริการ (ถ้าไม่มี visitno แสดงว่าให้บริการในสถานบริการ)
+                        f43SpecialPPData.servplace = "1";
+                        f43SpecialPPData.ppsplace = userSessionManager.getPcuCode();
+                        f43SpecialPPData.provider = userSessionManager.getUsername();
+                        f43SpecialPPData.dateupdate = DateConverter.getCurrentWesternDateTime();
+
+                        // กำหนดสถานะการส่งข้อมูล
+                        f43SpecialPPData.issend2hisgateway = null;
+                        f43SpecialPPData.issend2hisgatewaydt = null;
+                        f43SpecialPPData.issend2hisgatewayall = null;
+
+                        // บันทึกข้อมูล
+                        Uri savedUri = f43SpecialPPDao.saveServiceRecord(f43SpecialPPData);
+
+                        if (savedUri != null) {
+                            Log.d("PersonScreeningForm15Activity",
+                                    "บันทึก F43SpecialPP สำเร็จ - ScreeningType: " + result.screeningType +
+                                            ", PPSpecial: " + f43SpecialPPData.ppspecial +
+                                            ", ResultCode: " + result.resultCode);
+                        } else {
+                            Log.e("PersonScreeningForm15Activity",
+                                    "บันทึก F43SpecialPP ไม่สำเร็จ - ScreeningType: " + result.screeningType);
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("PersonScreeningForm15Activity",
+                                "เกิดข้อผิดพลาดในการบันทึก F43SpecialPP สำหรับ " + result.screeningType + ": " + e.getMessage());
+                    }
+                }
+
+                Log.d("PersonScreeningForm15Activity", "บันทึก F43SpecialPP เสร็จสิ้น จำนวน " + data.size() + " รายการ");
+
+            } else {
+                Log.d("PersonScreeningForm15Activity", "ไม่พบข้อมูลผลการคัดกรองที่ต้องบันทึกใน F43SpecialPP");
+            }
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการบันทึก F43SpecialPP: " + e.getMessage());
+            Toast.makeText(getBaseContext(), "เกิดข้อผิดพลาดในการบันทึกข้อมูลบริการ: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
     private void adjustViewPagerHeight(int position, ViewPager2 viewPager, ViewPagerAdapter adapter) {
         Fragment fragment = adapter.getFragmentAt(position);

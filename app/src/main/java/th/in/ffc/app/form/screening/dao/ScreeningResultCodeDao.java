@@ -161,9 +161,8 @@ public class ScreeningResultCodeDao {
             return null;
         }
     }
-
     /**
-     * บันทึกผลการคัดกรอง 9Q
+     * บันทึกผลการคัดกรอง 9Q - เวอร์ชันปรับปรุง
      */
     public Uri save9QResult(int personId, int visitno, int totalScore, String userCreate) {
         try {
@@ -171,21 +170,33 @@ public class ScreeningResultCodeDao {
             boolean isAbnormal = totalScore >= 7;
 
             if (totalScore < 7) {
-                resultCode = "1B0260|1B0282";
+                resultCode = "1B0260";
                 resultDescription = "ไม่มีอาการของโรคซึมเศร้า";
                 riskLevel = ScreeningResultCode.RISK_NORMAL;
             } else if (totalScore <= 12) {
-                resultCode = "1B0261|1B0283";
+                resultCode = "1B0261";
                 resultDescription = "มีอาการของโรคซึมเศร้าระดับน้อย";
                 riskLevel = ScreeningResultCode.RISK_LOW;
             } else if (totalScore <= 18) {
-                resultCode = "1B0262|1B0284";
+                resultCode = "1B0262";
                 resultDescription = "มีอาการของโรคซึมเศร้าระดับปานกลาง";
                 riskLevel = ScreeningResultCode.RISK_MODERATE;
             } else {
-                resultCode = "1B0263|1B0285";
+                resultCode = "1B0263";
                 resultDescription = "มีอาการของโรคซึมเศร้าระดับรุนแรง";
                 riskLevel = ScreeningResultCode.RISK_HIGH;
+            }
+
+            // กำหนดคำแนะนำ
+            String recommendation;
+            if (totalScore < 7) {
+                recommendation = "ไม่มีอาการของโรคซึมเศร้า ควรดูแลสุขภาพจิตให้ดีต่อไป";
+            } else if (totalScore <= 12) {
+                recommendation = "มีอาการซึมเศร้าระดับน้อย ควรพักผ่อนให้เพียงพอ ออกกำลังกาย และทำกิจกรรมที่ชื่นชอบ";
+            } else if (totalScore <= 18) {
+                recommendation = "มีอาการซึมเศร้าระดับปานกลาง ควรปรึกษาผู้เชี่ยวชาญด้านสุขภาพจิต";
+            } else {
+                recommendation = "มีอาการซึมเศร้าระดับรุนแรง ควรพบแพทย์เพื่อรับการรักษาโดยเร็ว";
             }
 
             ScreeningResultData data = new ScreeningResultData();
@@ -197,9 +208,23 @@ public class ScreeningResultCodeDao {
             data.totalScore = totalScore;
             data.riskLevel = riskLevel;
             data.isAbnormal = isAbnormal;
+            data.recommendation = recommendation;
             data.screeningDate = getCurrentDate();
             data.status = ScreeningResultCode.STATUS_ACTIVE;
             data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // เพิ่มข้อมูลสำหรับ 9Q
+            data.hasHighRisk = totalScore >= 19;
+            if (totalScore < 7) {
+                data.severityLevel = "NORMAL";
+            } else if (totalScore <= 12) {
+                data.severityLevel = "MILD";
+            } else if (totalScore <= 18) {
+                data.severityLevel = "MODERATE";
+            } else {
+                data.severityLevel = "SEVERE";
+            }
 
             return saveScreeningResult(data);
         } catch (Exception e) {
@@ -207,51 +232,83 @@ public class ScreeningResultCodeDao {
             return null;
         }
     }
-
     /**
      * บันทึกผลการคัดกรอง 8Q
      */
     public Uri save8QResult(int personId, int visitno, int totalScore, String userCreate) {
-        try {
-            String resultCode, resultDescription, riskLevel;
-            boolean isAbnormal = totalScore > 0;
+        try
+        {
+        String resultCode, resultDescription, riskLevel;
+        boolean isAbnormal = totalScore > 0;
 
-            if (totalScore == 0) {
-                resultCode = "1B0270";
-                resultDescription = "ไม่มีความเสี่ยงต่อการฆ่าตัวตาย";
-                riskLevel = ScreeningResultCode.RISK_NORMAL;
-            } else if (totalScore <= 8) {
-                resultCode = "1B0271";
-                resultDescription = "มีความเสี่ยงต่อการฆ่าตัวตายระดับต่ำ";
-                riskLevel = ScreeningResultCode.RISK_LOW;
-            } else if (totalScore <= 16) {
-                resultCode = "1B0272";
-                resultDescription = "มีความเสี่ยงต่อการฆ่าตัวตายระดับปานกลาง";
-                riskLevel = ScreeningResultCode.RISK_MODERATE;
-            } else {
-                resultCode = "1B0273";
-                resultDescription = "มีความเสี่ยงต่อการฆ่าตัวตายระดับสูง";
-                riskLevel = ScreeningResultCode.RISK_VERY_HIGH;
-            }
-
-            ScreeningResultData data = new ScreeningResultData();
-            data.personId = personId;
-            data.visitno = visitno;
-            data.screeningType = ScreeningResultCode.TYPE_SUICIDE_ASSESSMENT_8Q;
-            data.resultCode = resultCode;
-            data.resultDescription = resultDescription;
-            data.totalScore = totalScore;
-            data.riskLevel = riskLevel;
-            data.isAbnormal = isAbnormal;
-            data.screeningDate = getCurrentDate();
-            data.status = ScreeningResultCode.STATUS_ACTIVE;
-            data.userCreate = userCreate;
-
-            return saveScreeningResult(data);
-        } catch (Exception e) {
-            Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผล 8Q", e);
-            return null;
+        if (totalScore == 0) {
+            resultCode = "1B0270";
+            resultDescription = "ไม่มีความเสี่ยงต่อการฆ่าตัวตาย";
+            riskLevel = ScreeningResultCode.RISK_NORMAL;
+        } else if (totalScore <= 8) {
+            resultCode = "1B0271";
+            resultDescription = "มีความเสี่ยงต่อการฆ่าตัวตายระดับต่ำ";
+            riskLevel = ScreeningResultCode.RISK_LOW;
+        } else if (totalScore <= 16) {
+            resultCode = "1B0272";
+            resultDescription = "มีความเสี่ยงต่อการฆ่าตัวตายระดับปานกลาง";
+            riskLevel = ScreeningResultCode.RISK_MODERATE;
+        } else {
+            resultCode = "1B0273";
+            resultDescription = "มีความเสี่ยงต่อการฆ่าตัวตายระดับสูง";
+            riskLevel = ScreeningResultCode.RISK_VERY_HIGH;
         }
+
+        // กำหนดคำแนะนำ
+        String recommendation;
+        if (totalScore >= 17) {
+            recommendation = "⚠️ ความเสี่ยงสูงมาก! ต้องดำเนินการแทรกแซงทันที และส่งต่อผู้เชี่ยวชาญโดยด่วน";
+        } else if (totalScore >= 9) {
+            recommendation = "🚨 ความเสี่ยงปานกลาง ควรให้คำปรึกษาและติดตามอย่างใกล้ชิด พิจารณาส่งต่อผู้เชี่ยวชาญ";
+        } else if (totalScore >= 1) {
+            recommendation = "⚠️ ความเสี่ยงต่ำ ควรให้การสนับสนุนและคำแนะนำ ติดตามสถานการณ์";
+        } else {
+            recommendation = "✅ ไม่มีความเสี่ยง ควรส่งเสริมสุขภาพจิตต่อไป";
+        }
+
+        ScreeningResultData data = new ScreeningResultData();
+        data.personId = personId;
+        data.visitno = visitno;
+        data.screeningType = ScreeningResultCode.TYPE_SUICIDE_ASSESSMENT_8Q;
+        data.resultCode = resultCode;
+        data.resultDescription = resultDescription;
+        data.totalScore = totalScore;
+        data.riskLevel = riskLevel;
+        data.isAbnormal = isAbnormal;
+        data.recommendation = recommendation;
+        data.screeningDate = getCurrentDate();
+        data.status = ScreeningResultCode.STATUS_ACTIVE;
+        data.userCreate = userCreate;
+        data.userUpdate = userCreate;
+
+        // เพิ่มข้อมูลสำหรับ 8Q
+        data.hasHighRisk = totalScore >= 17;
+        data.requiresFollowUp = totalScore >= 1;
+
+        if (totalScore >= 17) {
+            data.followUpType = "IMMEDIATE_INTERVENTION";
+            data.severityLevel = "HIGH_RISK";
+        } else if (totalScore >= 9) {
+            data.followUpType = "CLOSE_MONITORING";
+            data.severityLevel = "MODERATE_RISK";
+        } else if (totalScore >= 1) {
+            data.followUpType = "SUPPORT_COUNSELING";
+            data.severityLevel = "LOW_RISK";
+        } else {
+            data.severityLevel = "NO_RISK";
+        }
+
+        return saveScreeningResult(data);
+    } catch (Exception e) {
+        Log.e(TAG, "เกิดข้อผิดพลาดในการบันทึกผล 8Q", e);
+        return null;
+    }
+
     }
 
     /**
@@ -908,6 +965,12 @@ public class ScreeningResultCodeDao {
         public String userCreate;
         public String userUpdate;
 
+        public Boolean hasHighRisk;
+        public String additionalInfo;
+        public Boolean requiresFollowUp;
+        public String followUpType;
+        public String severityLevel;
+
         @Override
         public String toString() {
             return "ScreeningResultData{" +
@@ -920,6 +983,9 @@ public class ScreeningResultCodeDao {
                     ", totalScore=" + totalScore +
                     ", riskLevel='" + riskLevel + '\'' +
                     ", isAbnormal=" + isAbnormal +
+                    ", hasHighRisk=" + hasHighRisk +
+                    ", requiresFollowUp=" + requiresFollowUp +
+                    ", severityLevel='" + severityLevel + '\'' +
                     ", screeningDate='" + screeningDate + '\'' +
                     ", status='" + status + '\'' +
                     '}';

@@ -626,6 +626,7 @@ public class StressDepression2qFragment extends Fragment {
             return false;
         }
     }
+
     private String getRecommendation2Q(boolean hasPositiveAnswer) {
         if (hasPositiveAnswer) {
             return "แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติม และพิจารณาปรึกษาแพทย์";

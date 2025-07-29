@@ -109,9 +109,8 @@ public class ScreeningResultCodeProvider extends ContentProvider {
 
             case SCREENING_RESULT_BY_PERSON:
                 String personId = uri.getPathSegments().get(2);
-                selection = ScreeningResultCode.PERSON_ID + "=? AND " +
-                        ScreeningResultCode.STATUS + "=?";
-                selectionArgs = new String[]{personId, ScreeningResultCode.STATUS_ACTIVE};
+                selection = ScreeningResultCode.PERSON_ID + "=? ";
+                selectionArgs = new String[]{personId};
                 builder.setTables(ScreeningResultCode.TABLENAME);
                 builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
                 break;

@@ -56,6 +56,16 @@ public class ScreeningResultCode implements BaseColumns {
     public static final String TYPE_SMOKING_RISK = "SMOKING";
     public static final String TYPE_SMOKING_STATUS = "SMOKING_STATUS";
     public static final String TYPE_SMOKING_ADVICE = "SMOKING_ADVICE";
+    public static final String CODE_9Q_NORMAL = "1B0260";           // ไม่มีอาการ
+    public static final String CODE_9Q_MILD = "1B0261";             // ระดับน้อย
+    public static final String CODE_9Q_MODERATE = "1B0262";         // ระดับปานกลาง
+    public static final String CODE_9Q_SEVERE = "1B0263";           // ระดับรุนแรง
+
+    // Alternative codes สำหรับ 9Q (ถ้ามี)
+    public static final String CODE_9Q_NORMAL_ALT = "1B0282";       // ไม่มีอาการ (รหัสสำรอง)
+    public static final String CODE_9Q_MILD_ALT = "1B0283";         // ระดับน้อย (รหัสสำรอง)
+    public static final String CODE_9Q_MODERATE_ALT = "1B0284";     // ระดับปานกลาง (รหัสสำรอง)
+    public static final String CODE_9Q_SEVERE_ALT = "1B0285";
 
     // ค่าคงที่สำหรับระดับความเสี่ยง
     public static final String RISK_NONE = "NONE";

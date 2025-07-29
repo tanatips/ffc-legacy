@@ -294,6 +294,11 @@
         <provider android:name=".provider.ScreeningResultCodeProvider"
             android:authorities="th.in.ffc.provider.ScreeningResultCodeProvider"
             android:exported="false" />
+        <provider
+            android:name="th.in.ffc.provider.F43SpecialPPProvider"
+            android:authorities="th.in.ffc.provider.F43SpecialPPProvider"
+            android:enabled="true"
+            android:exported="false" />
         <activity
             android:name=".app.form.screening.ApiUrlListActivity"
             android:exported="true"

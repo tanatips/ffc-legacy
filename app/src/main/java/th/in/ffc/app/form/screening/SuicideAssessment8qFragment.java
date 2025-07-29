@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.dao.ScreeningResultCodeDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
 import th.in.ffc.app.form.screening.dao.SfSuicideAssessment8qInfoDao;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
@@ -46,9 +47,11 @@ import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessmentSummary;
 import th.in.ffc.app.form.screening.view.SuicideRiskGaugeView;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.provider.ScreeningResultCode;
 import th.in.ffc.util.Log;
 import android.widget.ImageView;
-
+import org.json.JSONArray;
+import th.in.ffc.session.UserSessionManager;
 
 public class SuicideAssessment8qFragment extends Fragment {
 
@@ -76,6 +79,10 @@ public class SuicideAssessment8qFragment extends Fragment {
     private TextView tvGaugeCode;
     private TextView tvGaugeRecommendation;
     private SeekBar seekBarGaugeTest;
+    private ScreeningResultCodeDao screeningResultCodeDao;
+    private int currentPersonId = -1;
+    private int currentVisitNo = -1;
+
 
     public SuicideAssessment8qFragment() {
         // Required empty public constructor
@@ -94,6 +101,8 @@ public class SuicideAssessment8qFragment extends Fragment {
         suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
         shareViewModel = new SharedViewModel();
         suicideAssessment8qInfo = new SuicideAssessment8qInfo();
+
+        screeningResultCodeDao = new ScreeningResultCodeDao(getContext());
     }
 
     @Override
@@ -328,7 +337,242 @@ public class SuicideAssessment8qFragment extends Fragment {
                 updateScoreAndHighlight();
             }
         });
+
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
+            if (personInfo != null && personInfo.getId() != null) {
+                currentPersonId = Integer.parseInt(personInfo.getId());
+                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
+                    currentVisitNo = Integer.parseInt(personInfo.getVisitId());
+
+                    // โหลดข้อมูลเดิมจาก ScreeningResultCode (ถ้ามี)
+                    loadFromScreeningResultCode(currentPersonId, currentVisitNo);
+                }
+            }
+        });
     }
+    public String getDetailedValidationMessage() {
+        if (suicideAssessment8qInfo == null) {
+            return "การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q):\n• ยังไม่ได้กรอกข้อมูลใดๆ";
+        }
+
+        List<String> missingQuestions = new ArrayList<>();
+        String[] questionDescriptions = {
+                "ข้อ 1: คิดอยากตาย หรือ คิดว่าตายไปจะดีกว่า",
+                "ข้อ 2: อยากทำร้ายตัวเอง หรือ ทำให้ตัวเองบาดเจ็บ",
+                "ข้อ 3: คิดเกี่ยวกับการฆ่าตัวตาย",
+                "ข้อ 4: แผนการที่จะฆ่าตัวตาย",
+                "ข้อ 5: ได้เตรียมการที่จะทำร้ายตนเองหรือเตรียมการจะฆ่าตัวตาย",
+                "ข้อ 6: ได้ทำให้ตนเองบาดเจ็บแต่ไม่ตั้งใจที่จะทำให้เสียชีวิต",
+                "ข้อ 7: ได้พยายามฆ่าตัวตายโดยคาดหวัง/ตั้งใจที่จะให้ตาย",
+                "ข้อ 8: ท่านเคยพยายามฆ่าตัวตาย"
+        };
+
+        String[] answers = {
+                suicideAssessment8qInfo.getQ1(),
+                suicideAssessment8qInfo.getQ2(),
+                suicideAssessment8qInfo.getQ3(),
+                suicideAssessment8qInfo.getQ4(),
+                suicideAssessment8qInfo.getQ5(),
+                suicideAssessment8qInfo.getQ6(),
+                suicideAssessment8qInfo.getQ7(),
+                suicideAssessment8qInfo.getQ8()
+        };
+
+        for (int i = 0; i < answers.length; i++) {
+            if (answers[i] == null || answers[i].equals("0") || answers[i].isEmpty()) {
+                missingQuestions.add(questionDescriptions[i]);
+            }
+        }
+
+        // ตรวจสอบคำถามย่อย Q3_2_1
+        if (suicideAssessment8qInfo.getQ3().equals("2") &&
+                (suicideAssessment8qInfo.getQ3_2_1().equals("0") || suicideAssessment8qInfo.getQ3_2_1().isEmpty())) {
+            missingQuestions.add("คำถามย่อย 3.1: ท่านสามารถควบคุมความอยากฆ่าตัวตายได้หรือไม่");
+        }
+
+        if (!missingQuestions.isEmpty()) {
+            StringBuilder message = new StringBuilder("การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q):\n");
+            message.append("กรุณาตอบคำถามที่ยังไม่ได้ตอบ:\n");
+            for (String question : missingQuestions) {
+                message.append("• ").append(question).append("\n");
+            }
+            return message.toString().trim();
+        }
+
+        return ""; // ไม่มีข้อผิดพลาด
+    }
+    public boolean isCriticalRisk() {
+        return isFormComplete() && calculateTotalScore() >= 17;
+    }
+
+    public String getCriticalRiskMessage() {
+        if (!isCriticalRisk()) {
+            return "";
+        }
+
+        StringBuilder message = new StringBuilder();
+        message.append("🆘 ความเสี่ยงวิกฤต!\n\n");
+        message.append("คะแนนรวม: ").append(calculateTotalScore()).append(" คะแนน\n");
+        message.append("ระดับ: ความเสี่ยงสูง\n\n");
+
+        message.append("📞 ดำเนินการทันที:\n");
+        message.append("• ส่งต่อผู้เชี่ยวชาญโดยด่วน\n");
+        message.append("• ประเมินความปลอดภัยสิ่งแวดล้อม\n");
+        message.append("• แจ้งญาติใกล้ชิด\n");
+        message.append("• จัดการดูแลอย่างใกล้ชิด\n");
+        message.append("• ติดต่อสายด่วนสุขภาพจิต 1323");
+
+        return message.toString();
+    }
+
+    public String getAssessmentResultWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        int totalScore = calculateTotalScore();
+        return getResultDescriptionWithEmoji(totalScore);
+    }
+    private String getRecommendation8Q() {
+        if (!isFormComplete()) {
+            return "กรุณาตอบคำถามให้ครบถ้วนเพื่อรับคำแนะนำ";
+        }
+
+        int totalScore = calculateTotalScore();
+
+        if (totalScore >= 17) {
+            return "⚠️ ความเสี่ยงสูงมาก! ต้องดำเนินการแทรกแซงทันที และส่งต่อผู้เชี่ยวชาญโดยด่วน";
+        } else if (totalScore >= 9) {
+            return "🚨 ความเสี่ยงปานกลาง ควรให้คำปรึกษาและติดตามอย่างใกล้ชิด พิจารณาส่งต่อผู้เชี่ยวชาญ";
+        } else if (totalScore >= 1) {
+            return "⚠️ ความเสี่ยงต่ำ ควรให้การสนับสนุนและคำแนะนำ ติดตามสถานการณ์";
+        } else {
+            return "✅ ไม่มีความเสี่ยง ควรส่งเสริมสุขภาพจิตต่อไป";
+        }
+    }
+
+    public boolean requiresFollowUp() {
+        return isFormComplete() && calculateTotalScore() >= 1;
+    }
+    public String getFollowUpType() {
+        if (!requiresFollowUp()) {
+            return "NO_FOLLOW_UP";
+        }
+
+        int score = calculateTotalScore();
+        if (score >= 17) {
+            return "IMMEDIATE_INTERVENTION";
+        } else if (score >= 9) {
+            return "CLOSE_MONITORING";
+        } else {
+            return "SUPPORT_COUNSELING";
+        }
+    }
+    public String getReportSummary() {
+        if (!isFormComplete()) {
+            return "การประเมินยังไม่สมบูรณ์";
+        }
+
+        StringBuilder report = new StringBuilder();
+        report.append("=== รายงานการประเมินความเสี่ยงการฆ่าตัวตาย 8Q ===\n\n");
+
+        int totalScore = calculateTotalScore();
+        report.append("คะแนนรวม: ").append(totalScore).append(" คะแนน\n");
+        report.append("ผลการประเมิน: ").append(getResultDescription(totalScore)).append("\n");
+        report.append("ระดับความเสี่ยง: ").append(getSuicideRiskSeverityLevel()).append("\n\n");
+
+        List<String> riskAnswers = getRiskAnswers();
+        if (!riskAnswers.isEmpty()) {
+            report.append("คำตอบที่เป็นความเสี่ยง:\n");
+            for (String risk : riskAnswers) {
+                report.append("• ").append(risk).append("\n");
+            }
+            report.append("\n");
+        }
+
+        report.append("คำแนะนำ: ").append(getRecommendation8Q()).append("\n");
+
+        if (requiresFollowUp()) {
+            report.append("การติดตาม: ").append(getFollowUpType()).append("\n");
+        }
+
+        return report.toString();
+    }
+    private String getSuicideRiskSeverityLevel() {
+        int totalScore = calculateTotalScore();
+
+        if (totalScore == 0) {
+            return "NO_RISK";
+        } else if (totalScore >= 1 && totalScore <= 8) {
+            return "LOW_RISK";
+        } else if (totalScore >= 9 && totalScore <= 16) {
+            return "MODERATE_RISK";
+        } else if (totalScore >= 17) {
+            return "HIGH_RISK";
+        }
+
+        return "UNKNOWN";
+    }
+    public String getSummaryTextWithEmoji() {
+        if (!isFormComplete()) {
+            return "🤔 ยังไม่ได้ประเมิน";
+        }
+
+        int score = calculateTotalScore();
+        String emoji = get8qEmoji(score);
+        String resultDescription = getResultDescriptionWithEmoji(score);
+        String criticalEmoji = get8qCriticalEmoji(score >= 17);
+
+        String summary = String.format("คะแนน: %d - %s", score, resultDescription);
+
+        if (score >= 17) {
+            summary += " (" + criticalEmoji + " วิกฤติ!)";
+        } else if (score >= 9) {
+            summary += " (⚠️ ต้องติดตาม)";
+        }
+
+        return summary;
+    }
+    public ScreeningResultCodeDao.ScreeningStatistics getStatistics() {
+        try {
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_SUICIDE_ASSESSMENT_8Q);
+        } catch (Exception e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการดึงสถิติ 8Q: " + e.getMessage());
+            return null;
+        }
+    }
+    public void showSaveResult(boolean success, String message) {
+        if (success) {
+            Toast.makeText(getContext(),
+                    "✅ บันทึกผลการประเมินการฆ่าตัวตาย 8Q สำเร็จ",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(),
+                    "❌ เกิดข้อผิดพลาดในการบันทึก: " + message,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void showStatistics() {
+        ScreeningResultCodeDao.ScreeningStatistics stats = getStatistics();
+        if (stats != null) {
+            String message = String.format(
+                    "สถิติการประเมิน 8Q:\n" +
+                            "จำนวนทั้งหมด: %d ครั้ง\n" +
+                            "ปกติ: %d ครั้ง\n" +
+                            "ผิดปกติ: %d ครั้ง\n" +
+                            "คะแนนเฉลี่ย: %.1f\n" +
+                            "คะแนนสูงสุด: %d\n" +
+                            "คะแนนต่ำสุด: %d",
+                    stats.totalCount, stats.normalCount, stats.abnormalCount,
+                    stats.averageScore, stats.maxScore, stats.minScore
+            );
+
+            Log.d("SuicideAssessment8q", message);
+        }
+    }
+
     private void initializeGaugeViews(View view) {
         suicideRiskGauge = view.findViewById(R.id.suicideRiskGauge);
         tvGaugeEmoji = view.findViewById(R.id.tvGaugeEmoji);
@@ -535,26 +779,6 @@ public class SuicideAssessment8qFragment extends Fragment {
             return emoji + " ไม่มีความเสี่ยง ควรส่งเสริมสุขภาพจิตต่อไป";
         }
     }
-    public String getSummaryTextWithEmoji() {
-        if (!isFormComplete()) {
-            return "🤔 ยังไม่ได้ประเมิน";
-        }
-
-        int score = calculateTotalScore();
-        String emoji = get8qEmoji(score);
-        String resultDescription = getResultDescriptionWithEmoji(score);
-        String criticalEmoji = get8qCriticalEmoji(score >= 17);
-
-        String summary = String.format("คะแนน: %d - %s", score, resultDescription);
-
-        if (score >= 17) {
-            summary += " (" + criticalEmoji + " วิกฤติ!)";
-        } else if (score >= 9) {
-            summary += " (" + criticalEmoji + " ต้องติดตาม)";
-        }
-
-        return summary;
-    }
     public void showCompletionStatusWithEmoji() {
         int percentage = getCompletionPercentage();
         String message;
@@ -615,57 +839,6 @@ public class SuicideAssessment8qFragment extends Fragment {
         }
 
         return unanswered;
-    }
-    public String getDetailedValidationMessage() {
-        if (suicideAssessment8qInfo == null) {
-            return "การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q):\n• ยังไม่ได้กรอกข้อมูลใดๆ";
-        }
-
-        List<String> missingQuestions = new ArrayList<>();
-        String[] questionDescriptions = {
-                "ข้อ 1: คิดอยากตาย หรือ คิดว่าตายไปจะดีกว่า",
-                "ข้อ 2: อยากทำร้ายตัวเอง หรือ ทำให้ตัวเองบาดเจ็บ",
-                "ข้อ 3: คิดเกี่ยวกับการฆ่าตัวตาย",
-                "ข้อ 4: แผนการที่จะฆ่าตัวตาย",
-                "ข้อ 5: ได้เตรียมการที่จะทำร้ายตนเองหรือเตรียมการจะฆ่าตัวตาย",
-                "ข้อ 6: ได้ทำให้ตนเองบาดเจ็บแต่ไม่ตั้งใจที่จะทำให้เสียชีวิต",
-                "ข้อ 7: ได้พยายามฆ่าตัวตายโดยคาดหวัง/ตั้งใจที่จะให้ตาย",
-                "ข้อ 8: ท่านเคยพยายามฆ่าตัวตาย"
-        };
-
-        String[] answers = {
-                suicideAssessment8qInfo.getQ1(),
-                suicideAssessment8qInfo.getQ2(),
-                suicideAssessment8qInfo.getQ3(),
-                suicideAssessment8qInfo.getQ4(),
-                suicideAssessment8qInfo.getQ5(),
-                suicideAssessment8qInfo.getQ6(),
-                suicideAssessment8qInfo.getQ7(),
-                suicideAssessment8qInfo.getQ8()
-        };
-
-        for (int i = 0; i < answers.length; i++) {
-            if (answers[i] == null || answers[i].equals("0") || answers[i].isEmpty()) {
-                missingQuestions.add(questionDescriptions[i]);
-            }
-        }
-
-        // ตรวจสอบคำถามย่อย Q3_2_1
-        if (suicideAssessment8qInfo.getQ3().equals("2") &&
-                (suicideAssessment8qInfo.getQ3_2_1().equals("0") || suicideAssessment8qInfo.getQ3_2_1().isEmpty())) {
-            missingQuestions.add("คำถามย่อย 3.1: ท่านสามารถควบคุมความอยากฆ่าตัวตายได้หรือไม่");
-        }
-
-        if (!missingQuestions.isEmpty()) {
-            StringBuilder message = new StringBuilder("การประเมินการฆ่าตัวตายด้วย 8 คำถาม(8Q):\n");
-            message.append("กรุณาตอบคำถามที่ยังไม่ได้ตอบ:\n");
-            for (String question : missingQuestions) {
-                message.append("• ").append(question).append("\n");
-            }
-            return message.toString().trim();
-        }
-
-        return ""; // ไม่มีข้อผิดพลาด
     }
     public int getCompletionPercentage() {
         if (suicideAssessment8qInfo == null) {
@@ -1947,4 +2120,348 @@ public class SuicideAssessment8qFragment extends Fragment {
                 suicideAssessment8qInfo
         );
     }
+    public boolean saveToScreeningResultCode(int personId, int visitno, String userCreate) {
+        try {
+            if (!isFormComplete()) {
+                Log.e("SuicideAssessment8q", "ไม่สามารถบันทึกได้ เนื่องจากข้อมูลไม่ครบถ้วน");
+                return false;
+            }
+
+            if (screeningResultCodeDao == null) {
+                Log.e("SuicideAssessment8q", "screeningResultCodeDao is null");
+                return false;
+            }
+
+            // คำนวณคะแนนรวม
+            int totalScore = calculateTotalScore();
+
+            // กำหนดรหัสผลการประเมิน
+            String resultCode = getResultCode(totalScore);
+
+            // กำหนดคำอธิบายผลการประเมิน
+            String resultDescription = getResultDescription(totalScore);
+
+            // กำหนดสถานะ (ปกติ/ผิดปกติ)
+            String status = (totalScore == 0) ? "ปกติ" : "ผิดปกติ";
+
+            // กำหนดระดับความรุนแรง
+            String severity = getSuicideRiskSeverityLevel();
+
+            // สร้างข้อมูลเพิ่มเติม (JSON format)
+            String additionalData = createAdditionalDataJson();
+
+            // สร้าง object สำหรับบันทึก (คล้าย 2Q)
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_SUICIDE_ASSESSMENT_8Q;
+            data.totalScore = totalScore;
+            data.resultCode = resultCode;
+            data.resultDescription = resultDescription;
+            data.status = status;
+            data.severityLevel = severity;
+            data.additionalInfo = additionalData;
+            data.userCreate = userCreate;
+            data.createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+            // บันทึกลงฐานข้อมูลแบบเดียวกับ 2Q
+            android.net.Uri result = screeningResultCodeDao.saveScreeningResult(data);
+
+            if (result != null) {
+                Log.d("SuicideAssessment8q", "บันทึกผลการประเมิน 8Q สำเร็จ - " +
+                        "PersonId: " + personId + ", VisitNo: " + visitno +
+                        ", Score: " + totalScore + ", Result: " + resultDescription +
+                        ", URI: " + result.toString());
+
+                // บันทึก log พิเศษสำหรับความเสี่ยงสูง
+                if (totalScore >= 17) {
+                    Log.w("SuicideAssessment8q", "⚠️ บันทึกผลการประเมิน 8Q - พบความเสี่ยงสูงมาก! " +
+                            "PersonId: " + personId + ", Score: " + totalScore);
+                }
+
+                return true;
+            } else {
+                Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 8Q - ได้ null URI");
+                return false;
+            }
+
+        } catch (Exception e) {
+            Log.e("SuicideAssessment8q", "Exception ในการบันทึกผลการประเมิน 8Q: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * สร้างข้อมูลเพิ่มเติมในรูปแบบ JSON
+     */
+    private String createAdditionalDataJson() {
+        try {
+            JSONObject additionalData = new JSONObject();
+
+            // ข้อมูลพื้นฐาน
+            additionalData.put("assessment_type", "suicide_assessment_8q");
+            additionalData.put("version", "1.0");
+            additionalData.put("timestamp", System.currentTimeMillis());
+            additionalData.put("date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+            // ข้อมูลคำตอบ
+            JSONObject answers = new JSONObject();
+            answers.put("q1", suicideAssessment8qInfo.getQ1());
+            answers.put("q2", suicideAssessment8qInfo.getQ2());
+            answers.put("q3", suicideAssessment8qInfo.getQ3());
+            answers.put("q3_2_1", suicideAssessment8qInfo.getQ3_2_1());
+            answers.put("q4", suicideAssessment8qInfo.getQ4());
+            answers.put("q5", suicideAssessment8qInfo.getQ5());
+            answers.put("q6", suicideAssessment8qInfo.getQ6());
+            answers.put("q7", suicideAssessment8qInfo.getQ7());
+            answers.put("q8", suicideAssessment8qInfo.getQ8());
+            additionalData.put("answers", answers);
+
+            // ข้อมูลการวิเคราะห์
+            JSONObject analysis = new JSONObject();
+            analysis.put("total_score", calculateTotalScore());
+            analysis.put("is_complete", isFormComplete());
+            analysis.put("completion_percentage", getCompletionPercentage());
+            analysis.put("has_risk_answers", hasRiskAnswers());
+            analysis.put("is_critical_risk", isCriticalRisk());
+            analysis.put("requires_follow_up", requiresFollowUp());
+            analysis.put("follow_up_type", getFollowUpType());
+            additionalData.put("analysis", analysis);
+
+            // รายการคำตอบที่เป็นความเสี่ยง
+            List<String> riskAnswers = getRiskAnswers();
+            if (!riskAnswers.isEmpty()) {
+                JSONArray riskArray = new JSONArray();
+                for (String risk : riskAnswers) {
+                    riskArray.put(risk);
+                }
+                additionalData.put("risk_answers", riskArray);
+            }
+
+            // คำแนะนำ
+            additionalData.put("recommendation", getRecommendation8Q());
+
+            return additionalData.toString();
+
+        } catch (JSONException e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการสร้าง JSON: " + e.getMessage());
+            return "{}";
+        }
+    }
+
+    /**
+     * แปลงและโหลดข้อมูลเพิ่มเติมจาก JSON
+     */
+    private void parseAndLoadAdditionalData(String additionalDataJson) {
+        try {
+            JSONObject additionalData = new JSONObject(additionalDataJson);
+
+            if (additionalData.has("answers")) {
+                JSONObject answers = additionalData.getJSONObject("answers");
+
+                // โหลดคำตอบกลับมา (ถ้าต้องการ)
+                if (answers.has("q1")) suicideAssessment8qInfo.setQ1(answers.getString("q1"));
+                if (answers.has("q2")) suicideAssessment8qInfo.setQ2(answers.getString("q2"));
+                if (answers.has("q3")) suicideAssessment8qInfo.setQ3(answers.getString("q3"));
+                if (answers.has("q3_2_1")) suicideAssessment8qInfo.setQ3_2_1(answers.getString("q3_2_1"));
+                if (answers.has("q4")) suicideAssessment8qInfo.setQ4(answers.getString("q4"));
+                if (answers.has("q5")) suicideAssessment8qInfo.setQ5(answers.getString("q5"));
+                if (answers.has("q6")) suicideAssessment8qInfo.setQ6(answers.getString("q6"));
+                if (answers.has("q7")) suicideAssessment8qInfo.setQ7(answers.getString("q7"));
+                if (answers.has("q8")) suicideAssessment8qInfo.setQ8(answers.getString("q8"));
+
+                // โหลดข้อมูลเก่าแล้ว อัปเดตการแสดงผล
+                loadExistingData();
+                updateScoreAndHighlight();
+            }
+
+            Log.d("SuicideAssessment8q", "โหลดข้อมูลเพิ่มเติมจาก JSON สำเร็จ");
+
+        } catch (JSONException e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการแปลง JSON: " + e.getMessage());
+        }
+    }
+    public void loadFromScreeningResultCode(int personId, int visitno) {
+        try {
+            if (screeningResultCodeDao == null) {
+                Log.e("SuicideAssessment8q", "screeningResultCodeDao is null - ไม่สามารถโหลดข้อมูลได้");
+                return;
+            }
+
+            ScreeningResultCodeDao.ScreeningResultData existingData =
+                    screeningResultCodeDao.getResultByTypePersonAndVisit(
+                            personId, visitno, ScreeningResultCode.TYPE_SUICIDE_ASSESSMENT_8Q);
+
+            if (existingData != null) {
+                Log.d("SuicideAssessment8q", "พบข้อมูลการประเมิน 8Q เดิม: คะแนน=" + existingData.totalScore +
+                        ", ผลการประเมิน=" + existingData.resultDescription);
+
+                // แสดงข้อความแจ้งผู้ใช้
+                if (getContext() != null) {
+                    Toast.makeText(getContext(),
+                            "โหลดข้อมูลการประเมิน 8Q เดิม: " + existingData.resultDescription,
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                // โหลดข้อมูลรายละเอียดจาก additionalData ถ้ามี
+                if (existingData.additionalInfo != null && !existingData.additionalInfo.isEmpty()) {
+                    parseAndLoadAdditionalData(existingData.additionalInfo);
+                }
+
+            } else {
+                Log.d("SuicideAssessment8q", "ไม่พบข้อมูลการประเมิน 8Q เดิม");
+            }
+
+        } catch (Exception e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน 8Q: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ตรวจสอบว่าควรดำเนินการบันทึกข้อมูลอัตโนมัติหรือไม่
+     */
+    public boolean shouldAutoSave() {
+        return isFormComplete() && hasDataChanged();
+    }
+
+    /**
+     * บันทึกข้อมูลอัตโนมัติเมื่อแบบฟอร์มครบถ้วน
+     */
+    public void autoSaveIfComplete() {
+        if (shouldAutoSave() && currentPersonId > 0 && currentVisitNo > 0) {
+            try {
+                // ดึง userCreate จาก session
+                android.content.Context context = getContext();
+                if (context != null) {
+                    th.in.ffc.session.UserSessionManager sessionManager =
+                            new th.in.ffc.session.UserSessionManager(context);
+                    String userCreate = sessionManager.getUser();
+
+                    if (userCreate != null && !userCreate.isEmpty()) {
+                        boolean saveSuccess = saveToScreeningResultCode(currentPersonId, currentVisitNo, userCreate);
+
+                        if (saveSuccess) {
+                            Log.d("SuicideAssessment8q", "บันทึกอัตโนมัติสำเร็จ");
+                        } else {
+                            Log.w("SuicideAssessment8q", "บันทึกอัตโนมัติไม่สำเร็จ");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการบันทึกอัตโนมัติ: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * ดึงสถิติการใช้งานแบบฟอร์ม
+     */
+    public String getUsageStatistics() {
+        try {
+            ScreeningResultCodeDao.ScreeningStatistics stats = getStatistics();
+            if (stats != null) {
+                return String.format(Locale.getDefault(),
+                        "📊 สถิติการประเมิน 8Q:\n" +
+                                "• ทั้งหมด: %d ครั้ง\n" +
+                                "• ปกติ: %d ครั้ง (%.1f%%)\n" +
+                                "• ผิดปกติ: %d ครั้ง (%.1f%%)\n" +
+                                "• คะแนนเฉลี่ย: %.1f\n" +
+                                "• คะแนนสูงสุด: %d\n" +
+                                "• คะแนนต่ำสุด: %d",
+                        stats.totalCount,
+                        stats.normalCount, (stats.totalCount > 0 ? (stats.normalCount * 100.0f / stats.totalCount) : 0),
+                        stats.abnormalCount, (stats.totalCount > 0 ? (stats.abnormalCount * 100.0f / stats.totalCount) : 0),
+                        stats.averageScore,
+                        stats.maxScore,
+                        stats.minScore
+                );
+            }
+        } catch (Exception e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการดึงสถิติ: " + e.getMessage());
+        }
+
+        return "ไม่สามารถดึงสถิติได้";
+    }
+
+    /**
+     * ตรวจสอบและแจ้งเตือนเมื่อมีความเสี่ยงวิกฤต
+     */
+    public void checkAndAlertCriticalRisk() {
+        if (isCriticalRisk()) {
+            String criticalMessage = getCriticalRiskMessage();
+
+            // บันทึก log เตือน
+            Log.w("SuicideAssessment8q", "🚨 ตรวจพบความเสี่ยงวิกฤต! คะแนน: " + calculateTotalScore());
+
+            // แสดงการเตือนให้ผู้ใช้
+            if (getContext() != null) {
+                Toast.makeText(getContext(),
+                        "🆘 ความเสี่ยงวิกฤต! กรุณาดำเนินการทันที",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    /**
+     * รีเซ็ตและล้างข้อมูลการประเมิน
+     */
+    public void clearAssessmentData() {
+        try {
+            // รีเซ็ตข้อมูลใน object
+            resetForm();
+
+            // ล้างข้อมูลจากฐานข้อมูลท้องถิ่น (ถ้าต้องการ)
+            if (currentPersonId > 0 && currentVisitNo > 0) {
+                // สามารถเพิ่มการลบข้อมูลจาก local database ได้ที่นี่
+                Log.d("SuicideAssessment8q", "ล้างข้อมูลการประเมิน 8Q สำหรับ PersonId: " +
+                        currentPersonId + ", VisitNo: " + currentVisitNo);
+            }
+
+            // อัปเดตการแสดงผล
+            updateScoreAndHighlight();
+
+            Log.d("SuicideAssessment8q", "ล้างข้อมูลการประเมิน 8Q เรียบร้อย");
+
+        } catch (Exception e) {
+            Log.e("SuicideAssessment8q", "เกิดข้อผิดพลาดในการล้างข้อมูล: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ตรวจสอบว่าผู้ใช้ควรได้รับการส่งต่อหรือไม่
+     */
+    public boolean shouldRefer() {
+        return isFormComplete() && calculateTotalScore() >= 9; // ความเสี่ยงปานกลางขึ้นไป
+    }
+
+    /**
+     * ดึงข้อมูลสำหรับการส่งต่อ
+     */
+    public String getReferralInfo() {
+        if (!shouldRefer()) {
+            return "ไม่จำเป็นต้องส่งต่อ";
+        }
+
+        int totalScore = calculateTotalScore();
+        StringBuilder info = new StringBuilder();
+
+        info.append("📋 ข้อมูลสำหรับการส่งต่อ:\n\n");
+        info.append("• คะแนนรวม: ").append(totalScore).append(" คะแนน\n");
+        info.append("• ระดับความเสี่ยง: ").append(getResultDescription(totalScore)).append("\n");
+        info.append("• ประเภทการติดตาม: ").append(getFollowUpType()).append("\n\n");
+
+        List<String> riskAnswers = getRiskAnswers();
+        if (!riskAnswers.isEmpty()) {
+            info.append("🚨 สัญญาณเตือน:\n");
+            for (String risk : riskAnswers) {
+                info.append("• ").append(risk).append("\n");
+            }
+            info.append("\n");
+        }
+
+        info.append("💡 คำแนะนำ: ").append(getRecommendation8Q());
+
+        return info.toString();
+    }
+
 }
