@@ -209,7 +209,7 @@ public class DateConverter {
             // รับวันที่และเวลาปัจจุบัน
             Calendar now = Calendar.getInstance();
             // กำหนดรูปแบบวันที่และเวลา output (yyyy-MM-dd HH:mm:ss)
-            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S", Locale.US);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.0", Locale.US);
             // แปลงเป็น String ตามรูปแบบที่ต้องการ
             return outputFormat.format(now.getTime());
         } catch (Exception e) {

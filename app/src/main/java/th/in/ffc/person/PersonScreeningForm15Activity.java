@@ -2005,12 +2005,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         } else if (35 <= age && age <= 59) { // DX=Z13.1, Z13.3
             diagCodes.add(new DiagCode("Z13.1", "01", "ผ"));
             diagCodes.add(new DiagCode("Z13.3", "04", "ช"));
-            if (fpg > 0 ) {
-                diagCodes.add(new DiagCode("Z13.1", "04", "ผ"));
-            }
-            if (choresteral > 0) {
-                diagCodes.add(new DiagCode("Z13.1", "04", "ผ"));
-            }
+//            if (fpg > 0 ) {
+//                diagCodes.add(new DiagCode("Z13.1", "04", "ผ"));
+//            }
+//            if (choresteral > 0) {
+//                diagCodes.add(new DiagCode("Z13.1", "04", "ผ"));
+//            }
         }
         return diagCodes;
     }
@@ -2052,6 +2052,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 visitDiagInfo.setDiagcode(diagCode.getCode());
                 visitDiagInfo.setDxtype(diagCode.getDxtype());
                 visitDiagInfo.setConti(diagCode.getConti());
+                visitDiagInfo.setDoctor(userSessionManager.getUsername());
+                visitDiagInfo.setDateupdate(DateConverter.getCurrentWesternDateTime());
                 visitDiagDao.insert(visitDiagInfo);
 //                if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
 //                    VisitDiagInfo savedVisitDiagInfo = visitDiagDao.getVisitDiagByVisitNoAndPcucode(visitDiagInfo.getVisitno(), visitDiagInfo.getPcucode());
