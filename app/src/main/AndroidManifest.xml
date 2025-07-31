@@ -283,6 +283,13 @@
             android:authorities="th.in.ffc.provider.NHSOCHAProvider"
             android:enabled="true"
             android:exported="true" />
+
+        <provider
+            android:name=".provider.NHSOClaimDataProvider"
+            android:authorities="th.in.ffc.provider.NHSOClaimDataProvider"
+            android:enabled="true"
+            android:exported="true" />
+
         <provider
             android:name=".provider.ApiUrlProvider"
             android:authorities="th.in.ffc.provider.ApiUrlProvider"
@@ -299,6 +306,13 @@
             android:authorities="th.in.ffc.provider.F43SpecialPPProvider"
             android:enabled="true"
             android:exported="false" />
+
+        <provider
+            android:name="th.in.ffc.provider.UserDataProvider"
+            android:authorities="th.in.ffc.provider.UserDataProvider"
+            android:enabled="true"
+            android:exported="false" />
+
         <activity
             android:name=".app.form.screening.ApiUrlListActivity"
             android:exported="true"

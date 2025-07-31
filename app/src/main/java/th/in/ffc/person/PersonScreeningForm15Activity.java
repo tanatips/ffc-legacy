@@ -16,6 +16,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -70,6 +71,7 @@ import th.in.ffc.app.form.screening.SmookingFragment;
 import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
+import th.in.ffc.app.form.screening.SummaryOfAssistFragment;
 import th.in.ffc.app.form.screening.adapter.ScreeningExpandableListAdapter;
 import th.in.ffc.app.form.screening.dao.CounselingSignatureDao;
 import th.in.ffc.app.form.screening.dao.F43SpecialPPDao;
@@ -224,6 +226,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private String personAgeGroup = "";
     private FrameLayout personInfoContainer;
     private ImageView personInfoExpandIcon;
+    private LinearLayout screeningSummaryContainer;
+    private LinearLayout summaryContentContainer;
+    private TextView textCompletedForms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -666,7 +671,558 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         counselingInfoContainer = findViewById(R.id.counselingInfoContainer);
         textCounselingType = findViewById(R.id.textCounselingType);
         textCounselingDetail = findViewById(R.id.textCounselingDetail);
+
+        screeningSummaryContainer = findViewById(R.id.screeningSummaryContainer);
+        summaryContentContainer = findViewById(R.id.summaryContentContainer);
+        textCompletedForms = findViewById(R.id.textCompletedForms);
+
         setupValidationModeCollapsible();
+    }
+    private void updateScreeningSummary() {
+        if (summaryContentContainer == null || personInfo == null || personInfo.getId() == null) {
+            return;
+        }
+
+        summaryContentContainer.removeAllViews();
+
+        try {
+            Integer personId = Integer.valueOf(personInfo.getId());
+            int completedForms = 0;
+            int totalForms = 0;
+
+            // 1. สารเสพติด (แบบคัดกรองการใช้สารเสพติด)
+            addScreeningSummarySection("💊 สารเสพติด", getDrugsSummary(personId),
+                    isDrugsDataComplete(personId));
+            totalForms++;
+            if (isDrugsDataComplete(personId)) completedForms++;
+
+            // 2. การสูบบุหรี่ (ถ้ามีการใช้ยาสูบ)
+            if (hasTobaccoUse) {
+                addScreeningSummarySection("🚬 การสูบบุหรี่", getSmokerSummary(personId),
+                        isSmokerDataComplete(personId));
+                totalForms++;
+                if (isSmokerDataComplete(personId)) completedForms++;
+            }
+
+            // 3. เครื่องดื่มแอลกอฮอล์ (ถ้ามีการดื่ม)
+            if (hasAlcoholUse) {
+                addScreeningSummarySection("🍺 การดื่มสุรา", getDrinkingSummary(personId),
+                        isDrinkingDataComplete(personId));
+                totalForms++;
+                if (isDrinkingDataComplete(personId)) completedForms++;
+            }
+
+            // 4. ภาวะเครียด-ซึมเศร้า - แก้ไขการดึงข้อมูลจากฐานข้อมูล
+            addScreeningSummarySection("😔 ภาวะเครียด-ซึมเศร้า", getStressDepressionSummaryFromDB(personId),
+                    isStressDepressionDataCompleteFromDB(personId));
+            totalForms++;
+            if (isStressDepressionDataCompleteFromDB(personId)) completedForms++;
+
+            // 5. การประเมินการฆ่าตัวตาย (อายุ 35+)
+            if (personAge >= 35) {
+                addScreeningSummarySection("🚨 การประเมินการฆ่าตัวตาย", getSuicideAssessment8qSummaryFromDB(personId),
+                        isSuicideAssessment8qDataCompleteFromDB(personId));
+                totalForms++;
+                if (isSuicideAssessment8qDataCompleteFromDB(personId)) completedForms++;
+            }
+
+            // 6. ความเสี่ยงโรคหัวใจและหลอดเลือด (อายุ 35+)
+            if (personAge >= 35) {
+                addScreeningSummarySection("❤️ ความเสี่ยงโรคหัวใจฯ", getCardiovascularRiskSummary(personId),
+                        isCardiovascularRiskDataComplete(personId));
+                totalForms++;
+                if (isCardiovascularRiskDataComplete(personId)) completedForms++;
+            }
+
+            // อัพเดทจำนวนฟอร์มที่เสร็จ
+            textCompletedForms.setText(completedForms + "/" + totalForms);
+
+            // แสดง container หากมีข้อมูล
+            screeningSummaryContainer.setVisibility(totalForms > 0 ? View.VISIBLE : View.GONE);
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error updating screening summary: " + e.getMessage());
+        }
+    }
+
+    private String getStressDepressionSummaryFromDB(Integer personId) {
+        try {
+            // ดึงข้อมูล Stress Depression (ST5)
+            SfStressDepressionInfoDao stressDao = new SfStressDepressionInfoDao(mContext);
+            List<StressDepressionInfo> stressData = stressDao.getByPersonId(personId);
+
+            if (!stressData.isEmpty()) {
+                StressDepressionInfo data = stressData.get(0);
+
+                // คำนวณคะแนนจากคำตอบแต่ละข้อ (Q1-Q5)
+                int score = calculateStressDepressionScore(data);
+
+                String level = "";
+                String resultCode = "";
+
+                if (score >= 0 && score <= 4) {
+                    level = "ปกติ";
+                    resultCode = "1B132";
+                } else if (score >= 5 && score <= 9) {
+                    level = "เครียดเล็กน้อย";
+                    resultCode = "1B133";
+                } else if (score >= 10 && score <= 14) {
+                    level = "เครียดปานกลาง";
+                    resultCode = "1B134";
+                } else if (score >= 15) {
+                    level = "เครียดมาก";
+                    resultCode = "1B135";
+                }
+
+                StringBuilder summary = new StringBuilder();
+                summary.append("ST5: คะแนน ").append(score).append(" (").append(level).append(")");
+
+                // ตรวจสอบข้อมูล 2Q และ 9Q
+                SfStressDepression2qInfoDao stress2qDao = new SfStressDepression2qInfoDao(mContext);
+                List<StressDepression2qInfo> stress2qData = stress2qDao.getByPersonId(personId);
+
+                if (!stress2qData.isEmpty()) {
+                    StressDepression2qInfo data2q = stress2qData.get(0);
+                    int score2q = calculateStressDepression2qScore(data2q);
+                    data2q.analyze(); // คำนวณผล
+                    summary.append("\n2Q: ").append(score2q>0?"ผิดปกติ":"ปกติ");
+//                    if (data2q.getResultDescription() != null && !data2q.getResultDescription().isEmpty()) {
+//                        summary.append(" (").append(data2q.getResultDescription()).append(")");
+//                    }
+                }
+
+                SfStressDepression9qInfoDao stress9qDao = new SfStressDepression9qInfoDao(mContext);
+                List<StressDepression9qInfo> stress9qData = stress9qDao.getByPersonId(personId);
+
+                if (!stress9qData.isEmpty()) {
+                    StressDepression9qInfo data9q = stress9qData.get(0);
+                    int score9q = calculateStressDepression9qScore(data9q);
+                    Integer age = AgeCalculator.calculateAge(personInfo.getBirthday());
+                    data9q.analyze(age); // คำนวณผล
+                    summary.append("\n9Q: ").append(score9q).append(" คะแนน");
+                    if (data9q.getResultDescription() != null && !data9q.getResultDescription().isEmpty()) {
+                        summary.append(" (").append(data9q.getResultDescription()).append(")");
+                    }
+                }
+
+                return summary.toString();
+            }
+
+            return "ยังไม่ได้ประเมิน";
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error getting stress depression summary: " + e.getMessage());
+            return "เกิดข้อผิดพลาด";
+        }
+    }
+    private int calculateStressDepressionScore(StressDepressionInfo data) {
+        int score = 0;
+
+        try {
+            // Q1: การนอน (0=แทบไม่มี, 1=บางครั้ง, 2=บ่อยครั้ง, 3=ประจำ)
+            if (data.getQ1() != null && !data.getQ1().equals("0")) {
+                score += Integer.parseInt(data.getQ1()) - 1; // แปลง 1,2,3,4 เป็น 0,1,2,3
+            }
+
+            // Q2: สมาธิ
+            if (data.getQ2() != null && !data.getQ2().equals("0")) {
+                score += Integer.parseInt(data.getQ2()) - 1;
+            }
+
+            // Q3: หงุดหงิด
+            if (data.getQ3() != null && !data.getQ3().equals("0")) {
+                score += Integer.parseInt(data.getQ3()) - 1;
+            }
+
+            // Q4: เบื่อเซ็ง
+            if (data.getQ4() != null && !data.getQ4().equals("0")) {
+                score += Integer.parseInt(data.getQ4()) - 1;
+            }
+
+            // Q5: ไม่อยากพบปะ
+            if (data.getQ5() != null && !data.getQ5().equals("0")) {
+                score += Integer.parseInt(data.getQ5()) - 1;
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e("PersonScreeningForm15Activity", "Error parsing stress depression answers: " + e.getMessage());
+        }
+
+        return score;
+    }
+    private int calculateStressDepression2qScore(StressDepression2qInfo data) {
+        int score = 0;
+
+        try {
+            if (data.getQ1() != null && !data.getQ1().equals("0")) {
+                // 2Q มีเกณฑ์การให้คะแนนต่างจาก ST5 (ต้องดูจากโครงสร้างข้อมูล)
+                score += Integer.parseInt(data.getQ1())-1;
+            }
+
+            if (data.getQ2() != null && !data.getQ2().equals("0")) {
+                score += Integer.parseInt(data.getQ2())-1;
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e("PersonScreeningForm15Activity", "Error parsing 2Q answers: " + e.getMessage());
+        }
+
+        return score;
+    }
+    private int calculateStressDepression9qScore(StressDepression9qInfo data) {
+        int score = 0;
+
+        try {
+            if (data.getQ1() != null && !data.getQ1().equals("0")) {
+                score += Integer.parseInt(data.getQ1())-1;
+            }
+            if (data.getQ2() != null && !data.getQ2().equals("0")) {
+                score += Integer.parseInt(data.getQ2())-1;
+            }
+            if (data.getQ3() != null && !data.getQ3().equals("0")) {
+                score += Integer.parseInt(data.getQ3())-1;
+            }
+            if (data.getQ4() != null && !data.getQ4().equals("0")) {
+                score += Integer.parseInt(data.getQ4())-1;
+            }
+            if (data.getQ5() != null && !data.getQ5().equals("0")) {
+                score += Integer.parseInt(data.getQ5())-1;
+            }
+            if (data.getQ6() != null && !data.getQ6().equals("0")) {
+                score += Integer.parseInt(data.getQ6())-1;
+            }
+            if (data.getQ7() != null && !data.getQ7().equals("0")) {
+                score += Integer.parseInt(data.getQ7())-1;
+            }
+            if (data.getQ8() != null && !data.getQ8().equals("0")) {
+                score += Integer.parseInt(data.getQ8())-1;
+            }
+            if (data.getQ9() != null && !data.getQ9().equals("0")) {
+                score += Integer.parseInt(data.getQ9())-1;
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e("PersonScreeningForm15Activity", "Error parsing 9Q answers: " + e.getMessage());
+        }
+
+        return score;
+    }
+
+    // เพิ่มเมธอดใหม่สำหรับตรวจสอบความครบถ้วนของข้อมูลภาวะเครียดซึมเศร้าจากฐานข้อมูล
+    private boolean isStressDepressionDataCompleteFromDB(Integer personId) {
+        try {
+            SfStressDepressionInfoDao stressDao = new SfStressDepressionInfoDao(mContext);
+            List<StressDepressionInfo> stressData = stressDao.getByPersonId(personId);
+
+            if (!stressData.isEmpty()) {
+                StressDepressionInfo data = stressData.get(0);
+                // ตรวจสอบว่าตอบครบทุกคำถาม (Q1-Q5) และไม่ใช่ "0" (ไม่ตอบ)
+                return data.getQ1() != null && !data.getQ1().equals("0") &&
+                        data.getQ2() != null && !data.getQ2().equals("0") &&
+                        data.getQ3() != null && !data.getQ3().equals("0") &&
+                        data.getQ4() != null && !data.getQ4().equals("0") &&
+                        data.getQ5() != null && !data.getQ5().equals("0");
+            }
+
+            return false;
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error checking stress depression completion: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // เพิ่มเมธอดใหม่สำหรับดึงข้อมูลการประเมินการฆ่าตัวตายจากฐานข้อมูล
+    private String getSuicideAssessment8qSummaryFromDB(Integer personId) {
+        try {
+            SfSuicideAssessment8qInfoDao suicideDao = new SfSuicideAssessment8qInfoDao(mContext);
+            List<SuicideAssessment8qInfo> suicideData = suicideDao.getByPersonId(personId);
+
+            if (!suicideData.isEmpty()) {
+                SuicideAssessment8qInfo data = suicideData.get(0);
+
+                // ตรวจสอบปัจจัยเสี่ยง
+                List<String> riskFactors = new ArrayList<>();
+
+                if (data.getQ1() != null && data.getQ1().equals("2")) {
+                    riskFactors.add("ท้อแท้/สิ้นหวัง");
+                }
+                if (data.getQ2() != null && data.getQ2().equals("2")) {
+                    riskFactors.add("รู้สึกไร้ค่า");
+                }
+                if (data.getQ3() != null && data.getQ3().equals("2")) {
+                    riskFactors.add("คิดเกี่ยวกับการตาย");
+                }
+                if (data.getQ4() != null && data.getQ4().equals("2")) {
+                    riskFactors.add("มีแผนฆ่าตัวตาย");
+                }
+                if (data.getQ5() != null && data.getQ5().equals("2")) {
+                    riskFactors.add("เคยพยายามฆ่าตัวตาย");
+                }
+                if (data.getQ6() != null && data.getQ6().equals("2")) {
+                    riskFactors.add("ไม่มีความหวัง");
+                }
+                if (data.getQ7() != null && data.getQ7().equals("2")) {
+                    riskFactors.add("คิดทำร้ายตนเอง");
+                }
+                if (data.getQ8() != null && data.getQ8().equals("2")) {
+                    riskFactors.add("โดดเดี่ยว");
+                }
+
+                if (riskFactors.isEmpty()) {
+                    return "ไม่พบปัจจัยเสี่ยง";
+                } else {
+                    String riskLevel = getSuicideRiskLevel(riskFactors.size());
+                    return "พบปัจจัยเสี่ยง " + riskFactors.size() + " ข้อ (" + riskLevel + ")";
+                }
+            }
+
+            return "ยังไม่ได้ประเมิน";
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error getting suicide assessment summary: " + e.getMessage());
+            return "เกิดข้อผิดพลาด";
+        }
+    }
+    // เพิ่มเมธอดใหม่สำหรับตรวจสอบความครบถ้วนของข้อมูลการประเมินการฆ่าตัวตายจากฐานข้อมูล
+    private boolean isSuicideAssessment8qDataCompleteFromDB(Integer personId) {
+        try {
+            SfSuicideAssessment8qInfoDao suicideDao = new SfSuicideAssessment8qInfoDao(mContext);
+            List<SuicideAssessment8qInfo> suicideData = suicideDao.getByPersonId(personId);
+
+            if (!suicideData.isEmpty()) {
+                SuicideAssessment8qInfo data = suicideData.get(0);
+
+                // ตรวจสอบคำถามหลัก Q1-Q8
+                boolean mainQuestionsComplete = !data.getQ1().equals("0") &&
+                        !data.getQ2().equals("0") &&
+                        !data.getQ3().equals("0") &&
+                        !data.getQ4().equals("0") &&
+                        !data.getQ5().equals("0") &&
+                        !data.getQ6().equals("0") &&
+                        !data.getQ7().equals("0") &&
+                        !data.getQ8().equals("0");
+
+                // ตรวจสอบคำถามย่อย Q3_2_1 (หากจำเป็น)
+                boolean subQuestionComplete = true;
+                if (data.getQ3().equals("2")) { // หากตอบ "มี" ในคำถาม Q3
+                    subQuestionComplete = !data.getQ3_2_1().equals("0");
+                }
+
+                return mainQuestionsComplete && subQuestionComplete;
+            }
+
+            return false;
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error checking suicide assessment completion: " + e.getMessage());
+            return false;
+        }
+    }
+    private String getCardiovascularRiskSummary(Integer personId) {
+        if (cardiovascularRiskInfo == null) return "ยังไม่ได้ประเมิน";
+
+        StringBuilder summary = new StringBuilder();
+
+        // ข้อมูลพื้นฐาน
+        int age = cardiovascularRiskInfo.getAge()!= null ? Integer.valueOf(cardiovascularRiskInfo.getAge()) : 0;
+        if (age> 0) {
+            summary.append("อายุ: ").append(cardiovascularRiskInfo.getAge()).append(" ปี");
+        }
+
+        if (cardiovascularRiskInfo.getBloodPressure() != null && !cardiovascularRiskInfo.getBloodPressure().isEmpty()) {
+            summary.append(" | ความดัน: ").append(cardiovascularRiskInfo.getBloodPressure());
+        }
+
+        if (cardiovascularRiskInfo.getCholesterol() != null && !cardiovascularRiskInfo.getCholesterol().isEmpty()) {
+            try {
+                double cholesterol = Double.parseDouble(cardiovascularRiskInfo.getCholesterol());
+                summary.append(" | คอเลสเตอรอล: ").append(cholesterol).append(" mg/dl");
+            } catch (NumberFormatException e) {
+                // ข้ามถ้าไม่สามารถแปลงได้
+            }
+        }
+
+        // ระดับความเสี่ยง
+        String riskLevel = cardiovascularRiskInfo.getRiskLevel();
+        if (riskLevel != null && !riskLevel.isEmpty()) {
+            summary.append(" | ความเสี่ยง: ").append(riskLevel);
+        }
+
+        return summary.length() > 0 ? summary.toString() : "ข้อมูลไม่ครบถ้วน";
+    }
+
+    private boolean isCardiovascularRiskDataComplete(Integer personId) {
+        try {
+            SfCardiovascularRiskInfoDao dao = new SfCardiovascularRiskInfoDao(mContext);
+            List<CardiovascularRiskInfo> data = dao.getByPersonId(personId);
+            return !data.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    private void addScreeningSummarySection(String title, String summary, boolean isComplete) {
+        LinearLayout sectionLayout = new LinearLayout(this);
+        sectionLayout.setOrientation(LinearLayout.HORIZONTAL);
+        sectionLayout.setPadding(12, 8, 12, 8);
+        sectionLayout.setBackground(getDrawable(R.drawable.rounded_background));
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(0, 0, 0, 8);
+        sectionLayout.setLayoutParams(layoutParams);
+
+        // ไอคอนสถานะ
+        TextView statusIcon = new TextView(this);
+        statusIcon.setText(isComplete ? "✅" : "⏳");
+        statusIcon.setTextSize(16);
+        statusIcon.setPadding(0, 0, 12, 0);
+        statusIcon.setGravity(Gravity.TOP); // จัดให้อยู่ด้านบน
+
+        // หัวข้อและเนื้อหา
+        LinearLayout contentLayout = new LinearLayout(this);
+        contentLayout.setOrientation(LinearLayout.VERTICAL);
+        contentLayout.setLayoutParams(new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        TextView titleView = new TextView(this);
+        titleView.setText(title);
+        titleView.setTextSize(13);
+        titleView.setTypeface(null, Typeface.BOLD);
+        titleView.setTextColor(Color.parseColor("#1976D2"));
+
+        TextView summaryView = new TextView(this);
+        summaryView.setText(summary);
+        summaryView.setTextSize(11);
+        summaryView.setTextColor(Color.parseColor("#666666"));
+        // ลบข้อจำกัดจำนวนบรรทัดเพื่อให้แสดงข้อความเต็ม
+        // summaryView.setMaxLines(2);
+        // summaryView.setEllipsize(TextUtils.TruncateAt.END);
+
+        contentLayout.addView(titleView);
+        contentLayout.addView(summaryView);
+
+        sectionLayout.addView(statusIcon);
+        sectionLayout.addView(contentLayout);
+
+        summaryContentContainer.addView(sectionLayout);
+    }
+    private String getSmokerSummary(Integer personId) {
+        try {
+            SfSmokerInfoDao dao = new SfSmokerInfoDao(mContext);
+            List<SmokerInfo> data = dao.getByPersonId(personId);
+
+            if (data.isEmpty()) return "ยังไม่ได้ประเมิน";
+
+            SmokerInfo info = data.get(0);
+            String result = "";
+
+            if (info.getSmokerRegularly() != null && !info.getSmokerRegularly().equals("0")) {
+                result += "สูบปกติ: " + (info.getSmokerRegularly().equals("1") ? "ใช่" : "ไม่") + " ";
+            }
+
+            if (info.getSmokerGroup() != null && !info.getSmokerGroup().isEmpty()) {
+                result += "กลุ่มเสี่ยง: " + getSmokerGroupText(info.getSmokerGroup());
+            }
+
+            return result.isEmpty() ? "ข้อมูลไม่ครบถ้วน" : result;
+        } catch (Exception e) {
+            return "เกิดข้อผิดพลาด";
+        }
+    }
+    private String getDrinkingSummary(Integer personId) {
+        try {
+            SfDrinkingInfoDao dao = new SfDrinkingInfoDao(mContext);
+            List<DrinkingInfo> data = dao.getByPersonId(personId);
+
+            if (data.isEmpty()) return "ยังไม่ได้ประเมิน";
+
+            DrinkingInfo info = data.get(0);
+            int totalScore = 0 ; //info.getSum();
+
+            String riskLevel = "";
+            if (totalScore >= 0 && totalScore <= 7) {
+                riskLevel = "เสี่ยงต่ำ";
+            } else if (totalScore >= 8 && totalScore <= 15) {
+                riskLevel = "เสี่ยงปานกลาง";
+            } else if (totalScore >= 16) {
+                riskLevel = "เสี่ยงสูง";
+            }
+
+            return "คะแนน: " + totalScore + " (" + riskLevel + ")";
+        } catch (Exception e) {
+            return "เกิดข้อผิดพลาด";
+        }
+    }
+    private String getStressDepressionSummary(Integer personId) {
+        if (stressDepressionInfo == null) return "ยังไม่ได้ประเมิน";
+
+        int score = stressDepressionInfo.getSum();
+        String level = "";
+
+        if (score >= 0 && score <= 4) {
+            level = "ปกติ";
+        } else if (score >= 5 && score <= 9) {
+            level = "เครียดเล็กน้อย";
+        } else if (score >= 10 && score <= 14) {
+            level = "เครียดปานกลาง";
+        } else if (score >= 15) {
+            level = "เครียดมาก";
+        }
+
+        return "คะแนน: " + score + " (" + level + ")";
+    }
+    private String getHealthRiskSummary(Integer personId) {
+        if (healthRiskAssessmentInfo == null) return "ยังไม่ได้ประเมิน";
+
+        int score = 0;// healthRiskAssessmentInfo.getSum();
+        String risk = "";
+
+        if (score < 12) {
+            risk = "เสี่ยงต่ำ";
+        } else if (score >= 12 && score <= 14) {
+            risk = "เสี่ยงปานกลาง";
+        } else if (score >= 15) {
+            risk = "เสี่ยงสูง";
+        }
+
+        return "คะแนน: " + score + " (เสี่ยงเบาหวาน: " + risk + ")";
+    }
+    private String getSmokerGroupText(String group) {
+        switch (group) {
+            case "1": return "กลุ่มที่ 1";
+            case "2": return "กลุ่มที่ 2";
+            case "3": return "กลุ่มที่ 3";
+            default: return "ไม่ระบุ";
+        }
+    }
+    private boolean isSmokerDataComplete(Integer personId) {
+        try {
+            SfSmokerInfoDao dao = new SfSmokerInfoDao(mContext);
+            List<SmokerInfo> data = dao.getByPersonId(personId);
+            return !data.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isDrinkingDataComplete(Integer personId) {
+        try {
+            SfDrinkingInfoDao dao = new SfDrinkingInfoDao(mContext);
+            List<DrinkingInfo> data = dao.getByPersonId(personId);
+            return !data.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    private boolean isHealthRiskDataComplete(Integer personId) {
+        try {
+            SfHealthRiskAssessmentInfoDao dao = new SfHealthRiskAssessmentInfoDao(mContext);
+            List<HealthRiskAssessmentInfo> data = dao.getByPersonId(personId);
+            return !data.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
     }
     private void setupValidationModeCollapsible() {
         validationModeHeader = findViewById(R.id.validationModeHeader);
@@ -1317,7 +1873,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         if (expandableListAdapter != null) {
             ((ScreeningExpandableListAdapter) expandableListAdapter).updateAllCompletionStatus(formStatus);
         }
-
+        updateScreeningSummary();
     }
 
     private void prepareListData() {
@@ -1495,7 +2051,6 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(mContext);
             stressDepressionInfo.setPersonId(this.personInfo.getId());
             stressDepressionInfo.setIdcard(this.personInfo.getIdcard());
-
             if (this.stressDepressionInfo.getId() == null) {
                 String id = sfStressDepressionInfoDao.insert(stressDepressionInfo);
                 this.stressDepressionInfo.setId(id);
@@ -1929,10 +2484,20 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         VisitDao visitDao = new VisitDao(getContentResolver());
         PersonDao personDao = new PersonDao(getBaseContext());
         Person person = personDao.findByIdCard(this.personInfo.getIdcard());
+        String healthsuggest1 = "";
+        if(counselingInfo != null ) {
+            if(counselingInfo.getDetail() == null || counselingInfo.getDetail().isEmpty()) {
+                healthsuggest1 = counselingInfo.getReferralDetail();
+            } else {
+                healthsuggest1 = counselingInfo.getDetail();
+            }
+         }
         if (this.personInfo.getVisitId() == null) { // insert
             String visitDate = DateConverter.getCurrentWesternDate(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
             String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
             Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
+            String systolic = "แบบคัดกรอง และประเมินปัจจัยเสี่ยงต่อสุขภาพ";
+            String diastolic = systolic;
             long visitId = visitDao.saveNewVisitWithVitalSigns(
                     userSessionManager.getPcuCode(),                     // pcucode
                     userSessionManager.getPcuCode(),                     // pcucodePerson
@@ -1944,9 +2509,12 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     (float) personInfo.getTemperature(),                  // temperature
                     pluse,                               // pluse
                     (float) personInfo.getWaist_size(),                   // waist
-                    "",                 // systolic
-                    "",                // diastolic                               // diagnote
-                    userSessionManager.getUsername()                     // username
+                    systolic,                 // systolic
+                    diastolic,                // diastolic
+                    userSessionManager.getUsername(),                  // username
+                    healthsuggest1,
+                    person.getRightCode(),
+                    person.getRightNo()
             );
             if (visitId > 0) {
                 this.personInfo.setVisitId(String.valueOf(visitId));
@@ -1954,6 +2522,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
             }
         } else {
+            String systolic = "แบบคัดกรอง และประเมินปัจจัยเสี่ยงต่อสุขภาพ";
+            String diastolic = systolic;
             String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
             Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
             visitDao.updateVisit(
@@ -1964,9 +2534,13 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     (float) personInfo.getTemperature(),                 // temperature
                     pluse, // pulse
                     (float) personInfo.getWaist_size(),                  // waist
-                    "",   // symptoms (ในที่นี้ใช้ systolic แทน)
-                    ""   // diagnote (ในที่นี้ใช้ diastolic แทน)
-            );
+                    systolic,   // symptoms (ในที่นี้ใช้ systolic แทน)
+                    diastolic,   // diagnote (ในที่นี้ใช้ diastolic แทน)
+                    healthsuggest1,
+                    person.getRightCode(),
+                    person.getRightNo(),
+                    userSessionManager.getUsername()
+                    );
 
         }
     }
@@ -2054,6 +2628,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 visitDiagInfo.setConti(diagCode.getConti());
                 visitDiagInfo.setDoctor(userSessionManager.getUsername());
                 visitDiagInfo.setDateupdate(DateConverter.getCurrentWesternDateTime());
+
                 visitDiagDao.insert(visitDiagInfo);
 //                if (!visitDiagInfo.getVisitno().isEmpty() && !visitDiagInfo.getPcucode().isEmpty()) {
 //                    VisitDiagInfo savedVisitDiagInfo = visitDiagDao.getVisitDiagByVisitNoAndPcucode(visitDiagInfo.getVisitno(), visitDiagInfo.getPcucode());
@@ -2975,6 +3550,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         // อัปเดตสถานะการกรอกข้อมูล
         updateFormStatus(formName, true);
 
+        updateScreeningSummary();
+
         // แจ้งให้ผู้ใช้ทราบ
         Toast.makeText(this, "บันทึกข้อมูล " + formName + " แล้ว", Toast.LENGTH_SHORT).show();
     }
@@ -3524,5 +4101,422 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     public void forceRefreshAllData() {
         Log.d("PersonScreeningForm15Activity", "forceRefreshAllData - เริ่มรีเฟรชข้อมูลแบบบังคับ");
         refreshAllDataOnResume();
+    }
+    private String getDrugsSummary(Integer personId) {
+        try {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(personId));
+
+            if (drugs.isEmpty()) return "ยังไม่ได้ประเมิน";
+
+            // แยกข้อมูลตามคำถาม
+            Map<String, Map<String, DrugsInfo>> questionData = new HashMap<>();
+            for (DrugsInfo drug : drugs) {
+                questionData.computeIfAbsent(drug.getQuestion(), k -> new HashMap<>())
+                        .put(drug.getSubquestion(), drug);
+            }
+
+            StringBuilder summary = new StringBuilder();
+
+            // Q1: การเคยใช้สารเสพติด
+            Map<String, DrugsInfo> q1Data = questionData.get("Q1");
+            if (q1Data == null || q1Data.isEmpty()) {
+                return "ยังไม่ได้ประเมิน Q1";
+            }
+
+            List<String> usedSubstances = new ArrayList<>();
+            List<String> substanceScores = new ArrayList<>();
+            int totalScore = 0;
+            boolean hasAnySubstanceUse = false;
+
+            // ตรวจสอบสารเสพติดที่เคยใช้
+            String[] substances = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+
+            for (String substanceId : substances) {
+                DrugsInfo q1Info = q1Data.get(substanceId);
+                if (q1Info != null && "1".equals(q1Info.getAnswer())) {
+                    hasAnySubstanceUse = true;
+
+                    String substanceName = getSubstanceName(substanceId);
+                    if (substanceId.equals("j") && q1Info.getOtherDrugs() != null && !q1Info.getOtherDrugs().trim().isEmpty()) {
+                        substanceName = q1Info.getOtherDrugs();
+                    }
+                    usedSubstances.add(substanceName);
+
+                    // คำนวณคะแนนสำหรับสารเสพติดนี้
+                    int substanceScore = calculateSubstanceScore(substanceId, questionData);
+                    totalScore += substanceScore;
+
+                    String riskLevel = getSubstanceRiskLevel(substanceId, substanceScore);
+                    substanceScores.add(substanceName + ": " + substanceScore + " คะแนน (" + riskLevel + ")");
+                }
+            }
+
+//            // การฉีดสาร (Q8 ของ ASSIST) - แยกจากการประเมินการฆ่าตัวตาย
+//            Map<String, DrugsInfo> q8Data = questionData.get("Q8");
+//            if (q8Data != null) {
+//                DrugsInfo injectionInfo = q8Data.get("injection");
+//                if (injectionInfo != null) {
+//                    try {
+//                        int injectionAnswer = Integer.parseInt(injectionInfo.getAnswer());
+//                        if (injectionAnswer > 0) {
+//                            int injectionScore = 2; // การฉีดสารได้ 2 คะแนนเสมอ
+//                            totalScore += injectionScore;
+//                            String injectionText = injectionAnswer == 1 ? "ภายใน 3 เดือน" : "ก่อน 3 เดือน";
+//                            substanceScores.add("การฉีดสาร (" + injectionText + "): +" + injectionScore + "คะแนน");
+//                        }
+//                    } catch (NumberFormatException e) {
+//                        // ข้าม
+//                    }
+//                }
+//            }
+
+            // สร้างสรุปผล
+            if (!hasAnySubstanceUse) {
+                summary.append("ไม่เคยใช้สารเสพติด (0 คะแนน - ไม่มีความเสี่ยง)");
+            } else {
+                summary.append("เคยใช้: ").append(String.join(", ", usedSubstances)).append("\n\n");
+                summary.append("📊 คะแนนรายสาร:\n");
+                for (String scoreDetail : substanceScores) {
+                    summary.append("• ").append(scoreDetail).append("\n");
+                }
+//                summary.append("\n🎯 รวม: ").append(totalScore).append(" คะแนน");
+//                summary.append(" (").append(getOverallAssistRiskLevel(totalScore)).append(")");
+//
+//                // เพิ่มคำแนะนำ
+//                String recommendation = getAssistRecommendation(totalScore);
+//                if (!recommendation.isEmpty()) {
+//                    summary.append("\n💡 ").append(recommendation);
+//                }
+            }
+
+            return summary.toString();
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error in getDrugsSummary: " + e.getMessage());
+            return "เกิดข้อผิดพลาด";
+        }
+    }
+
+    // เพิ่ม method สำหรับสรุปการประเมินการฆ่าตัวตาย 8Q (แยกต่างหาก)
+    private String getSuicideAssessment8qSummary(Integer personId) {
+        if (suicideAssessment8qInfo == null) return "ยังไม่ได้ประเมิน";
+
+        StringBuilder summary = new StringBuilder();
+
+        try {
+            // ตรวจสอบคำตอบที่สำคัญ
+            List<String> riskFactors = new ArrayList<>();
+
+            // Q1: ความรู้สึกท้อแท้หรือสิ้นหวัง
+            if (suicideAssessment8qInfo.getQ1() != null && !suicideAssessment8qInfo.getQ1().equals("0")) {
+                if (suicideAssessment8qInfo.getQ1().equals("2")) {
+                    riskFactors.add("รู้สึกท้อแท้/สิ้นหวัง");
+                }
+            }
+
+            // Q2: ความรู้สึกว่าตนเองไร้ค่า
+            if (suicideAssessment8qInfo.getQ2() != null && !suicideAssessment8qInfo.getQ2().equals("0")) {
+                if (suicideAssessment8qInfo.getQ2().equals("2")) {
+                    riskFactors.add("รู้สึกไร้ค่า");
+                }
+            }
+
+            // Q3: ความคิดเกี่ยวกับการตาย
+            if (suicideAssessment8qInfo.getQ3() != null && !suicideAssessment8qInfo.getQ3().equals("0")) {
+                if (suicideAssessment8qInfo.getQ3().equals("2")) {
+                    riskFactors.add("มีความคิดเกี่ยวกับการตาย");
+
+                    // Q3_2_1: ความถี่ของความคิด
+                    if (suicideAssessment8qInfo.getQ3_2_1() != null && !suicideAssessment8qInfo.getQ3_2_1().equals("0")) {
+                        String frequency = getFrequencyText(suicideAssessment8qInfo.getQ3_2_1());
+                        riskFactors.add("ความถี่: " + frequency);
+                    }
+                }
+            }
+
+            // Q4-Q8: ปัจจัยเสี่ยงอื่นๆ
+            if (suicideAssessment8qInfo.getQ4() != null && suicideAssessment8qInfo.getQ4().equals("2")) {
+                riskFactors.add("มีแผนการฆ่าตัวตาย");
+            }
+
+            if (suicideAssessment8qInfo.getQ5() != null && suicideAssessment8qInfo.getQ5().equals("2")) {
+                riskFactors.add("เคยพยายามฆ่าตัวตาย");
+            }
+
+            if (suicideAssessment8qInfo.getQ6() != null && suicideAssessment8qInfo.getQ6().equals("2")) {
+                riskFactors.add("รู้สึกไม่มีความหวัง");
+            }
+
+            if (suicideAssessment8qInfo.getQ7() != null && suicideAssessment8qInfo.getQ7().equals("2")) {
+                riskFactors.add("มีความคิดทำร้ายตนเอง");
+            }
+
+            if (suicideAssessment8qInfo.getQ8() != null && suicideAssessment8qInfo.getQ8().equals("2")) {
+                riskFactors.add("รู้สึกโดดเดี่ยว");
+            }
+
+            // สรุปผล
+            if (riskFactors.isEmpty()) {
+                summary.append("ไม่พบปัจจัยเสี่ยงการฆ่าตัวตาย");
+            } else {
+                summary.append("พบปัจจัยเสี่ยง ").append(riskFactors.size()).append(" ข้อ:\n");
+                for (String factor : riskFactors) {
+                    summary.append("• ").append(factor).append("\n");
+                }
+
+                // ประเมินระดับความเสี่ยง
+                String riskLevel = getSuicideRiskLevel(riskFactors.size());
+                summary.append("\n🚨 ระดับความเสี่ยง: ").append(riskLevel);
+
+                // คำแนะนำ
+                String recommendation = getSuicideRecommendation(riskFactors.size(), riskFactors);
+                if (!recommendation.isEmpty()) {
+                    summary.append("\n💡 ").append(recommendation);
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error in getSuicideAssessment8qSummary: " + e.getMessage());
+            return "เกิดข้อผิดพลาดในการประเมิน";
+        }
+
+        return summary.toString();
+    }
+
+    private String getFrequencyText(String frequency) {
+        switch (frequency) {
+            case "1": return "นาน ๆ ครั้ง";
+            case "2": return "บางครั้ง";
+            case "3": return "บ่อยครั้ง";
+            case "4": return "เกือบทุกวัน";
+            default: return "ไม่ระบุ";
+        }
+    }
+
+    private String getSuicideRiskLevel(int riskFactorCount) {
+        if (riskFactorCount >= 5) {
+            return "สูงมาก (ต้องการการดูแลเร่งด่วน)";
+        } else if (riskFactorCount >= 3) {
+            return "สูง (ต้องการการดูแลอย่างใกล้ชิด)";
+        } else if (riskFactorCount >= 1) {
+            return "ปานกลาง (ต้องการการติดตาม)";
+        } else {
+            return "ต่ำ";
+        }
+    }
+
+    private String getSuicideRecommendation(int riskFactorCount, List<String> riskFactors) {
+        if (riskFactorCount >= 5 || riskFactors.contains("มีแผนการฆ่าตัวตาย") || riskFactors.contains("เคยพยายามฆ่าตัวตาย")) {
+            return "🚨 แนะนำให้ส่งต่อแพทย์จิตเวชทันที";
+        } else if (riskFactorCount >= 3) {
+            return "⚠️ แนะนำให้พบแพทย์เพื่อรับการประเมินเพิ่มเติม";
+        } else if (riskFactorCount >= 1) {
+            return "📞 แนะนำให้รับคำปรึกษาและติดตามอาการ";
+        } else {
+            return "✅ ไม่พบความเสี่ยง แต่ควรติดตามอาการต่อไป";
+        }
+    }
+
+    private boolean isSuicideAssessment8qDataComplete() {
+        return isSuicideAssessment8qDataComplete(suicideAssessment8qInfo);
+    }
+
+    private String getAssistRecommendation(int totalScore) {
+        if (totalScore >= 27) {
+            return "แนะนำให้รับการรักษาแบบเข้มข้นทันที";
+        } else if (totalScore >= 11) {
+            return "แนะนำให้พบแพทย์เพื่อรับการรักษา";
+        } else if (totalScore >= 4) {
+            return "แนะนำให้รับคำปรึกษาและติดตาม";
+        } else if (totalScore >= 1) {
+            return "แนะนำให้รับข้อมูลและคำแนะนำ";
+        } else {
+            return "ไม่ต้องการการแทรกแซง";
+        }
+    }
+
+    private String getOverallAssistRiskLevel(int totalScore) {
+        if (totalScore >= 27) {
+            return "ความเสี่ยงสูงมาก";
+        } else if (totalScore >= 11) {
+            return "ความเสี่ยงสูง";
+        } else if (totalScore >= 4) {
+            return "ความเสี่ยงปานกลาง";
+        } else if (totalScore >= 1) {
+            return "ความเสี่ยงต่ำ";
+        } else {
+            return "ไม่มีความเสี่ยง";
+        }
+    }
+    private String getSubstanceRiskLevel(String substanceId, int score) {
+        // เกณฑ์การประเมินความเสี่ยงตามสารเสพติดแต่ละชนิด
+        switch (substanceId) {
+            case "a": // ยาสูบ
+                if (score >= 4) return "ต้องการการรักษา";
+                else if (score >= 1) return "ต้องการคำแนะนำ";
+                else return "ไม่มีความเสี่ยง";
+
+            case "b": // แอลกอฮอล์
+                if (score >= 11) return "ต้องการการรักษา";
+                else if (score >= 1) return "ต้องการคำแนะนำ";
+                else return "ไม่มีความเสี่ยง";
+
+            case "c": // กัญชา
+            case "d": // โคเคน
+            case "e": // แอมเฟตามีน
+            case "f": // สารระเหย
+            case "g": // ยากล่อมประสาท
+            case "h": // ยาหลอนประสาท
+            case "i": // ฝิ่น
+            case "j": // อื่นๆ
+                if (score >= 4) return "ต้องการการรักษา";
+                else if (score >= 1) return "ต้องการคำแนะนำ";
+                else return "ไม่มีความเสี่ยง";
+
+            default:
+                return "ไม่สามารถประเมินได้";
+        }
+    }
+
+    private int calculateSubstanceScore(String substanceId, Map<String, Map<String, DrugsInfo>> questionData) {
+        int score = 0;
+
+        // คะแนนจากคำถาม Q2-Q7 สำหรับสารเสพติดนี้
+        String[] questions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7"};
+
+        for (String question : questions) {
+            Map<String, DrugsInfo> qData = questionData.get(question);
+            if (qData != null) {
+                DrugsInfo drugInfo = qData.get(substanceId);
+                if (drugInfo != null) {
+                    try {
+                        int questionScore = Integer.parseInt(drugInfo.getAnswer());
+                        score += questionScore;
+                    } catch (NumberFormatException e) {
+                        // ข้าม
+                    }
+                }
+            }
+        }
+
+        return score;
+    }
+    private int calculateAssistScore(Map<String, List<DrugsInfo>> questionGroups) {
+        int totalScore = 0;
+
+        // คำนวณคะแนนจากคำถาม Q2-Q7
+        String[] questions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7"};
+
+        for (String question : questions) {
+            List<DrugsInfo> questionData = questionGroups.get(question);
+            if (questionData != null) {
+                for (DrugsInfo drug : questionData) {
+                    try {
+                        int score = Integer.parseInt(drug.getAnswer());
+                        totalScore += score;
+                    } catch (NumberFormatException e) {
+                        // ข้ามถ้าไม่สามารถแปลงเป็นตัวเลขได้
+                    }
+                }
+            }
+        }
+
+        // เพิ่มคะแนนจาก Q8 (การฉีดสาร)
+        List<DrugsInfo> q8Data = questionGroups.get("Q8");
+        if (q8Data != null) {
+            for (DrugsInfo drug : q8Data) {
+                if ("injection".equals(drug.getSubquestion())) {
+                    try {
+                        int injectionScore = Integer.parseInt(drug.getAnswer());
+                        if (injectionScore > 0) {
+                            totalScore += 2; // การฉีดสารได้คะแนนเพิ่ม 2
+                        }
+                    } catch (NumberFormatException e) {
+                        // ข้ามถ้าไม่สามารถแปลงเป็นตัวเลขได้
+                    }
+                }
+            }
+        }
+
+        return totalScore;
+    }
+
+    private String getAssistRiskLevel(int score) {
+        if (score >= 0 && score <= 3) {
+            return "เสี่ยงต่ำ";
+        } else if (score >= 4 && score <= 26) {
+            return "เสี่ยงปานกลาง";
+        } else if (score >= 27) {
+            return "เสี่ยงสูง";
+        }
+        return "ไม่สามารถประเมินได้";
+    }
+
+    private String getSubstanceName(String id) {
+        switch (id) {
+            case "a": return "ยาสูบ";
+            case "b": return "แอลกอฮอล์";
+            case "c": return "กัญชา";
+            case "d": return "โคเคน";
+            case "e": return "แอมเฟตามีน";
+            case "f": return "สารระเหย";
+            case "g": return "ยากล่อมประสาท";
+            case "h": return "ยาหลอนประสาท";
+            case "i": return "ฝิ่น/เฮโรอีน";
+            case "j": return "สารเสพติดอื่นๆ";
+            default: return id;
+        }
+    }
+
+    private boolean isDrugsDataComplete(Integer personId) {
+        try {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(personId);
+
+            if (drugs.isEmpty()) return false;
+
+            // ตรวจสอบว่ามีข้อมูล Q1 ครบทุกสารเสพติดหรือไม่
+            Map<String, String> q1Answers = new HashMap<>();
+            for (DrugsInfo drug : drugs) {
+                if ("Q1".equals(drug.getQuestion())) {
+                    q1Answers.put(drug.getSubquestion(), drug.getAnswer());
+                }
+            }
+
+            // ต้องมีคำตอบครบทั้ง 10 สารเสพติด (a-j)
+            String[] substances = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+            for (String substance : substances) {
+                if (!q1Answers.containsKey(substance) || q1Answers.get(substance) == null) {
+                    return false;
+                }
+            }
+
+            // ถ้าเลือก "เคย" ใช้สารใดสาร ต้องมีข้อมูล Q2-Q7 ด้วย
+            boolean hasUsedAnySubstance = false;
+            for (String answer : q1Answers.values()) {
+                if ("1".equals(answer)) {
+                    hasUsedAnySubstance = true;
+                    break;
+                }
+            }
+
+            if (hasUsedAnySubstance) {
+                // ตรวจสอบว่ามีข้อมูล Q2 อย่างน้อย
+                boolean hasQ2Data = false;
+                for (DrugsInfo drug : drugs) {
+                    if ("Q2".equals(drug.getQuestion())) {
+                        hasQ2Data = true;
+                        break;
+                    }
+                }
+                return hasQ2Data;
+            }
+
+            return true; // ถ้าไม่เคยใช้สารเสพติดใดๆ ถือว่าครบถ้วน
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

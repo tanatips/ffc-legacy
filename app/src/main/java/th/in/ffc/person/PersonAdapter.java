@@ -71,7 +71,11 @@ import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
+import th.in.ffc.app.form.screening.model.VisitDiagInfo;
+import th.in.ffc.dao.UserDao;
 import th.in.ffc.dao.VisitDao;
+import th.in.ffc.dao.VisitDiagDao;
+import th.in.ffc.model.UserModel;
 import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.security.LoginActivity;
 import th.in.ffc.session.UserSessionManager;
@@ -88,7 +92,7 @@ import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.CounselingInfo;
-
+import th.in.ffc.dao.NHSOClaimDataDao;
 public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonViewHolder> {
     private List<PersonInfo> personList;
     private OnItemClickListener listener;
@@ -246,7 +250,12 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     List<NHSOPractitionerInfo> practitioners = new ArrayList<>();
                     List<NHSOHospitalInfo> hospitals = new ArrayList<>();
 
+                        practitioner.setSeq(personInfo.getVisitId());
+                        practitioner.setHcode(personInfo.getHcode());
+                        practitioner.setCid(userSessionManager.getIdcard());
 
+
+                    practitioners.add(practitioner);
                     NHSOOPDInfo hnSoOPDInfo = new NHSOOPDInfo();
 
                     VisitDao visitDao = new VisitDao(itemView.getContext().getContentResolver());
@@ -320,21 +329,29 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             Log.d("NHSO: inscl", inscl);
                             nhsoopdService.createOPD(hnSoOPDInfo,userSessionManager.getUser());
 
+                            VisitDiagDao visitDiagDao = new VisitDiagDao(itemView.getContext());
+
                             // แฟ้ม 5
+                            List<VisitDiagInfo> visitDiagInfos = visitDiagDao.getVisitDiagByVisitNo(personInfo.getVisitId());
                             NHSODiagnosisInfo nhsoDiagnosisInfo = new NHSODiagnosisInfo();
                             List<NHSODiagnosisInfo> nhsoDiagnosisInfos = new ArrayList<>();
                             NHSODiagnosisService nhsoDiagnosisService = new NHSODiagnosisService(itemView.getContext());
-                            nhsoDiagnosisInfo.setSeq(seq);
-                            nhsoDiagnosisInfo.setDiag("E119"); // E119
-                            nhsoDiagnosisInfo.setDiagType("1"); // 1
 
-                            try {
-                                nhsoDiagnosisInfo.setDateDx(dateFormat.parse(personInfo.getCreated_date()));
-                            } catch (ParseException e) {
-                                throw new RuntimeException(e);
+                            for( VisitDiagInfo visitDiagInfo : visitDiagInfos) {
+                                nhsoDiagnosisInfo = new NHSODiagnosisInfo();
+                                nhsoDiagnosisInfo.setSeq(seq);
+                                nhsoDiagnosisInfo.setDiag(visitDiagInfo.getDiagcode().replace(".",""));
+                                nhsoDiagnosisInfo.setDiagType(visitDiagInfo.getDxtype());
+                                try {
+                                    nhsoDiagnosisInfo.setDateDx(dateFormat.parse(personInfo.getCreated_date()));
+                                } catch (ParseException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                nhsoDiagnosisInfos.add(nhsoDiagnosisInfo);
+                                nhsoDiagnosisService.createDiagnosis(nhsoDiagnosisInfo,userSessionManager.getUser());
                             }
-                            nhsoDiagnosisInfos.add(nhsoDiagnosisInfo);
-                            nhsoDiagnosisService.createDiagnosis(nhsoDiagnosisInfo,userSessionManager.getUser());
+
+
 //                    Toast.makeText(itemView.getContext(), "บันทึกข้อมูลเรียบร้อย", Toast.LENGTH_LONG).show();
 
                             // แฟ้ม 7
@@ -420,6 +437,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                                 showMessage("ไม่สามารถสร้างข้อมูล JSON ได้");
                                 return;
                             }
+                            NHSOClaimDataDao claimDataDao = new NHSOClaimDataDao(itemView.getContext());
+                            claimDataDao.saveClaimData(Integer.parseInt(personInfo.getVisitId()), jsonObject);
 
                             NHSOFSDataApiCaller apiCaller = new NHSOFSDataApiCaller(itemView.getContext());
                             apiCaller.sendFSData(jsonObject, new NHSOFSDataApiCaller.FSDataApiCallback() {
@@ -448,6 +467,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                                                     currentDateTime,
                                                     String.valueOf(visitId)
                                             );
+                                            claimDataDao.updateSuccessStatus((int) visitId, fsResponse.getSeq(), response);
                                             Log.d(TAG, "Updated claim information for person ID: " + personInfo.getId());
                                         } else {
                                             // กรณีไม่สำเร็จ
@@ -462,6 +482,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                                 public void onError(String errorMessage, Exception e) {
                                     Log.e(TAG, "API Error: " + errorMessage+" "+e.getMessage());
                                     showMessage("เกิดข้อผิดพลาด: " + errorMessage);
+                                    // เมื่อ API สำเร็จ - อัพเดทสถานะ
+                                    claimDataDao.updateFailedStatus((int)visitId, errorMessage);
                                 }
                             });
                         }

@@ -779,7 +779,10 @@ public class MainQuestionsFragment extends Fragment {
                 // แจ้ง Activity ให้ปรับขนาด ViewPager
                 if (getActivity() instanceof PersonScreeningForm15Activity) {
                     new Handler().postDelayed(() -> {
-                        ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+                        // รีเฟรช ViewPager หลังจากวัดขนาดใหม่
+                        if( ((PersonScreeningForm15Activity) getActivity())!= null) {
+                            ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
+                        }
                     }, 100);
                 }
             });

@@ -46,7 +46,8 @@ public class PersonDao {
                     PersonProvider.Person.SEX,
                     PersonProvider.Person.PRENAME,
                     PersonProvider.Person.PCUPERSONCODE,
-                    PersonProvider.Person.HCODE
+                    PersonProvider.Person.HCODE,
+                    PersonProvider.Person.TYPELIVE
             };
 
             Cursor cursor = contentResolver.query(uri, projection, null, null, null);
@@ -62,7 +63,7 @@ public class PersonDao {
                 person.setPrename(cursor.getString(cursor.getColumnIndex(PersonProvider.Person.PRENAME)));
                 person.setPcucodeperson(cursor.getString(cursor.getColumnIndex(PersonProvider.Person.PCUPERSONCODE)));
                 person.setHcode(cursor.getString(cursor.getColumnIndex(PersonProvider.Person.HCODE)));
-
+                person.setTypelive(cursor.getString(cursor.getColumnIndex(PersonProvider.Person.TYPELIVE)));
                 Log.d(TAG, "Found person with idcard: " + idcard);
             } else {
                 Log.d(TAG, "No person found with idcard: " + idcard);
@@ -197,7 +198,8 @@ public class PersonDao {
                     PersonProvider.Person.BIRTH,
                     PersonProvider.Person.SEX,
                     PersonProvider.Person.PRENAME,
-                    PersonProvider.Person.PCUPERSONCODE
+                    PersonProvider.Person.PCUPERSONCODE,
+                    PersonProvider.Person.TYPELIVE
             };
 
             return contentResolver.query(
@@ -238,6 +240,8 @@ public class PersonDao {
 
         private String hcode;
 
+        private String typelive;
+
         // Constructors
         public PersonInfo() {}
 
@@ -276,6 +280,14 @@ public class PersonDao {
         public String getHcode() { return hcode; }
         public void setHcode(String hcode) { this.hcode = hcode; }
 
+        public String getTypelive() {
+            return typelive;
+        }
+
+        public void setTypelive(String typelive) {
+            this.typelive = typelive;
+        }
+
         @Override
         public String toString() {
             return "PersonInfo{" +
@@ -285,6 +297,7 @@ public class PersonDao {
                     ", lname='" + lname + '\'' +
                     ", birth='" + birth + '\'' +
                     ", sex='" + sex + '\'' +
+                    ", typelive='" + typelive + '\'' +
                     '}';
         }
     }

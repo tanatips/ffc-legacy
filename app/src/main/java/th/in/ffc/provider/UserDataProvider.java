@@ -26,16 +26,21 @@
 
 package th.in.ffc.provider;
 
-import android.content.*;
+import android.content.ContentProvider;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import th.in.ffc.FamilyFolderCollector;
 
 import java.util.HashMap;
+
+import th.in.ffc.FamilyFolderCollector;
 
 /**
  * Content Provider of User table
@@ -44,9 +49,9 @@ import java.util.HashMap;
  * @version 1.0
  * @since Family Folder Collector 2.0
  */
-public class UserProvider extends ContentProvider {
+public class UserDataProvider extends ContentProvider {
 
-    public static String AUTHORITY = "th.in.ffc.provider.UserProvider";
+    public static String AUTHORITY = "th.in.ffc.provider.UserDataProvider";
 
     //private static final int LOGIN = 1;
     private static final int USER = 2;
@@ -57,9 +62,9 @@ public class UserProvider extends ContentProvider {
 
     static {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        mUriMatcher.addURI(UserProvider.AUTHORITY, "user",
+        mUriMatcher.addURI(UserDataProvider.AUTHORITY, "user",
                 USER);
-        mUriMatcher.addURI(UserProvider.AUTHORITY, "user/*", USER_USERNAME);
+        mUriMatcher.addURI(UserDataProvider.AUTHORITY, "user/*", USER_USERNAME);
 
         //mUriMatcher.addURI(UserProvider.AUTHORITY, null, LOGIN);
 
@@ -71,7 +76,7 @@ public class UserProvider extends ContentProvider {
         PROJECTION_MAP.put(User.IDCARD, User.IDCARD + " AS " + User.IDCARD);
     }
 
-    private UserDatabaseOpenHelper mOpenHelper;
+    private DbOpenHelper mOpenHelper;
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -95,7 +100,7 @@ public class UserProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         // TODO Create new instance of user's database open helper
-        mOpenHelper = new UserDatabaseOpenHelper(this.getContext());
+        mOpenHelper = new DbOpenHelper(this.getContext());
         return true;
     }
 
@@ -109,10 +114,10 @@ public class UserProvider extends ContentProvider {
 
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         switch (mUriMatcher.match(uri)) {
-            case UserProvider.USER:
+            case UserDataProvider.USER:
                 return builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 
-            case UserProvider.USER_USERNAME:
+            case UserDataProvider.USER_USERNAME:
                 builder.appendWhere("username=\'" + uri.getLastPathSegment() + "\'");
                 return builder.query(db, projection, null, null, null, null, null);
             default:
@@ -128,37 +133,6 @@ public class UserProvider extends ContentProvider {
     }
 
     /**
-     * Open helper for open user database
-     *
-     * @author Piruin Panichphol
-     * @version 1.0
-     * @since 1.0
-     */
-
-    public static class UserDatabaseOpenHelper extends SQLiteOpenHelper {
-
-
-        public static final String NAME = FamilyFolderCollector.PATH_USER_DATABASE;
-        public static final int VERSION = 1;
-
-        public UserDatabaseOpenHelper(Context context) {
-            super(context, UserDatabaseOpenHelper.NAME, null,
-                    UserDatabaseOpenHelper.VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            // TODO do nothing
-
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // TODO do nothing
-        }
-    }
-
-    /**
      * BaseColumns Class for information about user table
      *
      * @author piruin panichphol
@@ -170,7 +144,7 @@ public class UserProvider extends ContentProvider {
         public static final String TABLENAME = "user";
 
         public static final Uri CONTENT_URI = Uri.parse("content://"
-                + UserProvider.AUTHORITY + "/user");
+                + UserDataProvider.AUTHORITY + "/user");
 
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
                 + "/vnd.ffc.user";

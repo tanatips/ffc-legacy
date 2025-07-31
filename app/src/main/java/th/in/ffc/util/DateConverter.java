@@ -217,4 +217,8 @@ public class DateConverter {
             return null;
         }
     }
+    public static String getCurrentTime() {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
+        return sdf.format(new java.util.Date());
+    }
 }

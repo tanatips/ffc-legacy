@@ -206,70 +206,136 @@
                     android:groupIndicator="@null"
                     android:childDivider="@android:color/transparent" />
 
-                <!-- แสดงข้อมูลการให้คำปรึกษา - ย้ายมาไว้ต่อท้าย expandableListView -->
+                <!-- สรุปผลการคัดกรองทั้งหมด - ย้ายมาไว้ต่อท้าย expandableListView -->
                 <LinearLayout
-                    android:id="@+id/counselingInfoContainer"
+                    android:id="@+id/screeningSummaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#E8F5E8"
-                    android:padding="12dp"
+                    android:background="#F8F9FA"
+                    android:padding="16dp"
                     android:layout_marginTop="16dp"
                     android:visibility="gone">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="สรุปการให้คำปรึกษา"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:textColor="#2E7D32"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center" />
-
+                    <!-- หัวข้อสรุป -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="4dp">
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_assessment"
+                            android:layout_marginEnd="8dp"
+                            android:tint="#1976D2" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ประเภท: "
-                            android:textStyle="bold"
-                            android:textColor="#4A4A4A" />
-
-                        <TextView
-                            android:id="@+id/textCounselingType"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="-"
-                            android:textColor="#2E7D32" />
+                            android:text="📋 สรุปผลการคัดกรอง"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:textColor="#1976D2" />
+
+                        <TextView
+                            android:id="@+id/textCompletedForms"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0/0"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:background="#E3F2FD"
+                            android:padding="4dp"
+                            android:minWidth="40dp"
+                            android:gravity="center" />
+
                     </LinearLayout>
 
-                    <LinearLayout
+                    <!-- เนื้อหาสรุป -->
+                    <ScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:maxHeight="300dp">
+
+                        <LinearLayout
+                            android:id="@+id/summaryContentContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+
+                    </ScrollView>
+
+                    <!-- ข้อมูลการให้คำปรึกษา -->
+                    <LinearLayout
+                        android:id="@+id/counselingInfoContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="#E8F5E8"
+                        android:padding="12dp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="visible">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="รายละเอียด: "
+                            android:text="💬 การให้คำปรึกษา"
                             android:textStyle="bold"
-                            android:textColor="#4A4A4A" />
+                            android:textSize="14sp"
+                            android:textColor="#2E7D32"
+                            android:layout_marginBottom="6dp" />
 
-                        <TextView
-                            android:id="@+id/textCounselingDetail"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="-"
-                            android:textColor="#4A4A4A"
-                            android:maxLines="3"
-                            android:ellipsize="end" />
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:text="ประเภท:"
+                                android:textSize="12sp"
+                                android:textColor="#4A4A4A" />
+
+                            <TextView
+                                android:id="@+id/textCounselingType"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="-"
+                                android:textSize="12sp"
+                                android:textColor="#2E7D32" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="60dp"
+                                android:layout_height="wrap_content"
+                                android:text="รายละเอียด:"
+                                android:textSize="12sp"
+                                android:textColor="#4A4A4A" />
+
+                            <TextView
+                                android:id="@+id/textCounselingDetail"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="-"
+                                android:textSize="12sp"
+                                android:textColor="#4A4A4A"
+                                android:maxLines="2"
+                                android:ellipsize="end" />
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </LinearLayout>
@@ -315,7 +381,7 @@
                 android:text="re create table"
                 android:textColor="@android:color/white"
                 android:background="@drawable/button_save_background"
-                android:visibility="gone" />
+                android:visibility="visible" />
         </LinearLayout>
 
         <FrameLayout

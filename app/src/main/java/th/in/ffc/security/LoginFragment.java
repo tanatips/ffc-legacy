@@ -17,7 +17,9 @@ import java.security.NoSuchAlgorithmException;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragment;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
+import th.in.ffc.dao.UserDao;
 import th.in.ffc.godmode.godMain;
+import th.in.ffc.model.UserModel;
 import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.provider.UserProvider.User;
 import th.in.ffc.provider.UserProvider.UserDatabaseOpenHelper;
@@ -115,7 +117,16 @@ public class LoginFragment extends FFCFragment implements
                     selectionArgs, null, null, null);
 
             boolean success = cur.moveToFirst();
+
+            UserDao userDao = new UserDao(getContext());
+            UserModel userModel = userDao.findByUsername(user);
             String pcuCode = null;
+            String idcard = null;
+            if(userModel!=null) {
+                idcard = userModel.getIdcard();
+            }
+
+
             if (success) {
                 pcuCode = cur.getString(0);
             }
@@ -126,7 +137,7 @@ public class LoginFragment extends FFCFragment implements
             if (success) {
                 this.mListener.onLoginSuccess(pcuCode, user);
                 UserSessionManager sessionManager = new UserSessionManager(getContext());
-                sessionManager.createLoginSession(user, user, pcuCode);
+                sessionManager.createLoginSession(user, user, pcuCode, idcard);
             }
             else {
                 this.mListener.onLoginFailre(getString(R.string.incorrect_user_pass));

@@ -40,6 +40,9 @@ public class AssistScoreFragment extends Fragment {
     private SharedViewModel viewModel;
     private ImageView btnInfo;
 
+    // **เพิ่มตัวแปรสำหรับเก็บคะแนนแต่ละสารเสพติด**
+    private Map<String, Integer> substanceScores = new HashMap<>();
+
     public AssistScoreFragment() {
         // Required empty public constructor
     }
@@ -57,7 +60,7 @@ public class AssistScoreFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_assist_score, container, false);
     }
@@ -109,6 +112,112 @@ public class AssistScoreFragment extends Fragment {
                 }
             }
         });
+    }
+
+    /**
+     * **เมธอดใหม่: อัพเดทคะแนนสำหรับสารเสพติดที่ระบุ**
+     * @param substanceId รหัสสารเสพติด (a, b, c, d, e, f, g, h, i, j)
+     * @param score คะแนน (0 = ไม่เคย, -1 = เคยแต่รอคำถามถัดไป, หรือคะแนนจริงจากคำถาม 2-8)
+     */
+    public void updateSubstanceScore(String substanceId, int score) {
+        try {
+            // อัพเดทคะแนนใน Map
+            substanceScores.put(substanceId, score);
+
+            Log.d(TAG, "Updated score for " + substanceId + " = " + score);
+
+            // อัพเดท UI ทันที
+            if (score >= 0) { // แสดงเฉพาะคะแนนที่มีค่า >= 0
+                updateScoreDisplay(substanceId, score);
+            } else {
+                // สำหรับคะแนน -1 (เคย แต่รอคำถามถัดไป) ให้แสดง placeholder
+                updateScoreDisplayPending(substanceId);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating substance score: " + e.getMessage());
+        }
+    }
+
+    /**
+     * **เมธอดใหม่: แสดงสถานะรอคำตอบสำหรับสารเสพติดที่เลือก "เคย"**
+     */
+    private void updateScoreDisplayPending(String substanceId) {
+        if (scoreTextViews.containsKey(substanceId)) {
+            TextView tvScore = scoreTextViews.get(substanceId);
+            if (tvScore != null) {
+                tvScore.setText("รอข้อมูล ⏳");
+                tvScore.setBackgroundResource(R.color.light_yellow);
+                tvScore.setTextColor(getResources().getColor(R.color.dark_yellow));
+
+                int padding = (int) (8 * getResources().getDisplayMetrics().density);
+                tvScore.setPadding(padding, padding, padding, padding);
+
+                Log.d(TAG, "Set pending status for substance: " + substanceId);
+            }
+        }
+    }
+
+    /**
+     * **เมธอดใหม่: ดึงคะแนนสำหรับสารเสพติดที่ระบุ**
+     */
+    public int getSubstanceScore(String substanceId) {
+        if (substanceScores != null && substanceScores.containsKey(substanceId)) {
+            return substanceScores.get(substanceId);
+        }
+        return -1; // ไม่พบข้อมูล
+    }
+
+    /**
+     * **เมธอดใหม่: รีเซ็ตคะแนนสำหรับสารเสพติดที่ระบุ**
+     */
+    public void resetSubstanceScore(String substanceId) {
+        if (substanceScores != null) {
+            substanceScores.remove(substanceId);
+            Log.d(TAG, "Reset score for " + substanceId);
+
+            // ล้างการแสดงผลด้วย
+            if (scoreTextViews.containsKey(substanceId)) {
+                TextView tvScore = scoreTextViews.get(substanceId);
+                if (tvScore != null) {
+                    tvScore.setText("-");
+                    tvScore.setBackgroundResource(android.R.color.transparent);
+                    tvScore.setTextColor(getResources().getColor(android.R.color.black));
+                    tvScore.setPadding(0, 0, 0, 0);
+                }
+            }
+        }
+    }
+
+    /**
+     * **เมธอดใหม่: รีเซ็ตคะแนนทั้งหมด**
+     */
+    public void resetAllScores() {
+        if (substanceScores != null) {
+            substanceScores.clear();
+            Log.d(TAG, "Reset all scores");
+        }
+
+        clearAllScores();
+    }
+
+    /**
+     * **เมธอดใหม่: คำนวณคะแนนรวมทั้งหมด**
+     */
+    public int calculateTotalScore() {
+        int totalScore = 0;
+
+        if (substanceScores != null) {
+            for (Map.Entry<String, Integer> entry : substanceScores.entrySet()) {
+                int score = entry.getValue();
+                if (score > 0) { // นับเฉพาะคะแนนที่มากกว่า 0
+                    totalScore += score;
+                }
+            }
+        }
+
+        Log.d(TAG, "Total ASSIST Score: " + totalScore);
+        return totalScore;
     }
 
     /**
@@ -195,10 +304,30 @@ public class AssistScoreFragment extends Fragment {
 
     /**
      * โหลดข้อมูลสรุปจาก SfDrugsDao และแสดงผลในตาราง
+     * **ปรับปรุงให้รวมคะแนนจากคำถามที่ 1 ด้วย**
      */
     private void loadDrugsSummary(String personInfoId) {
         try {
-            // คำนวณผลรวมของคำตอบจาก Q2 ถึง Q7
+            // **เพิ่มการดึงข้อมูลจากคำถามที่ 1 (Q1)**
+            Map<String, Integer> q1Scores = SfDrugsDao.getSummaryMapBySubquestion(
+                    Integer.valueOf(personInfoId), "Q1");
+
+            // แสดงคะแนนจาก Q1 (0 = ไม่เคย)
+            for (Map.Entry<String, Integer> entry : q1Scores.entrySet()) {
+                String subquestion = entry.getKey();
+                Integer score = entry.getValue();
+
+                if (score != null && score == 0) { // เฉพาะที่เลือก "ไม่เคย"
+                    updateSubstanceScore(subquestion, 0);
+                    Log.d(TAG, "Q1 - " + subquestion + " = 0 (ไม่เคย)");
+                } else if (score != null && score == 1) { // เลือก "เคย"
+                    // ตั้งค่าเป็น -1 เพื่อรอคำตอบจาก Q2-Q8
+                    updateSubstanceScore(subquestion, -1);
+                    Log.d(TAG, "Q1 - " + subquestion + " = เคย (รอคำตอบถัดไป)");
+                }
+            }
+
+            // คำนวณผลรวมของคำตอบจาก Q2 ถึง Q7 (เฉพาะสารที่เลือก "เคย" ใน Q1)
             String[] questions = { "Q2", "Q3", "Q4", "Q5", "Q6", "Q7" };
 
             // สร้าง Map เพื่อเก็บผลรวมของแต่ละสารเสพติด (a-j)
@@ -214,20 +343,26 @@ public class AssistScoreFragment extends Fragment {
                     String subquestion = entry.getKey();
                     Integer score = entry.getValue();
 
-                    if (totalScores.containsKey(subquestion)) {
-                        totalScores.put(subquestion, totalScores.get(subquestion) + score);
-                    } else {
-                        totalScores.put(subquestion, score);
+                    // **ตรวจสอบว่าสารเสพติดนี้เลือก "เคย" ใน Q1 หรือไม่**
+                    Integer q1Score = q1Scores.get(subquestion);
+                    if (q1Score != null && q1Score == 1) { // เลือก "เคย" ใน Q1
+                        if (totalScores.containsKey(subquestion)) {
+                            totalScores.put(subquestion, totalScores.get(subquestion) + score);
+                        } else {
+                            totalScores.put(subquestion, score);
+                        }
                     }
                 }
             }
 
-            // แสดงผลรวมในตาราง
+            // แสดงผลรวมในตาราง (เฉพาะสารที่เลือก "เคย" ใน Q1)
             for (Map.Entry<String, Integer> entry : totalScores.entrySet()) {
                 String subquestion = entry.getKey();
                 Integer totalScore = entry.getValue();
 
-                updateScoreDisplay(subquestion, totalScore);
+                // อัพเดทคะแนนจริงแทนที่ -1
+                updateSubstanceScore(subquestion, totalScore);
+                Log.d(TAG, "Final score for " + subquestion + " = " + totalScore);
             }
 
             Log.d(TAG, "ดึงและแสดงข้อมูลสำเร็จ");
@@ -240,6 +375,9 @@ public class AssistScoreFragment extends Fragment {
      * อัพเดตการแสดงคะแนนใน TextView
      */
     private void updateScoreDisplay(String substanceId, int score) {
+        // บันทึกคะแนนใน Map
+        substanceScores.put(substanceId, score);
+
         // ตรวจสอบว่ามี TextView สำหรับสารเสพติดชนิดนี้หรือไม่
         if (scoreTextViews.containsKey(substanceId)) {
             TextView tvScore = scoreTextViews.get(substanceId);
@@ -250,6 +388,8 @@ public class AssistScoreFragment extends Fragment {
 
                 // เพิ่มการเน้นสีพื้นหลังตามระดับคะแนน
                 highlightScore(tvScore, substanceId, score);
+
+                Log.d(TAG, "Updated display for " + substanceId + " = " + displayText);
             }
         }
     }
@@ -414,6 +554,7 @@ public class AssistScoreFragment extends Fragment {
         try {
             // ล้างคะแนนเดิมก่อน
             clearAllScores();
+            substanceScores.clear();
 
             // โหลดข้อมูลใหม่
             if (currentPersonId != null) {
@@ -495,37 +636,25 @@ public class AssistScoreFragment extends Fragment {
 
         for (int i = 0; i < substanceIds.length; i++) {
             String substanceId = substanceIds[i];
-            TextView textView = scoreTextViews.get(substanceId);
 
-            if (textView != null) {
-                String scoreText = textView.getText().toString();
-                if (!scoreText.equals("-") && !scoreText.isEmpty()) {
-                    // แยกคะแนนออกจากข้อความ (format: "21 😰 ได้รับการบำบัดอย่างย่อ")
-                    String[] parts = scoreText.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            int score = Integer.parseInt(parts[0]);
-                            String treatmentLevel = getTreatmentLevel(substanceId, score);
-                            String emoji = getScoreEmoji(substanceId, score);
+            // **ใช้ข้อมูลจาก substanceScores แทน TextView**
+            if (substanceScores.containsKey(substanceId)) {
+                int score = substanceScores.get(substanceId);
 
-                            summary.append(substanceNames[i]).append(": ").append(score).append(" ").append(emoji)
-                                    .append(" ").append(treatmentLevel).append("\n");
+                if (score >= 0) { // แสดงเฉพาะคะแนนที่ถูกต้อง
+                    String treatmentLevel = getTreatmentLevel(substanceId, score);
+                    String emoji = getScoreEmoji(substanceId, score);
 
-                            // นับจำนวนตามระดับความเสี่ยง
-                            if (treatmentLevel.contains("บำบัดรักษาเข้ม")) {
-                                totalHighRisk++;
-                            } else if (treatmentLevel.contains("บำบัดอย่างย่อ")) {
-                                totalMediumRisk++;
-                            } else {
-                                totalLowRisk++;
-                            }
-                        } catch (NumberFormatException e) {
-                            // ถ้าเป็นคะแนน 0
-                            if (parts[0].equals("0")) {
-                                summary.append(substanceNames[i]).append(": 0 😊\n");
-                                totalLowRisk++;
-                            }
-                        }
+                    summary.append(substanceNames[i]).append(": ").append(score).append(" ").append(emoji)
+                            .append(" ").append(treatmentLevel).append("\n");
+
+                    // นับจำนวนตามระดับความเสี่ยง
+                    if (treatmentLevel.contains("บำบัดรักษาเข้ม")) {
+                        totalHighRisk++;
+                    } else if (treatmentLevel.contains("บำบัดอย่างย่อ")) {
+                        totalMediumRisk++;
+                    } else {
+                        totalLowRisk++;
                     }
                 }
             }
@@ -544,23 +673,10 @@ public class AssistScoreFragment extends Fragment {
      * ตรวจสอบว่ามีคะแนนแสดงอยู่หรือไม่
      */
     public boolean hasScoresDisplayed() {
-        for (TextView textView : scoreTextViews.values()) {
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty()) {
-                    if (text.equals("0") || text.startsWith("0 😊")) {
-                        return true; // คะแนน 0 ก็นับว่ามีคะแนน
-                    }
-                    // ตรวจสอบรูปแบบ "21 😰 ได้รับการบำบัดอย่างย่อ"
-                    String[] parts = text.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            Integer.parseInt(parts[0]);
-                            return true;
-                        } catch (NumberFormatException e) {
-                            // ไม่ใช่ตัวเลข ข้ามไป
-                        }
-                    }
+        if (substanceScores != null && !substanceScores.isEmpty()) {
+            for (Integer score : substanceScores.values()) {
+                if (score != null && score >= 0) {
+                    return true;
                 }
             }
         }
@@ -571,28 +687,7 @@ public class AssistScoreFragment extends Fragment {
      * ดึงคะแนนรวมของสารเสพติดทั้งหมด
      */
     public int getTotalScore() {
-        int total = 0;
-        for (TextView textView : scoreTextViews.values()) {
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty()) {
-                    if (text.equals("0") || text.startsWith("0 😊")) {
-                        // คะแนน 0 ไม่ต้องบวก
-                        continue;
-                    }
-                    // แยกคะแนนออกจากข้อความ
-                    String[] parts = text.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            total += Integer.parseInt(parts[0]);
-                        } catch (NumberFormatException e) {
-                            // ไม่ใช่ตัวเลข ข้ามไป
-                        }
-                    }
-                }
-            }
-        }
-        return total;
+        return calculateTotalScore(); // ใช้เมธอดที่มีอยู่แล้ว
     }
 
     /**
@@ -600,26 +695,10 @@ public class AssistScoreFragment extends Fragment {
      */
     public int getHighestScore() {
         int highest = 0;
-        for (TextView textView : scoreTextViews.values()) {
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty()) {
-                    if (text.equals("0") || text.startsWith("0 😊")) {
-                        // คะแนน 0 ไม่ต้องเปรียบเทียบ
-                        continue;
-                    }
-                    // แยกคะแนนออกจากข้อความ
-                    String[] parts = text.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            int score = Integer.parseInt(parts[0]);
-                            if (score > highest) {
-                                highest = score;
-                            }
-                        } catch (NumberFormatException e) {
-                            // ไม่ใช่ตัวเลข ข้ามไป
-                        }
-                    }
+        if (substanceScores != null) {
+            for (Integer score : substanceScores.values()) {
+                if (score != null && score > highest) {
+                    highest = score;
                 }
             }
         }
@@ -629,26 +708,17 @@ public class AssistScoreFragment extends Fragment {
     /**
      * ตรวจสอบว่ามีความเสี่ยงสูงหรือไม่
      */
-
     public boolean hasHighRisk() {
-        for (String substanceId : scoreTextViews.keySet()) {
-            TextView textView = scoreTextViews.get(substanceId);
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty() && !text.equals("0") && !text.startsWith("0 😊")) {
-                    // แยกคะแนนออกจากข้อความ
-                    String[] parts = text.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            int score = Integer.parseInt(parts[0]);
-                            if (substanceId.equals("b") && score >= 27) { // แอลกอฮอล์
-                                return true;
-                            } else if (!substanceId.equals("b") && score >= 27) { // สารอื่นๆ
-                                return true;
-                            }
-                        } catch (NumberFormatException e) {
-                            // ไม่ใช่ตัวเลข ข้ามไป
-                        }
+        if (substanceScores != null) {
+            for (Map.Entry<String, Integer> entry : substanceScores.entrySet()) {
+                String substanceId = entry.getKey();
+                Integer score = entry.getValue();
+
+                if (score != null && score > 0) {
+                    if (substanceId.equals("b") && score >= 27) { // แอลกอฮอล์
+                        return true;
+                    } else if (!substanceId.equals("b") && score >= 27) { // สารอื่นๆ
+                        return true;
                     }
                 }
             }
@@ -661,24 +731,16 @@ public class AssistScoreFragment extends Fragment {
      */
     public int getSubstancesWithRiskCount() {
         int count = 0;
-        for (String substanceId : scoreTextViews.keySet()) {
-            TextView textView = scoreTextViews.get(substanceId);
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty() && !text.equals("0") && !text.startsWith("0 😊")) {
-                    // แยกคะแนนออกจากข้อความ
-                    String[] parts = text.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            int score = Integer.parseInt(parts[0]);
-                            if (substanceId.equals("b") && score >= 11) { // แอลกอฮอล์
-                                count++;
-                            } else if (!substanceId.equals("b") && score >= 4) { // สารอื่นๆ
-                                count++;
-                            }
-                        } catch (NumberFormatException e) {
-                            // ไม่ใช่ตัวเลข ข้ามไป
-                        }
+        if (substanceScores != null) {
+            for (Map.Entry<String, Integer> entry : substanceScores.entrySet()) {
+                String substanceId = entry.getKey();
+                Integer score = entry.getValue();
+
+                if (score != null && score > 0) {
+                    if (substanceId.equals("b") && score >= 11) { // แอลกอฮอล์
+                        count++;
+                    } else if (!substanceId.equals("b") && score >= 4) { // สารอื่นๆ
+                        count++;
                     }
                 }
             }
@@ -691,6 +753,9 @@ public class AssistScoreFragment extends Fragment {
      */
     public void resetAllData() {
         clearAllScores();
+        if (substanceScores != null) {
+            substanceScores.clear();
+        }
         currentPersonId = null;
         Log.d(TAG, "รีเซ็ตข้อมูลทั้งหมดแล้ว");
     }
@@ -708,30 +773,20 @@ public class AssistScoreFragment extends Fragment {
         int lowRiskCount = 0;
 
         // นับจำนวนแต่ละระดับ
-        for (String substanceId : scoreTextViews.keySet()) {
-            TextView textView = scoreTextViews.get(substanceId);
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty()) {
-                    String[] parts = text.split(" ");
-                    if (parts.length >= 1) {
-                        try {
-                            int score = Integer.parseInt(parts[0]);
-                            String treatmentLevel = getTreatmentLevel(substanceId, score);
+        if (substanceScores != null) {
+            for (Map.Entry<String, Integer> entry : substanceScores.entrySet()) {
+                String substanceId = entry.getKey();
+                Integer score = entry.getValue();
 
-                            if (treatmentLevel.contains("บำบัดรักษาเข้ม")) {
-                                highRiskCount++;
-                            } else if (treatmentLevel.contains("บำบัดอย่างย่อ")) {
-                                mediumRiskCount++;
-                            } else {
-                                lowRiskCount++;
-                            }
-                        } catch (NumberFormatException e) {
-                            // ถ้าเป็นคะแนน 0
-                            if (parts[0].equals("0")) {
-                                lowRiskCount++;
-                            }
-                        }
+                if (score != null && score >= 0) {
+                    String treatmentLevel = getTreatmentLevel(substanceId, score);
+
+                    if (treatmentLevel.contains("บำบัดรักษาเข้ม")) {
+                        highRiskCount++;
+                    } else if (treatmentLevel.contains("บำบัดอย่างย่อ")) {
+                        mediumRiskCount++;
+                    } else {
+                        lowRiskCount++;
                     }
                 }
             }
@@ -806,11 +861,14 @@ public class AssistScoreFragment extends Fragment {
         String[] substanceIds = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
 
         for (int i = 0; i < substanceIds.length; i++) {
-            TextView textView = scoreTextViews.get(substanceIds[i]);
-            if (textView != null) {
-                String text = textView.getText().toString();
-                if (!text.equals("-") && !text.isEmpty()) {
-                    report.append("- ").append(substanceNames[i]).append(": ").append(text).append("\n");
+            String substanceId = substanceIds[i];
+            if (substanceScores.containsKey(substanceId)) {
+                Integer score = substanceScores.get(substanceId);
+                if (score != null && score >= 0) {
+                    String treatmentLevel = getTreatmentLevel(substanceId, score);
+                    String emoji = getScoreEmoji(substanceId, score);
+                    report.append("- ").append(substanceNames[i]).append(": ").append(score)
+                            .append(" ").append(emoji).append(" ").append(treatmentLevel).append("\n");
                 }
             }
         }

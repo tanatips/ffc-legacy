@@ -1645,6 +1645,7 @@ public class PersonProvider extends ContentProvider {
         public static final String ADDR_DIST = "distcodemoi";
         public static final String ADDR_PROVICE = "provcodemoi";
         public static final String POSTCODE = "postcodemoi";
+        public static final String TYPELIVE = "typelive";
 
         protected static final HashMap<String, String> PROJECTION_MAP;
 
@@ -1743,6 +1744,8 @@ public class PersonProvider extends ContentProvider {
                     + Person.POSTCODE);
             PROJECTION_MAP.put(Person.TEL, "person.telephoneperson AS "
                     + Person.TEL);
+            PROJECTION_MAP.put(Person.TYPELIVE, "person.typelive AS "
+                    + Person.TYPELIVE);
 
         }
     }

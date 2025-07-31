@@ -15,6 +15,7 @@ public class UserSessionManager {
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PCUCODE = "pcuCode";
+    private static final String KEY_IDCARD = "idcard"; // ใช้เก็บ idcard แทน email
     private static final String KEY_EMAIL = "email";
     private static final String KEY_AUTH_TOKEN = "authToken";
 
@@ -30,11 +31,12 @@ public class UserSessionManager {
     }
 
     // เก็บข้อมูลผู้ใช้เมื่อ login สำเร็จ
-    public void createLoginSession(String userId, String username,String pcuCode) {
+    public void createLoginSession(String userId, String username,String pcuCode,String idcard) {
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
         editor.putString(KEY_USER_ID, userId);
         editor.putString(KEY_USERNAME, username);
         editor.putString(KEY_PCUCODE, pcuCode);
+        editor.putString(KEY_IDCARD, idcard); // เก็บ idcard เป็น email
         editor.apply();
     }
 
@@ -49,6 +51,7 @@ public class UserSessionManager {
         user.put(KEY_USER_ID, pref.getString(KEY_USER_ID, null));
         user.put(KEY_USERNAME, pref.getString(KEY_USERNAME, null));
         user.put(KEY_PCUCODE, pref.getString(KEY_PCUCODE, null));
+        user.put(KEY_IDCARD, pref.getString(KEY_IDCARD, null)); // ดึง idcard
         return user;
     }
     public String getUser(){
@@ -66,6 +69,11 @@ public class UserSessionManager {
     // ดึง username ของผู้ใช้
     public String getUsername() {
         return pref.getString(KEY_USERNAME, null);
+    }
+
+    // ดึง idcard ของผู้ใช้
+    public String getIdcard() {
+        return pref.getString(KEY_IDCARD, null);
     }
 
     // ล้างข้อมูล session เมื่อ logout

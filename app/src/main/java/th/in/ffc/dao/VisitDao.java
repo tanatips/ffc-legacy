@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import th.in.ffc.provider.PersonProvider.Visit;
+import th.in.ffc.util.DateConverter;
 
 /**
  * Data Access Object สำหรับจัดการข้อมูลการเยี่ยม (Visit)
@@ -118,7 +119,7 @@ public class VisitDao {
         values.put(Visit.PID, pid);
         values.put(Visit.DATE, visitDate);
         values.put(Visit.USERNAME, username);
-        values.put(Visit.TIME_SERIVICE, getCurrentTime());
+        values.put(Visit.TIME_SERIVICE, DateConverter.getCurrentWesternDateTime());
 
         // ข้อมูลสิทธิการรักษา
         if (rightCode != null && !rightCode.isEmpty()) {
@@ -194,7 +195,10 @@ public class VisitDao {
                                            float waist,
                                            String symptoms,
                                            String diagnote,
-                                           String username) {
+                                           String username,
+                                           String healthsuggest1,
+                                           String rightCode,
+                                           String rightNo) {
 
         // สร้าง Visit ใหม่
         long visitNo = getNewVisitNo(pcucode);
@@ -209,25 +213,6 @@ public class VisitDao {
         basicValues.put(Visit.USERNAME, username);
         basicValues.put(Visit.TIME_SERIVICE, 1);
 
-        // ข้อมูลสิทธิการรักษา
-//        if (rightCode != null && !rightCode.isEmpty()) {
-//            basicValues.put(Visit.RIGHT_CODE, rightCode);
-//        }
-//        if (rightHmain != null && !rightHmain.isEmpty()) {
-//            basicValues.put(Visit.RIGHT_HMAIN, rightHmain);
-//        }
-//        if (rightHsub != null && !rightHsub.isEmpty()) {
-//            basicValues.put(Visit.RIGHT_HSUB, rightHsub);
-//        }
-//        if (rightNo != null && !rightNo.isEmpty()) {
-//            basicValues.put(Visit.RIGHT_NO, rightNo);
-//        }
-//        if (incup != null && !incup.isEmpty()) {
-//            basicValues.put(Visit.INCUP, incup);
-//        }
-//        if (serviceType != null && !serviceType.isEmpty()) {
-//            basicValues.put(Visit.SERVICE_TYPE, serviceType);
-//        }
 
         // บันทึกข้อมูลพื้นฐาน
         Uri uri = mResolver.insert(Visit.CONTENT_URI, basicValues);
@@ -248,12 +233,20 @@ public class VisitDao {
             vitalValues.put(Visit.PRESSURE, pressure);
             vitalValues.put(Visit.TEMPERATURE, temperature);
             vitalValues.put(Visit.PULSE, pulse);
-//            vitalValues.put(Visit.RESPI, respiratory);
+
             vitalValues.put(Visit.WAIST, waist);
             vitalValues.put(Visit.SYMPTOMS, symptoms);
+            vitalValues.put(Visit.SYMPTOMSCO, symptoms);
             vitalValues.put(Visit.DIAGNOTE, diagnote);
-//            vitalValues.put(Visit.VITAL, "1"); // มีการบันทึกสัญญาณชีพ
-            vitalValues.put(Visit.UPDATE, getCurrentDateTime());
+
+            vitalValues.put(Visit.VITALCHECK, symptoms);
+            vitalValues.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
+            vitalValues.put(Visit.TIME_START, DateConverter.getCurrentTime());
+            vitalValues.put(Visit.TIME_END, DateConverter.getCurrentTime());
+            vitalValues.put(Visit.HEALTHSUGGEST1, healthsuggest1);
+            vitalValues.put(Visit.RIGHT_CODE, rightCode);
+            vitalValues.put(Visit.RIGHT_NO, rightNo);
+
 
             // คำนวณค่า BMI ถ้ามีข้อมูลน้ำหนักและส่วนสูง
             if (weight > 0 && height > 0) {
@@ -302,7 +295,11 @@ public class VisitDao {
                            float temperature, int pulse,
                            float waist,
                            String symptoms,
-                           String diagnote
+                           String diagnote,
+                           String healthsuggest1,
+                           String rightCode,
+                           String rightNo,
+                           String username
 
     ) {
 
@@ -316,7 +313,14 @@ public class VisitDao {
         values.put(Visit.PULSE, pulse);
         values.put(Visit.WAIST, waist);
         values.put(Visit.SYMPTOMS, symptoms);
+        values.put(Visit.SYMPTOMSCO, symptoms);
         values.put(Visit.DIAGNOTE, diagnote);
+        values.put(Visit.VITALCHECK, symptoms);
+        values.put(Visit.TIME_END, DateConverter.getCurrentTime());
+        values.put(Visit.HEALTHSUGGEST1, healthsuggest1);
+        values.put(Visit.RIGHT_CODE, rightCode);
+        values.put(Visit.RIGHT_NO, rightNo);
+        values.put(Visit.USERNAME,username);
 
         // อัพเดทค่า BMI ถ้ามีข้อมูลน้ำหนักและส่วนสูง
         if (weight > 0 && height > 0) {
@@ -331,7 +335,7 @@ public class VisitDao {
 //        }
 
         // อัพเดทเวลาที่มีการแก้ไข
-        values.put(Visit.UPDATE, getCurrentDateTime());
+        values.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
 
         Uri uri = Uri.withAppendedPath(Visit.CONTENT_URI, String.valueOf(visitNo));
         return mResolver.update(uri, values, null, null);
@@ -484,7 +488,7 @@ public class VisitDao {
         ContentValues values = new ContentValues();
         values.put(Visit.SYMPTOMS, symptoms);
         values.put(Visit.DIAGNOTE, diagnote);
-        values.put(Visit.UPDATE, getCurrentDateTime());
+        values.put(Visit.UPDATE,  DateConverter.getCurrentWesternDateTime());
 
         Uri uri = Uri.withAppendedPath(Visit.CONTENT_URI, String.valueOf(visitNo));
         return mResolver.update(uri, values, null, null);
@@ -503,7 +507,7 @@ public class VisitDao {
         values.put(Visit.REFER_PATIENT, "1"); // มีการส่งต่อผู้ป่วย
         values.put(Visit.REFER_TO_HOS, referTo);
         values.put(Visit.REFER_BACK, referBack ? "1" : "0");
-        values.put(Visit.UPDATE, getCurrentDateTime());
+        values.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
 
         Uri uri = Uri.withAppendedPath(Visit.CONTENT_URI, String.valueOf(visitNo));
         return mResolver.update(uri, values, null, null);
@@ -520,7 +524,7 @@ public class VisitDao {
         ContentValues values = new ContentValues();
         values.put(Visit.RECEIVE_PATIENT, "1"); // มีการรับผู้ป่วย
         values.put(Visit.RECEIVE_FROM, receiveFrom);
-        values.put(Visit.UPDATE, getCurrentDateTime());
+        values.put(Visit.UPDATE,DateConverter.getCurrentWesternDateTime());
 
         Uri uri = Uri.withAppendedPath(Visit.CONTENT_URI, String.valueOf(visitNo));
         return mResolver.update(uri, values, null, null);
@@ -626,23 +630,5 @@ public class VisitDao {
         return "0"; // ไม่สามารถคำนวณได้
     }
 
-    /**
-     * ดึงเวลาปัจจุบัน ในรูปแบบ HH:mm:ss
-     *
-     * @return เวลาปัจจุบัน
-     */
-    private String getCurrentTime() {
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
-        return sdf.format(new java.util.Date());
-    }
 
-    /**
-     * ดึงวันที่และเวลาปัจจุบัน ในรูปแบบ yyyy-MM-dd HH:mm:ss
-     *
-     * @return วันที่และเวลาปัจจุบัน
-     */
-    private String getCurrentDateTime() {
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return sdf.format(new java.util.Date());
-    }
 }

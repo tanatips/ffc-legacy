@@ -2309,8 +2309,17 @@ public class PersonInfoFragment extends Fragment {
                        PersonDao personDao = new PersonDao(getContext());
                        PersonDao.PersonInfo person = personDao.getPersonByIdcard(idCard);
                        if (person != null) {
-                           personInfo.setHcode(person.getHcode());
+                           if(!person.getTypelive().equals("4")) {
+                               personInfo.setHcode(person.getHcode());
+                          } else {
+                               showTypeLive4Dialog();
+                               // ไม่ set idcard เพราะจะ clear ใน dialog
+                               // รีเซ็ตสถานะก่อน return
+                               isValidatingIdCard = false;
+                               return;
+                           }
                        }
+
                        personInfo.setIdcard(idCard);
                        dataPasser.onPersonInfo(personInfo);
 
@@ -2326,7 +2335,35 @@ public class PersonInfoFragment extends Fragment {
                    isValidatingIdCard = false;
                }
            }
+           private void showTypeLive4Dialog() {
+               AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+               builder.setTitle("แจ้งเตือน");
+               builder.setMessage("ไม่สามารถทำแบบสำรวจได้ เนื่องจากไม่ใช่คนในพื้นที่");
+               builder.setCancelable(false); // ป้องกันการปิด dialog โดยการกด back หรือนอก dialog
 
+               builder.setPositiveButton("ตกลง", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       // Clear ค่าใน textbox citizenId
+                       citizenId.setText("");
+
+                       // Clear ค่าใน personInfo.idcard
+                       personInfo.setIdcard("");
+
+                       // ปิด dialog
+                       dialog.dismiss();
+
+                       // รีเซ็ตสถานะ dialog
+                       isDialogShowing = false;
+                   }
+               });
+
+               // ตั้งสถานะว่า dialog กำลังแสดง
+               isDialogShowing = true;
+
+               AlertDialog dialog = builder.create();
+               dialog.show();
+           }
            @Override
            public void afterTextChanged(Editable s) {
                // ป้องกันการเรียก validation ขณะที่ Dialog แสดงอยู่
