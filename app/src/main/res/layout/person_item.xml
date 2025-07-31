@@ -77,12 +77,39 @@
                 android:layout_marginStart="4dp" />
 
         </LinearLayout>
-        <Button
-            android:id="@+id/btnSubmitClaim"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="ส่งข้อมูล" />
+            android:orientation="horizontal"
+            android:padding="2dp">
+
+            <Button
+                android:id="@+id/btnSubmitClaim"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="14dp"
+                android:layout_weight="1"
+                android:text="ส่งข้อมูล" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="2" />
+
+            <Button
+                android:id="@+id/btnViewClaimList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="14dp"
+                android:visibility="gone"
+                android:layout_weight="1"
+                android:text="ดูรายการเบิก"
+                />
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

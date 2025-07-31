@@ -3,6 +3,7 @@ package th.in.ffc.person;
 import static th.in.ffc.util.Log.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +94,7 @@ import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.app.form.screening.model.CounselingInfo;
 import th.in.ffc.dao.NHSOClaimDataDao;
+import th.in.ffc.app.form.screening.ClaimListActivity;
 public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonViewHolder> {
     private List<PersonInfo> personList;
     private OnItemClickListener listener;
@@ -104,6 +106,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
     PersonInfo personInfo;
 
     public static boolean isPartialValidationMode = false;
+
+
     // เพิ่ม interface สำหรับปุ่ม
     public interface OnButtonClickListener {
         void onButtonClick(PersonInfo person, int position);
@@ -163,12 +167,15 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         if(person.getSend_to_claim().equals(1)){
             holder.btnSubmitClaim.setText("ส่งข้อมูลเรียบร้อย");
             holder.btnSubmitClaim.setEnabled(false);
+
+            holder.btnViewClaimList.setVisibility(View.VISIBLE);
+
             holder.tvDataStatus.setText("✅ ส่งข้อมูลแล้ว");
             holder.tvDataStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_dark));
         }
         else {
             DataCompletionStatus status = checkDataCompleteness(person, holder.itemView.getContext());
-
+            holder.btnViewClaimList.setVisibility(View.GONE);
             if (status.isComplete()) {
                 holder.btnSubmitClaim.setText("ส่งข้อมูล");
                 holder.btnSubmitClaim.setEnabled(true);
@@ -201,7 +208,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
 
     class PersonViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvPersonId, tvVisitNumber, tvVisitDate, tvDataStatus, tvValidationMode;
-        Button btnSubmitClaim;
+        Button btnSubmitClaim, btnViewClaimList;
         boolean isButtonClicked = false;
 
         PersonViewHolder(View itemView) {
@@ -214,6 +221,13 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             tvDataStatus = itemView.findViewById(R.id.tvDataStatus);
             tvValidationMode = itemView.findViewById(R.id.tvValidationMode);
             btnSubmitClaim = itemView.findViewById(R.id.btnSubmitClaim);
+            btnViewClaimList = itemView.findViewById(R.id.btnViewClaimList); // เพิ่มการเชื่อม View
+
+            // ตั้งค่า Click Listener สำหรับปุ่มดูรายการเบิก
+            btnViewClaimList.setOnClickListener(v -> {
+                Intent intent = new Intent(itemView.getContext(), ClaimListActivity.class);
+                itemView.getContext().startActivity(intent);
+            });
             btnSubmitClaim.setOnClickListener(v -> {
                 if (listener != null && getBindingAdapterPosition() != RecyclerView.NO_POSITION) {
                     isButtonClicked = true;

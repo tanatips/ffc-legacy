@@ -123,7 +123,13 @@ public class VillageComparisonActivity extends AppCompatActivity {
             VillagePersonComparison comparison = comparisonList.get(i);
             personEntries.add(new BarEntry(i, comparison.getPersonCount()));
             sfPersonEntries.add(new BarEntry(i, comparison.getSfPersonCount()));
-            labels.add("หมู่ " + comparison.getVillageNo());
+
+            // เปลี่ยนจาก "หมู่ " + comparison.getVillageNo()
+            // เป็นการใช้ชื่อหมู่บ้านโดยตรง
+            labels.add(comparison.getVillageName()); // สมมติว่ามี method getVillageName()
+
+            // หรือหากไม่มี method getVillageName() ให้ใช้
+            // labels.add(comparison.getVillageNo()); // แสดงเฉพาะเลขหมู่บ้าน
         }
 
         BarDataSet personDataSet = new BarDataSet(personEntries, "ประชากรทั้งหมด");
@@ -150,6 +156,15 @@ public class VillageComparisonActivity extends AppCompatActivity {
         xAxis.setGranularity(1f);
         xAxis.setCenterAxisLabels(true);
 
+        // แก้ปัญหาชื่อยาวทับกัน
+        xAxis.setLabelRotationAngle(-90f); // หมุน 90 องศา (แนวตั้ง)
+        xAxis.setTextSize(8f); // ลดขนาดตัวอักษร
+        xAxis.setLabelCount(labels.size()); // กำหนดจำนวน label ที่แสดง
+        xAxis.setAvoidFirstLastClipping(true); // หลีกเลี่ยงการตัดขอบ
+
+        // เพิ่มพื้นที่ด้านล่างสำหรับแสดงชื่อ
+        barChart.setExtraBottomOffset(50f);
+
         barChart.getAxisLeft().setGranularity(1f);
         barChart.getAxisRight().setEnabled(false);
 
@@ -163,13 +178,12 @@ public class VillageComparisonActivity extends AppCompatActivity {
         barChart.animateY(1000);
         barChart.invalidate();
     }
-
     private void setupPieChart(List<VillagePersonComparison> comparisonList) {
         List<PieEntry> entries = new ArrayList<>();
 
         for (VillagePersonComparison comparison : comparisonList) {
             if (comparison.getPercentage() > 0) {
-                entries.add(new PieEntry((float) comparison.getPercentage(), "หมู่ " + comparison.getVillageNo()));
+                entries.add(new PieEntry((float) comparison.getPercentage(),  comparison.getVillageName()));
             }
         }
 

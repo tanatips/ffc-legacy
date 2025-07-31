@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,9 @@ import android.app.AlertDialog;
  * create an instance of this fragment.
  */
 public class StressDepression2qFragment extends Fragment {
-
+    public interface On2QResultListener {
+        void on2QResult(boolean isAbnormal, StressDepression2qInfo data);
+    }
     private static final String TAG = "StressDepression2qFragment";
     private StressDepression2qLiveData stressDepression2qLiveData;
     private SharedViewModel shareViewModel;
@@ -79,7 +82,7 @@ public class StressDepression2qFragment extends Fragment {
     private TextView tvStressGaugeCode;
     private TextView tvStressGaugeRecommendation;
     private SeekBar seekBarStressGaugeTest;
-
+    private On2QResultListener resultListener;
     public StressDepression2qFragment() {
         // Required empty public constructor
     }
@@ -283,14 +286,48 @@ public class StressDepression2qFragment extends Fragment {
         isFormValid = allAnswered;
 
         if (isFormValid) {
-            // ถ้าตอบครบทุกข้อ ให้บันทึกข้อมูล
             Log.d("StressDepression2q", "ตอบคำถามครบทุกข้อแล้ว - บันทึกข้อมูล");
-            dataPasser.onStressDepression2q(stressDepression2qInfo);
+
+            // วิเคราะห์ผลการประเมิน
+            stressDepression2qInfo.analyze();
+
+            // ตรวจสอบว่าผิดปกติหรือไม่
+            boolean isAbnormal = isAtRisk();
+
+            // แจ้งผลการประเมินกลับไปยัง Activity
+            if (resultListener != null) {
+                resultListener.on2QResult(isAbnormal, stressDepression2qInfo);
+            }
+
+            // ส่งข้อมูลต่อตามปกติ
+            if (dataPasser != null) {
+                dataPasser.onStressDepression2q(stressDepression2qInfo);
+            }
+
+            // แสดงข้อความแนะนำหากผิดปกติ
+            if (isAbnormal) {
+                show9QRecommendationNotification();
+            }
+
         } else {
-            // ถ้ายังตอบไม่ครบ ให้แสดงข้อความแจ้งเตือน
             showIncompleteFormMessage();
         }
     }
+    private void show9QRecommendationNotification() {
+        if (getContext() != null) {
+            new Handler().postDelayed(() -> {
+                if (isAdded() && getContext() != null) {
+                    String message = "📋 ผลการประเมิน 2Q: ผิดปกติ\n" +
+                            "💡 แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติม";
+
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+                    Log.d("StressDepression2q", "แนะนำให้ทำ 9Q: " + get9QRecommendationTextWithEmoji());
+                }
+            }, 1000); // หน่วงเวลา 1 วินาที
+        }
+    }
+
 
     /**
      * แสดงข้อความแจ้งเตือนเมื่อตอบไม่ครบ
@@ -532,6 +569,9 @@ public class StressDepression2qFragment extends Fragment {
         super.onAttach(context);
         try {
             dataPasser = (OnDataPass) context;
+            if (context instanceof On2QResultListener) {
+                resultListener = (On2QResultListener) context;
+            }
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnDataPass");
         }
@@ -1206,8 +1246,56 @@ public class StressDepression2qFragment extends Fragment {
             }
         }
 
+        if (tv2qResultDetail != null) {
+            if (hasPositiveAnswer) {
+                String resultText = emoji + " ผิดปกติ และส่งต่อเจ้าหน้าที่ (1B0211)\n" +
+                        "💡 แนะนำให้ทำแบบประเมิน 9Q เพิ่มเติม";
+                tv2qResultDetail.setText(resultText);
+                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#E74C3C")); // แดง
+            } else {
+                tv2qResultDetail.setText(emoji + " ปกติ (1B0210)\n" +
+                        "😊 ไม่ต้องทำแบบประเมิน 9Q");
+                tv2qResultDetail.setTextColor(Color.parseColor("#FFFFFF"));
+                tv2qResultDetail.setBackgroundColor(Color.parseColor("#27AE60")); // เขียว
+            }
+        }
+
         // อัปเดต Stress Gauge
         updateStressGaugeDisplay();
     }
 
+    public boolean shouldRecommend9Q() {
+        return isFormComplete() && isAtRisk();
+    }
+    public String get2QDecisionInfo() {
+        if (!isFormComplete()) {
+            return "ยังไม่ได้ประเมิน 2Q";
+        }
+
+        boolean abnormal = isAtRisk();
+        String decision = abnormal ? "ต้องทำ 9Q" : "ไม่ต้องทำ 9Q";
+        String reason = abnormal ? "เนื่องจากผล 2Q ผิดปกติ" : "เนื่องจากผล 2Q ปกติ";
+
+        return "ผลการตัดสินใจ: " + decision + "\n" +
+                "เหตุผล: " + reason + "\n" +
+                "คะแนน 2Q: " + getTotalScore() + "/2";
+    }
+    public String get2QStatisticsInfo() {
+        if (!isFormComplete()) {
+            return "ไม่สามารถแสดงสถิติได้ เนื่องจากยังไม่ได้ประเมิน";
+        }
+
+        int score = getTotalScore();
+        boolean abnormal = isAtRisk();
+
+        String classification = abnormal ? "กลุ่มเสี่ยง" : "กลุ่มปกติ";
+        String nextStep = abnormal ? "ต้องทำแบบประเมิน 9Q ต่อ" : "ไม่ต้องทำแบบประเมินเพิ่มเติม";
+
+        return "📊 สถิติการประเมิน 2Q:\n" +
+                "• คะแนนที่ได้: " + score + "/2\n" +
+                "• การจัดกลุ่ม: " + classification + "\n" +
+                "• ขั้นตอนต่อไป: " + nextStep + "\n" +
+                "• รหัสผล: " + (abnormal ? "1B0211" : "1B0210");
+    }
 }

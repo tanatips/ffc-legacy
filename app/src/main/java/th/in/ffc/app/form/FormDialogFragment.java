@@ -360,6 +360,9 @@ public class FormDialogFragment extends DialogFragment {
                     if (!saveSuccess) {
                         isFormValid = false;
                         errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 2Q กรุณาลองใหม่อีกครั้ง";
+                    } else {
+                        // แสดงการแนะนำเพิ่มเติมหลังจากบันทึกสำเร็จ
+                        showPost2QRecommendation(stress2qFragment, activity);
                     }
                 }
             }
@@ -475,6 +478,165 @@ public class FormDialogFragment extends DialogFragment {
             dismiss();
         }
     }
+    private void showPost2QRecommendation(StressDepression2qFragment stress2qFragment, PersonScreeningForm15Activity activity) {
+        // หน่วงเวลาเล็กน้อยเพื่อให้การบันทึกเสร็จสิ้น
+        new Handler().postDelayed(() -> {
+            if (getContext() != null && !isDetached()) {
+                boolean isAbnormal = stress2qFragment.isAtRisk();
+
+                if (isAbnormal) {
+                    show2QAbnormalRecommendationDialog(activity);
+                } else {
+                    show2QNormalRecommendationDialog();
+                }
+            }
+        }, 500);
+    }
+    private void show2QNormalRecommendationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom title view
+        View titleView = createRecommendationTitleView("✅ ผลการประเมิน 2Q", R.drawable.ic_check_circle, "#27AE60");
+
+        String message = "ผลการประเมิน 2Q: ปกติ (1B0210)\n\n" +
+                "😊 ไม่พบความเสี่ยงต่อภาวะซึมเศร้า\n\n" +
+                "📋 ไม่จำเป็นต้องทำแบบประเมินเพิ่มเติม:\n" +
+                "• คัดกรองโรคซึมเศร้าด้วย 9 คำถาม (9Q)\n\n";// +
+//                "💡 คำแนะนำ:\n" +
+//                "• ดูแลสุขภาพจิตให้ดีต่อไป\n" +
+//                "• พักผ่อนให้เพียงพอ\n" +
+//                "• ออกกำลังกายสม่ำเสมอ\n" +
+//                "• หากมีอาการเปลี่ยนแปลงควรมาประเมินใหม่";
+
+        builder.setCustomTitle(titleView)
+                .setMessage(message)
+                .setPositiveButton("ตกลง", (dialog, which) -> {
+                    dialog.dismiss();
+                    dismiss(); // ปิด FormDialog ปัจจุบัน
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        // ปรับแต่งการแสดงผล
+        dialog.setOnShowListener(dialogInterface -> {
+            Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (button != null) {
+                button.setTextColor(Color.parseColor("#27AE60")); // เขียว
+                button.setTypeface(null, Typeface.BOLD);
+            }
+        });
+
+        dialog.show();
+    }
+    private void show2QAbnormalRecommendationDialog(PersonScreeningForm15Activity activity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        // สร้าง custom title view
+        View titleView = createRecommendationTitleView("📋 ผลการประเมิน 2Q", R.drawable.ic_assignment, "#FF9800");
+
+        String message = "ผลการประเมิน 2Q: ผิดปกติ (1B0211)\n\n" +
+                "😟 พบความเสี่ยงต่อภาวะซึมเศร้า\n\n" +
+                "📋 แนะนำให้ทำแบบประเมินเพิ่มเติม:\n" +
+                "✅ คัดกรองโรคซึมเศร้าด้วย 9 คำถาม (9Q)\n" +
+                "✅ การประเมินการฆ่าตัวตายด้วย 8 คำถาม (8Q)\n\n" +
+                "💡 เมนูแบบประเมินเพิ่มเติมได้ปรากฏขึ้นแล้ว\n\n" +
+                "คุณต้องการทำแบบประเมิน 9Q ต่อเลยหรือไม่?";
+
+        builder.setCustomTitle(titleView)
+                .setMessage(message)
+                .setPositiveButton("ทำ 9Q เลย", (dialog, which) -> {
+                    dialog.dismiss();
+                    dismiss(); // ปิด FormDialog ปัจจุบัน
+
+                    // หน่วงเวลาเล็กน้อยแล้วเปิด 9Q
+                    new Handler().postDelayed(() -> {
+                        activity.showFormDialog("คัดกรองโรคซึมเศร้าด้วย 9 คำถาม(9Q)");
+                    }, 300);
+                })
+                .setNeutralButton("ทำ 8Q เลย", (dialog, which) -> {
+                    dialog.dismiss();
+                    dismiss(); // ปิด FormDialog ปัจจุบัน
+
+                    // หน่วงเวลาเล็กน้อยแล้วเปิด 8Q
+                    new Handler().postDelayed(() -> {
+                        activity.showFormDialog("การประเมินการฆ่าตัวตายด้วย 8 คําถาม(8Q)");
+                    }, 300);
+                })
+                .setNegativeButton("ทำทีหลัง", (dialog, which) -> {
+                    dialog.dismiss();
+                    dismiss(); // ปิด FormDialog ปัจจุบัน
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        // ปรับแต่งการแสดงผล
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            if (positiveButton != null) {
+                positiveButton.setTextColor(Color.parseColor("#27AE60")); // เขียว
+                positiveButton.setTypeface(null, Typeface.BOLD);
+            }
+
+            if (neutralButton != null) {
+                neutralButton.setTextColor(Color.parseColor("#3498DB")); // น้ำเงิน
+                neutralButton.setTypeface(null, Typeface.BOLD);
+            }
+
+            if (negativeButton != null) {
+                negativeButton.setTextColor(Color.parseColor("#95A5A6")); // เทา
+            }
+        });
+
+        dialog.show();
+    }
+    private View createRecommendationTitleView(String title, int iconRes, String colorCode) {
+        LinearLayout titleLayout = new LinearLayout(getContext());
+        titleLayout.setOrientation(LinearLayout.HORIZONTAL);
+        titleLayout.setPadding(24, 16, 24, 16);
+        titleLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+        // กำหนดสีพื้นหลังตาม colorCode
+        int backgroundColor;
+        switch (colorCode) {
+            case "#27AE60":
+                backgroundColor = Color.parseColor("#E8F5E8"); // เขียวอ่อน
+                break;
+            case "#FF9800":
+                backgroundColor = Color.parseColor("#FFF3E0"); // ส้มอ่อน
+                break;
+            default:
+                backgroundColor = Color.parseColor("#F8F9FA"); // เทาอ่อน
+                break;
+        }
+        titleLayout.setBackgroundColor(backgroundColor);
+
+        // เพิ่มไอคอน
+        ImageView iconView = new ImageView(getContext());
+        iconView.setImageResource(iconRes);
+        iconView.setColorFilter(Color.parseColor(colorCode));
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(
+                dpToPx(24), dpToPx(24)
+        );
+        iconParams.setMargins(0, 0, dpToPx(12), 0);
+        titleLayout.addView(iconView, iconParams);
+
+        // เพิ่ม TextView สำหรับ title
+        TextView titleTextView = new TextView(getContext());
+        titleTextView.setText(title);
+        titleTextView.setTextColor(Color.parseColor(colorCode));
+        titleTextView.setTextSize(18);
+        titleTextView.setTypeface(null, Typeface.BOLD);
+        titleLayout.addView(titleTextView);
+
+        return titleLayout;
+    }
+
+
     private boolean saveStressDepression9qToDatabase(StressDepression9qFragment stress9qFragment, PersonScreeningForm15Activity activity) {
         try {
             // ตรวจสอบข้อมูลที่จำเป็นก่อน
