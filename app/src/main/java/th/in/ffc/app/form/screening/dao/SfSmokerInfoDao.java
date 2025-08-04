@@ -14,6 +14,7 @@ import java.util.List;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import  th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfSmokerInfoDao {
 
@@ -38,10 +39,12 @@ public class SfSmokerInfoDao {
             values.put("smoker_group", data.getSmokerGroup());
             values.put("smoker_assist", data.getSmokerAssist());
             values.put("smoker_regularly", data.getSmokerRegularly());
-            values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("created_date", DateConverter.getCurrentWesternDateTime());
             values.put("created_by", "");
-            values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("updated_date", DateConverter.getCurrentWesternDateTime());
             values.put("updated_by", "");
+            values.put("visitno", data.getVisitNo());
+            values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
             Uri uri = mContext.getContentResolver().insert(ScreeningFormProvider.SfSmokerInfo.CONTENT_URI, values);
             // ดึง ID ที่ได้จากการ insert
             if (uri != null) {
@@ -70,6 +73,8 @@ public class SfSmokerInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 cursor.close();
             }
 
@@ -95,6 +100,8 @@ public class SfSmokerInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 smokerInfos.add(data);
             }
         }
@@ -112,7 +119,9 @@ public class SfSmokerInfoDao {
         values.put("smoker_group", smokerInfo.getSmokerGroup());
         values.put("smoker_regularly", smokerInfo.getSmokerRegularly());
         values.put("updated_by", smokerInfo.getUpdated_by());
-        values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+        values.put("visitno", smokerInfo.getVisitNo());
+        values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
         mContext.getContentResolver().update(getSmokerUriById(Integer.valueOf(smokerInfo.getId())), values,select,selectionArgs);
         return 1;

@@ -38,7 +38,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStore;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.ftsafe.Utility;
@@ -230,6 +232,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private LinearLayout summaryContentContainer;
     private TextView textCompletedForms;
     private boolean has2QAbnormalResult = false;
+    UserSessionManager sessionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -242,7 +246,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         personInfoContainer = findViewById(R.id.personInfoContainer);
         personInfoExpandIcon = findViewById(R.id.personInfoExpandIcon);
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-
+        sessionManager = new UserSessionManager(getBaseContext());
         // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
         personInfoHeader.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -775,13 +779,13 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 if (score >= 0 && score <= 4) {
                     level = "ปกติ";
                     resultCode = "1B132";
-                } else if (score >= 5 && score <= 9) {
+                } else if (score >= 5 && score <= 7) {
                     level = "เครียดเล็กน้อย";
                     resultCode = "1B133";
-                } else if (score >= 10 && score <= 14) {
+                } else if (score >= 8 && score <= 9) {
                     level = "เครียดปานกลาง";
                     resultCode = "1B134";
-                } else if (score >= 15) {
+                } else if (score >= 10 && score <= 15) {
                     level = "เครียดมาก";
                     resultCode = "1B135";
                 }
@@ -1745,6 +1749,10 @@ private String getCardiovascularRiskSummary(Integer personId) {
                     if (personInfo != null) {
                         savePerson();
                         if (personInfo.getId() != null) {
+                            saveVisit();
+                            saveVisitDiag();
+//                            savePerson();
+//                            setupViewModelsAgain(personInfo.getId(), personInfo.getVisitno());
                             saveSmoker();
                             saveStressDepression();
                             saveNicotine();
@@ -1763,8 +1771,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
                             saveDrugsSeven();
                             saveDrugsEight();
                             saveCounseling();
-                            saveVisit();
-                            saveVisitDiag();
+
                             saveF43SpecialPP();
                             // เพิ่มการตรวจสอบข้อมูลหลังบันทึกเสร็จ
                             if (personInfo.getId() != null) {
@@ -2257,65 +2264,65 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
     private void getPersonInfoDetail() {
         String personId = getIntent().getStringExtra("person_id");
-        String visitId = getIntent().getStringExtra("visit_id");
+        String visitNo = getIntent().getStringExtra("visitno");
         if (personId != null) {
             // ตั้งค่า ViewModels
             SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
             QuestionsStateViewModel questionsStateViewModel = new ViewModelProvider(this).get(QuestionsStateViewModel.class);
             PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
             personInfoLiveData.setId(personId);
-            personInfoLiveData.setVisitId(visitId);
+            personInfoLiveData.setVisitNo(visitNo);
             viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
 
             // ตั้งค่า LiveData อื่นๆ...
             SmookingLiveData smookingLiveData = new SmookingLiveData();
             smookingLiveData.setPersonId(personId);
-            smookingLiveData.setVisitId(visitId);
+            smookingLiveData.setVisitNo(visitNo);
             viewModel.setSmookingMutableLiveData(smookingLiveData);
 
             CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
             cigaretteAddictionTestLiveData.setPersonId(personId);
-            cigaretteAddictionTestLiveData.setVisitId(visitId);
+            cigaretteAddictionTestLiveData.setVisitNo(visitNo);
             viewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
 
             StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
             stressDepressionLiveData.setPersonId(personId);
-            stressDepressionLiveData.setVisitId(visitId);
+            stressDepressionLiveData.setVisitNo(visitNo);
             viewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
 
             StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
             stressDepression2qLiveData.setPersonId(personId);
-            stressDepression2qLiveData.setVisitId(visitId);
+            stressDepression2qLiveData.setVisitNo(visitNo);
             viewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
 
             StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
             stressDepression9qLiveData.setPersonId(personId);
-            stressDepression9qLiveData.setVisitId(visitId);
+            stressDepression9qLiveData.setVisitNo(visitNo);
             viewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
 
             SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
             suicideAssessment8qLiveData.setPersonId(personId);
-            suicideAssessment8qLiveData.setVisitId(visitId);
+            suicideAssessment8qLiveData.setVisitNo(visitNo);
             viewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
 
             HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
             healthRiskAssessmentLiveData.setPersonId(personId);
-            healthRiskAssessmentLiveData.setVisitId(visitId);
+            healthRiskAssessmentLiveData.setVisitNo(visitNo);
             viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
 
             CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
             cardiovascularRiskLiveData.setPersonId(personId);
-            cardiovascularRiskLiveData.setVisitId(visitId);
+            cardiovascularRiskLiveData.setVisitNo(visitNo);
             viewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
 
             DrugsLiveData drugsLiveData = new DrugsLiveData();
             drugsLiveData.setPersonId(personId);
-            drugsLiveData.setVisitId(visitId);
+            drugsLiveData.setVisitNo(visitNo);
             viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
 
             CounselingLiveData counselingLiveData = new CounselingLiveData();
             counselingLiveData.setPersonId(personId);
-            counselingLiveData.setVisitId(visitId);
+            counselingLiveData.setVisitNo(visitNo);
             viewModel.setCounselingLiveData(counselingLiveData);
 
             // แก้ไข: ลบการเรียก checkExistingData และ checkSubstanceUseAndUpdateMenu ออกจากที่นี่
@@ -2618,10 +2625,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
         if (this.personInfo.getId() == null || Objects.equals(this.personInfo.getId(), "")){
             this.personInfo.setCreated_by(userSessionManager.getUser());
             this.personInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
+            this.personInfo.setDateupdate(DateConverter.getCurrentWesternDateTime());
             String id = sfPersonInfoDao.insert(this.personInfo);
             this.personInfo.setId(id);
         } else {
             this.personInfo.setUpdated_date(DateConverter.getCurrentWesternDateTime());
+            this.personInfo.setDateupdate(DateConverter.getCurrentWesternDateTime());
             this.personInfo.setUpdated_by(userSessionManager.getUser());
             sfPersonInfoDao.update(this.personInfo);
 
@@ -2632,6 +2641,14 @@ private String getCardiovascularRiskSummary(Integer personId) {
             System.out.println(p.getId() + " " + p.getFname());
         }
         System.out.println("===== End get data by id ======");
+
+        PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
+        personInfoLiveData.setId(this.personInfo.getId());
+        personInfoLiveData.setVisitNo(this.personInfo.getVisitNo());
+        personInfoLiveData.setDateupdate(this.personInfo.getDateupdate());
+
+//        ViewModel viewModel1 = new ViewModelProvider(this).get(SharedViewModel.class);
+        sharedViewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
         return this.personInfo.getId();
 
     }
@@ -2641,8 +2658,10 @@ private String getCardiovascularRiskSummary(Integer personId) {
         if (smokerInfo != null) {
             smokerInfo.setIdcard(this.personInfo.getIdcard());
             smokerInfo.setPersonId(this.personInfo.getId());
-            smokerInfo.setCreated_by("SYSTEM");
-            smokerInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            smokerInfo.setCreated_by(sessionManager.getUser());
+            smokerInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
+            smokerInfo.setVisitNo(this.personInfo.getVisitNo());
+            smokerInfo.setDateUpdate(DateConverter.getCurrentWesternDateTime());
             if (this.smokerInfo.getId() == null) {
                 String id = sfSmokerInfoDao.insert(smokerInfo);
                 this.smokerInfo.setId(id);
@@ -2663,12 +2682,14 @@ private String getCardiovascularRiskSummary(Integer personId) {
         if (drinkingInfo != null) {
             drinkingInfo.setIdcard(this.personInfo.getIdcard());
             drinkingInfo.setPersonId(this.personInfo.getId());
-            drinkingInfo.setCreated_by("SYSTEM");
-            drinkingInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            drinkingInfo.setCreated_by(sessionManager.getUser());
+            drinkingInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
+            drinkingInfo.setVisitNo(this.personInfo.getVisitNo());
             if (this.drinkingInfo.getId() == null) {
                 String id = sfDrinkingInfoDao.insert(drinkingInfo);
                 this.drinkingInfo.setId(id);
             } else {
+                drinkingInfo.setUpdated_by(sessionManager.getUser());
                 sfDrinkingInfoDao.update(drinkingInfo);
             }
             DrinkingInfo drinkingInfo = sfDrinkingInfoDao.getById(Integer.parseInt(this.drinkingInfo.getId()));
@@ -2683,12 +2704,14 @@ private String getCardiovascularRiskSummary(Integer personId) {
         if (nicotineInfo != null) {
             nicotineInfo.setIdcard(this.personInfo.getIdcard());
             nicotineInfo.setPersonId(this.personInfo.getId());
-            nicotineInfo.setCreated_by("SYSTEM");
-            nicotineInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            nicotineInfo.setCreated_by(sessionManager.getUser());
+            nicotineInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
+            nicotineInfo.setVisitNo(this.personInfo.getVisitNo());
             if (this.nicotineInfo.getId() == null) {
                 String id = sfNicotineInfoDao.insert(nicotineInfo);
                 this.nicotineInfo.setId(id);
             } else {
+                nicotineInfo.setUpdated_by(sessionManager.getUser());
                 sfNicotineInfoDao.update(nicotineInfo);
             }
             NicotineInfo nicotineInfo = sfNicotineInfoDao.getById(Integer.parseInt(this.nicotineInfo.getId()));
@@ -2703,10 +2726,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
             SfStressDepressionInfoDao sfStressDepressionInfoDao = new SfStressDepressionInfoDao(mContext);
             stressDepressionInfo.setPersonId(this.personInfo.getId());
             stressDepressionInfo.setIdcard(this.personInfo.getIdcard());
+            stressDepressionInfo.setVisitNo(this.personInfo.getVisitNo());
             if (this.stressDepressionInfo.getId() == null) {
                 String id = sfStressDepressionInfoDao.insert(stressDepressionInfo);
                 this.stressDepressionInfo.setId(id);
             } else {
+                stressDepressionInfo.setUpdated_by(sessionManager.getUser());
                 sfStressDepressionInfoDao.update(stressDepressionInfo);
             }
 
@@ -2743,10 +2768,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
             SfStressDepression2qInfoDao sfStressDepression2qInfoDao = new SfStressDepression2qInfoDao(mContext);
             stressDepression2qInfo.setPersonId(this.personInfo.getId());
             stressDepression2qInfo.setIdcard(personInfo.getIdcard());
+            stressDepression2qInfo.setVisitNo(this.personInfo.getVisitNo());
             if (this.stressDepression2qInfo.getId() == null) {
                 String id = sfStressDepression2qInfoDao.insert(stressDepression2qInfo);
                 stressDepression2qInfo.setId(id);
             } else {
+                stressDepression2qInfo.setUpdated_by(sessionManager.getUser());
                 sfStressDepression2qInfoDao.update(stressDepression2qInfo);
             }
             StressDepression2qInfo stressDepression2qInfo = sfStressDepression2qInfoDao.getById(Integer.parseInt(this.stressDepression2qInfo.getId()));
@@ -2763,10 +2790,13 @@ private String getCardiovascularRiskSummary(Integer personId) {
             SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(mContext);
             this.stressDepression9qInfo.setPersonId(this.personInfo.getId());
             this.stressDepression9qInfo.setIdcard(this.personInfo.getIdcard());
+            this.stressDepression9qInfo.setVisitNo(this.personInfo.getVisitNo());
             if (stressDepression9qInfo.getId() == null) {
+                this.stressDepression9qInfo.setCreated_by(sessionManager.getUser());
                 String id = sfStressDepression9qInfoDao.insert(this.stressDepression9qInfo);
                 this.stressDepression9qInfo.setId(id);
             } else {
+                this.stressDepression9qInfo.setUpdated_by(sessionManager.getUser());
                 sfStressDepression9qInfoDao.update(this.stressDepression9qInfo);
             }
             StressDepression9qInfo stressDepression9qInfo = sfStressDepression9qInfoDao.getById(Integer.parseInt(this.stressDepression9qInfo.getId()));
@@ -2783,10 +2813,14 @@ private String getCardiovascularRiskSummary(Integer personId) {
             SfSuicideAssessment8qInfoDao sfSuicideAssessment8qInfoDao = new SfSuicideAssessment8qInfoDao(mContext);
             this.suicideAssessment8qInfo.setPersonId(this.personInfo.getId());
             this.suicideAssessment8qInfo.setIdcard(this.personInfo.getIdcard());
+            this.suicideAssessment8qInfo.setVisitNo(this.personInfo.getVisitNo());
+
             if (this.suicideAssessment8qInfo.getId() == null) {
+                this.suicideAssessment8qInfo.setCreated_by(sessionManager.getUser());
                 String id = sfSuicideAssessment8qInfoDao.insert(this.suicideAssessment8qInfo);
                 this.suicideAssessment8qInfo.setId(id);
             } else {
+                this.suicideAssessment8qInfo.setUpdated_by(sessionManager.getUser());
                 sfSuicideAssessment8qInfoDao.update(this.suicideAssessment8qInfo);
             }
             SuicideAssessment8qInfo suicideAssessment8qInfo = sfSuicideAssessment8qInfoDao.getById(Integer.parseInt(this.suicideAssessment8qInfo.getId()));
@@ -2803,10 +2837,13 @@ private String getCardiovascularRiskSummary(Integer personId) {
             SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(mContext);
             this.healthRiskAssessmentInfo.setPersonId(this.personInfo.getId());
             this.healthRiskAssessmentInfo.setIdcard(this.personInfo.getIdcard());
+            this.healthRiskAssessmentInfo.setVisitNo(this.personInfo.getVisitNo());
             if (this.healthRiskAssessmentInfo.getId() == null) {
+                this.healthRiskAssessmentInfo.setCreated_by(sessionManager.getUser());
                 String id = sfHealthRiskAssessmentInfoDao.insert(this.healthRiskAssessmentInfo);
                 this.healthRiskAssessmentInfo.setId(id);
             } else {
+                this.healthRiskAssessmentInfo.setUpdated_by(sessionManager.getUser());
                 sfHealthRiskAssessmentInfoDao.update(this.healthRiskAssessmentInfo);
             }
             HealthRiskAssessmentInfo healthRiskAssessmentInfo = sfHealthRiskAssessmentInfoDao.getById(Integer.parseInt(this.healthRiskAssessmentInfo.getId()));
@@ -2824,15 +2861,18 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy("SYSTEM");
-                    drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    drugsInfo.setCreatedBy(sessionManager.getUser());
+                    drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                     // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
                     String id = sfDrugsDao.insert(drugsInfo);
                     drugsInfo.setId(id);
                 } else {
                     // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setUpdatedBy("SYSTEM");
-                    drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                    drugsInfo.setUpdatedBy(sessionManager.getUser());
+                    drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
+                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                     sfDrugsDao.update(drugsInfo);
                 }
 
@@ -2854,15 +2894,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if(drugsInfo.getQuestion()!=null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -2885,15 +2926,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if(drugsInfo.getQuestion()!=null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -2916,15 +2958,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if(drugsInfo.getQuestion()!=null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -2947,15 +2990,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if (drugsInfo.getQuestion() != null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -2978,15 +3022,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if(drugsInfo.getQuestion()!=null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -3009,15 +3054,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if (drugsInfo.getQuestion() != null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -3040,15 +3086,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if(drugsInfo.getQuestion()!=null) {
                     if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy("SYSTEM");
-                        drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                        // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
+                        drugsInfo.setCreatedBy(sessionManager.getUser());
+                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         String id = sfDrugsDao.insert(drugsInfo);
                         drugsInfo.setId(id);
                     } else {
                         // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy("SYSTEM");
-                        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                         sfDrugsDao.update(drugsInfo);
                     }
 
@@ -3070,8 +3117,11 @@ private String getCardiovascularRiskSummary(Integer personId) {
             SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(mContext);
             this.cardiovascularRiskInfo.setPersonId(this.personInfo.getId());
             this.cardiovascularRiskInfo.setIdcard(this.personInfo.getIdcard());
-            this.cardiovascularRiskInfo.setCreated_by("SYSTEM");
-            this.cardiovascularRiskInfo.setCreated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            this.cardiovascularRiskInfo.setCreated_by(sessionManager.getUser());
+            this.cardiovascularRiskInfo.setCreated_date(DateConverter.getCurrentWesternDateTime());
+            this.cardiovascularRiskInfo.setVisitNo(this.personInfo.getVisitNo());
+            this.cardiovascularRiskInfo.setDateUpdate(DateConverter.getCurrentWesternDateTime());
+
 
             if (this.cardiovascularRiskInfo.getId() == null) {
                 // กรณีบันทึกใหม่
@@ -3079,8 +3129,8 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 this.cardiovascularRiskInfo.setId(id);
             } else {
                 // กรณีอัพเดต
-                this.cardiovascularRiskInfo.setUpdated_by("SYSTEM");
-                this.cardiovascularRiskInfo.setUpdated_date(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                this.cardiovascularRiskInfo.setUpdated_by(sessionManager.getUser());
+                this.cardiovascularRiskInfo.setUpdated_date(DateConverter.getCurrentWesternDateTime());
                 sfCardiovascularRiskInfoDao.update(this.cardiovascularRiskInfo);
             }
 
@@ -3096,7 +3146,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
         if (counselingInfo != null) {
             if (personInfo != null) {
                 counselingInfo.setPersonId(personInfo.getId());
-                counselingInfo.setVisitId(personInfo.getVisitId());
+                counselingInfo.setVisitNo(personInfo.getVisitNo());
             }
 
             UserSessionManager sessionManager = new UserSessionManager(getBaseContext());
@@ -3104,6 +3154,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
             if (counselingInfo.getId() == 0) {
                 // กรณีบันทึกใหม่
                 counselingInfo.setCreatedBy(sessionManager.getUsername());
+                counselingInfo.setVisitNo(personInfo.getVisitNo());
                 long newId = counselingDao.saveCounseling(counselingInfo);
 
                 if (newId > 0) {
@@ -3118,6 +3169,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
             } else {
                 // กรณีอัพเดต
                 counselingInfo.setUpdatedBy(sessionManager.getUsername());
+                counselingInfo.setVisitNo(personInfo.getVisitNo());
                 int rowsUpdated = counselingDao.updateCounseling(counselingInfo);
 
                 if (rowsUpdated > 0) {
@@ -3144,7 +3196,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 healthsuggest1 = counselingInfo.getDetail();
             }
          }
-        if (this.personInfo.getVisitId() == null) { // insert
+        if (this.personInfo.getVisitNo() == null) { // insert
             String visitDate = DateConverter.getCurrentWesternDate(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
             String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
             Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
@@ -3169,7 +3221,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
                     person.getRightNo()
             );
             if (visitId > 0) {
-                this.personInfo.setVisitId(String.valueOf(visitId));
+                this.personInfo.setVisitNo(String.valueOf(visitId));
                 String seq = GenerateSeq.generateSeq(userSessionManager.getPcuCode());
                 SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
             }
@@ -3179,7 +3231,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
             String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
             Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
             visitDao.updateVisit(
-                    Long.parseLong(personInfo.getVisitId()),            // visitNo
+                    Long.parseLong(personInfo.getVisitNo()),            // visitNo
                     (float) personInfo.getWeight(),                      // weight
                     (float) personInfo.getHeight(),                      // height
                     pressure, // pressure
@@ -3269,12 +3321,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
         if( !diagCodes.isEmpty()) {
             VisitDiagDao visitDiagDao = new VisitDiagDao(getBaseContext());
-            long result =  visitDiagDao.deleteAllByVisitNo(this.personInfo.getVisitId());
+            long result =  visitDiagDao.deleteAllByVisitNo(this.personInfo.getVisitNo());
             for (DiagCode diagCode : diagCodes) {
 
                 VisitDiagInfo visitDiagInfo = new VisitDiagInfo();
                 visitDiagInfo.setPcucode(userSessionManager.getPcuCode());
-                visitDiagInfo.setVisitno(this.personInfo.getVisitId());
+                visitDiagInfo.setVisitno(this.personInfo.getVisitNo());
                 visitDiagInfo.setDiagcode(diagCode.getCode());
                 visitDiagInfo.setDxtype(diagCode.getDxtype());
                 visitDiagInfo.setConti(diagCode.getConti());
@@ -3331,7 +3383,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
                         // กำหนดสถานที่ให้บริการ (ถ้าไม่มี visitno แสดงว่าให้บริการในสถานบริการ)
                         f43SpecialPPData.servplace = "1";
-                        f43SpecialPPData.ppsplace = userSessionManager.getPcuCode();
+                        f43SpecialPPData.ppsplace = null;
                         f43SpecialPPData.provider = userSessionManager.getUsername();
                         f43SpecialPPData.dateupdate = DateConverter.getCurrentWesternDateTime();
 
@@ -4108,15 +4160,15 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
     // เพิ่มเมธอดสำหรับโหลดข้อมูลการให้คำปรึกษาที่มีอยู่แล้ว
     private void loadExistingCounselingData() {
-        if (personInfo != null && personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
+        if (personInfo != null && personInfo.getVisitNo() != null && !personInfo.getVisitNo().isEmpty()) {
             CounselingSignatureDao counselingDao = new CounselingSignatureDao(mContext);
-            List<CounselingInfo> existingCounseling = counselingDao.getCounselingByVisitId(personInfo.getVisitId());
+            List<CounselingInfo> existingCounseling = counselingDao.getCounselingByVisitId(personInfo.getVisitNo());
 
             if (!existingCounseling.isEmpty()) {
                 CounselingInfo counseling = existingCounseling.get(0);
                 updateCounselingDisplay(counseling);
                 this.counselingInfo = counseling;
-                System.out.println("Loaded existing counseling data for visitId: " + personInfo.getVisitId());
+                System.out.println("Loaded existing counseling data for visitId: " + personInfo.getVisitNo());
             }
         }
     }
@@ -4493,7 +4545,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
      */
     private void reloadPersonInfoData() {
         String personId = getIntent().getStringExtra("person_id");
-        String visitId = getIntent().getStringExtra("visit_id");
+        String visitId = getIntent().getStringExtra("visitno");
 
         if (personId != null) {
             // โหลดข้อมูลจากฐานข้อมูลใหม่
@@ -4533,16 +4585,16 @@ private String getCardiovascularRiskSummary(Integer personId) {
     /**
      * ตั้งค่า ViewModels ใหม่
      */
-    private void setupViewModelsAgain(String personId, String visitId) {
+    private void setupViewModelsAgain(String personId, String visitNo) {
         if (sharedViewModel != null) {
             // ตั้งค่า PersonInfoLiveData ใหม่
             PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
             personInfoLiveData.setId(personId);
-            personInfoLiveData.setVisitId(visitId);
+            personInfoLiveData.setVisitNo(visitNo);
             sharedViewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
 
             // ตั้งค่า LiveData อื่นๆ ใหม่
-            setupOtherLiveDataAgain(personId, visitId);
+            setupOtherLiveDataAgain(personId, visitNo);
 
             Log.d("PersonScreeningForm15Activity", "ตั้งค่า ViewModels ใหม่เสร็จสิ้น");
         }
@@ -4551,65 +4603,65 @@ private String getCardiovascularRiskSummary(Integer personId) {
     /**
      * ตั้งค่า LiveData อื่นๆ ใหม่
      */
-    private void setupOtherLiveDataAgain(String personId, String visitId) {
+    private void setupOtherLiveDataAgain(String personId, String visitNo) {
         // SmookingLiveData
         SmookingLiveData smookingLiveData = new SmookingLiveData();
         smookingLiveData.setPersonId(personId);
-        smookingLiveData.setVisitId(visitId);
+        smookingLiveData.setVisitNo(visitNo);
         sharedViewModel.setSmookingMutableLiveData(smookingLiveData);
 
         // CigaretteAddictionTestLiveData
         CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
         cigaretteAddictionTestLiveData.setPersonId(personId);
-        cigaretteAddictionTestLiveData.setVisitId(visitId);
+        cigaretteAddictionTestLiveData.setVisitNo(visitNo);
         sharedViewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
 
         // StressDepressionLiveData
         StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
         stressDepressionLiveData.setPersonId(personId);
-        stressDepressionLiveData.setVisitId(visitId);
+        stressDepressionLiveData.setVisitNo(visitNo);
         sharedViewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
 
         // StressDepression2qLiveData
         StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
         stressDepression2qLiveData.setPersonId(personId);
-        stressDepression2qLiveData.setVisitId(visitId);
+        stressDepression2qLiveData.setVisitNo(visitNo);
         sharedViewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
 
         // StressDepression9qLiveData
         StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
         stressDepression9qLiveData.setPersonId(personId);
-        stressDepression9qLiveData.setVisitId(visitId);
+        stressDepression9qLiveData.setVisitNo(visitNo);
         sharedViewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
 
         // SuicideAssessment8qLiveData
         SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
         suicideAssessment8qLiveData.setPersonId(personId);
-        suicideAssessment8qLiveData.setVisitId(visitId);
+        suicideAssessment8qLiveData.setVisitNo(visitNo);
         sharedViewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
 
         // HealthRiskAssessmentLiveData
         HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
         healthRiskAssessmentLiveData.setPersonId(personId);
-        healthRiskAssessmentLiveData.setVisitId(visitId);
+        healthRiskAssessmentLiveData.setVisitNo(visitNo);
         sharedViewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
 
         // CardiovascularRiskLiveData
         CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
         cardiovascularRiskLiveData.setPersonId(personId);
-        cardiovascularRiskLiveData.setVisitId(visitId);
+        cardiovascularRiskLiveData.setVisitNo(visitNo);
         sharedViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
 
         // DrugsLiveData
         DrugsLiveData drugsLiveData = new DrugsLiveData();
         drugsLiveData.setPersonId(personId);
-        drugsLiveData.setVisitId(visitId);
+        drugsLiveData.setVisitNo(visitNo);
         sharedViewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
 
         // CounselingLiveData
         CounselingLiveData counselingLiveData = new CounselingLiveData();
         counselingLiveData.setPersonId(personId);
-        counselingLiveData.setVisitId(visitId);
+        counselingLiveData.setVisitNo(visitNo);
         sharedViewModel.setCounselingLiveData(counselingLiveData);
     }
 

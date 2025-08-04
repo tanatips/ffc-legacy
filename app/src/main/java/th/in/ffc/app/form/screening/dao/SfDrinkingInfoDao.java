@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import th.in.ffc.app.form.screening.model.DrinkingInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfDrinkingInfoDao {
     private Context mContext;
@@ -35,11 +36,12 @@ public class SfDrinkingInfoDao {
             values.put("drinking", data.getDrinking());
             values.put("drinking_frequency", data.getDrinkingFrequency());
             values.put("drinking_alway", data.getDrinkingAlway());
-            values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            values.put("created_by", "SYSTEM");
-            values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            values.put("updated_by", "");
-
+            values.put("created_date", DateConverter.getCurrentWesternDateTime());
+            values.put("created_by", data.getCreated_by());
+            values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+            values.put("updated_by", data.getUpdated_by());
+            values.put("visitno", data.getVisitNo());
+            values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
             Uri uri = mContext.getContentResolver().insert(ScreeningFormProvider.SfDrinkingInfo.CONTENT_URI, values);
             if (uri != null) {
                 id = uri.getLastPathSegment();
@@ -68,6 +70,8 @@ public class SfDrinkingInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 cursor.close();
             }
         }
@@ -93,6 +97,8 @@ public class SfDrinkingInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 drinkingInfos.add(data);
             }
         }
@@ -109,8 +115,10 @@ public class SfDrinkingInfoDao {
         values.put("drinking", drinkingInfo.getDrinking());
         values.put("drinking_frequency", drinkingInfo.getDrinkingFrequency());
         values.put("drinking_alway", drinkingInfo.getDrinkingAlway());
-        values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        values.put("updated_by", "");
+        values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+        values.put("updated_by", drinkingInfo.getUpdated_by());
+        values.put("visitno", drinkingInfo.getVisitNo());
+        values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
         mContext.getContentResolver().update(getDrinkingUriById(Integer.valueOf(drinkingInfo.getId())),
                 values, select, selectionArgs);

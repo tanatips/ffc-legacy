@@ -25,7 +25,7 @@ public class CounselingSignature implements BaseColumns {
 
     // คอลัมน์ในตาราง
     public static final String ID = _ID;
-    public static final String VISIT_ID = "visit_id";                 // รหัสการเข้ารับบริการ
+    public static final String VISIT_NO = "visitno";                 // รหัสการเข้ารับบริการ
     public static final String PERSON_ID = "person_id";               // รหัสบุคคล
     public static final String COUNSELING_TYPE = "counseling_type";   // ประเภทการให้คำปรึกษา (1=ให้คำแนะนำ, 2=ส่งต่อแพทย์)
     public static final String DETAIL = "detail";                     // รายละเอียดของคำแนะนำ
@@ -37,12 +37,14 @@ public class CounselingSignature implements BaseColumns {
     public static final String UPDATED_BY = "updated_by";             // ผู้แก้ไขข้อมูล
     public static final String UPDATED_DATE = "updated_date";         // วันเวลาที่แก้ไข
     public static final String PCUCODE = "pcucode";                   // รหัส PCU
+
+    public static final String DATEUPDATE = "dateupdate";           // วันที่อัพเดทข้อมูล
     public static final String UPDATE_STATUS = "update_status";       // สถานะการอัพเดท
 
     // สร้างตาราง Counseling Signature
     public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + VISIT_ID + " TEXT NOT NULL, "
+            + VISIT_NO + " TEXT NOT NULL, "
             + PERSON_ID + " TEXT NOT NULL, "
             + COUNSELING_TYPE + " INTEGER NOT NULL, "
             + DETAIL + " TEXT, "
@@ -54,7 +56,8 @@ public class CounselingSignature implements BaseColumns {
             + UPDATED_BY + " TEXT, "
             + UPDATED_DATE + " DATETIME, "
             + PCUCODE + " TEXT, "
-            + UPDATE_STATUS + " TEXT"
+            + UPDATE_STATUS + " TEXT,"
+            + DATEUPDATE + " DATETIME "
             + ");";
     public static final String DROP_TABLE = " DROP TABLE IF EXISTS " + TABLENAME;
 
@@ -62,7 +65,7 @@ public class CounselingSignature implements BaseColumns {
 
     static {
         PROJECTION_MAP.put(ID, ID);
-        PROJECTION_MAP.put(VISIT_ID, VISIT_ID);
+        PROJECTION_MAP.put(VISIT_NO, VISIT_NO);
         PROJECTION_MAP.put(PERSON_ID, PERSON_ID);
         PROJECTION_MAP.put(COUNSELING_TYPE, COUNSELING_TYPE);
         PROJECTION_MAP.put(DETAIL, DETAIL);
@@ -75,6 +78,7 @@ public class CounselingSignature implements BaseColumns {
         PROJECTION_MAP.put(UPDATED_DATE, UPDATED_DATE);
         PROJECTION_MAP.put(PCUCODE, PCUCODE);
         PROJECTION_MAP.put(UPDATE_STATUS, UPDATE_STATUS);
+        PROJECTION_MAP.put(DATEUPDATE, DATEUPDATE);
     }
 
     public static Uri getContentUri(long id) {

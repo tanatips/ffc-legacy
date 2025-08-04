@@ -1,7 +1,7 @@
 package th.in.ffc.app.form.screening.model;
 public class CounselingInfo {
     private long id;
-    private String visitId;
+    private String visitNo;
     private String personId;
     private int counselingType; // 1=ให้คำแนะนำ, 2=ส่งต่อแพทย์
     private String detail;
@@ -13,6 +13,8 @@ public class CounselingInfo {
     private String updatedBy;
     private String updatedDate;
     private String pcuCode;
+
+    private String dateUpdate;
 
     private String updateStatus;
 
@@ -28,12 +30,12 @@ public class CounselingInfo {
         this.id = id;
     }
 
-    public String getVisitId() {
-        return visitId;
+    public String getVisitNo() {
+        return visitNo;
     }
 
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
     }
 
     public String getPersonId() {
@@ -129,5 +131,13 @@ public class CounselingInfo {
 
     public void setUpdateStatus(String updateStatus) {
         this.updateStatus = updateStatus;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 }

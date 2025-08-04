@@ -57,15 +57,15 @@ public class ClaimInfoDao {
                     claim.setClaimStatus(person.getClaim_status());
                     claim.setClaimMessage(person.getClaim_message());
                     claim.setClaimDate(person.getClaim_date());
-                    claim.setVisitId(person.getVisitId());
+                    claim.setVisitNo(person.getVisitNo());
                     claim.setSeq(person.getSeq());
 
                     // ข้อมูลวันที่รับบริการ
                     claim.setServiceDate(person.getAuthen_date());
 
                     // ดึงข้อมูลจำนวนเงินจาก NHSOCHADao
-                    if (person.getVisitId() != null) {
-                        double amount = nhsochaDao.getTotalAmountBySeq(person.getVisitId());
+                    if (person.getVisitNo() != null) {
+                        double amount = nhsochaDao.getTotalAmountBySeq(person.getVisitNo());
                         claim.setAmount(amount);
                     }
 
@@ -204,15 +204,15 @@ public class ClaimInfoDao {
                     claim.setClaimStatus(person.getClaim_status());
                     claim.setClaimMessage(person.getClaim_message());
                     claim.setClaimDate(person.getClaim_date());
-                    claim.setVisitId(person.getVisitId());
+                    claim.setVisitNo(person.getVisitNo());
                     claim.setSeq(person.getSeq());
 
                     // ข้อมูลวันที่รับบริการ
                     claim.setServiceDate(person.getAuthen_date());
 
                     // ดึงข้อมูลจำนวนเงินจาก NHSOCHADao
-                    if (person.getVisitId() != null) {
-                        double amount = nhsochaDao.getTotalAmountBySeq(person.getVisitId());
+                    if (person.getVisitNo() != null) {
+                        double amount = nhsochaDao.getTotalAmountBySeq(person.getVisitNo());
                         claim.setAmount(amount);
                     }
 

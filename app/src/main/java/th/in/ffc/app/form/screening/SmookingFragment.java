@@ -141,15 +141,15 @@ public class SmookingFragment extends Fragment {
         viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
             if (personInfo != null && personInfo.getId() != null) {
                 currentPersonId = Integer.parseInt(personInfo.getId());
-                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
-                    currentVisitNo = Integer.parseInt(personInfo.getVisitId());
+                if (personInfo.getVisitNo() != null && !personInfo.getVisitNo().isEmpty()) {
+                    currentVisitNo = Integer.parseInt(personInfo.getVisitNo());
                 }
                 // ดึงข้อมูลคะแนนการสูบบุหรี่จาก SfDrugsDao
                 loadSmokingScore(personInfo.getId());
 
                 // ตรวจสอบข้อมูลที่มีอยู่แล้วใน ScreeningResultCode
-                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
-                    loadFromScreeningResultCode(Integer.valueOf(personInfo.getId()), Integer.valueOf(personInfo.getVisitId()));
+                if (personInfo.getVisitNo() != null && !personInfo.getVisitNo().isEmpty()) {
+                    loadFromScreeningResultCode(Integer.valueOf(personInfo.getId()), Integer.valueOf(personInfo.getVisitNo()));
                 }
             }
         });
@@ -1351,6 +1351,7 @@ public class SmookingFragment extends Fragment {
                 for (SmokerInfo smokerInfo : smokerInfos) {
                     Log.d("smoker", "smoker infos:" + smokerInfos);
                     setSmokerInfo(smokerInfo);
+                    dataPasser.onSmokerInfo(smokerInfo);
                 }
             }
         });

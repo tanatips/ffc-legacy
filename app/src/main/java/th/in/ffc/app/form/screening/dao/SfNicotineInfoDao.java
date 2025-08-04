@@ -12,6 +12,7 @@ import java.util.List;
 import th.in.ffc.app.form.screening.model.NicotineInfo;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfNicotineInfoDao {
     private Context mContext;
@@ -42,11 +43,12 @@ public class SfNicotineInfoDao {
             values.put("nicotine6", data.getNicotine6());
             values.put("points", data.getPoints().toString());
             values.put("sum", data.getSum());
-            values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("created_date", DateConverter.getCurrentWesternDateTime());
             values.put("created_by", "");
-            values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("updated_date", DateConverter.getCurrentWesternDateTime());
             values.put("updated_by", "");
-
+            values.put("visitno", data.getVisitNo());
+            values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
             Uri uri = mContext.getContentResolver().insert(ScreeningFormProvider.SfNicotineInfo.CONTENT_URI, values);
             if (uri != null) {
                 id = uri.getLastPathSegment();
@@ -80,6 +82,8 @@ public class SfNicotineInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 data.setSum(cursor.getInt(cursor.getColumnIndex("sum")));
 
                 // แปลง String points กลับเป็น ArrayList<Integer>
@@ -123,6 +127,8 @@ public class SfNicotineInfoDao {
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
                 data.setSum(cursor.getInt(cursor.getColumnIndex("sum")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 // แปลง String points กลับเป็น ArrayList<Integer>
                 String pointsStr = cursor.getString(cursor.getColumnIndex("points"));
 
@@ -154,8 +160,10 @@ public class SfNicotineInfoDao {
         values.put("nicotine6", nicotineInfo.getNicotine6());
         values.put("points", nicotineInfo.getPoints().toString());
         values.put("sum", nicotineInfo.getSum());
-        values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        values.put("updated_by", "");
+        values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+        values.put("updated_by", nicotineInfo.getUpdated_by());
+        values.put("visitno", nicotineInfo.getVisitNo());
+        values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
         mContext.getContentResolver().update(getNicotineUriById(Integer.valueOf(nicotineInfo.getId())),
                 values, select, selectionArgs);

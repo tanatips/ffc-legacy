@@ -12,6 +12,8 @@ public class SmokerInfo {
     private String created_date;
     private String updated_by;
     private String updated_date;
+    private String visitNo;
+    private String dateUpdate;
 
     public String getId() {
         return id;
@@ -91,5 +93,21 @@ public class SmokerInfo {
 
     public void setUpdated_date(String updated_date) {
         this.updated_date = updated_date;
+    }
+
+    public String getVisitNo() {
+        return visitNo;
+    }
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 }

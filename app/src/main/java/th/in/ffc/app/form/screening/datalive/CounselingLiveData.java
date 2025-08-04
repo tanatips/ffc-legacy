@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 
 public class CounselingLiveData {
     private String personId;
-    private String visitId;
+    private String visitNo;
     private int counselingType;
     private String consultDetail;
     private String referralDetail;
@@ -25,12 +25,12 @@ public class CounselingLiveData {
         this.personId = personId;
     }
 
-    public String getVisitId() {
-        return visitId;
+    public String getVisitNo() {
+        return visitNo;
     }
 
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
     }
 
     public int getCounselingType() {

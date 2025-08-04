@@ -150,7 +150,7 @@ public class ClaimDetailActivity extends AppCompatActivity {
         String serviceType = claim.getServiceType() != null ? claim.getServiceType() : "การคัดกรองสุขภาพ";
         tvDetailServiceType.setText("ประเภทบริการ: " + serviceType);
 
-        tvDetailVisitId.setText("รหัสการเข้ารับบริการ: " + (claim.getVisitId() != null ? claim.getVisitId() : "-"));
+        tvDetailVisitId.setText("รหัสการเข้ารับบริการ: " + (claim.getVisitNo() != null ? claim.getVisitNo() : "-"));
 
         Double total =  nhsochaDao.getTotalAmountBySeq(claim.getSeq());
         String amountText = decimalFormat.format(total) + " บาท";

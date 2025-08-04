@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import th.in.ffc.app.form.screening.model.StressDepression2qInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfStressDepression2qInfoDao {
     private Context mContext;
@@ -38,10 +39,12 @@ public class SfStressDepression2qInfoDao {
             values.put("sum", data.getSum());
 //            values.put("result_code", data.getResultCode());
 //            values.put("result_description", data.getResultDescription());
-            values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            values.put("created_by", "");
-            values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("created_date", DateConverter.getCurrentWesternDateTime());
+            values.put("created_by", data.getCreated_by());
+            values.put("updated_date", DateConverter.getCurrentWesternDateTime());
             values.put("updated_by", "");
+            values.put("visitno", data.getVisitNo());
+            values.put("dateupdate",DateConverter.getCurrentWesternDateTime());
 
             Uri uri = mContext.getContentResolver().insert(ScreeningFormProvider.SfStressDepression2qInfo.CONTENT_URI, values);
             if (uri != null) {
@@ -84,6 +87,8 @@ public class SfStressDepression2qInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 cursor.close();
             }
         }
@@ -122,6 +127,8 @@ public class SfStressDepression2qInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 stressDepressionInfos.add(data);
             }
         }
@@ -141,8 +148,10 @@ public class SfStressDepression2qInfoDao {
         values.put("sum", data.getSum());
 //        values.put("result_code", data.getResultCode());
 //        values.put("result_description", data.getResultDescription());
-        values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        values.put("updated_by", "");
+        values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+        values.put("updated_by", data.getUpdated_by());
+        values.put("visitno", data.getVisitNo());
+        values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
         mContext.getContentResolver().update(getStressDepression2qUriById(Integer.valueOf(data.getId())),
                 values, select, selectionArgs);

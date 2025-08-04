@@ -34,6 +34,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import th.in.ffc.BuildConfig;
 import th.in.ffc.R;
@@ -49,10 +50,13 @@ import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
 import th.in.ffc.app.form.screening.CardiovascularRiskFragment;
 import th.in.ffc.app.form.screening.AlcoholFragment;
+import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
 import th.in.ffc.app.form.screening.model.PersonData;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
+import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.session.UserSessionManager;
 
 public class FormDialogFragment extends DialogFragment {
@@ -362,7 +366,10 @@ public class FormDialogFragment extends DialogFragment {
                         errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 2Q กรุณาลองใหม่อีกครั้ง";
                     } else {
                         // แสดงการแนะนำเพิ่มเติมหลังจากบันทึกสำเร็จ
-                        showPost2QRecommendation(stress2qFragment, activity);
+                        boolean has9QData = has9QData(activity);
+                        if(!has9QData) {
+                            showPost2QRecommendation(stress2qFragment, activity);
+                        }
                     }
                 }
             }
@@ -478,6 +485,34 @@ public class FormDialogFragment extends DialogFragment {
             dismiss();
         }
     }
+    private boolean has9QData(PersonScreeningForm15Activity activity) {
+        try {
+            // ดึงข้อมูลที่จำเป็น
+            int personId = getPersonIdFromActivity(activity);
+            int visitno = getVisitNoFromActivity(activity);
+
+            if (personId <= 0 || visitno <= 0) {
+                Log.e("FormDialogFragment", "ไม่สามารถดึง personId หรือ visitno ได้สำหรับการตรวจสอบ 9Q");
+                return false;
+            }
+
+            SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(activity);
+            List<StressDepression9qInfo> stressDepression9qs =   sfStressDepression9qInfoDao.getByPersonId(personId);
+            if (stressDepression9qs == null || stressDepression9qs.isEmpty()) {
+                Log.d("FormDialogFragment", "ไม่พบข้อมูล 9Q สำหรับ personId: " + personId);
+                return false;
+            }
+            else {
+                Log.d("FormDialogFragment", "พบข้อมูล 9Q สำหรับ personId: " + personId);
+                return true;
+            }
+
+        } catch (Exception e) {
+            Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการตรวจสอบข้อมูล 9Q: " + e.getMessage());
+            return false;
+        }
+    }
+
     private void showPost2QRecommendation(StressDepression2qFragment stress2qFragment, PersonScreeningForm15Activity activity) {
         // หน่วงเวลาเล็กน้อยเพื่อให้การบันทึกเสร็จสิ้น
         new Handler().postDelayed(() -> {
@@ -1220,7 +1255,7 @@ public class FormDialogFragment extends DialogFragment {
                 PersonInfoLiveData personInfo = viewModel.getPersonInfoLiveDataMutableLiveData().getValue();
 
                 if (personInfo != null && personInfo.getId() != null && !personInfo.getId().isEmpty()) {
-                    return Integer.parseInt(personInfo.getVisitId());
+                    return Integer.parseInt(personInfo.getVisitno());
                 }
 
                 Log.w("FormDialogFragment", "ไม่พบ personId ใน SharedViewModel");

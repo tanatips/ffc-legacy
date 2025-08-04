@@ -85,7 +85,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
         holder.tvIdCard.setText("เลขบัตรประชาชน: " + formatIdCard(claim.getIdCard()));
 
         // ดึงจำนวนเงินการเบิกจาก NHSOCHADao โดยใช้ visitId (seq)
-        String visitId = claim.getVisitId();
+        String visitNo = claim.getVisitNo();
         String seq = claim.getSeq();
         double claimAmount = 0.0;
 
@@ -457,7 +457,7 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
             String claimId = String.valueOf(response.getId()); // ใช้ seq จาก response เป็น claim_id
 
             // บันทึก visitId ไว้ในข้อมูล claim
-            claim.setVisitId(visitId);
+            claim.setVisitNo(visitId);
 
             // อัปเดตข้อมูลในฐานข้อมูล - ใช้เมธอด static
             long result = SfPersonInfoDao.updateClaimInfo(

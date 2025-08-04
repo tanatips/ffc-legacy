@@ -596,8 +596,8 @@ public class StressDepression2qFragment extends Fragment {
         viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
             if (personInfo != null && personInfo.getId() != null) {
                 currentPersonId = Integer.parseInt(personInfo.getId());
-                if( personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()){
-                    currentVisitNo = Integer.parseInt(personInfo.getVisitId());
+                if( personInfo.getVisitNo() != null && !personInfo.getVisitNo().isEmpty()){
+                    currentVisitNo = Integer.parseInt(personInfo.getVisitNo());
                 }
 
             }

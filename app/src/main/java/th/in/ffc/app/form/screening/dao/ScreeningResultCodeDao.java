@@ -332,7 +332,7 @@ public class ScreeningResultCodeDao {
                 resultDescription = "เครียดมาก";
                 riskLevel = ScreeningResultCode.RISK_MODERATE;
             } else {
-                resultCode = "1B135";
+                resultCode = "1B134";
                 resultDescription = "เครียดมากที่สุด";
                 riskLevel = ScreeningResultCode.RISK_HIGH;
             }

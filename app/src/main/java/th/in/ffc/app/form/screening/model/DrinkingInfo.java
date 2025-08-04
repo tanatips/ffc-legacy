@@ -13,6 +13,8 @@ public class DrinkingInfo {
     private String created_date;
     private String updated_by;
     private String updated_date;
+    private String visitNo;
+    private String dateUpdate;
 
     public String getDrinking() {
         return Drinking;
@@ -91,5 +93,21 @@ public class DrinkingInfo {
 
     public void setPersonId(String personId) {
         this.personId = personId;
+    }
+
+    public String getVisitNo() {
+        return visitNo;
+    }
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 }

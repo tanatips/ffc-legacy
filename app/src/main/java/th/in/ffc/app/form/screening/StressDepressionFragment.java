@@ -1279,7 +1279,7 @@ public class StressDepressionFragment extends Fragment {
         if (score >= 0 && score <= 4) return "1B132";
         if (score >= 5 && score <= 7) return "1B133";
         if (score >= 8 && score <= 9) return "1B134";
-        if (score >= 10 && score <= 19) return "1B135";
+        if (score >= 10 && score <= 15) return "1B135";
         return "";
     }
 

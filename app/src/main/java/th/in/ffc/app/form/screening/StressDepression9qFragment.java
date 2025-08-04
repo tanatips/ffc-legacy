@@ -933,8 +933,8 @@ public class StressDepression9qFragment extends Fragment {
         viewModel.getPersonInfoLiveDataMutableLiveData().observe(getViewLifecycleOwner(), personInfo -> {
             if (personInfo != null && personInfo.getId() != null) {
                 int personId = Integer.parseInt(personInfo.getId());
-                if (personInfo.getVisitId() != null && !personInfo.getVisitId().isEmpty()) {
-                    int visitno = Integer.parseInt(personInfo.getVisitId());
+                if (personInfo.getVisitNo() != null && !personInfo.getVisitNo().isEmpty()) {
+                    int visitno = Integer.parseInt(personInfo.getVisitNo());
 
                     // ตั้งค่าข้อมูลสำหรับการบันทึก
                     currentPersonId = personId;

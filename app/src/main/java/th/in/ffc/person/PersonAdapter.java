@@ -147,8 +147,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             holder.tvValidationMode.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_blue_dark));
         }
         // เพิ่มการแสดง Visit Number
-        if (person.getVisitId() != null && !person.getVisitId().isEmpty()) {
-            holder.tvVisitNumber.setText("หมายเลขการเข้ารับบริการ: " + person.getVisitId());
+        if (person.getVisitNo() != null && !person.getVisitNo().isEmpty()) {
+            holder.tvVisitNumber.setText("หมายเลขการเข้ารับบริการ: " + person.getVisitNo());
             holder.tvVisitNumber.setVisibility(View.VISIBLE);
         } else {
             holder.tvVisitNumber.setVisibility(View.GONE);
@@ -264,7 +264,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     List<NHSOPractitionerInfo> practitioners = new ArrayList<>();
                     List<NHSOHospitalInfo> hospitals = new ArrayList<>();
 
-                        practitioner.setSeq(personInfo.getVisitId());
+                        practitioner.setSeq(personInfo.getVisitNo());
                         practitioner.setHcode(personInfo.getHcode());
                         practitioner.setCid(userSessionManager.getIdcard());
 
@@ -273,7 +273,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     NHSOOPDInfo hnSoOPDInfo = new NHSOOPDInfo();
 
                     VisitDao visitDao = new VisitDao(itemView.getContext().getContentResolver());
-                    long visitId = Long.valueOf(personInfo.getVisitId());
+                    long visitId = Long.valueOf(personInfo.getVisitNo());
                     String seq = personInfo.getSeq();
 //                    long visitId = visitDao.saveNewVisitWithVitalSigns(
 //                            userSessionManager.getPcuCode(),                     // pcucode
@@ -346,7 +346,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                             VisitDiagDao visitDiagDao = new VisitDiagDao(itemView.getContext());
 
                             // แฟ้ม 5
-                            List<VisitDiagInfo> visitDiagInfos = visitDiagDao.getVisitDiagByVisitNo(personInfo.getVisitId());
+                            List<VisitDiagInfo> visitDiagInfos = visitDiagDao.getVisitDiagByVisitNo(personInfo.getVisitNo());
                             NHSODiagnosisInfo nhsoDiagnosisInfo = new NHSODiagnosisInfo();
                             List<NHSODiagnosisInfo> nhsoDiagnosisInfos = new ArrayList<>();
                             NHSODiagnosisService nhsoDiagnosisService = new NHSODiagnosisService(itemView.getContext());
@@ -452,7 +452,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                                 return;
                             }
                             NHSOClaimDataDao claimDataDao = new NHSOClaimDataDao(itemView.getContext());
-                            claimDataDao.saveClaimData(Integer.parseInt(personInfo.getVisitId()), jsonObject);
+                            claimDataDao.saveClaimData(Integer.parseInt(personInfo.getVisitNo()), jsonObject);
 
                             NHSOFSDataApiCaller apiCaller = new NHSOFSDataApiCaller(itemView.getContext());
                             apiCaller.sendFSData(jsonObject, new NHSOFSDataApiCaller.FSDataApiCallback() {

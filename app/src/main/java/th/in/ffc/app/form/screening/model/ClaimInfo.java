@@ -22,7 +22,7 @@ public class ClaimInfo implements Serializable {
     private String claimId;
     private String claimStatus;
     private String claimMessage;
-    private String visitId;
+    private String visitNo;
 
     private String seq;
 
@@ -34,7 +34,7 @@ public class ClaimInfo implements Serializable {
     public ClaimInfo(String id, String patientId, String patientName, String idCard,
                      String patientGroup, String serviceDate, String serviceType,
                      double amount, String status, String statusMessage,
-                     String claimDate, String visitId,String seq) {
+                     String claimDate, String visitNo,String seq) {
         this.id = id;
         this.patientId = patientId;
         this.patientName = patientName;
@@ -46,7 +46,7 @@ public class ClaimInfo implements Serializable {
         this.status = status;
         this.statusMessage = statusMessage;
         this.claimDate = claimDate;
-        this.visitId = visitId;
+        this.visitNo = visitNo;
         this.seq = seq;
     }
 
@@ -139,12 +139,12 @@ public class ClaimInfo implements Serializable {
         this.claimDate = claimDate;
     }
 
-    public String getVisitId() {
-        return visitId;
+    public String getVisitNo() {
+        return visitNo;
     }
 
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
     }
 
     public String getSeq() {

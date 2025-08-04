@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import th.in.ffc.app.form.screening.model.HealthRiskAssessmentInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfHealthRiskAssessmentInfoDao {
     private Context mContext;
@@ -40,11 +41,12 @@ public class SfHealthRiskAssessmentInfoDao {
             values.put("health_risk_q6", data.getHealthRiskQ6());
             values.put("fcbg", data.getFcbg());
             values.put("fpg", data.getFpg());
-            values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("created_date", DateConverter.getCurrentWesternDateTime());
             values.put("created_by", "");
-            values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            values.put("updated_date", DateConverter.getCurrentWesternDateTime());
             values.put("updated_by", "");
-
+            values.put("visitno", data.getVisitNo());
+            values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
             Uri uri = mContext.getContentResolver().insert(ScreeningFormProvider.SfHealthRiskAssessmentInfo.CONTENT_URI, values);
             if (uri != null) {
                 id = uri.getLastPathSegment();
@@ -78,6 +80,8 @@ public class SfHealthRiskAssessmentInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 cursor.close();
             }
         }
@@ -108,6 +112,8 @@ public class SfHealthRiskAssessmentInfoDao {
                 data.setCreated_date(cursor.getString(cursor.getColumnIndex("created_date")));
                 data.setUpdated_by(cursor.getString(cursor.getColumnIndex("updated_by")));
                 data.setUpdated_date(cursor.getString(cursor.getColumnIndex("updated_date")));
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 healthRiskInfos.add(data);
             }
         }
@@ -129,8 +135,10 @@ public class SfHealthRiskAssessmentInfoDao {
         values.put("health_risk_q6", data.getHealthRiskQ6());
         values.put("fcbg", data.getFcbg());
         values.put("fpg", data.getFpg());
-        values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        values.put("updated_date", DateConverter.getCurrentWesternDateTime());
         values.put("updated_by", "");
+        values.put("visitno", data.getVisitNo());
+        values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
         mContext.getContentResolver().update(getHealthRiskUriById(Integer.valueOf(data.getId())),
                 values, select, selectionArgs);

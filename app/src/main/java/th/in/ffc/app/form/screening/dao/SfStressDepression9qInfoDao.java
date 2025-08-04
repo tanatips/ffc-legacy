@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfStressDepression9qInfoDao {
     private Context mContext;
@@ -45,10 +46,12 @@ public class SfStressDepression9qInfoDao {
             values.put("sum", data.getSum());
 //            values.put("result_code", data.getResultCode());
 //            values.put("result_description", data.getResultDescription());
-            values.put("created_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            values.put("created_by", "");
-            values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            values.put("updated_by", "");
+            values.put("created_date", DateConverter.getCurrentWesternDateTime());
+            values.put("created_by", data.getCreated_by());
+            values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+            values.put("updated_by", data.getUpdated_by());
+            values.put("visitno", data.getVisitNo());
+            values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
             Uri uri = mContext.getContentResolver().insert(ScreeningFormProvider.SfStressDepression9qInfo.CONTENT_URI, values);
             if (uri != null) {
@@ -80,7 +83,8 @@ public class SfStressDepression9qInfoDao {
                 data.setQ7(cursor.getString(cursor.getColumnIndex("q7")));
                 data.setQ8(cursor.getString(cursor.getColumnIndex("q8")));
                 data.setQ9(cursor.getString(cursor.getColumnIndex("q9")));
-
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 String pointsStr = cursor.getString(cursor.getColumnIndex("points"));
                 ArrayList<Integer> points = new ArrayList<>();
                 if (pointsStr != null && !pointsStr.isEmpty()) {
@@ -124,7 +128,8 @@ public class SfStressDepression9qInfoDao {
                 data.setQ7(cursor.getString(cursor.getColumnIndex("q7")));
                 data.setQ8(cursor.getString(cursor.getColumnIndex("q8")));
                 data.setQ9(cursor.getString(cursor.getColumnIndex("q9")));
-
+                data.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                data.setDateUpdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 String pointsStr = cursor.getString(cursor.getColumnIndex("points"));
                 ArrayList<Integer> points = new ArrayList<>();
                 if (pointsStr != null && !pointsStr.isEmpty()) {
@@ -167,8 +172,10 @@ public class SfStressDepression9qInfoDao {
         values.put("sum", data.getSum());
 //        values.put("result_code", data.getResultCode());
 //        values.put("result_description", data.getResultDescription());
-        values.put("updated_date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        values.put("updated_by", "");
+        values.put("updated_date", DateConverter.getCurrentWesternDateTime());
+        values.put("updated_by", data.getUpdated_by());
+        values.put("visitno", data.getVisitNo());
+        values.put("dateupdate", DateConverter.getCurrentWesternDateTime());
 
         mContext.getContentResolver().update(getStressDepressionUriById(Integer.valueOf(data.getId())),
                 values, select, selectionArgs);

@@ -28,6 +28,8 @@ public class StressDepression9qInfo {
     private Integer sum;
     private String resultCode;
     private String resultDescription;
+    private String visitNo;
+    private String dateUpdate;
 
     public String getId() {
         return id;
@@ -215,5 +217,21 @@ public class StressDepression9qInfo {
 
     public void setResultDescription(String resultDescription) {
         this.resultDescription = resultDescription;
+    }
+
+    public String getVisitNo() {
+        return visitNo;
+    }
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 }

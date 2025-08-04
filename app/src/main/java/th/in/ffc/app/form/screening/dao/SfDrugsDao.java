@@ -16,6 +16,7 @@ import java.util.Map;
 
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfDrugsDao {
 
@@ -269,6 +270,8 @@ public class SfDrugsDao {
         putString(values, "UPDATED_BY", drugs.getUpdatedBy());
         putString(values, "UPDATED_DATE", drugs.getUpdatedDate());
         putString(values, "IDCARD", drugs.getIdcard());
+        putString(values,"VISITNO",drugs.getVisitNo());
+        putString(values, "DATEUPDATE", DateConverter.getCurrentWesternDateTime());
         return values;
     }
 

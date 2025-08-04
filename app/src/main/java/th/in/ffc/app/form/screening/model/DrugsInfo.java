@@ -13,6 +13,8 @@ public class DrugsInfo {
     private String updatedBy;
     private String updatedDate;
     private String idcard;
+    private String visitNo;
+    private String dateUpdate;
 
     // Constructors
     public DrugsInfo() {
@@ -20,7 +22,7 @@ public class DrugsInfo {
 
     public DrugsInfo(String id, String personInfoId, String question, String subquestion,
                      String answer,String otherDrugs, String createdBy, String createdDate,
-                     String updatedBy, String updatedDate, String idcard) {
+                     String updatedBy, String updatedDate, String idcard, String visitNo, String dateUpdate) {
         this.id = id;
         this.personInfoId = personInfoId;
         this.question = question;
@@ -32,6 +34,8 @@ public class DrugsInfo {
         this.updatedDate = updatedDate;
         this.otherDrugs = otherDrugs;
         this.idcard = idcard;
+        this.visitNo = visitNo;
+        this.dateUpdate = dateUpdate;
     }
 
     // Getters and Setters
@@ -121,6 +125,23 @@ public class DrugsInfo {
 
     public void setOtherDrugs(String otherDrugs) {
         this.otherDrugs = otherDrugs;
+    }
+
+
+    public String getVisitNo() {
+        return visitNo;
+    }
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 
     @Override

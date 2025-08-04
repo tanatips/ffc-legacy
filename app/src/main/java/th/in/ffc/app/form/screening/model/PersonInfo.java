@@ -45,7 +45,8 @@ public class PersonInfo {
     private String claim_message;
     private String claim_date;
 
-    private String visitId;
+    private String visitno;
+    private String dateupdate;
     private byte[] photo;
 
     private String seq;
@@ -378,12 +379,12 @@ public class PersonInfo {
         this.claim_date = claim_date;
     }
 
-    public String getVisitId() {
-        return visitId;
+    public String getVisitNo() {
+        return visitno;
     }
 
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
+    public void setVisitNo(String visitno) {
+        this.visitno = visitno;
     }
 
     public String getSeq() {
@@ -398,6 +399,22 @@ public class PersonInfo {
 
     public void setValidationPassed(boolean validationPassed) {
         this.validationPassed = validationPassed;
+    }
+
+    public String getVisitno() {
+        return visitno;
+    }
+
+    public void setVisitno(String visitno) {
+        this.visitno = visitno;
+    }
+
+    public String getDateupdate() {
+        return dateupdate;
+    }
+
+    public void setDateupdate(String dateupdate) {
+        this.dateupdate = dateupdate;
     }
 
     // Method สำหรับตรวจสอบว่าข้อมูลพร้อมบันทึกหรือไม่

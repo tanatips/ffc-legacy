@@ -30,7 +30,7 @@ public class CounselingSignatureDao {
             ContentValues values = new ContentValues();
 
             // ข้อมูลพื้นฐาน
-            values.put(CounselingSignature.VISIT_ID, counseling.getVisitId());
+            values.put(CounselingSignature.VISIT_NO, counseling.getVisitNo());
             values.put(CounselingSignature.PERSON_ID, counseling.getPersonId());
             values.put(CounselingSignature.COUNSELING_TYPE, counseling.getCounselingType());
             values.put(CounselingSignature.DETAIL, counseling.getDetail());
@@ -39,6 +39,7 @@ public class CounselingSignatureDao {
             values.put(CounselingSignature.CREATED_DATE, getCurrentDateTime());
             values.put(CounselingSignature.PCUCODE, counseling.getPcuCode());
             values.put(CounselingSignature.UPDATE_STATUS, "N");
+            values.put(CounselingSignature.DATEUPDATE, getCurrentDateTime());
 
             // ข้อมูลลายเซ็น - ตรวจสอบอย่างละเอียด
             byte[] patientSignature = counseling.getPatientSignature();
@@ -112,6 +113,8 @@ public class CounselingSignatureDao {
             values.put(CounselingSignature.UPDATED_BY, counseling.getUpdatedBy());
             values.put(CounselingSignature.UPDATED_DATE, getCurrentDateTime());
             values.put(CounselingSignature.UPDATE_STATUS, "U");
+            values.put(CounselingSignature.DATEUPDATE, getCurrentDateTime());
+            values.put(CounselingSignature.VISIT_NO, counseling.getVisitNo());
 
             // ข้อมูลลายเซ็น - ตรวจสอบอย่างละเอียด
             byte[] patientSignature = counseling.getPatientSignature();
@@ -241,7 +244,7 @@ public class CounselingSignatureDao {
 
         // ข้อมูลพื้นฐาน
         counseling.setId(cursor.getLong(cursor.getColumnIndex(CounselingSignature.ID)));
-        counseling.setVisitId(cursor.getString(cursor.getColumnIndex(CounselingSignature.VISIT_ID)));
+        counseling.setVisitNo(cursor.getString(cursor.getColumnIndex(CounselingSignature.VISIT_NO)));
         counseling.setPersonId(cursor.getString(cursor.getColumnIndex(CounselingSignature.PERSON_ID)));
         counseling.setCounselingType(cursor.getInt(cursor.getColumnIndex(CounselingSignature.COUNSELING_TYPE)));
         counseling.setDetail(cursor.getString(cursor.getColumnIndex(CounselingSignature.DETAIL)));
@@ -252,6 +255,7 @@ public class CounselingSignatureDao {
         counseling.setUpdatedDate(cursor.getString(cursor.getColumnIndex(CounselingSignature.UPDATED_DATE)));
         counseling.setPcuCode(cursor.getString(cursor.getColumnIndex(CounselingSignature.PCUCODE)));
         counseling.setUpdateStatus(cursor.getString(cursor.getColumnIndex(CounselingSignature.UPDATE_STATUS)));
+        counseling.setDateUpdate(cursor.getString(cursor.getColumnIndex(CounselingSignature.DATEUPDATE)));
 
         // ข้อมูลลายเซ็น
         try {
@@ -342,13 +346,13 @@ public class CounselingSignatureDao {
 
                 do {
                     long id = cursor.getLong(cursor.getColumnIndex(CounselingSignature.ID));
-                    String visitId = cursor.getString(cursor.getColumnIndex(CounselingSignature.VISIT_ID));
+                    String visitNo = cursor.getString(cursor.getColumnIndex(CounselingSignature.VISIT_NO));
                     String personId = cursor.getString(cursor.getColumnIndex(CounselingSignature.PERSON_ID));
 
                     byte[] patientSig = cursor.getBlob(cursor.getColumnIndex(CounselingSignature.PATIENT_SIGNATURE));
                     byte[] providerSig = cursor.getBlob(cursor.getColumnIndex(CounselingSignature.PROVIDER_SIGNATURE));
 
-                    Log.d(TAG, "Record ID: " + id + ", VisitID: " + visitId + ", PersonID: " + personId);
+                    Log.d(TAG, "Record ID: " + id + ", visitNo: " + visitNo + ", PersonID: " + personId);
                     Log.d(TAG, "  Patient sig: " + (patientSig != null ? patientSig.length + " bytes" : "null"));
                     Log.d(TAG, "  Provider sig: " + (providerSig != null ? providerSig.length + " bytes" : "null"));
 
@@ -483,11 +487,11 @@ public class CounselingSignatureDao {
             cursor = context.getContentResolver().query(uri, null, null, null, null);
 
             if (cursor != null && cursor.moveToFirst()) {
-                String visitId = cursor.getString(cursor.getColumnIndex(CounselingSignature.VISIT_ID));
+                String visitno = cursor.getString(cursor.getColumnIndex(CounselingSignature.VISIT_NO));
                 String personId = cursor.getString(cursor.getColumnIndex(CounselingSignature.PERSON_ID));
                 int counselingType = cursor.getInt(cursor.getColumnIndex(CounselingSignature.COUNSELING_TYPE));
 
-                Log.d(TAG, "Record exists - ID: " + id + ", VisitID: " + visitId +
+                Log.d(TAG, "Record exists - ID: " + id + ", VisitNo: " + visitno +
                         ", PersonID: " + personId + ", Type: " + counselingType);
 
                 // ตรวจสอบลายเซ็น
@@ -542,11 +546,11 @@ public class CounselingSignatureDao {
      */
     public long saveOrUpdateCounseling(CounselingInfo counseling) {
         Log.d(TAG, "=== Starting saveOrUpdateCounseling ===");
-        Log.d(TAG, "VisitId: " + counseling.getVisitId());
+        Log.d(TAG, "VisitNo: " + counseling.getVisitNo());
 
         try {
             // ตรวจสอบว่า visitId มีอยู่ในฐานข้อมูลแล้วหรือไม่
-            CounselingInfo existingCounseling = getCounselingByVisitIdSingle(counseling.getVisitId());
+            CounselingInfo existingCounseling = getCounselingByVisitIdSingle(counseling.getVisitNo());
 
             if (existingCounseling != null) {
                 // มีข้อมูลอยู่แล้ว -> Update
@@ -565,26 +569,26 @@ public class CounselingSignatureDao {
                 int rowsUpdated = updateCounseling(existingCounseling);
 
                 if (rowsUpdated > 0) {
-                    Log.d(TAG, "Update successful for visitId: " + counseling.getVisitId());
+                    Log.d(TAG, "Update successful for visitId: " + counseling.getVisitNo());
                     return existingCounseling.getId(); // คืนค่า ID ของ record ที่ update
                 } else {
-                    Log.e(TAG, "Update failed for visitId: " + counseling.getVisitId());
+                    Log.e(TAG, "Update failed for visitId: " + counseling.getVisitNo());
                     return -1;
                 }
 
             } else {
                 // ไม่มีข้อมูล -> Insert
-                Log.d(TAG, "No existing record found for visitId: " + counseling.getVisitId());
+                Log.d(TAG, "No existing record found for VisitNo: " + counseling.getVisitNo());
                 Log.d(TAG, "Performing INSERT operation");
 
                 // เรียก saveCounseling
                 long newId = saveCounseling(counseling);
 
                 if (newId > 0) {
-                    Log.d(TAG, "Insert successful for visitId: " + counseling.getVisitId() + ", new ID: " + newId);
+                    Log.d(TAG, "Insert successful for VisitNo: " + counseling.getVisitNo() + ", new ID: " + newId);
                     return newId;
                 } else {
-                    Log.e(TAG, "Insert failed for visitId: " + counseling.getVisitId());
+                    Log.e(TAG, "Insert failed for VisitNo: " + counseling.getVisitNo());
                     return -1;
                 }
             }
@@ -623,18 +627,18 @@ public class CounselingSignatureDao {
     /**
      * ตรวจสอบว่า visitId มีอยู่ในฐานข้อมูลหรือไม่
      */
-    public boolean isVisitIdExists(String visitId) {
-        Log.d(TAG, "Checking if visitId exists: " + visitId);
+    public boolean isVisitIdExists(String visitNo) {
+        Log.d(TAG, "Checking if visitId exists: " + visitNo);
 
-        if (visitId == null || visitId.isEmpty()) {
+        if (visitNo == null || visitNo.isEmpty()) {
             Log.w(TAG, "VisitId is null or empty");
             return false;
         }
 
-        CounselingInfo existing = getCounselingByVisitIdSingle(visitId);
+        CounselingInfo existing = getCounselingByVisitIdSingle(visitNo);
         boolean exists = (existing != null);
 
-        Log.d(TAG, "VisitId " + visitId + " exists: " + exists);
+        Log.d(TAG, "VisitId " + visitNo + " exists: " + exists);
         return exists;
     }
 
@@ -662,7 +666,7 @@ public class CounselingSignatureDao {
 
                 // Debug: แสดงข้อมูลที่โหลดได้
                 Log.d(TAG, "Loaded counseling ID: " + counseling.getId());
-                Log.d(TAG, "  VisitId: " + counseling.getVisitId());
+                Log.d(TAG, "  VisitId: " + counseling.getVisitNo());
                 Log.d(TAG, "  PersonId: " + counseling.getPersonId());
                 Log.d(TAG, "  CounselingType: " + counseling.getCounselingType());
                 Log.d(TAG, "  Detail: " + counseling.getDetail());

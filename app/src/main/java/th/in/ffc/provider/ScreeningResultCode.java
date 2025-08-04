@@ -26,7 +26,7 @@ public class ScreeningResultCode implements BaseColumns {
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.ffc.screeningresultcode";
 
     // คอลัมน์ในตาราง
-    public static final String ID = BaseColumns._ID; // ID สำหรับตาราง (Auto Increment)
+    public static final String ID = "id"; // ID สำหรับตาราง (Auto Increment)
     public static final String PERSON_ID = "person_id"; // รหัสผู้รับบริการ
     public static final String VISITNO = "visitno"; // หมายเลขการเยี่ยมบ้าน/การให้บริการ
     public static final String SCREENING_TYPE = "screening_type"; // ประเภทการคัดกรอง (2Q, 9Q, 8Q, ST5, SMOKING)

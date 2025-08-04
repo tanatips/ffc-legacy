@@ -23,6 +23,8 @@ public class NicotineInfo {
     private ArrayList<Integer> points;
 
     private Integer sum;
+    private String visitNo;
+    private String dateUpdate;
 
     public String getNicotine1() {
         return Nicotine1;
@@ -142,5 +144,21 @@ public class NicotineInfo {
 
     public void setIdcard(String idcard) {
         this.idcard = idcard;
+    }
+
+    public String getVisitNo() {
+        return visitNo;
+    }
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 }

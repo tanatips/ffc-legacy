@@ -19,6 +19,7 @@ import java.util.List;
 
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfPersonInfoDao {
 
@@ -67,7 +68,8 @@ public class SfPersonInfoDao {
                 personInfo.setClaim_status(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_STATUS));
                 personInfo.setClaim_message(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_MESSAGE));
                 personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
-                personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
+                personInfo.setVisitNo(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_NO));
+                personInfo.setDateupdate(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.DATEUPDATE));
                 personInfo.setSeq(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEQ));
 
                 personInfos.add(personInfo);
@@ -130,7 +132,8 @@ public class SfPersonInfoDao {
                 personInfo.setClaim_status(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_STATUS));
                 personInfo.setClaim_message(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_MESSAGE));
                 personInfo.setClaim_date(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.CLAIM_DATE));
-                personInfo.setVisitId(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_ID));
+                personInfo.setVisitNo(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.VISIT_NO));
+                personInfo.setDateupdate(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.DATEUPDATE));
                 personInfo.setPhoto(getBlogFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PHOTO));
                 personInfo.setSeq(getStringFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.SEQ));
                 personInfos.add(personInfo);
@@ -249,7 +252,8 @@ public class SfPersonInfoDao {
         putString(values, "CLAIM_STATUS", personInfo.getClaim_status());
         putString(values, "CLAIM_MESSAGE", personInfo.getClaim_message());
         putString(values, "CLAIM_DATE", personInfo.getClaim_date());
-        putString(values, "VISIT_ID", personInfo.getVisitId());
+        putString(values, "VISITNO", personInfo.getVisitNo());
+        putString(values, "DATEUPDATE", DateConverter.getCurrentWesternDateTime());
         putBlob(values, "PHOTO", personInfo.getPhoto());
         putString(values, "SEQ", personInfo.getSeq());
 
@@ -263,7 +267,6 @@ public class SfPersonInfoDao {
         // สร้าง where clause และ arguments
         List<String> whereConditions = new ArrayList<>();
         List<String> whereArgs = new ArrayList<>();
-
         if (idcard != null && !idcard.isEmpty()) {
             whereConditions.add("idcard LIKE ?");
             whereArgs.add("%" + idcard + "%");
@@ -343,7 +346,8 @@ public class SfPersonInfoDao {
                 person.setClaim_status(cursor.getString(cursor.getColumnIndex("claim_status")));
                 person.setClaim_message(cursor.getString(cursor.getColumnIndex("claim_message")));
                 person.setClaim_date(cursor.getString(cursor.getColumnIndex("claim_date")));
-                person.setVisitId(cursor.getString(cursor.getColumnIndex("visit_id")));
+                person.setVisitNo(cursor.getString(cursor.getColumnIndex("visitno")));
+                person.setDateupdate(cursor.getString(cursor.getColumnIndex("dateupdate")));
                 person.setPhoto(getBlogFromCursor(cursor, ScreeningFormProvider.SfPersonInfo.PHOTO));
                 person.setSeq(cursor.getString(cursor.getColumnIndex("seq")));
 
@@ -368,7 +372,7 @@ public class SfPersonInfoDao {
             ContentValues values = new ContentValues();
 
             // เพิ่มข้อมูล visitId และ seq ลงใน values
-            putString(values, "VISIT_ID", visitId);
+            putString(values, "VISITNO", visitId);
             putString(values, "SEQ", seq);
 
             // อัปเดตข้อมูลบุคคล

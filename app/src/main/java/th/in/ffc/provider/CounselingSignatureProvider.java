@@ -97,7 +97,7 @@ public class CounselingSignatureProvider extends ContentProvider {
 
             case COUNSELING_SIGNATURE_BY_VISIT:
                 String visitId = uri.getLastPathSegment();
-                selection = CounselingSignature.VISIT_ID + "=?";
+                selection = CounselingSignature.VISIT_NO + "=?";
                 selectionArgs = new String[]{visitId};
                 builder.setTables(CounselingSignature.TABLENAME);
                 builder.setProjectionMap(CounselingSignature.PROJECTION_MAP);
@@ -150,8 +150,8 @@ public class CounselingSignatureProvider extends ContentProvider {
             Log.d(TAG, "Inserting values: " + values.toString());
 
             // ตรวจสอบข้อมูลสำคัญ
-            if (values.containsKey(CounselingSignature.VISIT_ID)) {
-                Log.d(TAG, "Visit ID: " + values.getAsString(CounselingSignature.VISIT_ID));
+            if (values.containsKey(CounselingSignature.VISIT_NO)) {
+                Log.d(TAG, "Visit NO: " + values.getAsString(CounselingSignature.VISIT_NO));
             }
             if (values.containsKey(CounselingSignature.PERSON_ID)) {
                 Log.d(TAG, "Person ID: " + values.getAsString(CounselingSignature.PERSON_ID));
@@ -229,7 +229,7 @@ public class CounselingSignatureProvider extends ContentProvider {
 
             case COUNSELING_SIGNATURE_BY_VISIT:
                 String visitId = uri.getLastPathSegment();
-                selection = CounselingSignature.VISIT_ID + "=?";
+                selection = CounselingSignature.VISIT_NO + "=?";
                 selectionArgs = new String[]{visitId};
                 count = db.delete(CounselingSignature.TABLENAME, selection, selectionArgs);
                 break;
@@ -295,7 +295,7 @@ public class CounselingSignatureProvider extends ContentProvider {
 
                 case COUNSELING_SIGNATURE_BY_VISIT:
                     String visitId = uri.getLastPathSegment();
-                    selection = CounselingSignature.VISIT_ID + "=?";
+                    selection = CounselingSignature.VISIT_NO + "=?";
                     selectionArgs = new String[]{visitId};
                     rowUpdated = db.update(CounselingSignature.TABLENAME, values, selection, selectionArgs);
                     break;

@@ -212,8 +212,8 @@ public class ScreeningFormProvider extends ContentProvider {
         mOpenHelper = new DbOpenHelper(context);
 //        mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
 
-//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
-//        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
@@ -237,8 +237,8 @@ public class ScreeningFormProvider extends ContentProvider {
 
 
 //        mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
-//        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-//        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
@@ -777,7 +777,9 @@ public class ScreeningFormProvider extends ContentProvider {
         public static final String CLAIM_MESSAGE = "claim_message";
         public static final String CLAIM_DATE = "claim_date";
 
-        public static final String VISIT_ID = "visit_id";
+        public static final String VISIT_NO = "visitno";
+
+        public static final String DATEUPDATE = "dateupdate";
         public static final String PHOTO = "photo";
 
         public static final String SEQ = "seq";
@@ -827,7 +829,8 @@ public class ScreeningFormProvider extends ContentProvider {
             PROJECTION_MAP.put(SfPersonInfo.CLAIM_STATUS, "claim_status AS " + SfPersonInfo.CLAIM_STATUS);
             PROJECTION_MAP.put(SfPersonInfo.CLAIM_MESSAGE, "claim_message AS " + SfPersonInfo.CLAIM_MESSAGE);
             PROJECTION_MAP.put(SfPersonInfo.CLAIM_DATE, "claim_date AS " + SfPersonInfo.CLAIM_DATE);
-            PROJECTION_MAP.put(SfPersonInfo.VISIT_ID, "visit_id AS " + SfPersonInfo.VISIT_ID);
+            PROJECTION_MAP.put(SfPersonInfo.VISIT_NO, "visitno AS " + SfPersonInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfPersonInfo.DATEUPDATE, "dateupdate AS " + SfPersonInfo.DATEUPDATE);
             PROJECTION_MAP.put(SfPersonInfo.PHOTO, "photo AS " + SfPersonInfo.PHOTO);
 
             PROJECTION_MAP.put(SfPersonInfo.SEQ, "seq AS " + SfPersonInfo.SEQ);
@@ -897,7 +900,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         CLAIM_STATUS + " TEXT, " +
         CLAIM_MESSAGE + " TEXT, " +
         CLAIM_DATE + " TEXT, " +
-        VISIT_ID + " TEXT, " +
+        VISIT_NO + " TEXT, " +
+        DATEUPDATE + " DATETIME, " +
         PHOTO + " BLOB, " +
         SEQ + " TEXT(20) " +
         ")";
@@ -923,8 +927,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_message TEXT;",
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN claim_date TEXT;",
 //                "ALTER TABLE ffc_sf_person_info ADD COLUMN visit_id TEXT;"
-//                  "ALTER TABLE ffc_sf_person_info ADD COLUMN photo BLOB DEFAULT NULL",
-                "ALTER TABLE ffc_sf_person_info ADD COLUMN seq TEXT(20);"
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN photo BLOB DEFAULT NULL",
+//                "ALTER TABLE ffc_sf_person_info ADD COLUMN seq TEXT(20);"
         };
     }
 
@@ -953,6 +957,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
                 ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 ID_CARD +" TEXT NOT NULL," +
@@ -963,9 +970,26 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY +" TEXT," +
                 CREATED_DATE +" DATE," +
                 UPDATED_BY +" TEXT," +
-                UPDATED_DATE +" DATE"+
+                UPDATED_DATE +" DATE,"+
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME" +
                 ")";
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
+        static {
+            PROJECTION_MAP = new HashMap<String, String>();
+            PROJECTION_MAP.put(SfDrinkingInfo.ID, "id AS " + SfDrinkingInfo.ID);
+            PROJECTION_MAP.put(SfDrinkingInfo.ID_CARD, "idcard AS " + SfDrinkingInfo.ID_CARD);
+            PROJECTION_MAP.put(SfDrinkingInfo.PERSON_INFO_ID, "person_info_id AS " + SfDrinkingInfo.PERSON_INFO_ID);
+            PROJECTION_MAP.put(SfDrinkingInfo.DRINKING, "drinking AS " + SfDrinkingInfo.DRINKING);
+            PROJECTION_MAP.put(SfDrinkingInfo.DRINKING_FREQUENCY, "drinking_frequency AS " + SfDrinkingInfo.DRINKING_FREQUENCY);
+            PROJECTION_MAP.put(SfDrinkingInfo.DRINKING_ALWAY, "drinking_alway AS " + SfDrinkingInfo.DRINKING_ALWAY);
+            PROJECTION_MAP.put(SfDrinkingInfo.CREATED_BY, "created_by AS " + SfDrinkingInfo.CREATED_BY);
+            PROJECTION_MAP.put(SfDrinkingInfo.CREATED_DATE, "created_date AS " + SfDrinkingInfo.CREATED_DATE);
+            PROJECTION_MAP.put(SfDrinkingInfo.UPDATED_BY, "updated_by AS " + SfDrinkingInfo.UPDATED_BY);
+            PROJECTION_MAP.put(SfDrinkingInfo.UPDATED_DATE, "updated_date AS " + SfDrinkingInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfDrinkingInfo.VISIT_NO, "visitno AS " + SfDrinkingInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfDrinkingInfo.DATEUPDATE, "dateupdate AS " + SfDrinkingInfo.DATEUPDATE);
+        }
     }
 
     public static final class SfSmokerInfo implements  BaseColumns {
@@ -991,6 +1015,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
                 ID+ " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 IDCARD +" TEXT NOT NULL," +
@@ -1001,7 +1028,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY +" TEXT," +
                 CREATED_DATE +" DATE," +
                 UPDATED_BY +" TEXT," +
-                UPDATED_DATE +" DATE " + ")";
+                UPDATED_DATE +" DATE," +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME" +
+                ")";
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1015,6 +1045,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfSmokerInfo.CREATED_DATE, "created_date AS " + SfSmokerInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfSmokerInfo.UPDATED_BY, "updated_by AS " + SfSmokerInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfSmokerInfo.UPDATED_DATE, "updated_date AS " + SfSmokerInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfSmokerInfo.VISIT_NO, "visitno AS " + SfSmokerInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfSmokerInfo.DATEUPDATE, "dateupdate AS " + SfSmokerInfo.DATEUPDATE);
         }
     }
 
@@ -1043,6 +1075,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
 
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAME+" (" +
@@ -1057,7 +1091,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY +" TEXT," +
                 CREATED_DATE +" DATE," +
                 UPDATED_BY +" TEXT," +
-                UPDATED_DATE +" DATE " + ")";
+                UPDATED_DATE +" DATE," +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME"+
+                ")";
         static {
             PROJECTION_MAP = new HashMap<String, String>();
             PROJECTION_MAP.put(SfStressDepressionInfo.ID, "id AS " + SfStressDepressionInfo.ID);
@@ -1072,6 +1109,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfStressDepressionInfo.CREATED_DATE, "created_date AS " + SfStressDepressionInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfStressDepressionInfo.UPDATED_BY, "updated_by AS " + SfStressDepressionInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfStressDepressionInfo.UPDATED_DATE, "updated_date AS " + SfStressDepressionInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfStressDepressionInfo.VISIT_NO, "visitno AS " + SfStressDepressionInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfStressDepressionInfo.DATEUPDATE, "dateupdate AS " + SfStressDepressionInfo.DATEUPDATE);
         }
     }
     public static final class SfNicotineInfo implements BaseColumns {
@@ -1102,6 +1141,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -1118,7 +1160,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE " + ")";
+                UPDATED_DATE + " DATE, " +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME"+
+                ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1137,6 +1182,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfNicotineInfo.CREATED_DATE, "created_date AS " + SfNicotineInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfNicotineInfo.UPDATED_BY, "updated_by AS " + SfNicotineInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfNicotineInfo.UPDATED_DATE, "updated_date AS " + SfNicotineInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfNicotineInfo.VISIT_NO, "visitno AS " + SfNicotineInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfNicotineInfo.DATEUPDATE, "dateupdate AS " + SfNicotineInfo.DATEUPDATE);
         }
     }
 
@@ -1165,6 +1212,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
@@ -1180,7 +1230,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE " + ")";
+                UPDATED_DATE + " DATE, " +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME " +
+                ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1197,6 +1250,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfStressDepression2qInfo.CREATED_DATE, "created_date AS " + SfStressDepression2qInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfStressDepression2qInfo.UPDATED_BY, "updated_by AS " + SfStressDepression2qInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfStressDepression2qInfo.UPDATED_DATE, "updated_date AS " + SfStressDepression2qInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfStressDepression2qInfo.VISIT_NO, "visitno AS " + SfStressDepression2qInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfStressDepression2qInfo.DATEUPDATE, "dateupdate AS " + SfStressDepression2qInfo.DATEUPDATE);
         }
     }
     public static final class SfStressDepression9qInfo implements BaseColumns {
@@ -1231,6 +1286,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -1252,7 +1310,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE " + ")";
+                UPDATED_DATE + " DATE, " +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME " +
+                ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1276,6 +1337,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfStressDepression9qInfo.CREATED_DATE, "created_date AS " + SfStressDepression9qInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfStressDepression9qInfo.UPDATED_BY, "updated_by AS " + SfStressDepression9qInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfStressDepression9qInfo.UPDATED_DATE, "updated_date AS " + SfStressDepression9qInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfStressDepression9qInfo.VISIT_NO, "visitno AS " + SfStressDepression9qInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfStressDepression9qInfo.DATEUPDATE, "dateupdate AS " + SfStressDepression9qInfo.DATEUPDATE);
         }
     }
 
@@ -1307,6 +1370,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CREATED_DATE = "created_date";
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
+
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -1324,7 +1391,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE " + ")";
+                UPDATED_DATE + " DATE, " +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME" +
+            ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1344,6 +1414,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfSuicideAssessment8qInfo.CREATED_DATE, "created_date AS " + SfSuicideAssessment8qInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfSuicideAssessment8qInfo.UPDATED_BY, "updated_by AS " + SfSuicideAssessment8qInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfSuicideAssessment8qInfo.UPDATED_DATE, "updated_date AS " + SfSuicideAssessment8qInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfSuicideAssessment8qInfo.VISIT_NO, "visitno AS " + SfSuicideAssessment8qInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfSuicideAssessment8qInfo.DATEUPDATE, "dateupdate AS " + SfSuicideAssessment8qInfo.DATEUPDATE);
         }
     }
 
@@ -1377,6 +1449,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
 
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
@@ -1394,7 +1469,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE " + ")";
+                UPDATED_DATE + " DATE, " +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME" +
+                ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1413,6 +1491,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.CREATED_DATE, "created_date AS " + SfHealthRiskAssessmentInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.UPDATED_BY, "updated_by AS " + SfHealthRiskAssessmentInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.UPDATED_DATE, "updated_date AS " + SfHealthRiskAssessmentInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.VISIT_NO, "visitno AS " + SfHealthRiskAssessmentInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfHealthRiskAssessmentInfo.DATEUPDATE, "dateupdate AS " + SfHealthRiskAssessmentInfo.DATEUPDATE);
         }
     }
 
@@ -1440,6 +1520,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String UPDATED_DATE = "updated_date";
         public static final String IDCARD = "idcard";
 
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
+
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLENAME;
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
@@ -1453,7 +1537,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 UPDATED_BY + " TEXT," +
                 UPDATED_DATE + " TIMESTAMP," +
-                IDCARD + " TEXT" + ")";
+                IDCARD + " TEXT," +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " TIMESTAMP" +
+                ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1468,6 +1555,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfDrugs.UPDATED_BY, "updated_by AS " + SfDrugs.UPDATED_BY);
             PROJECTION_MAP.put(SfDrugs.UPDATED_DATE, "updated_date AS " + SfDrugs.UPDATED_DATE);
             PROJECTION_MAP.put(SfDrugs.IDCARD, "idcard AS " + SfDrugs.IDCARD);
+            PROJECTION_MAP.put(SfDrugs.VISIT_NO, "visitno AS " + SfDrugs.VISIT_NO);
+            PROJECTION_MAP.put(SfDrugs.DATEUPDATE, "dateupdate AS " + SfDrugs.DATEUPDATE);
         }
     }
 
@@ -1599,6 +1688,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String UPDATED_BY = "updated_by";
         public static final String UPDATED_DATE = "updated_date";
 
+        public static final String VISIT_NO = "visitno";
+        public static final String DATEUPDATE = "dateupdate";
+
         public static final String DROP_TABLE = " DROP TABLE IF EXISTS "+TABLENAME;
 
         public static final String CREATE_TABLE = " CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
@@ -1619,7 +1711,10 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 CREATED_BY + " TEXT," +
                 CREATED_DATE + " DATE," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE " + ")";
+                UPDATED_DATE + " DATE, " +
+                VISIT_NO + " TEXT," +
+                DATEUPDATE + " DATETIME" +
+                ")";
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
@@ -1641,6 +1736,8 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
             PROJECTION_MAP.put(SfCardiovascularRiskInfo.CREATED_DATE, "created_date AS " + SfCardiovascularRiskInfo.CREATED_DATE);
             PROJECTION_MAP.put(SfCardiovascularRiskInfo.UPDATED_BY, "updated_by AS " + SfCardiovascularRiskInfo.UPDATED_BY);
             PROJECTION_MAP.put(SfCardiovascularRiskInfo.UPDATED_DATE, "updated_date AS " + SfCardiovascularRiskInfo.UPDATED_DATE);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.VISIT_NO, "visitno AS " + SfCardiovascularRiskInfo.VISIT_NO);
+            PROJECTION_MAP.put(SfCardiovascularRiskInfo.DATEUPDATE, "dateupdate AS " + SfCardiovascularRiskInfo.DATEUPDATE);
         }
     }
 }

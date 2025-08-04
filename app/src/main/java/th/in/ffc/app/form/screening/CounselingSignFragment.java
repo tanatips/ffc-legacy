@@ -32,10 +32,10 @@ import th.in.ffc.widget.SignatureView;
 
 public class CounselingSignFragment extends Fragment {
 
-    private static final String ARG_VISIT_ID = "visit_id";
+    private static final String ARG_VISIT_NO = "visitNo";
     private static final String ARG_PERSON_ID = "person_id";
 
-    private String visitId;
+    private String visitNo;
     private String personId;
 
     private NestedScrollView scrollView;
@@ -72,10 +72,10 @@ public class CounselingSignFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static CounselingSignFragment newInstance(String visitId, String personId) {
+    public static CounselingSignFragment newInstance(String visitNo, String personId) {
         CounselingSignFragment fragment = new CounselingSignFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_VISIT_ID, visitId);
+        args.putString(ARG_VISIT_NO, visitNo);
         args.putString(ARG_PERSON_ID, personId);
         fragment.setArguments(args);
         return fragment;
@@ -85,7 +85,7 @@ public class CounselingSignFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            visitId = getArguments().getString(ARG_VISIT_ID);
+            visitNo = getArguments().getString(ARG_VISIT_NO);
             personId = getArguments().getString(ARG_PERSON_ID);
         }
         counselingDao = new CounselingSignatureDao(getContext());
@@ -101,8 +101,8 @@ public class CounselingSignFragment extends Fragment {
             if (personId != null) {
                 currentCounseling.setPersonId(personId);
             }
-            if (visitId != null) {
-                currentCounseling.setVisitId(visitId);
+            if (visitNo != null) {
+                currentCounseling.setVisitNo(visitNo);
             }
         }
     }
@@ -156,10 +156,10 @@ public class CounselingSignFragment extends Fragment {
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getCounselingLiveData().observe(getViewLifecycleOwner(), data -> {
             if (data != null && data.getPersonId() != null) {
-                Log.d("CounselingSign", "Received data from ViewModel - PersonId: " + data.getPersonId() + ", VisitId: " + data.getVisitId());
+                Log.d("CounselingSign", "Received data from ViewModel - PersonId: " + data.getPersonId() + ", VisitNo: " + data.getVisitNo());
                 counselingLiveData = data;
                 personId = data.getPersonId();
-                visitId = data.getVisitId();
+                visitNo = data.getVisitNo();
 
                 // เมื่อได้ข้อมูลจาก ViewModel แล้ว ให้โหลดจากฐานข้อมูลทันที
                 if(first) {
@@ -170,7 +170,7 @@ public class CounselingSignFragment extends Fragment {
         });
 
         // หากไม่มีข้อมูลจาก ViewModel ก็โหลดจากพารามิเตอร์
-        if (visitId != null && !visitId.isEmpty()) {
+        if (visitNo != null && !visitNo.isEmpty()) {
             if(first) {
                 loadFromDatabaseWithRetry();
                 first=false;
@@ -185,7 +185,7 @@ public class CounselingSignFragment extends Fragment {
     private void loadFromDatabaseWithRetry(int retryCount) {
         Log.d("CounselingSign", "Loading from database, retry count: " + retryCount);
 
-        if (visitId == null || visitId.isEmpty()) {
+        if (visitNo == null || visitNo.isEmpty()) {
             Log.w("CounselingSign", "VisitId is null or empty, cannot load data");
             return;
         }
@@ -193,7 +193,7 @@ public class CounselingSignFragment extends Fragment {
         // โหลดข้อมูลใน background thread
         new Thread(() -> {
             try {
-                CounselingInfo existingCounseling = counselingDao.getCounselingWithSignaturesByVisitId(visitId);
+                CounselingInfo existingCounseling = counselingDao.getCounselingWithSignaturesByVisitId(visitNo);
 
                 // กลับมา UI thread เพื่อแสดงข้อมูล
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
@@ -204,7 +204,7 @@ public class CounselingSignFragment extends Fragment {
                         // รอให้ View พร้อมก่อนแสดงข้อมูล
                         waitForViewsAndPopulate(existingCounseling, retryCount);
                     } else {
-                        Log.d("CounselingSign", "No existing record found for visitId: " + visitId);
+                        Log.d("CounselingSign", "No existing record found for visitNo: " + visitNo);
 
                         // ถ้าไม่มีข้อมูลและยังลองไม่ถึง 3 ครั้ง ให้ลองใหม่
                         if (retryCount < 2) {
@@ -442,10 +442,10 @@ public class CounselingSignFragment extends Fragment {
     private void testSaveOrUpdateMethod() {
         Log.d("CounselingSign", "=== TESTING SAVE OR UPDATE METHOD ===");
 
-        if (visitId != null && !visitId.isEmpty()) {
+        if (visitNo != null && !visitNo.isEmpty()) {
             // ตรวจสอบว่า visitId มีอยู่หรือไม่
-            boolean exists = counselingDao.isVisitIdExists(visitId);
-            Log.d("CounselingSign", "VisitId " + visitId + " exists: " + exists);
+            boolean exists = counselingDao.isVisitIdExists(visitNo);
+            Log.d("CounselingSign", "visitNo " + visitNo + " exists: " + exists);
 
             if (exists) {
                 Log.d("CounselingSign", "Will perform UPDATE operation");
@@ -455,7 +455,7 @@ public class CounselingSignFragment extends Fragment {
 
             // ทดสอบการสร้าง CounselingInfo object สำหรับทดสอบ
             CounselingInfo testCounseling = new CounselingInfo();
-            testCounseling.setVisitId(visitId);
+            testCounseling.setVisitNo(visitNo);
             testCounseling.setPersonId(personId);
             testCounseling.setCounselingType(1);
             testCounseling.setDetail("Test detail - " + System.currentTimeMillis());
@@ -516,7 +516,7 @@ public class CounselingSignFragment extends Fragment {
 
             // ตั้งค่าข้อมูลอื่นๆ
             if (personId != null) currentCounseling.setPersonId(personId);
-            if (visitId != null) currentCounseling.setVisitId(visitId);
+            if (visitNo != null) currentCounseling.setVisitNo(visitNo);
             currentCounseling.setCreatedBy(sessionManager.getUsername());
 
             // บันทึกลงฐานข้อมูล
@@ -568,15 +568,15 @@ public class CounselingSignFragment extends Fragment {
                         editTextConsultDetail.setVisibility(View.GONE);
 
                         // ลบข้อมูลจากฐานข้อมูล (ระวัง!)
-                        if (visitId != null && !visitId.isEmpty()) {
-                            int deleted = counselingDao.deleteCounselingByVisitId(visitId);
-                            Log.d("CounselingSign", "Deleted " + deleted + " records for visitId: " + visitId);
+                        if (visitNo != null && !visitNo.isEmpty()) {
+                            int deleted = counselingDao.deleteCounselingByVisitId(visitNo);
+                            Log.d("CounselingSign", "Deleted " + deleted + " records for visitNo: " + visitNo);
                         }
 
                         // รีเซ็ต currentCounseling
                         currentCounseling = new CounselingInfo();
                         if (personId != null) currentCounseling.setPersonId(personId);
-                        if (visitId != null) currentCounseling.setVisitId(visitId);
+                        if (visitNo != null) currentCounseling.setVisitNo(visitNo);
 
                         // ล้าง LiveData
                         counselingLiveData = new CounselingLiveData();
@@ -858,7 +858,7 @@ public class CounselingSignFragment extends Fragment {
         Log.d("CounselingSign", "=== DEBUG FIRST LOAD ISSUE ===");
         Log.d("CounselingSign", "Fragment isVisible: " + isVisible());
         Log.d("CounselingSign", "Fragment getUserVisibleHint: " + getUserVisibleHint());
-        Log.d("CounselingSign", "VisitId: " + visitId);
+        Log.d("CounselingSign", "visitNo: " + visitNo);
         Log.d("CounselingSign", "PersonId: " + personId);
 
         if (signatureViewPatient != null) {
@@ -979,10 +979,10 @@ public class CounselingSignFragment extends Fragment {
         // บันทึกแบบ background เพื่อไม่ให้กระทบประสิทธิภาพ
         new Thread(() -> {
             try {
-                if (currentCounseling != null && visitId != null && !visitId.isEmpty()) {
+                if (currentCounseling != null && visitNo != null && !visitNo.isEmpty()) {
                     // กำหนดข้อมูลพื้นฐาน
                     if (personId != null) currentCounseling.setPersonId(personId);
-                    if (visitId != null) currentCounseling.setVisitId(visitId);
+                    if (visitNo != null) currentCounseling.setVisitNo(visitNo);
                     currentCounseling.setCreatedBy(sessionManager.getUsername());
 
                     // บันทึกลงฐานข้อมูล
@@ -1083,26 +1083,26 @@ public class CounselingSignFragment extends Fragment {
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getCounselingLiveData().observe(getViewLifecycleOwner(), data -> {
             if (data != null && data.getPersonId() != null) {
-                Log.d("CounselingSign", "Received data from ViewModel - PersonId: " + data.getPersonId() + ", VisitId: " + data.getVisitId());
+                Log.d("CounselingSign", "Received data from ViewModel - PersonId: " + data.getPersonId() + ", visitNo: " + data.getVisitNo());
                 counselingLiveData = data;
                 personId = data.getPersonId();
-                visitId = data.getVisitId();
+                visitNo = data.getVisitNo();
             }
         });
 
         // โหลดข้อมูลจากฐานข้อมูลตรงๆ
-        if (visitId != null && !visitId.isEmpty()) {
-            Log.d("CounselingSign", "Loading data for visitId: " + visitId);
+        if (visitNo != null && !visitNo.isEmpty()) {
+            Log.d("CounselingSign", "Loading data for visitNo: " + visitNo);
 
             // ใช้เมธอดใหม่ที่รับประกันได้ว่าจะได้ข้อมูลพร้อมลายเซ็น
-            CounselingInfo existingCounseling = counselingDao.getCounselingWithSignaturesByVisitId(visitId);
+            CounselingInfo existingCounseling = counselingDao.getCounselingWithSignaturesByVisitId(visitNo);
 
             if (existingCounseling != null) {
                 currentCounseling = existingCounseling;
                 Log.d("CounselingSign", "Found existing record with ID: " + currentCounseling.getId());
                 populateForm(currentCounseling);
             } else {
-                Log.d("CounselingSign", "No existing record found for visitId: " + visitId);
+                Log.d("CounselingSign", "No existing record found for visitNo: " + visitNo);
                 // ใช้ข้อมูลเริ่มต้นที่สร้างไว้แล้วใน onCreate()
             }
 
@@ -1122,12 +1122,12 @@ public class CounselingSignFragment extends Fragment {
     public void checkDataStatus() {
         Log.d("CounselingSign", "=== Checking Data Status ===");
 
-        if (visitId != null && !visitId.isEmpty()) {
-            boolean exists = counselingDao.isVisitIdExists(visitId);
-            Log.d("CounselingSign", "VisitId " + visitId + " exists in database: " + exists);
+        if (visitNo != null && !visitNo.isEmpty()) {
+            boolean exists = counselingDao.isVisitIdExists(visitNo);
+            Log.d("CounselingSign", "visitNo " + visitNo + " exists in database: " + exists);
 
             if (exists) {
-                CounselingInfo existing = counselingDao.getCounselingWithSignaturesByVisitId(visitId);
+                CounselingInfo existing = counselingDao.getCounselingWithSignaturesByVisitId(visitNo);
                 if (existing != null) {
                     Log.d("CounselingSign", "Existing record details:");
                     Log.d("CounselingSign", "  - ID: " + existing.getId());
@@ -1140,7 +1140,7 @@ public class CounselingSignFragment extends Fragment {
                 }
             }
         } else {
-            Log.w("CounselingSign", "VisitId is null or empty - cannot check status");
+            Log.w("CounselingSign", "VisitNo is null or empty - cannot check status");
         }
 
         Log.d("CounselingSign", "=== End Checking Data Status ===");
@@ -1259,7 +1259,7 @@ public class CounselingSignFragment extends Fragment {
         Log.d("CounselingSign", "Current counseling data:");
         Log.d("CounselingSign", "  - ID: " + currentCounseling.getId());
         Log.d("CounselingSign", "  - PersonID: " + currentCounseling.getPersonId());
-        Log.d("CounselingSign", "  - VisitID: " + currentCounseling.getVisitId());
+        Log.d("CounselingSign", "  - VisitNo: " + currentCounseling.getVisitNo());
         Log.d("CounselingSign", "  - Type: " + currentCounseling.getCounselingType());
         Log.d("CounselingSign", "  - Patient sig stored: " + (currentCounseling.getPatientSignature() != null ? currentCounseling.getPatientSignature().length : "null"));
         Log.d("CounselingSign", "  - Provider sig stored: " + (currentCounseling.getProviderSignature() != null ? currentCounseling.getProviderSignature().length : "null"));
@@ -1455,15 +1455,15 @@ public class CounselingSignFragment extends Fragment {
         if (personId != null) {
             currentCounseling.setPersonId(personId);
         }
-        if (visitId != null) {
-            currentCounseling.setVisitId(visitId);
+        if (visitNo != null) {
+            currentCounseling.setVisitNo(visitNo);
         }
 
         // กำหนด username สำหรับการบันทึก (ใช้เป็นทั้ง created_by และ updated_by)
         String username = sessionManager.getUsername();
         currentCounseling.setCreatedBy(username);
 
-        Log.d("CounselingSign", "PersonId: " + personId + ", VisitId: " + visitId);
+        Log.d("CounselingSign", "PersonId: " + personId + ", visitNo: " + visitNo);
         Log.d("CounselingSign", "Username: " + username);
 
         // Debug: ตรวจสอบข้อมูลใน currentCounseling ก่อนบันทึก
@@ -1518,9 +1518,9 @@ public class CounselingSignFragment extends Fragment {
     private void reloadDataFromDatabase() {
         Log.d("CounselingSign", "=== Starting reloadDataFromDatabase ===");
 
-        if (visitId != null && !visitId.isEmpty()) {
-            List<CounselingInfo> counselingList = counselingDao.getCounselingByVisitId(visitId);
-            Log.d("CounselingSign", "Found " + counselingList.size() + " records for visitId: " + visitId);
+        if (visitNo != null && !visitNo.isEmpty()) {
+            List<CounselingInfo> counselingList = counselingDao.getCounselingByVisitId(visitNo);
+            Log.d("CounselingSign", "Found " + counselingList.size() + " records for visitNo: " + visitNo);
 
             if (!counselingList.isEmpty()) {
                 currentCounseling = counselingList.get(0);

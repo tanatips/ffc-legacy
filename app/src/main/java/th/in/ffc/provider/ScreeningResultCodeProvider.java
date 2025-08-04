@@ -199,9 +199,9 @@ public class ScreeningResultCodeProvider extends ContentProvider {
             case SCREENING_RESULT_ITEMS:  // รักษา case เดิมไว้เพื่อความปลอดภัย
                 // อัพเดท updatetime ก่อนการ insert
                 if (values.getAsString(ScreeningResultCode.CREATETIME) == null) {
-                    values.put(ScreeningResultCode.CREATETIME, DateConverter.getCurrentWesternDate());
+                    values.put(ScreeningResultCode.CREATETIME, DateConverter.getCurrentWesternDateTime());
                 }
-                values.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDate());
+                values.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
 
                 // ตรวจสอบว่ามีข้อมูลเดิมหรือไม่ (same person, visitno, type, date)
                 String personId = values.getAsString(ScreeningResultCode.PERSON_ID);
@@ -217,7 +217,7 @@ public class ScreeningResultCodeProvider extends ContentProvider {
                 // อัพเดทข้อมูลเดิมให้เป็น INACTIVE (ถ้ามี)
                 ContentValues updateValues = new ContentValues();
                 updateValues.put(ScreeningResultCode.STATUS, ScreeningResultCode.STATUS_INACTIVE);
-                updateValues.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDate());
+                updateValues.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
 
                 String whereClause = ScreeningResultCode.PERSON_ID + "=? AND " +
                         ScreeningResultCode.VISITNO + "=? AND " +

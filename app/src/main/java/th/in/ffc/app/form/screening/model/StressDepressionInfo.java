@@ -27,6 +27,9 @@ public class StressDepressionInfo {
     private String resultCode;
     private String resultDescription;
 
+    private String visitNo;
+    private String dateUpdate;
+
     public String getId() {
         return id;
     }
@@ -112,7 +115,7 @@ public class StressDepressionInfo {
             setResultCode("1B134");
             setResultDescription("เครียดมาก");
         }else if(getSum()>=10 && getSum()<=15){
-            setResultCode("1B134");
+            setResultCode("1B135");
             setResultDescription("เครียดมากที่สุด");
         }
         resultCode = result;
@@ -179,5 +182,21 @@ public class StressDepressionInfo {
 
     public void setUpdated_date(String updated_date) {
         this.updated_date = updated_date;
+    }
+
+    public String getVisitNo() {
+        return visitNo;
+    }
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
+    }
+
+    public String getDateUpdate() {
+        return dateUpdate;
+    }
+
+    public void setDateUpdate(String dateUpdate) {
+        this.dateUpdate = dateUpdate;
     }
 }

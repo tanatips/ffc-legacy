@@ -2,7 +2,7 @@ package th.in.ffc.app.form.screening.datalive;
 
 public class StressDepression9qLiveData {
     private String personId;
-    private String visitId;
+    private String visitNo;
     private Integer selectedQ1;
     private Integer selectedQ2;
     private Integer selectedQ3;
@@ -93,10 +93,11 @@ public class StressDepression9qLiveData {
         this.personId = personId;
     }
 
-    public String getVisitId() {
-        return visitId;
+    public String getVisitNo() {
+        return visitNo;
     }
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
     }
 }

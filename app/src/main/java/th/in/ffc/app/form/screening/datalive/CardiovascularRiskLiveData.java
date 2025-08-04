@@ -3,7 +3,7 @@ package th.in.ffc.app.form.screening.datalive;
 public class CardiovascularRiskLiveData {
     private String personId;
 
-    private String visitId;
+    private String visitNo;
 
     private String age;
     private Integer selectedGender;
@@ -119,10 +119,11 @@ public class CardiovascularRiskLiveData {
         this.recommendation = recommendation;
     }
 
-    public String getVisitId() {
-        return visitId;
+    public String getVisitNo() {
+        return visitNo;
     }
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
+
+    public void setVisitNo(String visitNo) {
+        this.visitNo = visitNo;
     }
 }
