@@ -18,7 +18,7 @@
         android:text="@string/pp_fee_schedule_15_34"
         android:layout_marginBottom="20dp" />
 
-    <!-- Header สำหรับโหมดการตรวจสอบ (คลิกได้) -->
+    <!-- Header สำหรับโหมดการตรวจสอบ (แสดงเฉพาะ DEBUG) -->
     <LinearLayout
         android:id="@+id/validationModeHeader"
         android:layout_width="match_parent"
@@ -29,13 +29,14 @@
         android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="🔧 การตั้งค่าโหมดการตรวจสอบ"
+            android:text="🔧 การตั้งค่าโหมดการตรวจสอบ (DEBUG)"
             android:textStyle="bold"
             android:textSize="14sp"
             android:textColor="#4A4A4A" />
@@ -94,7 +95,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="💡 โหมดปกติ: ต้องทำครบทุกแบบประเมินในแต่ละหัวข้อ\n🔧 โหมดบางส่วน: ทำอย่างน้อย 1 แบบประเมินในแต่ละหัวข้อ"
+                android:text="💡 โหมดปกติ: ต้องทำครบทุกแบบประเมินในแต่ละหัวข้อ\n🔧 โหมดบางส่วน: ทำอย่างน้อย 1 แบบประเมินในแต่ละหัวข้อ\n⚠️ DEBUG MODE: ใช้เฉพาะการทดสอบเท่านั้น"
                 android:textSize="12sp"
                 android:textColor="#666666"
                 android:background="#F8F9FA"
@@ -135,6 +136,7 @@
 
     </FrameLayout>
 
+    <!-- ส่วนอื่นๆ ของ layout เหมือนเดิม -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -206,7 +208,7 @@
                     android:groupIndicator="@null"
                     android:childDivider="@android:color/transparent" />
 
-                <!-- สรุปผลการคัดกรองทั้งหมด - ย้ายมาไว้ต่อท้าย expandableListView -->
+                <!-- สรุปผลการคัดกรองทั้งหมด -->
                 <LinearLayout
                     android:id="@+id/screeningSummaryContainer"
                     android:layout_width="match_parent"
@@ -343,6 +345,7 @@
             </LinearLayout>
         </ScrollView>
 
+        <!-- ปุ่มต่างๆ เหมือนเดิม -->
         <LinearLayout
             android:id="@+id/buttonLayout"
             android:layout_width="match_parent"
@@ -381,7 +384,7 @@
                 android:text="re create table"
                 android:textColor="@android:color/white"
                 android:background="@drawable/button_save_background"
-                android:visibility="visible" />
+                android:visibility="gone" />
         </LinearLayout>
 
         <FrameLayout

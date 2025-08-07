@@ -4,7 +4,7 @@
     <string name="hello">สวัสดี ชาวโลก</string>
     <string name="app_name">Family Folder Collector</string>
     <string name="app_lable">FFC+</string>
-    <string name="app_version">Plus 3.2</string>
+    <string name="app_version">Plus 3.4</string>
     <!-- Login Fragment String -->
     <string name="login">เข้าสู่ระบบ</string>
     <string name="sure_to_exit">ต้องการออกจากระบบ?</string>

@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import th.in.ffc.BuildConfig;
 import th.in.ffc.R;
 import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.form.FormDialogFragment;
@@ -240,6 +241,14 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         setContentView(R.layout.activity_person_screening_form15);
         initializeCounselingInfo();
         mContext = this;
+        if (BuildConfig.DEBUG) {
+            // Debug build - แสดงการตั้งค่าโหมดการตรวจสอบ
+            setupValidationModeSwitch();
+        } else {
+            // Release build - ซ่อนการตั้งค่าโหมดการตรวจสอบ
+            hideValidationModeSwitch();
+        }
+
         setupValidationModeSwitch();
         // เปลี่ยนจาก getBaseContext() เป็น this
         View personInfoHeader = findViewById(R.id.personInfoHeader);
@@ -297,6 +306,28 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
         // ตรวจสอบสถานะการส่งข้อมูล
         checkSendStatus();
+    }
+
+    private void hideValidationModeSwitch() {
+        // ค้นหา views ที่เกี่ยวข้อง
+        validationModeHeader = findViewById(R.id.validationModeHeader);
+        validationModeContainer = findViewById(R.id.validationModeContainer);
+        validationModeExpandIcon = findViewById(R.id.validationModeExpandIcon);
+        textCurrentValidationMode = findViewById(R.id.textCurrentValidationMode);
+        switchValidationMode = findViewById(R.id.switchValidationMode);
+
+        // ซ่อนส่วน validation mode ทั้งหมด
+        if (validationModeHeader != null) {
+            validationModeHeader.setVisibility(View.GONE);
+        }
+        if (validationModeContainer != null) {
+            validationModeContainer.setVisibility(View.GONE);
+        }
+
+        // ตั้งค่าให้ใช้โหมดปกติเสมอ (release mode)
+        PersonAdapter.setValidationMode(false);
+
+        Log.d("VALIDATION_MODE", "Validation mode hidden (RELEASE MODE) - Using normal validation");
     }
     private boolean validateAgeForAssessment(String formName) {
         // ตรวจสอบอายุจาก PersonInfo
@@ -600,50 +631,67 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         textCurrentValidationMode = findViewById(R.id.textCurrentValidationMode);
         switchValidationMode = findViewById(R.id.switchValidationMode);
 
+        // แสดงส่วน validation mode
+        if (validationModeHeader != null) {
+            validationModeHeader.setVisibility(View.VISIBLE);
+        }
+
         // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
-        validationModeHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleValidationModeVisibility();
-            }
-        });
+        if (validationModeHeader != null) {
+            validationModeHeader.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleValidationModeVisibility();
+                }
+            });
+        }
 
         // ตั้งค่าเริ่มต้นตามสถานะปัจจุบัน
-        switchValidationMode.setChecked(PersonAdapter.isPartialMode());
-        updateValidationModeDisplay();
+        if (switchValidationMode != null) {
+            switchValidationMode.setChecked(PersonAdapter.isPartialMode());
+            updateValidationModeDisplay();
 
-        // ตั้งค่า listener
-        switchValidationMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // เปลี่ยนโหมดการตรวจสอบ
-                PersonAdapter.setValidationMode(isChecked);
+            // ตั้งค่า listener
+            switchValidationMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // เปลี่ยนโหมดการตรวจสอบ
+                    PersonAdapter.setValidationMode(isChecked);
 
-                // อัปเดตการแสดงผล
-                updateValidationModeDisplay();
+                    // อัปเดตการแสดงผล
+                    updateValidationModeDisplay();
 
-                // แสดงข้อความแจ้งเตือน
-                String modeText = isChecked ? "โหมดบางส่วน" : "โหมดปกติ";
-                String message = "เปลี่ยนเป็น " + modeText + " แล้ว";
-                Toast.makeText(PersonScreeningForm15Activity.this, message, Toast.LENGTH_SHORT).show();
+                    // แสดงข้อความแจ้งเตือน
+                    String modeText = isChecked ? "โหมดบางส่วน" : "โหมดปกติ";
+                    String message = "เปลี่ยนเป็น " + modeText + " แล้ว (DEBUG MODE)";
+                    Toast.makeText(PersonScreeningForm15Activity.this, message, Toast.LENGTH_SHORT).show();
 
-                Log.d("VALIDATION_MODE", "Changed to: " + modeText);
+                    Log.d("VALIDATION_MODE", "Changed to: " + modeText + " (DEBUG)");
 
-                // ปิด container หลังจากเปลี่ยนโหมดแล้ว (เลือกใช้หรือไม่)
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (validationModeContainer.getVisibility() == View.VISIBLE) {
-                            toggleValidationModeVisibility();
+                    // ปิด container หลังจากเปลี่ยนโหมดแล้ว
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (validationModeContainer != null &&
+                                    validationModeContainer.getVisibility() == View.VISIBLE) {
+                                toggleValidationModeVisibility();
+                            }
                         }
-                    }
-                }, 1500); // ปิดหลังจาก 1.5 วินาที
-            }
-        });
+                    }, 1500);
+                }
+            });
+        }
     }
     private void updateValidationModeDisplay() {
+        if (textCurrentValidationMode == null) return;
+
         boolean isPartialMode = PersonAdapter.isPartialMode();
         String currentMode = isPartialMode ? "โหมดบางส่วน" : "โหมดปกติ";
+
+        if (BuildConfig.DEBUG) {
+            currentMode += " (DEBUG)";
+        }
+
         textCurrentValidationMode.setText(currentMode);
 
         // เปลี่ยนสีตามโหมด
@@ -651,6 +699,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         textCurrentValidationMode.setTextColor(textColor);
     }
     private void toggleValidationModeVisibility() {
+        // เฉพาะ debug mode เท่านั้น
+        if (!BuildConfig.DEBUG) return;
+
+        if (validationModeContainer == null || validationModeExpandIcon == null) return;
+
         if (validationModeContainer.getVisibility() == View.VISIBLE) {
             // ซ่อน
             validationModeContainer.setVisibility(View.GONE);
@@ -681,7 +734,10 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         summaryContentContainer = findViewById(R.id.summaryContentContainer);
         textCompletedForms = findViewById(R.id.textCompletedForms);
 
-        setupValidationModeCollapsible();
+        // เรียก setupValidationModeCollapsible เฉพาะใน debug mode
+        if (BuildConfig.DEBUG) {
+            setupValidationModeCollapsible();
+        }
     }
     private void updateScreeningSummary() {
         if (summaryContentContainer == null || personInfo == null || personInfo.getId() == null) {
@@ -1690,22 +1746,28 @@ private String getCardiovascularRiskSummary(Integer personId) {
         }
     }
     private void setupValidationModeCollapsible() {
+        // เฉพาะสำหรับ debug mode
+        if (!BuildConfig.DEBUG) return;
+
         validationModeHeader = findViewById(R.id.validationModeHeader);
         validationModeContainer = findViewById(R.id.validationModeContainer);
         validationModeExpandIcon = findViewById(R.id.validationModeExpandIcon);
         textCurrentValidationMode = findViewById(R.id.textCurrentValidationMode);
 
         // ตั้งค่าการคลิกเพื่อขยาย/ย่อ
-        validationModeHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleValidationModeVisibility();
-            }
-        });
+        if (validationModeHeader != null) {
+            validationModeHeader.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleValidationModeVisibility();
+                }
+            });
+        }
 
         // ตั้งค่าเริ่มต้น
         updateValidationModeDisplay();
     }
+
     private void checkSendStatus() {
         if (this.personInfo != null) {
             if (this.personInfo.getSend_to_claim().equals(1)) {

@@ -31,8 +31,8 @@ android {
         namespace "th.in.ffc"
         minSdk 23
         targetSdk 33
-        versionCode 30002
-        versionName "3.0.2"
+        versionCode 3004
+        versionName "3.4"
     }
 //    def formattedDate = new Date().format('dd-MM-yyyy_HH-mm-ss')
 //    applicationVariants.all { variant ->
