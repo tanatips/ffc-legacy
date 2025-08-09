@@ -205,6 +205,7 @@ public class ScreeningFormProvider extends ContentProvider {
             return true;
         }
         catch (Exception e) {
+            android.util.Log.e("ScreeningFormProvider", "Error creating database: " + e.getMessage());
             return false;
         }
     }
@@ -890,9 +891,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         HOME_NO + " TEXT, " +
         VILLAGE_NO + " TEXT, " +
         CREATED_BY +" TEXT," +
-        CREATED_DATE +" DATE," +
+        CREATED_DATE +" DATETIME," +
         UPDATED_BY +" TEXT," +
-        UPDATED_DATE +" DATE," +
+        UPDATED_DATE +" DATETIME," +
         SEND_TO_CLAIM + " INTEGER, "+   // 0=ยังไม่ส่งไป สปสช  , 1=ส่งข้อมูลไป สปสช แล้ว
         TEMPERATURE + " REAL, " +
         HCODE + " TEXT ," +
@@ -968,7 +969,7 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 DRINKING_FREQUENCY +" TEXT NOT NULL," +
                 DRINKING_ALWAY +" TEXT NOT NULL," +
                 CREATED_BY +" TEXT," +
-                CREATED_DATE +" DATE," +
+                CREATED_DATE +" DATETIME," +
                 UPDATED_BY +" TEXT," +
                 UPDATED_DATE +" DATE,"+
                 VISIT_NO + " TEXT," +
@@ -1026,9 +1027,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 SMOKER_ASSIST +" TEXT NOT NULL," +
                 SMOKER_REGULARLY +" TEXT NOT NULL," +
                 CREATED_BY +" TEXT," +
-                CREATED_DATE +" DATE," +
+                CREATED_DATE +" DATETIME," +
                 UPDATED_BY +" TEXT," +
-                UPDATED_DATE +" DATE," +
+                UPDATED_DATE +" DATETIME," +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME" +
                 ")";
@@ -1089,9 +1090,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 Q4 +" TEXT NOT NULL," +
                 Q5 +" TEXT NOT NULL," +
                 CREATED_BY +" TEXT," +
-                CREATED_DATE +" DATE," +
+                CREATED_DATE +" DATETIME," +
                 UPDATED_BY +" TEXT," +
-                UPDATED_DATE +" DATE," +
+                UPDATED_DATE +" DATETIME," +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME"+
                 ")";
@@ -1158,9 +1159,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 POINTS + " TEXT NOT NULL," +
                 SUM + " INTEGER NOT NULL," +
                 CREATED_BY + " TEXT," +
-                CREATED_DATE + " DATE," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE, " +
+                UPDATED_DATE + " DATETIME, " +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME"+
                 ")";
@@ -1228,9 +1229,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
 //                RESULT_CODE + " TEXT NOT NULL," +
 //                RESULT_DESCRIPTION + " TEXT NOT NULL," +
                 CREATED_BY + " TEXT," +
-                CREATED_DATE + " DATE," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE, " +
+                UPDATED_DATE + " DATETIME, " +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME " +
                 ")";
@@ -1308,9 +1309,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
 //                RESULT_CODE + " TEXT NOT NULL," +
 //                RESULT_DESCRIPTION + " TEXT NOT NULL," +
                 CREATED_BY + " TEXT," +
-                CREATED_DATE + " DATE," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE, " +
+                UPDATED_DATE + " DATETIME, " +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME " +
                 ")";
@@ -1389,9 +1390,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 Q7 + " TEXT NOT NULL," +
                 Q8 + " TEXT NOT NULL," +
                 CREATED_BY + " TEXT," +
-                CREATED_DATE + " DATE," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE, " +
+                UPDATED_DATE + " DATETIME, " +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME" +
             ")";
@@ -1467,9 +1468,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 FCBG + " TEXT NOT NULL," +
                 FPG + " TEXT NOT NULL," +
                 CREATED_BY + " TEXT," +
-                CREATED_DATE + " DATE," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE, " +
+                UPDATED_DATE + " DATETIME, " +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME" +
                 ")";
@@ -1534,12 +1535,12 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 OTHER_DRUGS + " TEXT," +
                 ANSWER + " TEXT," +
                 CREATED_BY + " TEXT NOT NULL," +
-                CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " TIMESTAMP," +
+                UPDATED_DATE + " DATETIME," +
                 IDCARD + " TEXT," +
                 VISIT_NO + " TEXT," +
-                DATEUPDATE + " TIMESTAMP" +
+                DATEUPDATE + " DATETIME" +
                 ")";
 
         static {
@@ -1709,9 +1710,9 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
                 RISK_PERCENTAGE + " TEXT," +
                 RECOMMENDATION + " TEXT," +
                 CREATED_BY + " TEXT," +
-                CREATED_DATE + " DATE," +
+                CREATED_DATE + " DATETIME," +
                 UPDATED_BY + " TEXT," +
-                UPDATED_DATE + " DATE, " +
+                UPDATED_DATE + " DATETIME, " +
                 VISIT_NO + " TEXT," +
                 DATEUPDATE + " DATETIME" +
                 ")";

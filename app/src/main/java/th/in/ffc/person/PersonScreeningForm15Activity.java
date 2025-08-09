@@ -1770,11 +1770,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
     private void checkSendStatus() {
         if (this.personInfo != null) {
-            if (this.personInfo.getSend_to_claim().equals(1)) {
+            if(this.personInfo.getSend_to_claim()!= null && this.personInfo.getSend_to_claim().equals(1)) {
                 btnOk.setEnabled(false);
             } else {
                 btnOk.setEnabled(true);
             }
+
         }
     }
     private void setupExpandableListViewListeners() {
@@ -1808,7 +1809,20 @@ private String getCardiovascularRiskSummary(Integer personId) {
             @Override
             public void onClick(View view) {
                 try {
+                    PersonDao personDao = new PersonDao(mContext);
+                    Person person = personDao.findByIdCard(personInfo.getIdcard());
+                    if(personInfo.getIdcard()== null || personInfo.getIdcard().isEmpty() ){
+                        return;
+                    }
+                    if (person == null) {
+                        Toast.makeText(getBaseContext(), "ไม่พบข้อมูล "+personInfo.getFname()+" "+personInfo.getLname() +" ในระบบ", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     if (personInfo != null) {
+                        if(!personInfo.isValidationPassed()) {
+                            Toast.makeText(getBaseContext(), "ไม่สามารถบันทึกข้อมูลได้ เนื่องจากผ่านการตรวจสอบแล้ว", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         savePerson();
                         if (personInfo.getId() != null) {
                             saveVisit();

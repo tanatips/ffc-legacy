@@ -221,4 +221,73 @@ public class DateConverter {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
         return sdf.format(new java.util.Date());
     }
+    public static String convertBirthDateYYYYMMDDToThai(String birthDateYYYYMMDD) {
+        try {
+            // ตรวจสอบความถูกต้องของข้อมูล input
+            if (birthDateYYYYMMDD == null || birthDateYYYYMMDD.trim().isEmpty()) {
+                return null;
+            }
+
+            // ลบช่องว่างและตรวจสอบความยาว
+            String cleanDate = birthDateYYYYMMDD.trim();
+            if (cleanDate.length() != 8) {
+                return null;
+            }
+
+            // ตรวจสอบว่าเป็นตัวเลขทั้งหมด
+            if (!cleanDate.matches("\\d{8}")) {
+                return null;
+            }
+
+            // แยกปี เดือน วัน
+            String yearStr = cleanDate.substring(0, 4);
+            String monthStr = cleanDate.substring(4, 6);
+            String dayStr = cleanDate.substring(6, 8);
+
+            int year = Integer.parseInt(yearStr);
+            int month = Integer.parseInt(monthStr);
+            int day = Integer.parseInt(dayStr);
+
+            // ตรวจสอบความถูกต้องของเดือนและวัน
+            if (month < 1 || month > 12) {
+                return null;
+            }
+
+            if (day < 1 || day > 31) {
+                return null;
+            }
+
+            // ตรวจสอบความถูกต้องของวันตามเดือน
+            if (!isValidDate(year, month, day)) {
+                return null;
+            }
+
+            // จัดรูปแบบเป็น DD/MM/YYYY
+            return String.format(Locale.US, "%02d/%02d/%d", day, month, year);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private static boolean isValidDate(int year, int month, int day) {
+        try {
+            // ใช้ Calendar ตรวจสอบความถูกต้อง
+            Calendar calendar = Calendar.getInstance();
+            calendar.setLenient(false); // ไม่อนุญาตให้แปลงวันที่อัตโนมัติ
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month - 1); // Calendar.MONTH เริ่มจาก 0
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+
+            // ถ้าไม่มี exception แสดงว่าวันที่ถูกต้อง
+            calendar.getTime();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

@@ -5,6 +5,7 @@ import static th.in.ffc.util.DateConverter.convertToWesternDate;
 import static th.in.ffc.util.TransactionIdGenerator.generateTransId;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -1708,7 +1709,18 @@ public class PersonInfoFragment extends Fragment {
                             lname.setText(lastNameThai);
                             personInfo.setLname(lastNameThai);
                         }
+                        if (genderCode != null && !genderCode.isEmpty()) {
+                            processGenderFromCard(genderCode);
+                        }
 
+                        // ประมวลผลวันเกิด
+                        if (birthDate != null && !birthDate.isEmpty()) {
+//                            processBirthDateFromCard(birthDate);
+                            String formattedBirthDate = DateConverter.convertBirthDateYYYYMMDDToThai(birthDate);
+                           txtBirthDay.setText(DateConverter.convertBirthDateYYYYMMDDToThai(birthDate));
+                            // แปลงเป็น Western date สำหรับเก็บใน PersonInfo
+                           personInfo.setBirthday(convertToWesternDate(formattedBirthDate));
+                        }
                         // ตั้งค่าเพศและวันเกิดตามปกติ...
 
                         // อัพเดทข้อมูลไปยัง dataPasser
@@ -1719,7 +1731,50 @@ public class PersonInfoFragment extends Fragment {
                 }
             }
     );
-   private void getDataFromDevice(ActivityResult result){
+
+    private void processGenderFromCard(String genderCode) {
+        try {
+            // ตรวจสอบรูปแบบต่างๆ ของรหัสเพศ
+            switch (genderCode.trim().toUpperCase()) {
+                case "1":
+                case "M":
+                case "MALE":
+                case "ชาย":
+                    rdoMale.setChecked(true);
+                    rdoFemale.setChecked(false);
+                    personInfo.setGender("M");
+                    Log.d("PersonInfoFragment", "Gender set to Male from card data: " + genderCode);
+                    break;
+
+                case "2":
+                case "F":
+                case "FEMALE":
+                case "หญิง":
+                    rdoFemale.setChecked(true);
+                    rdoMale.setChecked(false);
+                    personInfo.setGender("F");
+                    Log.d("PersonInfoFragment", "Gender set to Female from card data: " + genderCode);
+                    break;
+
+                default:
+                    Log.w("PersonInfoFragment", "Unknown gender code from card: " + genderCode);
+                    // ค่าเริ่มต้นเป็นชาย
+                    rdoMale.setChecked(true);
+                    rdoFemale.setChecked(false);
+                    personInfo.setGender("M");
+                    Toast.makeText(getContext(), "ไม่สามารถระบุเพศจากบัตร กำหนดเป็นชายเป็นค่าเริ่มต้น", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        } catch (Exception e) {
+            Log.e("PersonInfoFragment", "Error processing gender from card: " + e.getMessage());
+            // ค่าเริ่มต้นเป็นชาย
+            rdoMale.setChecked(true);
+            rdoFemale.setChecked(false);
+            personInfo.setGender("M");
+        }
+    }
+
+    private void getDataFromDevice(ActivityResult result){
        if (result.getResultCode() == Activity.RESULT_OK) {
            Intent data = result.getData();
            if(data.getStringExtra("ECGInfo")!=null) {
@@ -2078,7 +2133,7 @@ public class PersonInfoFragment extends Fragment {
 
                 if (idCard.length() == 13) {
                     // ตรวจสอบความซ้ำ
-                    if (validateIdCardDuplicate(idCard)) {
+//                    if (validateIdCardDuplicate(idCard)) {
                         // ถ้าไม่ซ้ำ ให้ดำเนินการปกติ
                         PersonDao personDao = new PersonDao(getContext());
                         PersonDao.PersonInfo person = personDao.getPersonByIdcard(idCard);
@@ -2089,10 +2144,10 @@ public class PersonInfoFragment extends Fragment {
                         dataPasser.onPersonInfo(personInfo);
 
                         citizenId.setError(null);
-                    } else {
-                        // ถ้าซ้ำ ให้หยุดการทำงาน
-                        return;
-                    }
+//                    } else {
+//                        // ถ้าซ้ำ ให้หยุดการทำงาน
+//                        return;
+//                    }
                 } else if (idCard.length() > 0 && idCard.length() < 13) {
 //                    citizenId.setError("กรุณากรอกหมายเลขบัตรประชาชนให้ครบ 13 หลัก");
                 } else {
@@ -2304,13 +2359,15 @@ public class PersonInfoFragment extends Fragment {
                    isValidatingIdCard = true;
 
                    // ตรวจสอบความซ้ำในฐานข้อมูล
-                   if (validateIdCardDuplicate(idCard)) {
+//                   if (validateIdCardDuplicate(idCard)) {
                        // ถ้าไม่ซ้ำ ให้ดำเนินการปกติ
                        PersonDao personDao = new PersonDao(getContext());
                        PersonDao.PersonInfo person = personDao.getPersonByIdcard(idCard);
                        if (person != null) {
                            if(!person.getTypelive().equals("4")) {
                                personInfo.setHcode(person.getHcode());
+                               personInfo.setIdcard(idCard);
+                               dataPasser.onPersonInfo(personInfo);
                           } else {
                                showTypeLive4Dialog();
                                // ไม่ set idcard เพราะจะ clear ใน dialog
@@ -2318,7 +2375,10 @@ public class PersonInfoFragment extends Fragment {
                                isValidatingIdCard = false;
                                return;
                            }
+                       } else {
+                           showNoDataFoundDialogSimple();
                        }
+
 
                        personInfo.setIdcard(idCard);
                        dataPasser.onPersonInfo(personInfo);
@@ -2329,7 +2389,7 @@ public class PersonInfoFragment extends Fragment {
 //
 //                       // แสดงข้อความยืนยันว่าเลขบัตรประชาชนถูกต้อง
 //                       Toast.makeText(getContext(), "เลขบัตรประชาชนถูกต้อง", Toast.LENGTH_SHORT).show();
-                   }
+//                   }
 
                    // รีเซ็ตสถานะ
                    isValidatingIdCard = false;
@@ -2373,6 +2433,70 @@ public class PersonInfoFragment extends Fragment {
            }
        });
    }
+    private void showNoDataFoundDialogSimple() {
+        // ป้องกันการเปิด Dialog ซ้ำ
+        if (isDialogShowing) {
+            return;
+        }
+
+        isDialogShowing = true;
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("ไม่พบข้อมูล")
+                .setMessage("ไม่พบข้อมูลสำหรับเลขบัตรประชาชนนี้\n\n" +
+                        "กรุณาตรวจสอบเลขบัตรประชาชนอีกครั้ง หรือติดต่อเจ้าหน้าที่เพื่อเพิ่มข้อมูลในระบบ")
+                .setIcon(R.drawable.ic_info) // หรือ R.drawable.ic_warning
+                .setPositiveButton("ตกลง", (dialog, which) -> {
+                    // เคลียร์เลขบัตรประชาชนและ focus กลับไป
+                    citizenId.setText("");
+                    citizenId.setError(null);
+                    personInfo.setIdcard("");
+
+                    // เคลียร์รูปภาพ
+                    imgPerson.setImageResource(R.drawable.ic_person);
+                    personInfo.setPhoto(null);
+
+                    // เคลียร์ชื่อ
+                    fname.setText("");
+                    fname.setError(null);
+                    personInfo.setFname("");
+
+                    // เคลียร์นามสกุล
+                    lname.setText("");
+                    lname.setError(null);
+                    personInfo.setLname("");
+
+                    // เคลียร์วันเกิด
+                    txtBirthDay.setText("");
+                    txtBirthDay.setError(null);
+                    personInfo.setBirthday("");
+
+                    // เคลียร์เพศ
+                    rdoMale.setChecked(false);
+                    rdoFemale.setChecked(false);
+                    personInfo.setGender("");
+
+                    // รีเซ็ตค่าการตรวจสอบอายุ
+                    currentAge = 0;
+                    isValidAge = false;
+
+                    // อัพเดท PersonInfo ใน dataPasser
+                    dataPasser.onPersonInfo(personInfo);
+
+                    // Focus กลับไปที่ช่องเลขบัตรประชาชน
+                    citizenId.requestFocus();
+
+                    isDialogShowing = false;
+                    dialog.dismiss();
+                })
+                .setOnDismissListener(dialog -> {
+                    isDialogShowing = false;
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
     /**
      * อัปเดต validateInputs() ให้รวมการตรวจสอบเลขบัตรประชาชนใหม่
@@ -2394,17 +2518,17 @@ public class PersonInfoFragment extends Fragment {
             isValid = false;
         } else {
             // ตรวจสอบความซ้ำในปีงบประมาณปัจจุบัน (แต่ไม่แสดง Dialog)
-            if (citizenIdText.length() == 13) {
-                SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(getContext());
-                boolean isDuplicate = sfPersonInfoDao.isIdCardExistInCurrentFiscalYear(citizenIdText);
-
-                if (isDuplicate && !(isEditMode && citizenIdText.equals(originalIdCard))) {
-                    citizenId.setError("เลขบัตรประชาชนนี้เคยทำแบบสำรวจแล้ว");
-                    isValid = false;
-                } else {
-                    citizenId.setError(null);
-                }
-            }
+//            if (citizenIdText.length() == 13) {
+//                SfPersonInfoDao sfPersonInfoDao = new SfPersonInfoDao(getContext());
+//                boolean isDuplicate = sfPersonInfoDao.isIdCardExistInCurrentFiscalYear(citizenIdText);
+//
+//                if (isDuplicate && !(isEditMode && citizenIdText.equals(originalIdCard))) {
+//                    citizenId.setError("เลขบัตรประชาชนนี้เคยทำแบบสำรวจแล้ว");
+//                    isValid = false;
+//                } else {
+//                    citizenId.setError(null);
+//                }
+//            }
         }
 
         // Validate Name

@@ -192,7 +192,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:inputType="phone"
+            android:inputType="number"
             android:maxLength="10"
             android:hint="@string/phone_no" />
     </com.google.android.material.textfield.TextInputLayout>

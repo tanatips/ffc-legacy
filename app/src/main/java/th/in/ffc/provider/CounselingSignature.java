@@ -24,7 +24,7 @@ public class CounselingSignature implements BaseColumns {
             + CounselingSignatureProvider.AUTHORITY + "/counseling_signature");
 
     // คอลัมน์ในตาราง
-    public static final String ID = _ID;
+    public static final String ID = "id";
     public static final String VISIT_NO = "visitno";                 // รหัสการเข้ารับบริการ
     public static final String PERSON_ID = "person_id";               // รหัสบุคคล
     public static final String COUNSELING_TYPE = "counseling_type";   // ประเภทการให้คำปรึกษา (1=ให้คำแนะนำ, 2=ส่งต่อแพทย์)
