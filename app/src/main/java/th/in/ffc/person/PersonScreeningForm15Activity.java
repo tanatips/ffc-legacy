@@ -3858,64 +3858,91 @@ private String getCardiovascularRiskSummary(Integer personId) {
         VisitDao visitDao = new VisitDao(getContentResolver());
         PersonDao personDao = new PersonDao(getBaseContext());
         Person person = personDao.findByIdCard(this.personInfo.getIdcard());
-        String healthsuggest1 = "";
-        if(counselingInfo != null ) {
-            if(counselingInfo.getDetail() == null || counselingInfo.getDetail().isEmpty()) {
-                healthsuggest1 = counselingInfo.getReferralDetail();
-            } else {
-                healthsuggest1 = counselingInfo.getDetail();
-            }
-         }
-        if (this.personInfo.getVisitNo() == null) { // insert
-            String visitDate = DateConverter.getCurrentWesternDate(); //  personInfo.getCreated_date()!=null?personInfo.getCreated_date().split(" ")[0]:DateConverter.getCurrentWesternDate();
-            String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
-            Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
-            String systolic = "แบบคัดกรอง และประเมินปัจจัยเสี่ยงต่อสุขภาพ";
-            String diastolic = systolic;
-            long visitId = visitDao.saveNewVisitWithVitalSigns(
-                    userSessionManager.getPcuCode(),                     // pcucode
-                    userSessionManager.getPcuCode(),                     // pcucodePerson
-                    person.getPid(),                              // pid
-                    visitDate,                        // visitDate
-                    (float) personInfo.getWeight(),                       // weight
-                    (float) personInfo.getHeight(),                       // height
-                    pressure,                                   // pressure
-                    (float) personInfo.getTemperature(),                  // temperature
-                    pluse,                               // pluse
-                    (float) personInfo.getWaist_size(),                   // waist
-                    systolic,                 // systolic
-                    diastolic,                // diastolic
-                    userSessionManager.getUsername(),                  // username
-                    healthsuggest1,
-                    person.getRightCode(),
-                    person.getRightNo()
-            );
-            if (visitId > 0) {
-                this.personInfo.setVisitNo(String.valueOf(visitId));
-                String seq = GenerateSeq.generateSeq(userSessionManager.getPcuCode());
-                SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
-            }
-        } else {
-            String systolic = "แบบคัดกรอง และประเมินปัจจัยเสี่ยงต่อสุขภาพ";
-            String diastolic = systolic;
-            String pressure = ((int)personInfo.getSystolic_pressure())+"/"+ ((int)personInfo.getDiastolic_pressure());
-            Integer pluse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
-            visitDao.updateVisit(
-                    Long.parseLong(personInfo.getVisitNo()),            // visitNo
-                    (float) personInfo.getWeight(),                      // weight
-                    (float) personInfo.getHeight(),                      // height
-                    pressure, // pressure
-                    (float) personInfo.getTemperature(),                 // temperature
-                    pluse, // pulse
-                    (float) personInfo.getWaist_size(),                  // waist
-                    systolic,   // symptoms (ในที่นี้ใช้ systolic แทน)
-                    diastolic,   // diagnote (ในที่นี้ใช้ diastolic แทน)
-                    healthsuggest1,
-                    person.getRightCode(),
-                    person.getRightNo(),
-                    userSessionManager.getUsername()
-                    );
 
+        try {
+
+            VisitDataHelper visitDataHelper = new VisitDataHelper(this.personInfo)
+                    .setStressDepressionInfo(this.stressDepressionInfo)
+                    .setHealthRiskAssessmentInfo(this.healthRiskAssessmentInfo)
+                    .setCardiovascularRiskInfo(this.cardiovascularRiskInfo)
+                    .setCounselingInfo(this.counselingInfo)
+                    .setSubstanceUse(this.hasTobaccoUse, this.hasAlcoholUse)
+                    .setDepressionResult(this.has2QAbnormalResult);
+            VisitDataHelper.VisitData visitData = visitDataHelper.prepareVisitData();
+
+            String healthsuggest1 = visitData.healthsuggest1;
+
+            if (counselingInfo != null) {
+                String counselingDetail = null;
+                if (counselingInfo.getDetail() != null && !counselingInfo.getDetail().isEmpty()) {
+                    counselingDetail = counselingInfo.getDetail();
+                } else if (counselingInfo.getReferralDetail() != null && !counselingInfo.getReferralDetail().isEmpty()) {
+                    counselingDetail = counselingInfo.getReferralDetail();
+                }
+
+                // ถ้ามีข้อมูลจาก counseling ให้ใช้แทน
+                if (counselingDetail != null && !counselingDetail.isEmpty()) {
+                    healthsuggest1 = counselingDetail;
+                }
+            }
+            String visitDate = DateConverter.getCurrentWesternDate();
+            String pressure = ((int)personInfo.getSystolic_pressure()) + "/" + ((int)personInfo.getDiastolic_pressure());
+            Integer pulse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ?
+                    Integer.valueOf(personInfo.getBp()) : 0;
+
+            if (this.personInfo.getVisitNo() == null) { // insert
+                long visitId = visitDao.saveNewVisitWithVitalSigns(
+                        userSessionManager.getPcuCode(),                     // pcucode
+                        userSessionManager.getPcuCode(),                     // pcucodePerson
+                        person.getPid(),                              // pid
+                        visitDate,                        // visitDate
+                        (float) personInfo.getWeight(),                       // weight
+                        (float) personInfo.getHeight(),                       // height
+                        pressure,                                   // pressure
+                        (float) personInfo.getTemperature(),                  // temperature
+                        pulse,                               // pluse
+                        (float) personInfo.getWaist_size(),                   // waist
+                        visitData.symptoms,                                  // symptoms
+                        visitData.diagnote,          // diastolic
+                        userSessionManager.getUsername(),                  // username
+                        healthsuggest1,
+                        person.getRightCode(),
+                        person.getRightNo(),
+                        visitData.symptomsco,                               // symptomsco
+                        visitData.vitalcheck
+                );
+                if (visitId > 0) {
+                    this.personInfo.setVisitNo(String.valueOf(visitId));
+                    String seq = GenerateSeq.generateSeq(userSessionManager.getPcuCode());
+                    SfPersonInfoDao.updateVisitInfo(this.personInfo.getId(), String.valueOf(visitId), seq);
+                }
+            } else {
+
+                pressure = ((int) personInfo.getSystolic_pressure()) + "/" + ((int) personInfo.getDiastolic_pressure());
+                pulse = personInfo.getBp() != null && !personInfo.getBp().isEmpty() ? Integer.valueOf(personInfo.getBp()) : 0;
+                visitDao.updateVisit(
+                        Long.parseLong(personInfo.getVisitNo()),            // visitNo
+                        (float) personInfo.getWeight(),                      // weight
+                        (float) personInfo.getHeight(),                      // height
+                        pressure, // pressure
+                        (float) personInfo.getTemperature(),                 // temperature
+                        pulse, // pulse
+                        (float) personInfo.getWaist_size(),                  // waist
+                        visitData.symptoms,                                  // symptoms
+                        visitData.diagnote, // diagnote (ในที่นี้ใช้ diastolic แทน)
+                        healthsuggest1,
+                        person.getRightCode(),
+                        person.getRightNo(),
+                        userSessionManager.getUsername(),
+                        visitData.symptomsco,                               // symptomsco
+                        visitData.vitalcheck
+                );
+
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.e("PersonScreeningForm15", "Error saving visit: " + e.getMessage());
         }
     }
 

@@ -198,7 +198,10 @@ public class VisitDao {
                                            String username,
                                            String healthsuggest1,
                                            String rightCode,
-                                           String rightNo) {
+                                           String rightNo,
+                                           String symptomsco,
+                                           String vitalcheck
+                                           ) {
 
         // สร้าง Visit ใหม่
         long visitNo = getNewVisitNo(pcucode);
@@ -236,10 +239,10 @@ public class VisitDao {
 
             vitalValues.put(Visit.WAIST, waist);
             vitalValues.put(Visit.SYMPTOMS, symptoms);
-            vitalValues.put(Visit.SYMPTOMSCO, symptoms);
+            vitalValues.put(Visit.SYMPTOMSCO, symptomsco);
             vitalValues.put(Visit.DIAGNOTE, diagnote);
 
-            vitalValues.put(Visit.VITALCHECK, symptoms);
+            vitalValues.put(Visit.VITALCHECK, vitalcheck);
             vitalValues.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
             vitalValues.put(Visit.TIME_START, DateConverter.getCurrentTime());
             vitalValues.put(Visit.TIME_END, DateConverter.getCurrentTime());
@@ -299,7 +302,9 @@ public class VisitDao {
                            String healthsuggest1,
                            String rightCode,
                            String rightNo,
-                           String username
+                           String username,
+                           String symptomsco,
+                           String vitalcheck
 
     ) {
 
@@ -313,9 +318,9 @@ public class VisitDao {
         values.put(Visit.PULSE, pulse);
         values.put(Visit.WAIST, waist);
         values.put(Visit.SYMPTOMS, symptoms);
-        values.put(Visit.SYMPTOMSCO, symptoms);
+        values.put(Visit.SYMPTOMSCO, symptomsco);
         values.put(Visit.DIAGNOTE, diagnote);
-        values.put(Visit.VITALCHECK, symptoms);
+        values.put(Visit.VITALCHECK, vitalcheck);
         values.put(Visit.TIME_END, DateConverter.getCurrentTime());
         values.put(Visit.HEALTHSUGGEST1, healthsuggest1);
         values.put(Visit.RIGHT_CODE, rightCode);
