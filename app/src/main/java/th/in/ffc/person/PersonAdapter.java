@@ -824,12 +824,27 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
         List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
         boolean has2qAssessment = !depression2qInfos.isEmpty() && is2qAssessmentComplete(depression2qInfos.get(0));
-        if (!has2qAssessment) missingAssessments.add("แบบประเมิน 2Q");
+        if (!has2qAssessment) {
+            missingAssessments.add("แบบประเมิน 2Q");
+        } else {
+            // 4. ตรวจสอบ 9Q (เฉพาะกรณีที่ 2Q ผิดปกติ)
+            boolean needs9Q = needs9QAssessment(depression2qInfos.get(0));
+            if (needs9Q) {
+                SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
+                List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
+                boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
+                if (!has9qAssessment) {
+                    missingAssessments.add("แบบประเมิน 9Q (เนื่องจาก 2Q ผิดปกติ)");
+                }
+            } else {
+                Log.d("ASSESSMENT_CHECK", "ข้าม 9Q - 2Q เป็นปกติ");
+            }
+        }
 
-        SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
-        List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
-        boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
-        if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
+//        SfStressDepression9qInfoDao depression9qDao = new SfStressDepression9qInfoDao(context);
+//        List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
+//        boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
+//        if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
 
         SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
         List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
@@ -859,6 +874,31 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         } else {
             String missingText = String.join(", ", missingAssessments);
             return new DataCompletionStatus(false, "ข้อมูลไม่ครบ: " + missingText);
+        }
+    }
+    private boolean needs9QAssessment(StressDepression2qInfo depression2qInfo) {
+        if (depression2qInfo == null) {
+            return false; // ถ้าไม่มี 2Q ข้อมูล ก็ไม่ต้องทำ 9Q
+        }
+        try {
+            // ตรวจสอบคะแนนรวมของ 2Q
+            int q1Score = Integer.parseInt(depression2qInfo.getQ1() != null ? depression2qInfo.getQ1() : "0");
+            int q2Score = Integer.parseInt(depression2qInfo.getQ2() != null ? depression2qInfo.getQ2() : "0");
+            int totalScore = q1Score + q2Score;
+
+            // ถ้าคะแนนรวม >= 3 จึงต้องทำ 9Q
+            // (เกณฑ์นี้อาจต้องปรับตามมาตรฐานของระบบคุณ)
+            boolean needs9Q = totalScore >= 3;
+
+            Log.d("2Q_CHECK", "2Q scores: Q1=" + q1Score + ", Q2=" + q2Score +
+                    ", Total=" + totalScore + ", Needs 9Q=" + needs9Q);
+
+            return needs9Q;
+
+        } catch (NumberFormatException e) {
+            Log.e("2Q_CHECK", "Error parsing 2Q scores: " + e.getMessage());
+            // ถ้าไม่สามารถแปลงคะแนนได้ ให้ถือว่าต้องทำ 9Q เพื่อความปลอดภัย
+            return true;
         }
     }
     public static void setValidationMode(boolean isPartialMode) {
