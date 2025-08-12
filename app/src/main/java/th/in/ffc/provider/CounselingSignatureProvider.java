@@ -55,6 +55,10 @@ public class CounselingSignatureProvider extends ContentProvider {
         mOpenHelper.getWritableDatabase().execSQL(CounselingSignature.DROP_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(CounselingSignature.CREATE_TABLE);
     }
+    public static void createTable(Context context){
+        mOpenHelper = new DbOpenHelper(context);
+        mOpenHelper.getWritableDatabase().execSQL(CounselingSignature.CREATE_TABLE);
+    }
 
     @Override
     public boolean onCreate() {

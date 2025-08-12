@@ -36,6 +36,8 @@ import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.session.UserSessionManager;
+import th.in.ffc.util.DateConverter;
 
 
 public class QuestionThreeFragment extends Fragment implements OnFrequencySelectedListener {
@@ -126,7 +128,7 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
 
             // ล้างข้อมูลใน SubstanceItems
             for (SubstanceItem item : substanceList) {
-                item.setFrequency(0);
+                item.setFrequency(-1);
                 item.setOtherDrugs("");
             }
 
@@ -156,7 +158,7 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
         super.onViewCreated(view, savedInstanceState);
         // เริ่มต้นค่าเริ่มต้นสำหรับทุก item
         for (SubstanceItem item : substanceList) {
-            selectedFrequencies.put(item.getId(), new AnswerFrequencyData(0, "")); // กำหนดค่าเริ่มต้นเป็น 0 (ไม่เคย)
+            selectedFrequencies.put(item.getId(), new AnswerFrequencyData(-1, "")); // กำหนดค่าเริ่มต้นเป็น 0 (ไม่เคย)
         }
 
         // ตรวจสอบว่ามีข้อมูลใน ViewModel หรือไม่
@@ -218,12 +220,14 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
             if (data != null && data.getPersonId() != null) {
                 List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(data.getPersonId()));
                 this.drugsInfos = drugsInfos;
+                List<DrugsInfo> drugThreeInfo = new ArrayList<>();
                 Map<String, AnswerFrequencyData> frequencies = new HashMap<>();
                 drugsInfoMap.clear();
 
                 for (DrugsInfo drug : drugsInfos) {
                     if (drug.getQuestion().equals("Q3")) {  // เปลี่ยนจาก Q2 เป็น Q3
                         drugsInfoMap.put(drug.getSubquestion(), drug);
+                        drugThreeInfo.add(drug);
                     }
                 }
 
@@ -258,7 +262,7 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
                         frequencies.put(item.getId(), new AnswerFrequencyData(-1, ""));
 
                         // รีเซ็ต state ของ SubstanceItem ด้วย
-                        item.setFrequency(0);
+                        item.setFrequency(-1);
                         item.setOtherDrugs("");
                     }
                 }
@@ -279,6 +283,7 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
                 }
 
                 Log.d("QuestionThreeFragment", "Loaded drugs info: " + drugsInfos.size() + " items");
+                dataPasser.onDrugsThreeInfo(drugThreeInfo);
             }
         });
     }
@@ -397,11 +402,12 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
                     found = true;
                 }
             }
-
+            UserSessionManager sessionManager = new UserSessionManager(getContext());
+            String userCreate = sessionManager.getUser();
             // กำหนดค่าใหม่
             if (!found) {
-                drugsInfo.setCreatedBy("SYSTEM");
-                drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                drugsInfo.setCreatedBy(userCreate);
+                drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
             }
 
             if (drugsInfo.getPersonInfoId() == null) {
@@ -416,8 +422,8 @@ public class QuestionThreeFragment extends Fragment implements OnFrequencySelect
             // สำคัญ: ตั้งค่า otherDrugs อย่างถูกต้อง
             drugsInfo.setOtherDrugs(data.getOtherDrugs());
 
-            drugsInfo.setUpdatedBy("SYSTEM");
-            drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            drugsInfo.setUpdatedBy(userCreate);
+            drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
 
             // Log เพื่อตรวจสอบค่า otherDrugs ที่จะบันทึก
             if (currentId.equals("j")) {

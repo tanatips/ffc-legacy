@@ -71,7 +71,14 @@ public class MainQuestionsFragment extends Fragment {
     // เพิ่ม getter สำหรับ AssistScoreFragment
     public AssistScoreFragment getAssistScoreFragment() { return assistScoreFragment; }
     private OnDataPass dataPasser;
+    private SharedViewModel sharedViewModel;
+    private String personId;
+    private String visitNo;
+    private OnFormDataSavedListener onFormDataSavedListener;
 
+    public interface OnFormDataSavedListener {
+        void onMainQuestionsDataSaved();
+    }
     public MainQuestionsFragment() {
         // Required empty public constructor
     }
@@ -85,11 +92,16 @@ public class MainQuestionsFragment extends Fragment {
         super.onAttach(context);
         try {
             dataPasser = (OnDataPass) context;
+            onFormDataSavedListener = (OnFormDataSavedListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnDataPass");
         }
     }
-
+    private void notifyDataSaved() {
+        if (onFormDataSavedListener != null) {
+            onFormDataSavedListener.onMainQuestionsDataSaved();
+        }
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,7 +111,11 @@ public class MainQuestionsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+//        SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+//        DrugsLiveData drugsLiveData = new DrugsLiveData();
+//        drugsLiveData.setPersonId(personId);
+//        drugsLiveData.setVisitNo(visitNo);
+//        viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
         // สังเกตการเปลี่ยนแปลงของ Question 2 เพื่อซ่อน/แสดงข้อ 3, 4, 5
         observeQuestionTwoChanges();
 
@@ -1301,9 +1317,14 @@ public class MainQuestionsFragment extends Fragment {
         // แจ้งให้ parent activity ทราบ
         notifyChildFragmentStateChanged();
 
+        notifyDataSaved();
+
         Log.d(TAG, "ข้อมูลเปลี่ยนแปลง - รีเฟรช AssistScoreFragment");
     }
-
+    public void onFormSaveCompleted() {
+        Log.d(TAG, "แบบฟอร์มบันทึกเสร็จสิ้น - แจ้ง Activity เพื่ออัพเดตเมนู");
+        notifyDataSaved();
+    }
     /**
      * ตรวจสอบสถานะการแสดง AssistScoreFragment
      */

@@ -23,7 +23,7 @@ import th.in.ffc.provider.HouseProvider.Village;
 import android.content.SharedPreferences;
 import android.content.Context;
 import android.text.TextUtils;
-
+import android.database.SQLException;
 public class ScreeningFormProvider extends ContentProvider {
     public static String AUTHORITY = "th.in.ffc.provider.ScreeningFormProvider";
 
@@ -85,6 +85,7 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ITEMS = 37;
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ID = 38;
     private static final int SF_DRUGS_SUMMARY = 39;
+
     boolean isFirstRun = true;
 
     public static final String CONTENT_DIR_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
@@ -153,91 +154,21 @@ public class ScreeningFormProvider extends ContentProvider {
 
     }
 
-
     @Override
     public boolean onCreate() {
         try {
-            mOpenHelper = new DbOpenHelper(this.getContext());
-            // เพิ่มการตรวจสอบการใช้งานครั้งแรก
-            SharedPreferences prefs = getContext().getSharedPreferences("DatabasePrefs", Context.MODE_PRIVATE);
-
-            if(isFirstRun) {
-//                mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
-//                mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.DROP_TABLE);
-
-                mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
-                mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.CREATE_TABLE);
-
-                isFirstRun = false;
-
-            }
-//            for (String alterStatement : SfPersonInfo.ALTER_TABLE) {
-//                mOpenHelper.getWritableDatabase().execSQL(alterStatement);
-//            }
-
-
-
-            return true;
+            createTable(getContext());
         }
         catch (Exception e) {
             android.util.Log.e("ScreeningFormProvider", "Error creating database: " + e.getMessage());
             return false;
         }
+        return true;
     }
-    public static void ReCreateTable(Context context){
+    public static void createTable(Context context){
         mOpenHelper = new DbOpenHelper(context);
-//        mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
 
-        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSOCHA.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSOCHAD.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSODiagnosis.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSOHospital.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSOPractitioner.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSOPatient.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(NHSOOPD.DROP_TABLE);
-        mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.DROP_TABLE);
-
-
-
-
-//        mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfToken.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfDrugs.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.CREATE_TABLE);
@@ -258,9 +189,35 @@ public class ScreeningFormProvider extends ContentProvider {
         mOpenHelper.getWritableDatabase().execSQL(NHSOPatient.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(NHSOOPD.CREATE_TABLE);
         mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.CREATE_TABLE);
-
-//        SfTokenDao tokenDao = new SfTokenDao(context);
-//        tokenDao.insertDefaultTokenIfEmpty();
+    }
+    public static void dropTable(Context context){
+        mOpenHelper = new DbOpenHelper(context);
+        mOpenHelper.getWritableDatabase().execSQL(SfToken.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfPersonInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrugs.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfSmokerInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepressionInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfNicotineInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfDrinkingInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression2qInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfStressDepression9qInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfSuicideAssessment8qInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfHealthRiskAssessmentInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfCardReadingHistory.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(SfCardiovascularRiskInfo.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSOCHA.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSOCHAD.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSODiagnosis.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSOHospital.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSOPractitioner.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSOPatient.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(NHSOOPD.DROP_TABLE);
+        mOpenHelper.getWritableDatabase().execSQL(ScreeningResultCode.DROP_TABLE);
+    }
+    public static void ReCreateTable(Context context){
+        mOpenHelper = new DbOpenHelper(context);
+        dropTable(context);
+        createTable(context);
     }
     @Nullable
     @Override
@@ -461,61 +418,116 @@ public class ScreeningFormProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
     }
-
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        SQLiteDatabase db = null;
         long id = 0;
         Uri uriReturn = null;
-        switch (mUriMatcher.match(uri)) {
-            case SF_PERSON:
-                id = db.insert(SfPersonInfo.TABLENAME, null, values);
-                break;
-            case SF_SMOKER:
-                id = db.insert(SfSmokerInfo.TABLENAME, null, values);
-                break;
-            case SF_STRESS_DEPRESSION:
-                id = db.insert(SfStressDepressionInfo.TABLENAME, null, values);
-                break;
-            case SF_NICOTINE_INFO:
-                id = db.insert(SfNicotineInfo.TABLENAME, null, values);
-                break;
-            case SF_DRINKING_INFO:
-                id = db.insert(SfDrinkingInfo.TABLENAME, null, values);
-                break;
-            case SF_STRESS_DEPRESSION_2Q_INFO:
-                id = db.insert(SfStressDepression2qInfo.TABLENAME, null, values);
-                break;
-            case SF_STRESS_DEPRESSION_9Q_INFO:
-                id = db.insert(SfStressDepression9qInfo.TABLENAME, null, values);
-                break;
-            case SF_SUICIDE_ASSESSMENT_8Q_INFO:
-                id = db.insert(SfSuicideAssessment8qInfo.TABLENAME, null, values);
-                break;
-            case SF_HEALTH_RISK_ASSESSMENT_INFO:
-                id = db.insert(SfHealthRiskAssessmentInfo.TABLENAME, null, values);
-                break;
-            case SF_TOKEN:
-                id = db.insert(SfToken.TABLENAME, null, values);
-                break;
-            case SF_DRUGS:
-                id = db.insert(SfDrugs.TABLENAME, null, values);
-                break;
-            case SF_CARD_READING_HISTORY:
-                id = db.insert(SfCardReadingHistory.TABLENAME, null, values);
-                break;
-            case SF_CARDIOVASCULAR_RISK_INFO:
-                id = db.insert(SfCardiovascularRiskInfo.TABLENAME, null, values);
-                break;
+        String tableName = "";
+        try {
+            db = mOpenHelper.getWritableDatabase();
 
+            // Log ข้อมูลที่จะ insert (สำหรับ debug)
+            android.util.Log.d("ScreeningFormProvider", "Attempting to insert into URI: " + uri);
+            if (values != null) {
+                android.util.Log.d("ScreeningFormProvider", "ContentValues: " + values.toString());
+            }
+            switch (mUriMatcher.match(uri)) {
+                case SF_PERSON:
+                    tableName = SfPersonInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_SMOKER:
+                    tableName = SfSmokerInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_STRESS_DEPRESSION:
+                    tableName = SfStressDepressionInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_NICOTINE_INFO:
+                    tableName = SfNicotineInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_DRINKING_INFO:
+                    tableName = SfDrinkingInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_STRESS_DEPRESSION_2Q_INFO:
+                    tableName = SfStressDepression2qInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_STRESS_DEPRESSION_9Q_INFO:
+                    tableName = SfStressDepression9qInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_SUICIDE_ASSESSMENT_8Q_INFO:
+                    tableName = SfSuicideAssessment8qInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_HEALTH_RISK_ASSESSMENT_INFO:
+                    tableName = SfHealthRiskAssessmentInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_TOKEN:
+                    tableName = SfToken.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_DRUGS:
+                    tableName = SfDrugs.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_CARD_READING_HISTORY:
+                    tableName = SfCardReadingHistory.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                case SF_CARDIOVASCULAR_RISK_INFO:
+                    tableName = SfCardiovascularRiskInfo.TABLENAME;
+                    id = insertWithErrorHandling(db, tableName, values, uri);
+                    break;
+                default:
+                    String errorMsg = "Unknown URI: " + uri + " - No matching table configuration found";
+                    android.util.Log.e("ScreeningFormProvider", errorMsg);
+                    throw new IllegalArgumentException(errorMsg);
+
+            }
+            if (id > 0) {
+                uriReturn = ContentUris.withAppendedId(SfPersonInfo.CONTENT_URI, id);
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
-        if (id > 0) {
-            uriReturn = ContentUris.withAppendedId(SfPersonInfo.CONTENT_URI, id);
+        catch (SQLException e) {
+            // Error message จากระบบจะถูกส่งต่อมาแล้วจาก helper method
+            throw e;
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            String systemError = "System error during insert:\n" +
+                    "- Error Type: " + e.getClass().getSimpleName() + "\n" +
+                    "- Message: " + e.getMessage() + "\n" +
+                    "- URI: " + uri + "\n" +
+                    "- Table: " + tableName;
+            android.util.Log.e("ScreeningFormProvider", systemError, e);
+            throw new SQLException(systemError, e);
         }
         return uriReturn;
     }
 
+    // เพิ่ม helper method นี้ในคลาส ScreeningFormProvider
+    private long insertWithErrorHandling(SQLiteDatabase db, String tableName, ContentValues values, Uri uri) {
+        try {
+            long id = db.insertOrThrow(tableName, null, values);
+            android.util.Log.d("ScreeningFormProvider", "Successfully inserted ID: " + id + " into " + tableName);
+            return id;
+        } catch (SQLException e) {
+            String errorMsg = "Database error inserting into " + tableName + ": " + e.getMessage() +
+                    "\nURI: " + uri +
+                    "\nValues: " + (values != null ? values.toString() : "null");
+            android.util.Log.e("ScreeningFormProvider", errorMsg, e);
+            throw new SQLException(errorMsg, e);
+        }
+    }
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -566,7 +578,8 @@ public class ScreeningFormProvider extends ContentProvider {
             case SF_DRUGS:
             case SF_DRUGS_ITEMS:
             case SF_DRUGS_ITEM_ID:
-                rowsDeleted = deleteDrugsData(db, uri, selection, selectionArgs);
+//                rowsDeleted = deleteDrugsData(db, uri, selection, selectionArgs);
+                rowsDeleted = db.delete(SfDrugs.TABLENAME, selection, selectionArgs);
                 break;
 
             case SF_CARD_READING_HISTORY_ITEM_ID:
@@ -595,9 +608,9 @@ public class ScreeningFormProvider extends ContentProvider {
             // ตรวจสอบ query parameters สำหรับการลบแบบเฉพาะเจาะจง
             String personId = uri.getQueryParameter("person_id");
             String question = uri.getQueryParameter("question");
-            String subquestion = uri.getQueryParameter("subquestion");
+//            String subquestion = uri.getQueryParameter("subquestion");
 
-            if (personId != null || question != null || subquestion != null) {
+            if (personId != null || question != null) {
                 // สร้าง selection และ selectionArgs แบบ dynamic
                 StringBuilder whereClause = new StringBuilder();
                 List<String> whereArgs = new ArrayList<>();
@@ -615,13 +628,13 @@ public class ScreeningFormProvider extends ContentProvider {
                     whereArgs.add(question);
                 }
 
-                if (subquestion != null) {
-                    if (whereClause.length() > 0) {
-                        whereClause.append(" AND ");
-                    }
-                    whereClause.append("subquestion = ?");
-                    whereArgs.add(subquestion);
-                }
+//                if (subquestion != null) {
+//                    if (whereClause.length() > 0) {
+//                        whereClause.append(" AND ");
+//                    }
+//                    whereClause.append("subquestion = ?");
+//                    whereArgs.add(subquestion);
+//                }
 
                 // เพิ่มเงื่อนไขจาก parameter ที่ส่งมา (ถ้ามี)
                 if (selection != null && !selection.isEmpty()) {
@@ -1509,7 +1522,7 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
                 + "/vnd.ffc.sf_drugs";
 
-        public static final String ID = "id";
+//        public static final String ID = "id";
         public static final String PERSON_INFO_ID = "person_info_id";
         public static final String QUESTION = "question";
         public static final String SUBQUESTION = "subquestion";
@@ -1528,7 +1541,7 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLENAME;
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLENAME + " (" +
-                ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//                ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PERSON_INFO_ID + " TEXT NOT NULL," +
                 QUESTION + " TEXT NOT NULL," +
                 SUBQUESTION + " TEXT," +
@@ -1545,7 +1558,7 @@ public static final String CREATE_TABLE =" CREATE TABLE IF NOT EXISTS "+TABLENAM
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
-            PROJECTION_MAP.put(SfDrugs.ID, "id AS " + SfDrugs.ID);
+//            PROJECTION_MAP.put(SfDrugs.ID, "id AS " + SfDrugs.ID);
             PROJECTION_MAP.put(SfDrugs.PERSON_INFO_ID, "person_info_id AS " + SfDrugs.PERSON_INFO_ID);
             PROJECTION_MAP.put(SfDrugs.QUESTION, "question AS " + SfDrugs.QUESTION);
             PROJECTION_MAP.put(SfDrugs.SUBQUESTION, "subquestion AS " + SfDrugs.SUBQUESTION);

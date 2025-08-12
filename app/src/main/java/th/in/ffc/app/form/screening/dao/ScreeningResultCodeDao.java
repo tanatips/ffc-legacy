@@ -950,7 +950,7 @@ public class ScreeningResultCodeDao {
     public static class ScreeningResultData {
         public long id;
         public int personId;
-        public int visitno;
+        public Integer visitno;
         public String screeningType;
         public String resultCode;
         public String resultDescription;

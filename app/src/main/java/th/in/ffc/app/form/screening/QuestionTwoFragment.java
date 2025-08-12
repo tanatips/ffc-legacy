@@ -38,6 +38,8 @@ import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.session.UserSessionManager;
+import th.in.ffc.util.DateConverter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -143,7 +145,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
 
             // ล้างข้อมูลใน SubstanceItems
             for (SubstanceItem item : substanceList) {
-                item.setFrequency(0);
+                item.setFrequency(-1);
                 item.setOtherDrugs("");
             }
 
@@ -305,6 +307,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             if (data != null && data.getPersonId() != null) {
                 List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(data.getPersonId()));
                 this.drugsInfos = drugsInfos;
+                List<DrugsInfo> drugTwoInfo = new ArrayList<>();
                 Map<String, AnswerFrequencyData> frequencies = new HashMap<>();
                 drugsInfoMap.clear();
 
@@ -312,6 +315,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                 for (DrugsInfo drug : drugsInfos) {
                     if (drug.getQuestion().equals("Q2")) {
                         drugsInfoMap.put(drug.getSubquestion(), drug);
+                        drugTwoInfo.add(drug);
                         Log.d("QuestionTwoFragment", "Found drug info: " + drug.getSubquestion() +
                                 " with answer: " + drug.getAnswer() +
                                 " otherDrugs: " + drug.getOtherDrugs());
@@ -332,12 +336,12 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                                     frequency != 4 && frequency != 6) {
                                 Log.w("QuestionTwoFragment", "Invalid frequency value: " + frequency +
                                         " for item: " + item.getId() + ", setting to 0");
-                                frequency = 0;
+                                frequency = -1;
                             }
                         } catch (NumberFormatException e) {
                             Log.e("QuestionTwoFragment", "Error parsing frequency: " +
                                     matchingDrug.getAnswer() + " for item: " + item.getId(), e);
-                            frequency = 0;
+                            frequency = -1;
                         }
 
                         String otherDrugs = matchingDrug.getOtherDrugs() != null ? matchingDrug.getOtherDrugs() : "";
@@ -357,7 +361,7 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                         frequencies.put(item.getId(), new AnswerFrequencyData(-1, ""));
 
                         // รีเซ็ต state ของ SubstanceItem ด้วย
-                        item.setFrequency(0);
+                        item.setFrequency(-1);
                         item.setOtherDrugs("");
                     }
                 }
@@ -381,9 +385,22 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                     updateUI(selectedFrequencies);
                     isDataLoaded = true;
                 }
-
+                dataPasser.onDrugsTwoInfo(drugTwoInfo);
                 Log.d("QuestionTwoFragment", "Loaded drugs info: " + drugsInfos.size() + " items");
+            } else {
+                // ❌ ปัญหาที่ 4: กรณีไม่มี personId ก็ต้องกำหนดค่าเริ่มต้นเป็น -1
+                Log.d("QuestionTwoFragment", "No person data available, initializing with -1 values");
+                Map<String, AnswerFrequencyData> emptyFrequencies = new HashMap<>();
+                for (SubstanceItem item : substanceList) {
+                    emptyFrequencies.put(item.getId(), new AnswerFrequencyData(-1, ""));
+                    item.setFrequency(-1);
+                    item.setOtherDrugs("");
+                }
+                selectedFrequencies = emptyFrequencies;
+                viewModel.setQuestionTwoAnswers(emptyFrequencies);
+                updateUI(selectedFrequencies);
             }
+
         });
     }
 
@@ -522,10 +539,12 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
                 }
             }
 
+            UserSessionManager sessionManager = new UserSessionManager(getContext());
+            String userCreate = sessionManager.getUser();
             // กำหนดค่าใหม่
             if (!found) {
-                drugsInfo.setCreatedBy("SYSTEM");
-                drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                drugsInfo.setCreatedBy(userCreate);
+                drugsInfo.setCreatedDate(DateConverter.getCurrentThaiBuddhistDateTime());
             }
 
             if (drugsInfo.getPersonInfoId() == null) {
@@ -540,8 +559,8 @@ public class QuestionTwoFragment extends Fragment implements OnFrequencySelected
             // สำคัญ: ตั้งค่า otherDrugs อย่างถูกต้อง
             drugsInfo.setOtherDrugs(data.getOtherDrugs());
 
-            drugsInfo.setUpdatedBy("SYSTEM");
-            drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            drugsInfo.setUpdatedBy(userCreate);
+            drugsInfo.setUpdatedDate(DateConverter.getCurrentThaiBuddhistDateTime());
 
             // Log เพื่อตรวจสอบค่า otherDrugs ที่จะบันทึก
             if (currentId.equals("j")) {

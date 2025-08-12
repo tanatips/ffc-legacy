@@ -9,7 +9,7 @@ import java.util.HashMap;
  * ประวัติการอ่านบัตรประชาชน
  */
 public class NHSOCardReadingHistory implements BaseColumns {
-    public static final String TABLENAME = "ffc_nhso_card_reading_history";
+    public static final String TABLENAME = "ffc_sf_card_reading_history";
 
     public static HashMap<String, String> PROJECTION_MAP;
 

@@ -175,7 +175,7 @@ public class SfDrugsDao {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 DrugsInfo drugs = new DrugsInfo();
-                drugs.setId(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.ID));
+//                drugs.setId(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.ID));
                 drugs.setPersonInfoId(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.PERSON_INFO_ID));
                 drugs.setQuestion(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.QUESTION));
                 drugs.setSubquestion(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.SUBQUESTION));
@@ -201,7 +201,7 @@ public class SfDrugsDao {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 DrugsInfo drugs = new DrugsInfo();
-                drugs.setId(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.ID));
+//                drugs.setId(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.ID));
                 drugs.setPersonInfoId(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.PERSON_INFO_ID));
                 drugs.setQuestion(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.QUESTION));
                 drugs.setSubquestion(getStringFromCursor(cursor, ScreeningFormProvider.SfDrugs.SUBQUESTION));

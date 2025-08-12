@@ -89,6 +89,7 @@ import th.in.ffc.util.BMILevel;
 import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.NetworkUtils;
+import th.in.ffc.util.NumberValidator;
 import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.util.ThaiDatePickerDialog;
 import th.in.ffc.widget.SearchableSpinner;
@@ -1273,8 +1274,10 @@ public class PersonInfoFragment extends Fragment {
                     if (updater != null) {
                         if(s!=null) {
                             if(!s.toString().isEmpty()) {
-                                updater.update(s.toString());
-                                dataPasser.onPersonInfo(personInfo);
+//                                if(NumberValidator.isDouble(s.toString())) {
+                                    updater.update(s.toString());
+                                    dataPasser.onPersonInfo(personInfo);
+//                                }
                             }
                         }
                     }
@@ -2568,7 +2571,7 @@ public class PersonInfoFragment extends Fragment {
         try {
             if (!txtWeight.getText().toString().trim().isEmpty()) {
                 double weight = Double.parseDouble(txtWeight.getText().toString());
-                if (weight <= 0 || weight > 300) {
+                if (weight <= 1 || weight > 300) {
                     txtWeight.setError("น้ำหนักไม่ถูกต้อง (1-300 กิโลกรัม)");
                     isValid = false;
                 } else {
@@ -2578,7 +2581,7 @@ public class PersonInfoFragment extends Fragment {
 
             if (!txtHeight.getText().toString().trim().isEmpty()) {
                 double height = Double.parseDouble(txtHeight.getText().toString());
-                if (height <= 0 || height > 250) {
+                if (height <= 1 || height > 250) {
                     txtHeight.setError("ส่วนสูงไม่ถูกต้อง (1-250 เซนติเมตร)");
                     isValid = false;
                 } else {

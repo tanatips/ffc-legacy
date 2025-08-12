@@ -50,8 +50,12 @@ public class ScreeningResultCode implements BaseColumns {
     public static final String TYPE_STRESS_DEPRESSION_9Q = "9Q";
     public static final String TYPE_SUICIDE_ASSESSMENT_8Q = "8Q";
     public static final String TYPE_STRESS_DEPRESSION_ST5 = "ST5";
-    public static final String TYPE_ALCOHOL_SCREENING = "ALCOHOL";
+    public static final String TYPE_ALCOHOL_ANSWER_SCREENING = "ALCOHOL_ANSWER";
+    public static final String TYPE_ALCOHOL_ADVICE_SCREENING = "ALCOHOL_ADVICE";
     public static final String TYPE_SMOKING_ASSESSMENT = "SMOKING";
+
+    public static final String TYPE_NICOTINE_1 = "NICOTINE_1";
+    public static final String TYPE_NICOTINE_2 = "NICOTINE_2";
 
     public static final String TYPE_SMOKING_RISK = "SMOKING";
     public static final String TYPE_SMOKING_STATUS = "SMOKING_STATUS";
@@ -106,7 +110,7 @@ public class ScreeningResultCode implements BaseColumns {
             "ความเสี่ยงปานกลาง - แนะนำให้ได้รับการปรึกษาแบบสั้นและลดการดื่ม";
     public static final String ALCOHOL_RECOMMENDATION_HIGH_RISK =
             "ความเสี่ยงสูง - แนะนำให้ได้รับการบำบัดเข้มข้นจากผู้เชี่ยวชาญ";
-    public static String getAlcoholResultCode(int score) {
+    public static String getAlcoholAdviceResultCode(int score) {
         if (score == ALCOHOL_SCORE_NO_DRINKING) {
             return ALCOHOL_RESULT_NO_DRINKING;
         } else if (score >= ALCOHOL_SCORE_LOW_RISK_MIN && score <= ALCOHOL_SCORE_LOW_RISK_MAX) {
@@ -115,6 +119,16 @@ public class ScreeningResultCode implements BaseColumns {
             return ALCOHOL_RESULT_BRIEF_COUNSELING;
         } else if (score >= ALCOHOL_SCORE_HIGH_RISK_MIN) {
             return ALCOHOL_RESULT_INTENSIVE_TREATMENT;
+        }
+        return ALCOHOL_RESULT_NO_DRINKING;
+    }
+    public static String getAlcoholAnswerResultCode(int score) {
+        if (score == ALCOHOL_SCORE_NO_DRINKING && score <= ALCOHOL_SCORE_LOW_RISK_MAX) {
+            return "1B602";
+        } else if (score >= ALCOHOL_SCORE_MEDIUM_RISK_MIN && score <= ALCOHOL_SCORE_MEDIUM_RISK_MAX) {
+            return "1B603";
+        } else if (score >= ALCOHOL_SCORE_HIGH_RISK_MIN) {
+            return "1B604";
         }
         return ALCOHOL_RESULT_NO_DRINKING;
     }

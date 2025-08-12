@@ -2,12 +2,9 @@ package th.in.ffc.person;
 
 
 
-import static java.security.AccessController.getContext;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,36 +13,28 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStore;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.ftsafe.Utility;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,23 +47,21 @@ import java.util.Map;
 
 import th.in.ffc.BuildConfig;
 import th.in.ffc.R;
-import th.in.ffc.app.FFCFragmentActivity;
 import th.in.ffc.app.form.FormDialogFragment;
 import th.in.ffc.app.form.screening.AlcoholFragment;
 import th.in.ffc.app.form.screening.CardiovascularRiskFragment;
 import th.in.ffc.app.form.screening.CounselingSignFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
 import th.in.ffc.app.form.screening.MainQuestionsFragment;
+import th.in.ffc.app.form.screening.QuestionFourFragment;
 import th.in.ffc.app.form.screening.SharedViewModel;
 import th.in.ffc.app.form.screening.StressDepressionFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
-import th.in.ffc.app.form.screening.FragmentTabInfo;
 import th.in.ffc.app.form.screening.OnDataPass;
 import th.in.ffc.app.form.screening.SmookingFragment;
 import th.in.ffc.app.form.screening.StressDepression2qFragment;
 import th.in.ffc.app.form.screening.StressDepression9qFragment;
 import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
-import th.in.ffc.app.form.screening.SummaryOfAssistFragment;
 import th.in.ffc.app.form.screening.adapter.ScreeningExpandableListAdapter;
 import th.in.ffc.app.form.screening.dao.CounselingSignatureDao;
 import th.in.ffc.app.form.screening.dao.F43SpecialPPDao;
@@ -119,17 +106,13 @@ import th.in.ffc.app.form.screening.model.StressDepressionInfo;
 import th.in.ffc.app.form.screening.model.SuicideAssessment8qInfo;
 import th.in.ffc.app.form.screening.model.VisitDiagInfo;
 import th.in.ffc.dao.PersonDao;
-import th.in.ffc.dao.PersonVillageDao;
 import th.in.ffc.dao.VisitDao;
 import th.in.ffc.dao.VisitDiagDao;
-import th.in.ffc.intent.Action;
 import th.in.ffc.model.Person;
 import th.in.ffc.provider.CounselingSignatureProvider;
-import th.in.ffc.provider.F43SpecialPP;
 import th.in.ffc.provider.F43SpecialPPProvider;
 import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.provider.ScreeningResultCode;
-import th.in.ffc.security.CryptographerService;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.DateConverter;
@@ -138,15 +121,11 @@ import th.in.ffc.util.ViewPagerAdapter;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-
-import org.slf4j.helpers.Util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -155,7 +134,8 @@ import java.util.Objects;
 import android.widget.Switch;
 import android.widget.CompoundButton;
 
-public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass {
+public class PersonScreeningForm15Activity extends AppCompatActivity implements OnDataPass
+        , MainQuestionsFragment.OnFormDataSavedListener{
 
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
@@ -192,7 +172,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private List<DrugsInfo> drugsSevenInfos;
     private List<DrugsInfo> drugsEightInfos;
     CardiovascularRiskInfo cardiovascularRiskInfo;
+
     private ExpandableListView expandableListView;
+    private SimpleExpandableListAdapter adapter;
     private ScreeningExpandableListAdapter expandableListAdapter;
     private List<String> categoryList; // หัวข้อหลัก
     private Map<String, List<String>> subcategoryMap; // หัวข้อย่อย
@@ -234,7 +216,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private TextView textCompletedForms;
     private boolean has2QAbnormalResult = false;
     UserSessionManager sessionManager;
+    private QuestionFourFragment.OnDrugsDataSavedListener drugsDataSavedListener;
 
+    public void setOnDrugsDataSavedListener(QuestionFourFragment.OnDrugsDataSavedListener listener) {
+        this.drugsDataSavedListener = listener;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -306,8 +292,49 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
         // ตรวจสอบสถานะการส่งข้อมูล
         checkSendStatus();
-    }
 
+        ScreeningFormProvider.createTable(mContext);
+        CounselingSignatureProvider.createTable(mContext);
+        F43SpecialPPProvider.createTable(mContext);
+        SfTokenDao sfTokenDao = new SfTokenDao(mContext);
+        sfTokenDao.insertDefaultTokenIfEmpty();
+        if(this.personInfo != null && this.personInfo.getId() != null) {
+            reloadAllRelatedData(this.personInfo.getId());
+        };
+
+    }
+    @Override
+    public void onMainQuestionsDataSaved() {
+        Log.d("PersonScreeningForm15Activity", "MainQuestions data saved - refreshing menu");
+
+        // หน่วงเวลาเล็กน้อยเพื่อให้การบันทึกเสร็จสิ้น
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // ตรวจสอบการใช้สารเสพติดใหม่
+                checkSubstanceUseAndUpdateMenu();
+
+                // เตรียมข้อมูลเมนูใหม่
+                prepareListData();
+
+                // อัพเดต ExpandableListAdapter
+                updateExpandableListAdapter();
+
+                // ตรวจสอบข้อมูลที่มีอยู่แล้ว
+                if (personInfo != null && personInfo.getId() != null) {
+                    checkExistingData(personInfo.getId());
+                }
+
+                // อัพเดตการแสดงผล
+                updateScreeningSummary();
+
+                Log.d("PersonScreeningForm15Activity", "Menu refresh completed");
+
+                // แสดงข้อความแจ้งให้ทราบ
+                showQuickToast("🔄 เมนูได้รับการอัพเดตแล้ว");
+            }
+        }, 500); // หน่วงเวลา 500ms
+    }
     private void hideValidationModeSwitch() {
         // ค้นหา views ที่เกี่ยวข้อง
         validationModeHeader = findViewById(R.id.validationModeHeader);
@@ -807,6 +834,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             totalForms++;
             if (isHealthRiskDataComplete(personId)) completedForms++;
 
+            // *** 8. เพิ่มส่วนแสดง Screening Result Codes ***
+            addScreeningResultCodesSection(personId);
+
             // อัพเดทจำนวนฟอร์มที่เสร็จ
             textCompletedForms.setText(completedForms + "/" + totalForms);
 
@@ -815,6 +845,394 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
 
         } catch (Exception e) {
             Log.e("PersonScreeningForm15Activity", "Error updating screening summary: " + e.getMessage());
+        }
+    }
+    private void addSimpleScreeningResultItem(String resultText) {
+        LinearLayout itemLayout = new LinearLayout(this);
+        itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+        itemLayout.setPadding(24, 8, 16, 8);
+        itemLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.rounded_background));
+        itemLayout.setBackgroundColor(Color.parseColor("#F8F9FA"));
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(8, 4, 8, 4);
+        itemLayout.setLayoutParams(layoutParams);
+
+        // ไอคอน
+        TextView iconView = new TextView(this);
+        iconView.setText("✓");
+        iconView.setTextSize(14);
+        iconView.setTextColor(Color.parseColor("#4CAF50"));
+        iconView.setTypeface(null, Typeface.BOLD);
+        iconView.setPadding(0, 0, 12, 0);
+
+        // ข้อความ
+        TextView textView = new TextView(this);
+        textView.setText(resultText);
+        textView.setTextSize(13);
+        textView.setTextColor(Color.parseColor("#333333"));
+
+        itemLayout.addView(iconView);
+        itemLayout.addView(textView);
+
+        summaryContentContainer.addView(itemLayout);
+    }
+
+    private void addScreeningResultCodesSection(Integer personId) {
+        try {
+            ScreeningResultCodeDao screeningResultCodeDao = new ScreeningResultCodeDao(mContext);
+            List<ScreeningResultCodeDao.ScreeningResultData> resultCodes = screeningResultCodeDao.getResultsByPersonId(personId);
+
+            if (resultCodes != null && !resultCodes.isEmpty()) {
+                // สร้างข้อความสรุปแบบง่าย
+                StringBuilder resultSummary = new StringBuilder();
+                resultSummary.append("📋 รหัสผลการคัดกรอง (").append(resultCodes.size()).append(" รายการ):\n");
+
+                for (ScreeningResultCodeDao.ScreeningResultData result : resultCodes) {
+                    String typeName = getScreeningTypeDisplayName(result.screeningType);
+                    String description = getResultCodeDescription(result.resultCode);
+
+                    resultSummary.append("• ").append(typeName).append(": ")
+                            .append(result.resultCode);
+
+                    if (!description.isEmpty()) {
+                        resultSummary.append(" (").append(description).append(")");
+                    }
+                    resultSummary.append("\n");
+                }
+
+                // ใช้ addScreeningSummarySection แบบเดียวกับส่วนอื่นๆ
+                addScreeningSummarySection("📋 รหัสผลการคัดกรอง", resultSummary.toString(), true);
+            }
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error adding screening result codes: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    private void addErrorMessageItem(String errorMessage) {
+        LinearLayout itemLayout = new LinearLayout(this);
+        itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+        itemLayout.setPadding(24, 8, 16, 8);
+        itemLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.rounded_background));
+        itemLayout.setBackgroundColor(Color.parseColor("#FFEBEE"));
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(8, 4, 8, 4);
+        itemLayout.setLayoutParams(layoutParams);
+
+        // ไอคอน
+        TextView iconView = new TextView(this);
+        iconView.setText("⚠");
+        iconView.setTextSize(14);
+        iconView.setTextColor(Color.parseColor("#F44336"));
+        iconView.setTypeface(null, Typeface.BOLD);
+        iconView.setPadding(0, 0, 12, 0);
+
+        // ข้อความ
+        TextView textView = new TextView(this);
+        textView.setText(errorMessage);
+        textView.setTextSize(13);
+        textView.setTextColor(Color.parseColor("#D32F2F"));
+
+        itemLayout.addView(iconView);
+        itemLayout.addView(textView);
+
+        summaryContentContainer.addView(itemLayout);
+    }
+    private void addScreeningResultItem(ScreeningResultCodeDao.ScreeningResultData result) {
+        LinearLayout itemLayout = new LinearLayout(this);
+        itemLayout.setOrientation(LinearLayout.VERTICAL);
+        itemLayout.setPadding(24, 8, 16, 8);
+
+        // ใช้วิธีง่ายๆ ในการสร้าง background แทน getDrawable
+        itemLayout.setBackgroundColor(Color.parseColor("#F8F9FA"));
+
+        // กำหนด corner radius แบบง่าย (ถ้าต้องการ)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            // สร้าง GradientDrawable สำหรับ rounded corners
+            android.graphics.drawable.GradientDrawable background = new android.graphics.drawable.GradientDrawable();
+            background.setColor(Color.parseColor("#F8F9FA"));
+            background.setCornerRadius(8); // 8dp corner radius
+            itemLayout.setBackground(background);
+        } else {
+            // สำหรับ API ต่ำกว่า 16 ใช้สีพื้นหลังธรรมดา
+            itemLayout.setBackgroundColor(Color.parseColor("#F8F9FA"));
+        }
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(8, 4, 8, 4);
+        itemLayout.setLayoutParams(layoutParams);
+
+        // บรรทัดแรก: Screening Type
+        LinearLayout typeLayout = new LinearLayout(this);
+        typeLayout.setOrientation(LinearLayout.HORIZONTAL);
+        typeLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView typeLabel = new TextView(this);
+        typeLabel.setText("ประเภท: ");
+        typeLabel.setTextSize(12);
+        typeLabel.setTextColor(Color.parseColor("#666666"));
+        typeLabel.setTypeface(null, Typeface.BOLD);
+
+        TextView typeValue = new TextView(this);
+        typeValue.setText(getScreeningTypeDisplayName(result.screeningType));
+        typeValue.setTextSize(12);
+        typeValue.setTextColor(Color.parseColor("#1976D2"));
+        typeValue.setTypeface(null, Typeface.BOLD);
+
+        typeLayout.addView(typeLabel);
+        typeLayout.addView(typeValue);
+
+        // บรรทัดที่สอง: Result Code
+        LinearLayout resultLayout = new LinearLayout(this);
+        resultLayout.setOrientation(LinearLayout.HORIZONTAL);
+        resultLayout.setGravity(Gravity.CENTER_VERTICAL);
+        resultLayout.setPadding(0, 4, 0, 0);
+
+        TextView resultLabel = new TextView(this);
+        resultLabel.setText("รหัสผล: ");
+        resultLabel.setTextSize(12);
+        resultLabel.setTextColor(Color.parseColor("#666666"));
+
+        TextView resultValue = new TextView(this);
+        resultValue.setText(result.resultCode);
+        resultValue.setTextSize(12);
+        resultValue.setTextColor(Color.parseColor("#333333"));
+        resultValue.setTypeface(null, Typeface.BOLD);
+
+        // สร้าง background สำหรับ result code แบบง่าย
+        android.graphics.drawable.GradientDrawable resultBg = new android.graphics.drawable.GradientDrawable();
+        resultBg.setColor(getResultCodeBackgroundColor(result.resultCode));
+        resultBg.setCornerRadius(4);
+        resultValue.setBackground(resultBg);
+        resultValue.setPadding(8, 2, 8, 2);
+
+        // เพิ่มคำอธิบายรหัส (ถ้ามี)
+        TextView resultDescription = new TextView(this);
+        String description = getResultCodeDescription(result.resultCode);
+        if (!description.isEmpty()) {
+            resultDescription.setText(" (" + description + ")");
+            resultDescription.setTextSize(11);
+            resultDescription.setTextColor(Color.parseColor("#666666"));
+            resultDescription.setTypeface(null, Typeface.ITALIC);
+        }
+
+        resultLayout.addView(resultLabel);
+        resultLayout.addView(resultValue);
+        if (!description.isEmpty()) {
+            resultLayout.addView(resultDescription);
+        }
+
+        // บรรทัดที่สาม: Visit Info (ถ้ามี)
+        if (result.visitno != null) {
+            LinearLayout visitLayout = new LinearLayout(this);
+            visitLayout.setOrientation(LinearLayout.HORIZONTAL);
+            visitLayout.setGravity(Gravity.CENTER_VERTICAL);
+            visitLayout.setPadding(0, 4, 0, 0);
+
+            TextView visitLabel = new TextView(this);
+            visitLabel.setText("Visit: ");
+            visitLabel.setTextSize(11);
+            visitLabel.setTextColor(Color.parseColor("#888888"));
+
+            TextView visitValue = new TextView(this);
+            visitValue.setText(result.visitno);
+            visitValue.setTextSize(11);
+            visitValue.setTextColor(Color.parseColor("#888888"));
+
+            visitLayout.addView(visitLabel);
+            visitLayout.addView(visitValue);
+
+            itemLayout.addView(typeLayout);
+            itemLayout.addView(resultLayout);
+            itemLayout.addView(visitLayout);
+        } else {
+            itemLayout.addView(typeLayout);
+            itemLayout.addView(resultLayout);
+        }
+
+        summaryContentContainer.addView(itemLayout);
+    }
+
+    private int getResultCodeBackgroundColor(String resultCode) {
+        // กำหนดสีพื้นหลังตามรหัสผล
+        switch (resultCode) {
+            // สีเขียว - ปกติ/ไม่เสี่ยง
+            case "1B132": // ปกติ
+            case "1B136": // 2Q ปกติ
+            case "1B138": // 9Q ไม่มีอาการ
+            case "1B142": // Suicide ไม่มีความเสี่ยง
+            case "1B146": // Health เสี่ยงต่ำ
+            case "1B150": // Cardio เสี่ยงต่ำ
+            case "1B153": // ไม่สูบบุหรี่
+            case "1B156": // ติดน้อยมาก
+            case "1B161": // Alcohol ไม่เสี่ยง
+                return Color.parseColor("#E8F5E8"); // เขียวอ่อน
+
+            // สีเหลือง - เสี่ยงปานกลาง
+            case "1B133": // เครียดเล็กน้อย
+            case "1B139": // ซึมเศร้าน้อย
+            case "1B143": // Suicide เสี่ยงต่ำ
+            case "1B147": // Health เสี่ยงปานกลาง
+            case "1B151": // Cardio เสี่ยงปานกลาง
+            case "1B154": // สูบเป็นครั้งคราว
+            case "1B157": // ติดน้อย
+            case "1B158": // ติดปานกลาง
+            case "1B162": // Alcohol เสี่ยงต่ำ
+            case "1B163": // Alcohol เสี่ยงปานกลาง
+                return Color.parseColor("#FFF8E1"); // เหลืองอ่อน
+
+            // สีส้ม - เสี่ยงสูง
+            case "1B134": // เครียดปานกลาง
+            case "1B140": // ซึมเศร้าปานกลาง
+            case "1B144": // Suicide เสี่ยงปานกลาง
+            case "1B148": // Health เสี่ยงสูง
+            case "1B152": // Cardio เสี่ยงสูง
+            case "1B155": // สูบบุหรี่ประจำ
+            case "1B159": // ติดมาก
+            case "1B164": // Alcohol เสี่ยงสูง
+                return Color.parseColor("#FFF3E0"); // ส้มอ่อน
+
+            // สีแดง - เสี่ยงสูงมาก/รุนแรง
+            case "1B135": // เครียดมาก
+            case "1B137": // 2Q ผิดปกติ
+            case "1B141": // ซึมเศร้ารุนแรง
+            case "1B145": // Suicide เสี่ยงสูง
+            case "1B149": // Health เสี่ยงสูงมาก
+            case "1B160": // ติดมากที่สุด
+                return Color.parseColor("#FFEBEE"); // แดงอ่อน
+
+            default:
+                return Color.parseColor("#F5F5F5"); // เทาอ่อน
+        }
+    }
+    private String getScreeningTypeDisplayName(String screeningType) {
+        switch (screeningType) {
+            case "STRESS_DEPRESSION":
+                return "ภาวะเครียด-ซึมเศร้า";
+            case "STRESS_DEPRESSION_2Q":
+                return "คัดกรองโรคซึมเศร้า 2Q";
+            case "STRESS_DEPRESSION_9Q":
+                return "คัดกรองโรคซึมเศร้า 9Q";
+            case "SUICIDE_ASSESSMENT_8Q":
+                return "การประเมินการฆ่าตัวตาย 8Q";
+            case "HEALTH_RISK_ASSESSMENT":
+                return "ความเสี่ยงโรคเบาหวาน";
+            case "CARDIOVASCULAR_RISK":
+                return "ความเสี่ยงโรคหัวใจ";
+            case "SMOKER_ASSESSMENT":
+                return "การสูบบุหรี่";
+            case "NICOTINE_ADDICTION":
+                return "การติดนิโคติน";
+            case "ALCOHOL_ASSESSMENT":
+                return "การดื่มแอลกอฮอล์";
+            case "DRUGS_ASSESSMENT":
+                return "การใช้สารเสพติด";
+            default:
+                return screeningType;
+        }
+    }
+    private String getResultCodeDescription(String resultCode) {
+        // ตัวอย่างการแปลงรหัสเป็นคำอธิบาย
+        switch (resultCode) {
+            // Stress Depression codes
+            case "1B132":
+                return "ปกติ";
+            case "1B133":
+                return "เครียดเล็กน้อย";
+            case "1B134":
+                return "เครียดปานกลาง";
+            case "1B135":
+                return "เครียดมาก";
+
+            // 2Q Depression codes
+            case "1B136":
+                return "ปกติ";
+            case "1B137":
+                return "ผิดปกติ";
+
+            // 9Q Depression codes
+            case "1B138":
+                return "ไม่มีอาการซึมเศร้า";
+            case "1B139":
+                return "ซึมเศร้าระดับน้อย";
+            case "1B140":
+                return "ซึมเศร้าระดับปานกลาง";
+            case "1B141":
+                return "ซึมเศร้าระดับรุนแรง";
+
+            // Suicide Assessment codes
+            case "1B142":
+                return "ไม่มีความเสี่ยง";
+            case "1B143":
+                return "มีความเสี่ยงต่ำ";
+            case "1B144":
+                return "มีความเสี่ยงปานกลาง";
+            case "1B145":
+                return "มีความเสี่ยงสูง";
+
+            // Health Risk Assessment codes
+            case "1B146":
+                return "เสี่ยงต่ำ";
+            case "1B147":
+                return "เสี่ยงปานกลาง";
+            case "1B148":
+                return "เสี่ยงสูง";
+            case "1B149":
+                return "เสี่ยงสูงมาก";
+
+            // Cardiovascular Risk codes
+            case "1B150":
+                return "เสี่ยงต่ำ";
+            case "1B151":
+                return "เสี่ยงปานกลาง";
+            case "1B152":
+                return "เสี่ยงสูง";
+
+            // Smoking codes
+            case "1B153":
+                return "ไม่สูบบุหรี่";
+            case "1B154":
+                return "สูบบุหรี่เป็นครั้งคราว";
+            case "1B155":
+                return "สูบบุหรี่ประจำ";
+
+            // Nicotine Addiction codes
+            case "1B156":
+                return "ติดน้อยมาก";
+            case "1B157":
+                return "ติดน้อย";
+            case "1B158":
+                return "ติดปานกลาง";
+            case "1B159":
+                return "ติดมาก";
+            case "1B160":
+                return "ติดมากที่สุด";
+
+            // Alcohol codes
+            case "1B161":
+                return "ไม่เสี่ยง";
+            case "1B162":
+                return "เสี่ยงต่ำ";
+            case "1B163":
+                return "เสี่ยงปานกลาง";
+            case "1B164":
+                return "เสี่ยงสูง";
+
+            default:
+                return ""; // ไม่แสดงคำอธิบายถ้าไม่รู้จักรหัส
         }
     }
     private String getStressDepressionSummaryFromDB(Integer personId) {
@@ -1356,7 +1774,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
         LinearLayout sectionLayout = new LinearLayout(this);
         sectionLayout.setOrientation(LinearLayout.HORIZONTAL);
         sectionLayout.setPadding(12, 8, 12, 8);
-        sectionLayout.setBackground(getDrawable(R.drawable.rounded_background));
+        sectionLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.rounded_background));
 
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -1425,26 +1843,126 @@ private String getCardiovascularRiskSummary(Integer personId) {
     }
     private String getDrinkingSummary(Integer personId) {
         try {
-            SfDrinkingInfoDao dao = new SfDrinkingInfoDao(mContext);
-            List<DrinkingInfo> data = dao.getByPersonId(personId);
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(personId);
 
-            if (data.isEmpty()) return "ยังไม่ได้ประเมิน";
+            if (drugs.isEmpty()) return "ยังไม่ได้ประเมิน";
 
-            DrinkingInfo info = data.get(0);
-            int totalScore = 0 ; //info.getSum();
-
-            String riskLevel = "";
-            if (totalScore >= 0 && totalScore <= 7) {
-                riskLevel = "เสี่ยงต่ำ";
-            } else if (totalScore >= 8 && totalScore <= 15) {
-                riskLevel = "เสี่ยงปานกลาง";
-            } else if (totalScore >= 16) {
-                riskLevel = "เสี่ยงสูง";
+            // แยกข้อมูลตามคำถาม
+            Map<String, Map<String, DrugsInfo>> questionData = new HashMap<>();
+            for (DrugsInfo drug : drugs) {
+                questionData.computeIfAbsent(drug.getQuestion(), k -> new HashMap<>())
+                        .put(drug.getSubquestion(), drug);
             }
 
-            return "คะแนน: " + totalScore + " (" + riskLevel + ")";
+            // ตรวจสอบ Q1 ว่าเคยดื่มแอลกอฮอล์หรือไม่
+            Map<String, DrugsInfo> q1Data = questionData.get("Q1");
+            if (q1Data == null || q1Data.get("b") == null) {
+                return "ยังไม่ได้ประเมิน";
+            }
+
+            DrugsInfo alcoholQ1 = q1Data.get("b");
+            if (alcoholQ1 == null || !"1".equals(alcoholQ1.getAnswer())) {
+                return "ไม่เคยดื่มแอลกอฮอล์ (0 คะแนน - ไม่มีความเสี่ยง)";
+            }
+
+            // คำนวณคะแนนแอลกอฮอล์จาก Q2-Q7
+            int alcoholScore = calculateSubstanceScore("b", questionData);
+
+            StringBuilder summary = new StringBuilder();
+            List<String> scoreDetails = new ArrayList<>();
+
+            // Q2: ความต้องการหรือการอยาก
+            addScoreDetail(questionData, "Q2", "b", "ความต้องการ/การอยาก", scoreDetails);
+
+            // Q3: ปัญหาสุขภาพ สังคม กฎหมาย การเงิน
+            addScoreDetail(questionData, "Q3", "b", "ปัญหาด้านต่างๆ", scoreDetails);
+
+            // Q4: ไม่สามารถทำสิ่งที่คาดหวัง
+            addScoreDetail(questionData, "Q4", "b", "ไม่สามารถทำตามที่คาดหวัง", scoreDetails);
+
+            // Q5: เพื่อน ญาติ หรือคนอื่นแสดงความกังวล
+            addScoreDetail(questionData, "Q5", "b", "ความกังวลจากคนรอบข้าง", scoreDetails);
+
+            // Q6: พยายามหยุด ลด หรือควบคุม แต่ไม่สำเร็จ
+            addScoreDetail(questionData, "Q6", "b", "พยายามควบคุมแต่ไม่สำเร็จ", scoreDetails);
+
+            // Q7: ใช้โดยการฉีด (สำหรับแอลกอฮอล์ปกติจะไม่มี)
+            addScoreDetail(questionData, "Q7", "b", "การใช้โดยการฉีด", scoreDetails);
+
+            // ประเมินระดับความเสี่ยง
+            String riskLevel = getAlcoholRiskLevel(alcoholScore);
+            String emoji = getAlcoholRiskEmoji(alcoholScore);
+
+            // แสดงแค่คะแนนและระดับความเสี่ยง
+            return "คะแนน: " + alcoholScore + " (" + riskLevel + ")";
+
         } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "Error getting alcohol summary: " + e.getMessage());
             return "เกิดข้อผิดพลาด";
+        }
+    }
+    private String getAlcoholRecommendation(int score) {
+        if (score >= 0 && score <= 10) {
+            return "✅ ไม่ต้องการการแทรกแซง - ให้ข้อมูลและคำแนะนำทั่วไป";
+        } else if (score >= 11 && score <= 26) {
+            return "⚠️ แนะนำให้รับคำปรึกษาเกี่ยวกับการดื่มแอลกอฮอล์";
+        } else if (score >= 27) {
+            return "🚨 แนะนำให้พบแพทย์เพื่อรับการรักษาอย่างเร่งด่วน";
+        } else {
+            return "ควรปรึกษาแพทย์เพื่อขอคำแนะนำ";
+        }
+    }
+    private String getAlcoholRiskLevel(int score) {
+        if (score >= 0 && score <= 10) {
+            return "เสี่ยงต่ำ";
+        } else if (score >= 11 && score <= 26) {
+            return "เสี่ยงปานกลาง";
+        } else if (score >= 27) {
+            return "เสี่ยงสูง";
+        } else {
+            return "ไม่สามารถประเมินได้";
+        }
+    }
+
+    private String getAlcoholRiskEmoji(int score) {
+        if (score >= 0 && score <= 10) {
+            return "😊"; // เสี่ยงต่ำ
+        } else if (score >= 11 && score <= 26) {
+            return "😐"; // เสี่ยงปานกลาง
+        } else if (score >= 27) {
+            return "🚨"; // เสี่ยงสูง
+        } else {
+            return "❓";
+        }
+    }
+    private void addScoreDetail(Map<String, Map<String, DrugsInfo>> questionData,
+                                String question, String substance, String description,
+                                List<String> scoreDetails) {
+        Map<String, DrugsInfo> qData = questionData.get(question);
+        if (qData != null) {
+            DrugsInfo drugInfo = qData.get(substance);
+            if (drugInfo != null && drugInfo.getAnswer() != null && !drugInfo.getAnswer().equals("0")) {
+                try {
+                    int score = Integer.parseInt(drugInfo.getAnswer());
+                    if (score > 0) {
+                        String frequency = getAssistFrequencyText(score);
+                        scoreDetails.add(description + ": " + frequency + " (+" + score + ")");
+                    }
+                } catch (NumberFormatException e) {
+                    // ข้าม
+                }
+            }
+        }
+    }
+
+    private String getAssistFrequencyText(int score) {
+        switch (score) {
+            case 1: return "1-2 ครั้ง";
+            case 2: return "รายเดือน";
+            case 3: return "รายสัปดาห์";
+            case 4: return "ทุกวันหรือเกือบทุกวัน";
+            default: return "ไม่ระบุ";
         }
     }
     private String getStressDepressionSummary(Integer personId) {
@@ -1838,14 +2356,23 @@ private String getCardiovascularRiskSummary(Integer personId) {
                             saveSuicideAssessment8q();
                             saveHealthRiskAssessment();
                             saveCardiovascularRisk();
-                            saveDrugsOne();
-                            saveDrugsTwo();
-                            saveDrugsThree();
-                            saveDrugsFour();
-                            saveDrugsFive();
-                            saveDrugsSix();
-                            saveDrugsSeven();
-                            saveDrugsEight();
+//                            saveDrugsOne();
+//                            saveDrugsTwo();
+//                            saveDrugsThree();
+//                            saveDrugsFour();
+//                            saveDrugsFive();
+//                            saveDrugsSix();
+//                            saveDrugsSeven();
+//                            saveDrugsEight();
+                            saveDrugsCommon("Q1",drugsOneInfos);
+                            saveDrugsCommon("Q2",drugsTwoInfos);
+                            saveDrugsCommon("Q3",drugsThreeInfos);
+                            saveDrugsCommon("Q4",drugsFourInfos);
+                            saveDrugsCommon("Q5",drugsFiveInfos);
+                            saveDrugsCommon("Q6",drugsSixInfos);
+                            saveDrugsCommon("Q7",drugsSevenInfos);
+                            saveDrugsCommon("Q8",drugsEightInfos);
+
                             saveCounseling();
 
                             saveF43SpecialPP();
@@ -1853,7 +2380,8 @@ private String getCardiovascularRiskSummary(Integer personId) {
                             if (personInfo.getId() != null) {
                                 checkExistingData(personInfo.getId());
                             }
-
+                            setDataLive(personInfo.getId(), personInfo.getVisitno());
+                            updateMenuAfterSubstanceChange();
                             Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -2103,8 +2631,10 @@ private String getCardiovascularRiskSummary(Integer personId) {
             checkExistingData(personInfo.getId());
         }
 
+
+        updateScreeningSummary();
         // แสดงข้อความแจ้งให้ทราบ
-        showQuickToast("🔄 รายการแบบประเมินได้รับการอัปเดตแล้ว");
+//        showQuickToast("🔄 รายการแบบประเมินได้รับการอัปเดตแล้ว");
     }
     private void showQuickToast(String message) {
         Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
@@ -2342,70 +2872,69 @@ private String getCardiovascularRiskSummary(Integer personId) {
         String personId = getIntent().getStringExtra("person_id");
         String visitNo = getIntent().getStringExtra("visitno");
         if (personId != null) {
-            // ตั้งค่า ViewModels
-            SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-            QuestionsStateViewModel questionsStateViewModel = new ViewModelProvider(this).get(QuestionsStateViewModel.class);
-            PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
-            personInfoLiveData.setId(personId);
-            personInfoLiveData.setVisitNo(visitNo);
-            viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
-
-            // ตั้งค่า LiveData อื่นๆ...
-            SmookingLiveData smookingLiveData = new SmookingLiveData();
-            smookingLiveData.setPersonId(personId);
-            smookingLiveData.setVisitNo(visitNo);
-            viewModel.setSmookingMutableLiveData(smookingLiveData);
-
-            CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
-            cigaretteAddictionTestLiveData.setPersonId(personId);
-            cigaretteAddictionTestLiveData.setVisitNo(visitNo);
-            viewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
-
-            StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
-            stressDepressionLiveData.setPersonId(personId);
-            stressDepressionLiveData.setVisitNo(visitNo);
-            viewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
-
-            StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
-            stressDepression2qLiveData.setPersonId(personId);
-            stressDepression2qLiveData.setVisitNo(visitNo);
-            viewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
-
-            StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
-            stressDepression9qLiveData.setPersonId(personId);
-            stressDepression9qLiveData.setVisitNo(visitNo);
-            viewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
-
-            SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
-            suicideAssessment8qLiveData.setPersonId(personId);
-            suicideAssessment8qLiveData.setVisitNo(visitNo);
-            viewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
-
-            HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
-            healthRiskAssessmentLiveData.setPersonId(personId);
-            healthRiskAssessmentLiveData.setVisitNo(visitNo);
-            viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
-
-            CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
-            cardiovascularRiskLiveData.setPersonId(personId);
-            cardiovascularRiskLiveData.setVisitNo(visitNo);
-            viewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
-
-            DrugsLiveData drugsLiveData = new DrugsLiveData();
-            drugsLiveData.setPersonId(personId);
-            drugsLiveData.setVisitNo(visitNo);
-            viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
-
-            CounselingLiveData counselingLiveData = new CounselingLiveData();
-            counselingLiveData.setPersonId(personId);
-            counselingLiveData.setVisitNo(visitNo);
-            viewModel.setCounselingLiveData(counselingLiveData);
-
-            // แก้ไข: ลบการเรียก checkExistingData และ checkSubstanceUseAndUpdateMenu ออกจากที่นี่
-            // เพราะจะเรียกใน Handler แทน
+            setDataLive(personId, visitNo);
         }
     }
+    private void setDataLive(String personId,String visitNo){
+        SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        QuestionsStateViewModel questionsStateViewModel = new ViewModelProvider(this).get(QuestionsStateViewModel.class);
+        PersonInfoLiveData personInfoLiveData = new PersonInfoLiveData();
+        personInfoLiveData.setId(personId);
+        personInfoLiveData.setVisitNo(visitNo);
+        viewModel.setPersonInfoLiveDataMutableLiveData(personInfoLiveData);
 
+        // ตั้งค่า LiveData อื่นๆ...
+        SmookingLiveData smookingLiveData = new SmookingLiveData();
+        smookingLiveData.setPersonId(personId);
+        smookingLiveData.setVisitNo(visitNo);
+        viewModel.setSmookingMutableLiveData(smookingLiveData);
+
+        CigaretteAddictionTestLiveData cigaretteAddictionTestLiveData = new CigaretteAddictionTestLiveData();
+        cigaretteAddictionTestLiveData.setPersonId(personId);
+        cigaretteAddictionTestLiveData.setVisitNo(visitNo);
+        viewModel.setCigatetteAddictionTestMutableLiveData(cigaretteAddictionTestLiveData);
+
+        StressDepressionLiveData stressDepressionLiveData = new StressDepressionLiveData();
+        stressDepressionLiveData.setPersonId(personId);
+        stressDepressionLiveData.setVisitNo(visitNo);
+        viewModel.setStressDepressionLiveDataMutableLiveData(stressDepressionLiveData);
+
+        StressDepression2qLiveData stressDepression2qLiveData = new StressDepression2qLiveData();
+        stressDepression2qLiveData.setPersonId(personId);
+        stressDepression2qLiveData.setVisitNo(visitNo);
+        viewModel.setStressDepression2qLiveDataModelMutableLiveData(stressDepression2qLiveData);
+
+        StressDepression9qLiveData stressDepression9qLiveData = new StressDepression9qLiveData();
+        stressDepression9qLiveData.setPersonId(personId);
+        stressDepression9qLiveData.setVisitNo(visitNo);
+        viewModel.setStressDepression9qLiveDataModelMutableLiveData(stressDepression9qLiveData);
+
+        SuicideAssessment8qLiveData suicideAssessment8qLiveData = new SuicideAssessment8qLiveData();
+        suicideAssessment8qLiveData.setPersonId(personId);
+        suicideAssessment8qLiveData.setVisitNo(visitNo);
+        viewModel.setSuicideAssessment8qMutableLiveData(suicideAssessment8qLiveData);
+
+        HealthRiskAssessmentLiveData healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
+        healthRiskAssessmentLiveData.setPersonId(personId);
+        healthRiskAssessmentLiveData.setVisitNo(visitNo);
+        viewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+
+        CardiovascularRiskLiveData cardiovascularRiskLiveData = new CardiovascularRiskLiveData();
+        cardiovascularRiskLiveData.setPersonId(personId);
+        cardiovascularRiskLiveData.setVisitNo(visitNo);
+        viewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
+
+        DrugsLiveData drugsLiveData = new DrugsLiveData();
+        drugsLiveData.setPersonId(personId);
+        drugsLiveData.setVisitNo(visitNo);
+        viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
+
+        CounselingLiveData counselingLiveData = new CounselingLiveData();
+        counselingLiveData.setPersonId(personId);
+        counselingLiveData.setVisitNo(visitNo);
+        viewModel.setCounselingLiveData(counselingLiveData);
+
+    }
     private void checkExistingData(String personId) {
         // สร้าง Map เพื่อเก็บสถานะการกรอกข้อมูล
         Map<String, Boolean> formStatus = new HashMap<>();
@@ -2550,7 +3079,6 @@ private String getCardiovascularRiskSummary(Integer personId) {
         List<String> sfSummary = new ArrayList<>();
         sfSummary.add("ให้คำปรึกษาและแนะนำ");
         subcategoryMap.put("สรุปผลการคัดกรอง", sfSummary);
-
 
         fragmentMap.put("แบบคัดกรองการใช้สารเสพติด", new MainQuestionsFragment());
         fragmentMap.put("สรุปคะแนนแบบคัดกรอง ASSIST", new AssistScoreFragment());
@@ -2791,6 +3319,46 @@ private String getCardiovascularRiskSummary(Integer personId) {
                 sfNicotineInfoDao.update(nicotineInfo);
             }
             NicotineInfo nicotineInfo = sfNicotineInfoDao.getById(Integer.parseInt(this.nicotineInfo.getId()));
+
+            ScreeningResultCodeDao screeningResultCodeDao = new ScreeningResultCodeDao(mContext);
+            ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
+            if(nicotineInfo.getNicotine1().equals("1")) {
+                data.resultCode = "1B501";
+            } else if (nicotineInfo.getNicotine1().equals("2")) {
+                data.resultCode = "1B502";
+            } else if (nicotineInfo.getNicotine1().equals("3")) {
+                data.resultCode = "1B503";
+            } else if (nicotineInfo.getNicotine1().equals("4")) {
+                data.resultCode = "1B503";
+            }
+            data.personId = Integer.valueOf(personInfo.getId());
+            data.visitno = Integer.valueOf(personInfo.getVisitno());
+            data.screeningType = ScreeningResultCode.TYPE_NICOTINE_1;
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = sessionManager.getUser();
+            data.userUpdate = sessionManager.getUser();
+            screeningResultCodeDao.saveScreeningResult(data);
+
+            data = new ScreeningResultCodeDao.ScreeningResultData();
+            if(nicotineInfo.getNicotine2().equals("1")) {
+                data.resultCode = "1B504";
+            } else if (nicotineInfo.getNicotine2().equals("2")) {
+                data.resultCode = "1B504";
+            } else if (nicotineInfo.getNicotine2().equals("3")) {
+                data.resultCode = "1B505";
+            } else if (nicotineInfo.getNicotine2().equals("4")) {
+                data.resultCode = "1B506";
+            }
+            data.personId = Integer.valueOf(personInfo.getId());
+            data.visitno = Integer.valueOf(personInfo.getVisitno());
+            data.screeningType = ScreeningResultCode.TYPE_NICOTINE_2;
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = sessionManager.getUser();
+            data.userUpdate = sessionManager.getUser();
+            screeningResultCodeDao.saveScreeningResult(data);
+
             if (nicotineInfo != null) {
                 System.out.println("smoker:" + nicotineInfo.getId() + " " + nicotineInfo.getPersonId());
             }
@@ -2928,30 +3496,47 @@ private String getCardiovascularRiskSummary(Integer personId) {
             }
         }
     }
+    private void saveDrugsCommon(String question, List<DrugsInfo> datas) {
+        if (datas != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            Integer result =  sfDrugsDao.deleteDrugsByPersonIdAndQuestion(this.personInfo.getId(), question);
 
+                for (DrugsInfo drugsInfo : datas) {
+                    // กำหนดค่าที่จำเป็น
+                    drugsInfo.setQuestion(question);
+                    drugsInfo.setIdcard(this.personInfo.getIdcard());
+                    drugsInfo.setPersonInfoId(this.personInfo.getId());
+                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                    drugsInfo.setCreatedBy(sessionManager.getUser());
+                    drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                    drugsInfo.setUpdatedBy(sessionManager.getUser());
+                    drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
+                    String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
+                    // Debug log
+                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                    if (drugs != null && !drugs.isEmpty()) {
+                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    }
+                }
+
+        }
+    }
     private void saveDrugsOne() {
         if (this.drugsOneInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            sfDrugsDao.deleteDrugsByPersonIdAndQuestion(this.personInfo.getId(), "Q1");
             for (DrugsInfo drugsInfo : this.drugsOneInfos) {
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
-                if (drugsInfo.getId() == null) {
-                    drugsInfo.setCreatedBy(sessionManager.getUser());
-                    drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
-                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
-                    // ตรวจสอบว่าเป็นการบันทึกใหม่หรืออัพเดต
-                    String id = sfDrugsDao.insert(drugsInfo);
-                    drugsInfo.setId(id);
-                } else {
-                    // กำหนดค่าสำหรับการอัพเดต
-                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
-                    drugsInfo.setUpdatedBy(sessionManager.getUser());
-                    drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
-                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
-                    sfDrugsDao.update(drugsInfo);
-                }
-
+                drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                drugsInfo.setCreatedBy(sessionManager.getUser());
+                drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                drugsInfo.setUpdatedBy(sessionManager.getUser());
+                drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
+                String id = sfDrugsDao.insert(drugsInfo);
+                drugsInfo.setId(id);
                 // Debug log
                 List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
                 if (drugs != null && !drugs.isEmpty()) {
@@ -3028,29 +3613,43 @@ private String getCardiovascularRiskSummary(Integer personId) {
     private void saveDrugsFour() {
         if (this.drugsFourInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            sfDrugsDao.deleteDrugsByPersonIdAndQuestion(this.personInfo.getId(), "Q4");
             for (DrugsInfo drugsInfo : this.drugsFourInfos) {
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if(drugsInfo.getQuestion()!=null) {
-                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
+                    String id = null;
+                    boolean isUpdate = false;
+//                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
                         drugsInfo.setCreatedBy(sessionManager.getUser());
                         drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
-                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
-                        String id = sfDrugsDao.insert(drugsInfo);
-                        drugsInfo.setId(id);
-                    } else {
-                        // กำหนดค่าสำหรับการอัพเดต
                         drugsInfo.setUpdatedBy(sessionManager.getUser());
-                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
                         drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
-                        sfDrugsDao.update(drugsInfo);
-                    }
+                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                        id = sfDrugsDao.insert(drugsInfo);
+                        drugsInfo.setId(id);
+                        Log.d("PersonScreeningForm15Activity", "Inserted Q4 data - ID: " + id +
+                                " SubQ: " + drugsInfo.getSubquestion());
+//                    } else {
+//                        // กำหนดค่าสำหรับการอัพเดต
+//                        drugsInfo.setUpdatedBy(sessionManager.getUser());
+//                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+//                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
+//                        sfDrugsDao.update(drugsInfo);
+//                        isUpdate = true;
+//                    }
 
+                    // ✅ เรียก callback เพื่ออัปเดตข้อมูลใน Fragment
+                    if (drugsDataSavedListener != null && drugsInfo.getId() != null) {
+                        drugsDataSavedListener.onDrugsDataSaved(drugsInfo.getSubquestion(), drugsInfo);
+                    }
                     // Debug log
-                    List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
-                    if (drugs != null && !drugs.isEmpty()) {
-                        System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                    if (id != null || isUpdate) {
+                        List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
+                        if (drugs != null && !drugs.isEmpty()) {
+                            System.out.println("drugs:" + drugsInfo.getId() + " " + drugsInfo.getPersonInfoId());
+                        }
                     }
                 }
             }
@@ -3060,25 +3659,20 @@ private String getCardiovascularRiskSummary(Integer personId) {
     private void saveDrugsFive() {
         if (this.drugsFiveInfos != null) {
             SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            sfDrugsDao.deleteDrugsByPersonIdAndQuestion(this.personInfo.getId(), "Q5");
+
             for (DrugsInfo drugsInfo : this.drugsFiveInfos) {
                 // กำหนดค่าที่จำเป็น
                 drugsInfo.setIdcard(this.personInfo.getIdcard());
                 drugsInfo.setPersonInfoId(this.personInfo.getId());
                 if (drugsInfo.getQuestion() != null) {
-                    if (drugsInfo.getId() == null || drugsInfo.getId().isEmpty()) {
-                        drugsInfo.setCreatedBy(sessionManager.getUser());
-                        drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
-                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
-                        String id = sfDrugsDao.insert(drugsInfo);
-                        drugsInfo.setId(id);
-                    } else {
-                        // กำหนดค่าสำหรับการอัพเดต
-                        drugsInfo.setUpdatedBy(sessionManager.getUser());
-                        drugsInfo.setVisitNo(this.personInfo.getVisitNo());
-                        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
-                        sfDrugsDao.update(drugsInfo);
-                    }
-
+                    drugsInfo.setCreatedBy(sessionManager.getUser());
+                    drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                    drugsInfo.setVisitNo(this.personInfo.getVisitNo());
+                    drugsInfo.setUpdatedBy(sessionManager.getUser());
+                    drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
+                    String id = sfDrugsDao.insert(drugsInfo);
+                    drugsInfo.setId(id);
                     // Debug log
                     List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
                     if (drugs != null && !drugs.isEmpty()) {
@@ -4027,29 +4621,31 @@ private String getCardiovascularRiskSummary(Integer personId) {
     @Override
     public void onDrugsOneInfo(List<DrugsInfo> data) {
         this.drugsOneInfos = data;
-
+//        boolean tobacco = false;
+//        boolean alcohol = false;
         // ตรวจสอบการเปลี่ยนแปลงในการใช้สารเสพติดเฉพาะเมื่อไม่ใช่การโหลดครั้งแรก
-        if (!isInitialLoad) {
+//        if (!isInitialLoad) {
             boolean currentTobaccoUse = false;
             boolean currentAlcoholUse = false;
 
             for (DrugsInfo drug : data) {
                 if (drug.getQuestion().equals("Q1")) {
                     if (drug.getSubquestion().equals("a")) { // ผลิตภัณฑ์ยาสูบ
-                        currentTobaccoUse = "1".equals(drug.getAnswer());
+                       currentTobaccoUse = "1".equals(drug.getAnswer());
+//                        tobacco = true;
                     } else if (drug.getSubquestion().equals("b")) { // เครื่องดื่มแอลกอฮอล์
                         currentAlcoholUse = "1".equals(drug.getAnswer());
+//                        alcohol = true;
                     }
                 }
             }
-
             // เรียกใช้ handleSubstanceUseChange แทนการจัดการเอง
             handleSubstanceUseChange(currentTobaccoUse, currentAlcoholUse);
-        }
+//        }
 
         displayData(data);
     }
-    @Override
+     @Override
     public void onDrugsTwoInfo(List<DrugsInfo> data) {
         this.drugsTwoInfos = data;
         displayData(data);
@@ -4470,7 +5066,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
         } else if (formData instanceof CounselingInfo) {
             counselingInfo = (CounselingInfo) formData;
         }
+        if (formName.equals("แบบคัดกรองการใช้สารเสพติด")) {
+            Log.d("PersonScreeningForm15Activity", "Main questions form saved - triggering menu update");
 
+            // เรียกใช้ callback method
+            onMainQuestionsDataSaved();
+        }
         // อัปเดตสถานะการกรอกข้อมูล
         updateFormStatus(formName, true);
 
@@ -4479,8 +5080,78 @@ private String getCardiovascularRiskSummary(Integer personId) {
         // แจ้งให้ผู้ใช้ทราบ
         Toast.makeText(this, "บันทึกข้อมูล " + formName + " แล้ว", Toast.LENGTH_SHORT).show();
     }
+    private void refreshMenuAfterMainQuestionsUpdate() {
+        try {
+            Log.d("PersonScreeningForm15Activity", "เริ่มรีเฟรชเมนูหลังจากอัพเดต MainQuestions");
 
+            // 1. รีเซ็ตสถานะการใช้สารเสพติด
+            resetSubstanceUseStates();
 
+            // 2. โหลดข้อมูลการใช้สารเสพติดใหม่จากฐานข้อมูล
+            reloadSubstanceUseData();
+
+            // 3. เตรียมข้อมูลเมนูใหม่ตามการใช้สารเสพติด
+            prepareListData();
+
+            // 4. อัพเดต ExpandableListAdapter
+            expandableListAdapter = new ScreeningExpandableListAdapter(
+                    this, categoryList, subcategoryMap);
+            expandableListView.setAdapter(expandableListAdapter);
+
+            // 5. ตั้งค่า listeners ใหม่
+            setupExpandableListViewListeners();
+
+            // 6. ขยายรายการทั้งหมด
+            expandAllGroups();
+
+            // 7. ตรวจสอบข้อมูลที่มีอยู่และอัพเดตสถานะ
+            if (personInfo != null && personInfo.getId() != null) {
+                checkExistingData(personInfo.getId());
+            }
+
+            // 8. อัพเดตการแสดงผลสรุป
+            updateScreeningSummary();
+
+            Log.d("PersonScreeningForm15Activity", "รีเฟรชเมนูเสร็จสิ้น");
+
+        } catch (Exception e) {
+            Log.e("PersonScreeningForm15Activity", "เกิดข้อผิดพลาดในการรีเฟรชเมนู: " + e.getMessage());
+        }
+    }
+    private void resetSubstanceUseStates() {
+        hasTobaccoUse = false;
+        hasAlcoholUse = false;
+        previousTobaccoUse = false;
+        previousAlcoholUse = false;
+        Log.d("PersonScreeningForm15Activity", "รีเซ็ตสถานะการใช้สารเสพติดแล้ว");
+    }
+    private void reloadSubstanceUseData() {
+        String personId = getIntent().getStringExtra("person_id");
+        if (personId != null) {
+            SfDrugsDao sfDrugsDao = new SfDrugsDao(mContext);
+            List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(personId));
+
+            // ตรวจสอบการใช้ยาสูบ (a) และเครื่องดื่มแอลกอฮอล์ (b)
+            for (DrugsInfo drug : drugsInfos) {
+                if (drug.getQuestion().equals("Q1")) {
+                    if (drug.getSubquestion().equals("a")) { // ผลิตภัณฑ์ยาสูบ
+                        hasTobaccoUse = "1".equals(drug.getAnswer());
+                        Log.d("PersonScreeningForm15Activity", "อัพเดตการใช้ยาสูบ: " + hasTobaccoUse);
+                    } else if (drug.getSubquestion().equals("b")) { // เครื่องดื่มแอลกอฮอล์
+                        hasAlcoholUse = "1".equals(drug.getAnswer());
+                        Log.d("PersonScreeningForm15Activity", "อัพเดตการใช้แอลกอฮอล์: " + hasAlcoholUse);
+                    }
+                }
+            }
+
+            // อัพเดต previousStates
+            previousTobaccoUse = hasTobaccoUse;
+            previousAlcoholUse = hasAlcoholUse;
+
+            Log.d("PersonScreeningForm15Activity",
+                    "โหลดข้อมูลการใช้สารเสพติดใหม่ - Tobacco: " + hasTobaccoUse + ", Alcohol: " + hasAlcoholUse);
+        }
+    }
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
@@ -4556,6 +5227,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
         // โหลดข้อมูลใหม่เหมือนตอนเปิดหน้าจอครั้งแรก
         refreshAllDataOnResume();
+
     }
 
     /**

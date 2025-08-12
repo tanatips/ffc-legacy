@@ -36,6 +36,8 @@ import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.session.UserSessionManager;
+import th.in.ffc.util.DateConverter;
 
 
 public class QuestionFourFragment extends Fragment implements OnFrequencySelectedListener {
@@ -45,17 +47,18 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
     private ArrayList<SubstanceItem> substanceList;
     private QuestionsStateViewModel viewModel;
     private Map<String, AnswerFrequencyData> selectedFrequencies = new HashMap<>();
-
     private Observer<Map<String, AnswerFrequencyData>> answersObserver;
-    // เพิ่มตัวแปร isUpdating เป็น array เพื่อให้เข้าถึงได้ใน lambda
-    final boolean[] isUpdating = {false};
+    final boolean[] isUpdating = {false}; // เปลี่ยนเป็น array แบบเดียวกับ QuestionThreeFragment
 
-    // เพิ่มตัวแปรอื่นๆ ที่จำเป็น
+    // เพิ่มตัวแปรต่อไปนี้เหมือน QuestionThreeFragment
     private Map<String, DrugsInfo> drugsInfoMap = new HashMap<>();
     private List<DrugsInfo> drugsInfos = new ArrayList<>();
     private OnDataPass dataPasser;
     private boolean isDataLoaded = false;
     private boolean isFirstLoad = true;
+    LinearLayout headerLayout;
+    LinearLayout contentLayout;
+    ImageView expandIcon;
 
     public QuestionFourFragment() {
         // Required empty public constructor
@@ -86,16 +89,16 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
         View view = inflater.inflate(R.layout.fragment_question_four, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewFour);
-        LinearLayout headerLayout = view.findViewById(R.id.headerLayoutFour);
-        final LinearLayout contentLayout = view.findViewById(R.id.contentLayoutFour);
-        final ImageView expandIcon = view.findViewById(R.id.expandIconFour);
+        headerLayout = view.findViewById(R.id.headerLayoutFour);
+        contentLayout = view.findViewById(R.id.contentLayoutFour);
+        expandIcon = view.findViewById(R.id.expandIconFour);
 
         // ตั้งค่า RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new SubstanceFourAdapter(substanceList, this);
         recyclerView.setAdapter(adapter);
 
-        // ตั้งค่าเริ่มต้น - แสดงเนื้อหา
+        // ตั้งค่าเริ่มต้น - ซ่อนเนื้อหา (เหมือน QuestionThreeFragment)
         contentLayout.setVisibility(View.GONE);
         expandIcon.setImageResource(R.drawable.ic_expand_more);
 
@@ -108,20 +111,19 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
                     contentLayout.setVisibility(View.GONE);
                     expandIcon.setImageResource(R.drawable.ic_expand_more);
                     notifyParentOfChange();
+                    calculateAndSetContentHeight();
                 } else {
                     contentLayout.setVisibility(View.VISIBLE);
                     expandIcon.setImageResource(R.drawable.ic_expand_less);
                     notifyParentOfChange();
+                    calculateAndSetContentHeight();
                 }
             }
         });
 
-//        recyclerView = view.findViewById(R.id.recyclerView);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//        adapter = new SubstanceFourAdapter(substanceList, this);
-//        recyclerView.setAdapter(adapter);
         return view;
     }
+
     public void clearAllData() {
         try {
             isUpdating[0] = true;
@@ -133,7 +135,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
 
             // ล้างข้อมูลใน SubstanceItems
             for (SubstanceItem item : substanceList) {
-                item.setFrequency(0);
+                item.setFrequency(-1);
                 item.setOtherDrugs("");
             }
 
@@ -150,28 +152,21 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
             isUpdating[0] = false;
         }
     }
+
     private void notifyParentOfChange() {
         // วิธีที่ 1: แจ้ง parent fragment (MainQuestionsFragment) โดยตรง
         Fragment parentFragment = getParentFragment();
         if (parentFragment instanceof MainQuestionsFragment) {
             ((MainQuestionsFragment) parentFragment).notifyChildFragmentStateChanged();
         }
-
-        // วิธีที่ 2: ถ้าไม่มี notifyChildFragmentStateChanged() ใน MainQuestionsFragment
-        // หรือไม่สามารถเข้าถึง MainQuestionsFragment ได้ ให้แจ้ง activity โดยตรง
-//        if (getActivity() instanceof PersonScreeningForm15Activity) {
-//            // หน่วงเวลาเล็กน้อยเพื่อให้ layout ได้อัปเดตก่อน
-//            new Handler().postDelayed(() -> {
-//                ((PersonScreeningForm15Activity) getActivity()).refreshViewPager();
-//            }, 200);
-//        }
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // เริ่มต้นค่าเริ่มต้นสำหรับทุก item
         for (SubstanceItem item : substanceList) {
-            selectedFrequencies.put(item.getId(), new AnswerFrequencyData(0,""));
+            selectedFrequencies.put(item.getId(), new AnswerFrequencyData(-1, "")); // เปลี่ยนจาก 0 เป็น -1
         }
 
         // ตรวจสอบว่ามีข้อมูลใน ViewModel หรือไม่
@@ -184,7 +179,6 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
             updateUI(selectedFrequencies);
             isDataLoaded = true;
         }
-
 
         if (savedInstanceState != null) {
             Map<String, AnswerFrequencyData> savedFrequencies = (Map<String, AnswerFrequencyData>) savedInstanceState.getSerializable("selectedFrequencies");
@@ -208,12 +202,11 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
             }
         };
         viewModel.getQuestionFourAnswers().observe(getViewLifecycleOwner(), answersObserver);
+
         // โหลดข้อมูลจาก DB เฉพาะครั้งแรกเท่านั้น
-//        if (isFirstLoad && !isDataLoaded) {
-            loadData();
-//            isFirstLoad = false;
-//        }
+        loadData();
     }
+
     private void updateSubstanceItems(Map<String, AnswerFrequencyData> frequencies) {
         for (SubstanceItem item : substanceList) {
             AnswerFrequencyData data = frequencies.get(item.getId());
@@ -223,6 +216,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
             }
         }
     }
+
     private void loadData() {
         SfDrugsDao sfDrugsDao = new SfDrugsDao(getContext());
         SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -230,13 +224,17 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
         sharedViewModel.getDrugsLiveDataMutableLiveData().observe(getViewLifecycleOwner(), data -> {
             if (data != null && data.getPersonId() != null) {
                 List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(data.getPersonId()));
+                List<DrugsInfo> drugFourInfo = new ArrayList<>();
                 this.drugsInfos = drugsInfos;
                 Map<String, AnswerFrequencyData> frequencies = new HashMap<>();
                 drugsInfoMap.clear();
 
                 for (DrugsInfo drug : drugsInfos) {
-                    if (drug.getQuestion().equals("Q4")) {  // ใช้ Q4 สำหรับ QuestionFourFragment
+                    if (drug.getQuestion().equals("Q4")) {
                         drugsInfoMap.put(drug.getSubquestion(), drug);
+                        drugFourInfo.add(drug);
+                        Log.d("QuestionFourFragment", "Loaded into drugsInfoMap: " +
+                                drug.getSubquestion() + " with ID: " + drug.getId());
                     }
                 }
 
@@ -244,7 +242,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
                     // ค้นหา DrugsInfo ที่ตรงกับ substance id นี้
                     DrugsInfo matchingDrug = null;
                     for (DrugsInfo drug : drugsInfos) {
-                        if (drug.getQuestion().equals("Q4") &&  // ใช้ Q4 สำหรับ QuestionFourFragment
+                        if (drug.getQuestion().equals("Q4") &&
                                 drug.getSubquestion().equals(item.getId())) {
                             matchingDrug = drug;
                             break;
@@ -271,7 +269,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
                         frequencies.put(item.getId(), new AnswerFrequencyData(-1, ""));
 
                         // รีเซ็ต state ของ SubstanceItem ด้วย
-                        item.setFrequency(0);
+                        item.setFrequency(-1);
                         item.setOtherDrugs("");
                     }
                 }
@@ -290,11 +288,12 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
                     updateUI(selectedFrequencies);
                     isDataLoaded = true;
                 }
-
+                dataPasser.onDrugsFourInfo(drugFourInfo);
                 Log.d("QuestionFourFragment", "Loaded drugs info: " + drugsInfos.size() + " items");
             }
         });
     }
+
     // เพิ่มเมธอด updateUI ที่รับพารามิเตอร์ excludeId
     private void updateUI(Map<String, AnswerFrequencyData> answers, String excludeId) {
         if (adapter != null && recyclerView != null) {
@@ -316,6 +315,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
     private void updateUI(Map<String, AnswerFrequencyData> answers) {
         updateUI(answers, null);
     }
+
     @Override
     public void onFrequencySelected(String id, int frequency, String otherDrugs) {
         if (!isAdded() || isUpdating[0]) return;
@@ -358,6 +358,11 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
             isUpdating[0] = false;
         }
     }
+
+    public interface OnDrugsDataSavedListener {
+        void onDrugsDataSaved(String substanceId, DrugsInfo savedData);
+    }
+
     private void prepareDrugsInfoForUpdate(String id, int frequency, String otherDrugs) {
         List<DrugsInfo> drugsInfosToUpdate = new ArrayList<>();
 
@@ -381,60 +386,68 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
                 data = new AnswerFrequencyData(frequency, otherDrugs);
             }
 
-            // ตรวจสอบข้อมูลเดิมจาก drugsInfos
+            // ตรวจสอบข้อมูลเดิมจาก drugsInfos - ปรับตามแบบ QuestionThreeFragment
             boolean found = false;
-            if (drugsInfoMap != null) {
-                DrugsInfo existingInfo = drugsInfoMap.get(currentId);
-                if (existingInfo != null) {
-                    drugsInfo.setId(existingInfo.getId());
-                    drugsInfo.setCreatedDate(existingInfo.getCreatedDate());
-                    drugsInfo.setCreatedBy(existingInfo.getCreatedBy());
-                    drugsInfo.setPersonInfoId(existingInfo.getPersonInfoId());
-                    drugsInfo.setIdcard(existingInfo.getIdcard());
-                    drugsInfo.setQuestion(existingInfo.getQuestion());
-                    drugsInfo.setSubquestion(existingInfo.getSubquestion());
-                    drugsInfo.setAnswer(existingInfo.getAnswer());
-                    drugsInfo.setOtherDrugs(existingInfo.getOtherDrugs());
-                    drugsInfo.setUpdatedBy(existingInfo.getUpdatedBy());
-                    drugsInfo.setUpdatedDate(existingInfo.getUpdatedDate());
-                    found = true;
-                }
+            DrugsInfo existingInfo = null;
+
+            if (drugsInfoMap != null && drugsInfoMap.containsKey(currentId)) {
+                existingInfo = drugsInfoMap.get(currentId);
             }
 
+            if (existingInfo != null) {
+                drugsInfo.setId(existingInfo.getId());
+                drugsInfo.setCreatedDate(existingInfo.getCreatedDate());
+                drugsInfo.setCreatedBy(existingInfo.getCreatedBy());
+                drugsInfo.setPersonInfoId(existingInfo.getPersonInfoId());
+                drugsInfo.setIdcard(existingInfo.getIdcard());
+                drugsInfo.setQuestion(existingInfo.getQuestion());
+                drugsInfo.setSubquestion(existingInfo.getSubquestion());
+                drugsInfo.setAnswer(existingInfo.getAnswer());
+                drugsInfo.setOtherDrugs(existingInfo.getOtherDrugs());
+                drugsInfo.setUpdatedBy(existingInfo.getUpdatedBy());
+                drugsInfo.setUpdatedDate(existingInfo.getUpdatedDate());
+                found = true;
+            }
+
+            UserSessionManager sessionManager = new UserSessionManager(getContext());
+            String userCreate = sessionManager.getUser();
             // กำหนดค่าใหม่
             if (!found) {
-                drugsInfo.setCreatedBy("SYSTEM");
-                drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                drugsInfo.setCreatedBy(userCreate);
+                drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
             }
 
-            if (drugsInfo.getPersonInfoId() == null) {
+            if (drugsInfo.getPersonInfoId() == null || drugsInfo.getPersonInfoId().isEmpty()) {
                 drugsInfo.setPersonInfoId(personInfoId);
                 drugsInfo.setIdcard(personInfoData != null ? personInfoData.getIdcard() : "");
-                drugsInfo.setQuestion("Q4");  // ใช้ Q4 สำหรับ QuestionFourFragment
+                drugsInfo.setQuestion("Q4");
                 drugsInfo.setSubquestion(currentId);
             }
 
             drugsInfo.setAnswer(String.valueOf(data.getFrequency()));
-
-            // สำคัญ: ตั้งค่า otherDrugs อย่างถูกต้อง
             drugsInfo.setOtherDrugs(data.getOtherDrugs());
+            drugsInfo.setUpdatedBy(userCreate);
+            drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
 
-            drugsInfo.setUpdatedBy("SYSTEM");
-            drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            // ลบ visitNo และ dateUpdate ที่ไม่จำเป็น เพื่อให้เหมือน QuestionThreeFragment
 
             // Log เพื่อตรวจสอบค่า otherDrugs ที่จะบันทึก
             if (currentId.equals("j")) {
                 Log.d("QuestionFourFragment", "Saving item j with otherDrugs: " + drugsInfo.getOtherDrugs());
             }
-
+            Log.d("QuestionFourFragment", "Prepared data for " + currentId +
+                    " - ID: " + drugsInfo.getId() +
+                    " - IsUpdate: " + found +
+                    " - Answer: " + drugsInfo.getAnswer());
             drugsInfosToUpdate.add(drugsInfo);
         }
 
-        // ส่งข้อมูลไปยัง dataPasser
+        // ส่งข้อมูลไปยัง dataPasser - เหมือน QuestionThreeFragment
         if (dataPasser != null) {
             dataPasser.onDrugsFourInfo(drugsInfosToUpdate);
         }
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -457,6 +470,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
         super.onSaveInstanceState(outState);
         outState.putSerializable("selectedFrequencies", new HashMap<>(selectedFrequencies));
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -466,6 +480,30 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
         recyclerView = null;
         adapter = null;
     }
+
+    // เพิ่มเมธอด calculateAndSetContentHeight เหมือน QuestionThreeFragment
+    private void calculateAndSetContentHeight() {
+        if (recyclerView == null || adapter == null) return;
+
+        // คำนวณความสูงตามจำนวน items
+        int itemCount = adapter.getItemCount();
+        int estimatedItemHeight = (int) (60 * getResources().getDisplayMetrics().density); // ประมาณความสูงต่อ item
+        int totalHeight = itemCount * estimatedItemHeight;
+
+        // บวกเพิ่ม padding
+        totalHeight += recyclerView.getPaddingTop() + recyclerView.getPaddingBottom();
+
+        // กำหนดความสูงขั้นต่ำและสูงสุด
+        int minHeight = (int) (200 * getResources().getDisplayMetrics().density);
+        int maxHeight = (int) (600 * getResources().getDisplayMetrics().density);
+        totalHeight = Math.max(minHeight, Math.min(totalHeight, maxHeight));
+
+        // กำหนดความสูงให้กับ contentLayout
+        ViewGroup.LayoutParams params = contentLayout.getLayoutParams();
+        params.height = (int) Math.round(totalHeight * 6.1);
+        contentLayout.setLayoutParams(params);
+    }
+
     public boolean validateAllQuestionsAnswered() {
         // ตรวจสอบว่าทุกคำถามมีคำตอบครบหรือไม่
         if (selectedFrequencies == null || selectedFrequencies.isEmpty()) {
@@ -476,8 +514,8 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
             AnswerFrequencyData data = selectedFrequencies.get(item.getId());
             if (data == null) {
                 return false;
-            } else if(data != null) {
-                if(data.getFrequency() == -1) {
+            } else if (data != null) {
+                if (data.getFrequency() == -1) {
                     return false;
                 }
             }
@@ -490,6 +528,7 @@ public class QuestionFourFragment extends Fragment implements OnFrequencySelecte
 
         return true;
     }
+
     public String getValidationMessage() {
         List<String> missingAnswers = new ArrayList<>();
         List<String> missingDetails = new ArrayList<>();

@@ -6,6 +6,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -229,7 +230,8 @@ public class ScreeningResultCodeProvider extends ContentProvider {
                 db.update(ScreeningResultCode.TABLENAME, updateValues, whereClause, whereArgs);
 
                 // Insert ข้อมูลใหม่
-                id = db.insert(ScreeningResultCode.TABLENAME, null, values);
+                //id = db.insertOrThrow(ScreeningResultCode.TABLENAME, null, values);
+                id = insertWithErrorHandling(db, ScreeningResultCode.TABLENAME, values, uri);
                 uriReturn = ContentUris.withAppendedId(ScreeningResultCode.CONTENT_URI, id);
                 break;
 
@@ -245,7 +247,19 @@ public class ScreeningResultCodeProvider extends ContentProvider {
 
         return uriReturn;
     }
-
+    private long insertWithErrorHandling(SQLiteDatabase db, String tableName, ContentValues values, Uri uri) {
+        try {
+            long id = db.insertOrThrow(tableName, null, values);
+            android.util.Log.d("ScreeningFormProvider", "Successfully inserted ID: " + id + " into " + tableName);
+            return id;
+        } catch (SQLException e) {
+            String errorMsg = "Database error inserting into " + tableName + ": " + e.getMessage() +
+                    "\nURI: " + uri +
+                    "\nValues: " + (values != null ? values.toString() : "null");
+            android.util.Log.e("ScreeningFormProvider", errorMsg, e);
+            throw new SQLException(errorMsg, e);
+        }
+    }
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();

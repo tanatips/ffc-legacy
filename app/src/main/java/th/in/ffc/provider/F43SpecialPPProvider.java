@@ -223,6 +223,16 @@ public class F43SpecialPPProvider extends ContentProvider {
         }
     }
 
+    public static void createTable(Context context) {
+        try {
+            mOpenHelper = new DbOpenHelper(context);
+            mOpenHelper.getWritableDatabase().execSQL(F43SpecialPP.CREATE_TABLE);
+            Log.i("F43SpecialPPProvider", "Table recreated successfully");
+        } catch (Exception e) {
+            Log.e("F43SpecialPPProvider", "Error recreating table", e);
+        }
+    }
+
     /**
      * Helper method สำหรับการบันทึกข้อมูลบริการ
      */

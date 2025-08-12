@@ -63,8 +63,10 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
     LinearLayout headerLayout;
     LinearLayout contentLayout;
     ImageView expandIcon;
-
-
+    public interface OnQuestionOneDataChangeListener {
+        void onQuestionOneDataChanged();
+    }
+    private OnQuestionOneDataChangeListener dataChangeListener;
     public QuestionOneFragment() {
         // Required empty public constructor
     }
@@ -74,9 +76,16 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         super.onAttach(context);
         try {
             dataPasser = (OnDataPass) context;
+            Fragment parentFragment = getParentFragment();
+            if (parentFragment instanceof MainQuestionsFragment) {
+                // สามารถใช้ reference โดยตรงได้
+            }
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnDataPass");
         }
+    }
+    public void setOnQuestionOneDataChangeListener(OnQuestionOneDataChangeListener listener) {
+        this.dataChangeListener = listener;
     }
 
     @Override
@@ -409,12 +418,15 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
             if (data != null && data.getPersonId() != null) {
                 List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(data.getPersonId()));
                 this.drugsInfos = drugsInfos;
+                List<DrugsInfo> drugOneInfo = new ArrayList<>();
                 Map<String, AnswerData> answers = new HashMap<>();
                 drugsInfoMap.clear();
                 for (DrugsInfo drug : drugsInfos) {
                     if (drug.getQuestion().equals("Q1")) {
+                        drugOneInfo.add(drug);
                         // ใช้ subquestion เป็น key เพื่อจับคู่กับ substance
                         drugsInfoMap.put(drug.getSubquestion(), drug);
+
                     }
                 }
                 for (SubstanceItem item : substanceList) {
@@ -449,7 +461,7 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                     selectedAnswers = answers;
                     questionsViewModel.setQuestionOneAnswers(answers);
                     adapter.updateAnswers(answers);
-                    dataPasser.onDrugsOneInfo(drugsInfos);
+                    dataPasser.onDrugsOneInfo(drugOneInfo);
                     isDataLoaded = true;
                 }
 

@@ -54,8 +54,7 @@ public class LoginFragment extends FFCFragment implements
                 .findViewById(R.id.password);
         mButtonLogin = (Button) root.findViewById(R.id.submit);
         mButtonLogin.setOnLongClickListener(lc);
-        SfTokenDao sfTokenDao = new SfTokenDao(getContext());
-        sfTokenDao.insertDefaultTokenIfEmpty();
+
         //DEBUG
         return root;
     }

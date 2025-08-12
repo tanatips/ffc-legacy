@@ -33,13 +33,15 @@ import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.session.UserSessionManager;
+import th.in.ffc.util.DateConverter;
 
 public class QuestionEightFragment extends Fragment {
 
     private QuestionsStateViewModel viewModel;
     private RadioGroup radioGroupInjection;
     private int selectedOption = 0; // 0 = ไม่เคย, 1 = ภายใน 3 เดือน, 2 = ก่อน 3 เดือน
-    private final String INJECTION_KEY = "injection";
+    private final String INJECTION_KEY = "injection"; // คำถามที่ 8 เกี่ยวกับการฉีดสารเสพติด
 
     // เพิ่มตัวแปรที่จำเป็น
     private OnDataPass dataPasser;
@@ -100,7 +102,7 @@ public class QuestionEightFragment extends Fragment {
             isUpdating[0] = true;
 
             // รีเซ็ตค่าการเลือก
-            selectedOption = 0; // กลับไปเป็น "ไม่เคย"
+            selectedOption = -1; // กลับไปเป็น "ไม่เคย"
 
             // อัพเดต ViewModel
             Map<String, AnswerFrequencyData> emptyData = new HashMap<>();
@@ -209,12 +211,14 @@ public class QuestionEightFragment extends Fragment {
                 Log.d("QuestionEightFragment", "PersonId: " + data.getPersonId());
 
                 List<DrugsInfo> drugsInfos = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.valueOf(data.getPersonId()));
+                List<DrugsInfo> drugsEightInfos = new ArrayList<>();
                 this.drugsInfos = drugsInfos;
                 drugsInfoMap.clear();
 
                 for (DrugsInfo drug : drugsInfos) {
                     if (drug.getQuestion().equals("Q8")) {
                         drugsInfoMap.put(drug.getSubquestion(), drug);
+                        drugsEightInfos.add(drug);
                         Log.d("QuestionEightFragment", "Found Q8 data: " + drug.getSubquestion() + " = " + drug.getAnswer());
                     }
                 }
@@ -249,11 +253,12 @@ public class QuestionEightFragment extends Fragment {
                 } else {
                     Log.d("QuestionEightFragment", "No matching drug info found for key: " + INJECTION_KEY);
                 }
-
+                dataPasser.onDrugsEightInfo(drugsEightInfos);
                 Log.d("QuestionEightFragment", "Loaded drugs info: " + drugsInfos.size() + " items");
             } else {
                 Log.d("QuestionEightFragment", "No person ID available");
             }
+
         });
     }
 
@@ -291,11 +296,12 @@ public class QuestionEightFragment extends Fragment {
                 found = true;
             }
         }
-
+        UserSessionManager sessionManager = new UserSessionManager(getContext());
+        String userCreate = sessionManager.getUser();
         // กำหนดค่าใหม่
         if (!found) {
-            drugsInfo.setCreatedBy("SYSTEM");
-            drugsInfo.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            drugsInfo.setCreatedBy(userCreate);
+            drugsInfo.setCreatedDate(DateConverter.getCurrentWesternDateTime());
         }
 
         drugsInfo.setPersonInfoId(personInfoId);
@@ -304,8 +310,8 @@ public class QuestionEightFragment extends Fragment {
         drugsInfo.setSubquestion(INJECTION_KEY);
         drugsInfo.setAnswer(String.valueOf(selectedValue));
         drugsInfo.setOtherDrugs("");  // ไม่มี otherDrugs สำหรับคำถามนี้
-        drugsInfo.setUpdatedBy("SYSTEM");
-        drugsInfo.setUpdatedDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        drugsInfo.setUpdatedBy(userCreate);
+        drugsInfo.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
 
         drugsInfosToUpdate.add(drugsInfo);
 

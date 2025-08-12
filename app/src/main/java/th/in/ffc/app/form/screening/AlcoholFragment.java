@@ -474,7 +474,7 @@ public class AlcoholFragment extends Fragment {
             int score = getCurrentAlcoholScore();
             report.append("SCORE:").append(score).append("\n");
             report.append("RISK_LEVEL:").append(ScreeningResultCode.getAlcoholRiskLevel(score)).append("\n");
-            report.append("RESULT_CODE:").append(ScreeningResultCode.getAlcoholResultCode(score)).append("\n");
+            report.append("RESULT_CODE:").append(ScreeningResultCode.getAlcoholAnswerResultCode(score)).append("\n");
             report.append("IS_ABNORMAL:").append(ScreeningResultCode.isAlcoholAbnormal(score)).append("\n");
             report.append("IS_HIGH_RISK:").append(ScreeningResultCode.isAlcoholHighRisk(score)).append("\n");
             report.append("COMPLETION:").append(getCompletionPercentage()).append("%\n");
@@ -1620,7 +1620,7 @@ public class AlcoholFragment extends Fragment {
             ScreeningResultCodeDao.ScreeningResultData data = new ScreeningResultCodeDao.ScreeningResultData();
             data.personId = personId;
             data.visitno = visitno;
-            data.screeningType = ScreeningResultCode.TYPE_ALCOHOL_SCREENING; // "ALCOHOL"
+            data.screeningType = ScreeningResultCode.TYPE_ALCOHOL_ANSWER_SCREENING; // "ALCOHOL"
             data.totalScore = getCurrentAlcoholScore();
             data.screeningDate = DateConverter.getCurrentWesternDateTime();
             data.status = ScreeningResultCode.STATUS_ACTIVE;
@@ -1635,6 +1635,28 @@ public class AlcoholFragment extends Fragment {
 
             // กำหนดคำแนะนำ
             data.recommendation = getRecommendationAlcohol(data.totalScore);
+
+            // บันทึกข้อมูล
+            screeningResultCodeDao.saveScreeningResult(data);
+
+            data = new ScreeningResultCodeDao.ScreeningResultData();
+            data.personId = personId;
+            data.visitno = visitno;
+            data.screeningType = ScreeningResultCode.TYPE_ALCOHOL_ADVICE_SCREENING; // "ALCOHOL"
+            data.totalScore = getCurrentAlcoholScore();
+            data.screeningDate = DateConverter.getCurrentWesternDateTime();
+            data.status = ScreeningResultCode.STATUS_ACTIVE;
+            data.userCreate = userCreate;
+            data.userUpdate = userCreate;
+
+            // กำหนด resultCode และ resultDescription ตามคะแนนแอลกอฮอล์
+            setAnswerResultCodeAndDescriptionAlcohol(data, data.totalScore);
+
+            // กำหนด riskLevel และ isAbnormal
+//            setRiskLevelAndAbnormalAlcohol(data, data.totalScore);
+
+            // กำหนดคำแนะนำ
+//            data.recommendation = getRecommendationAlcohol(data.totalScore);
 
             // บันทึกข้อมูล
             Uri result = screeningResultCodeDao.saveScreeningResult(data);
@@ -1660,9 +1682,15 @@ public class AlcoholFragment extends Fragment {
      * กำหนด resultCode และ resultDescription ตามคะแนนแอลกอฮอล์
      */
     private void setResultCodeAndDescriptionAlcohol(ScreeningResultCodeDao.ScreeningResultData data, int score) {
-        data.resultCode = ScreeningResultCode.getAlcoholResultCode(score);
+        data.resultCode = ScreeningResultCode.getAlcoholAdviceResultCode(score);
         data.resultDescription = ScreeningResultCode.getAlcoholResultDescription(score);
     }
+
+    private void setAnswerResultCodeAndDescriptionAlcohol(ScreeningResultCodeDao.ScreeningResultData data, int score) {
+        data.resultCode = ScreeningResultCode.getAlcoholAnswerResultCode(score);
+        data.resultDescription = ScreeningResultCode.getAlcoholResultDescription(score);
+    }
+
 
     /**
      * กำหนด riskLevel และ isAbnormal ตามคะแนนแอลกอฮอล์
@@ -1700,7 +1728,7 @@ public class AlcoholFragment extends Fragment {
         try {
             ScreeningResultCodeDao.ScreeningResultData existingData =
                     screeningResultCodeDao.getResultByTypePersonAndVisit(
-                            personId, visitno, ScreeningResultCode.TYPE_ALCOHOL_SCREENING);
+                            personId, visitno, ScreeningResultCode.TYPE_ALCOHOL_ANSWER_SCREENING);
 
             if (existingData != null) {
                 Log.d(TAG, "พบข้อมูลการประเมินแอลกอฮอล์เดิม: คะแนน=" + existingData.totalScore +
@@ -1768,7 +1796,7 @@ public class AlcoholFragment extends Fragment {
         try {
             ScreeningResultCodeDao.ScreeningResultData existingData =
                     screeningResultCodeDao.getResultByTypePersonAndVisit(
-                            personId, visitno, ScreeningResultCode.TYPE_ALCOHOL_SCREENING);
+                            personId, visitno, ScreeningResultCode.TYPE_ALCOHOL_ANSWER_SCREENING);
             return existingData != null;
         } catch (Exception e) {
             Log.e(TAG, "เกิดข้อผิดพลาดในการตรวจสอบข้อมูลเดิม: " + e.getMessage());
@@ -1804,7 +1832,7 @@ public class AlcoholFragment extends Fragment {
      */
     public ScreeningResultCodeDao.ScreeningStatistics getStatistics() {
         try {
-            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_ALCOHOL_SCREENING);
+            return screeningResultCodeDao.getStatisticsByType(ScreeningResultCode.TYPE_ALCOHOL_ANSWER_SCREENING);
         } catch (Exception e) {
             Log.e(TAG, "เกิดข้อผิดพลาดในการดึงสถิติแอลกอฮอล์: " + e.getMessage());
             return null;
@@ -1844,7 +1872,7 @@ public class AlcoholFragment extends Fragment {
         int score = getCurrentAlcoholScore();
         String emoji = getRiskEmoji(score);
         String riskLevel = getRiskLevelFromScore();
-        String resultCode = ScreeningResultCode.getAlcoholResultCode(score);
+        String resultCode = ScreeningResultCode.getAlcoholAnswerResultCode(score);
 
         return String.format("%s คะแนน: %d, %s (รหัส: %s)", emoji, score, riskLevel.replace(emoji + " ", ""), resultCode);
     }
@@ -1867,7 +1895,7 @@ public class AlcoholFragment extends Fragment {
 
         int score = getCurrentAlcoholScore();
         String riskLevel = getRiskLevelFromScore();
-        String resultCode = ScreeningResultCode.getAlcoholResultCode(score);
+        String resultCode = ScreeningResultCode.getAlcoholAnswerResultCode(score);
         String resultDescription = ScreeningResultCode.getAlcoholResultDescription(score);
         String recommendation = getRecommendation();
         boolean isAbnormal = ScreeningResultCode.isAlcoholAbnormal(score);
@@ -1957,7 +1985,7 @@ public class AlcoholFragment extends Fragment {
         report.append("ผลการประเมิน:\n");
         report.append("- คะแนนรวม: ").append(score).append(" คะแนน\n");
         report.append("- ระดับความเสี่ยง: ").append(getRiskLevelFromScore()).append("\n");
-        report.append("- รหัสผล: ").append(ScreeningResultCode.getAlcoholResultCode(score)).append("\n");
+        report.append("- รหัสผล: ").append(ScreeningResultCode.getAlcoholAnswerResultCode(score)).append("\n");
         report.append("- สถานะ: ").append(ScreeningResultCode.isAlcoholAbnormal(score) ? "ผิดปกติ" : "ปกติ").append("\n\n");
 
         // การวิเคราะห์

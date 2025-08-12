@@ -19,7 +19,7 @@ public class SubstanceItem implements Parcelable {
         this.name = name;
         this.description = description;
         this.hasUsed = null;
-        this.frequency = 0;
+        this.frequency = -1;
         this.concern = 0;
         this.otherDrugs = "";
     }
@@ -54,7 +54,12 @@ public class SubstanceItem implements Parcelable {
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(description);
-        dest.writeByte((byte) (hasUsed ? 1 : 0));
+        if(hasUsed == null) {
+            dest.writeByte((byte) 0); // ใช้ 0 แทน null
+        } else {
+            dest.writeByte((byte) (hasUsed ? 1 : 2)); // 1 สำหรับ true, 2 สำหรับ false
+        }
+//        dest.writeByte((byte) (hasUsed ? 1 : 0));
         dest.writeString(otherDrugs);
         dest.writeInt(frequency); // เพิ่มบรรทัดนี้
     }
