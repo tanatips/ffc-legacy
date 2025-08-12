@@ -845,12 +845,13 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
 //        List<StressDepression9qInfo> depression9qInfos = depression9qDao.getByPersonId(personId);
 //        boolean has9qAssessment = !depression9qInfos.isEmpty() && is9qAssessmentComplete(depression9qInfos.get(0));
 //        if (!has9qAssessment) missingAssessments.add("แบบประเมิน 9Q");
-
-        SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
-        List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
-        boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
-        if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
-
+        boolean needs8Q = needs8QAssessment(personId, context);
+        if(needs8Q) {
+            SfSuicideAssessment8qInfoDao depression8qDao = new SfSuicideAssessment8qInfoDao(context);
+            List<SuicideAssessment8qInfo> depression8qInfos = depression8qDao.getByPersonId(personId);
+            boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
+            if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
+        }
         // 6-7. ตรวจสอบความเสี่ยงด้านสุขภาพ (ทุกแบบ)
         SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
         List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
@@ -874,6 +875,62 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         } else {
             String missingText = String.join(", ", missingAssessments);
             return new DataCompletionStatus(false, "ข้อมูลไม่ครบ: " + missingText);
+        }
+    }
+    private boolean needs8QAssessment(int personId, Context context) {
+        try {
+            // ตรวจสอบอายุ
+            int age = getPersonAge(context, personId);
+
+            // เงื่อนไข 1: อายุ 35+ ปี
+            if (age >= 35) {
+                Log.d("8Q_CHECK", "ต้องทำ 8Q เนื่องจากอายุ " + age + " ปี (>= 35)");
+                return true;
+            }
+
+            // เงื่อนไข 2: ผล 2Q ผิดปกติ
+            SfStressDepression2qInfoDao depression2qDao = new SfStressDepression2qInfoDao(context);
+            List<StressDepression2qInfo> depression2qInfos = depression2qDao.getByPersonId(personId);
+
+            if (!depression2qInfos.isEmpty()) {
+                StressDepression2qInfo data = depression2qInfos.get(0);
+                if (is2qAssessmentComplete(data)) {
+                    // ตรวจสอบว่า 2Q ผิดปกติหรือไม่
+                    boolean has2QAbnormal = needs9QAssessment(data); // ใช้ logic เดียวกับ 9Q
+                    if (has2QAbnormal) {
+                        Log.d("8Q_CHECK", "ต้องทำ 8Q เนื่องจาก 2Q ผิดปกติ (อายุ " + age + " ปี)");
+                        return true;
+                    }
+                }
+            }
+
+            Log.d("8Q_CHECK", "ไม่ต้องทำ 8Q - อายุ " + age + " ปี และ 2Q ปกติ");
+            return false;
+
+        } catch (Exception e) {
+            Log.e("8Q_CHECK", "Error checking 8Q requirement: " + e.getMessage());
+            // ในกรณีเกิดข้อผิดพลาด ให้ปลอดภัยโดยให้ทำ 8Q
+            return true;
+        }
+    }
+    private int getPersonAge(Context context, int personId) {
+        try {
+            SfPersonInfoDao personInfoDao = new SfPersonInfoDao(context);
+            List<PersonInfo> personInfos = personInfoDao.getSfPersonInfoById(personId);
+
+            if (!personInfos.isEmpty()) {
+                PersonInfo personInfo = personInfos.get(0);
+                if (personInfo.getBirthday() != null && !personInfo.getBirthday().isEmpty()) {
+                    return AgeCalculator.calculateAge(personInfo.getBirthday());
+                }
+            }
+
+            Log.w("AGE_CHECK", "ไม่พบข้อมูลวันเกิดสำหรับ person ID: " + personId);
+            return 0;
+
+        } catch (Exception e) {
+            Log.e("AGE_CHECK", "Error calculating age for person ID " + personId + ": " + e.getMessage());
+            return 0;
         }
     }
     private boolean needs9QAssessment(StressDepression2qInfo depression2qInfo) {
