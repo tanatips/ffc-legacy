@@ -253,8 +253,14 @@ public class Map506SettingDialogFragment extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             if (queryPlauge) {
-                plauge = spinner.getSelectedItem().toString();
-                spinnerPosition = spinner.getSelectedItemPosition();
+                if( spinner.getSelectedItem() != null) {
+                    plauge = spinner.getSelectedItem().toString();
+                    spinnerPosition = spinner.getSelectedItemPosition();
+                    Log.d("TEST", "Spinner Position: " + spinner.getSelectedItemPosition());
+                } else {
+                    Log.d("TEST", "Spinner is null");
+                }
+
             } else {
                 plauge = "";
             }

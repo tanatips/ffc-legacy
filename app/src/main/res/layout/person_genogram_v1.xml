@@ -16,14 +16,15 @@
         </AbsoluteLayout>
     </ScrollView>
 
-    <Button
-            android:id="@+id/btnUnknown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|top"
-            android:background="@drawable/blaze_confused"
-            android:visibility="gone">
-    </Button>
+    <ImageButton
+        android:id="@+id/btnUnknown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|top"
+        android:src="@drawable/blaze_confused"
+        android:background="@android:color/transparent"
+        android:visibility="gone" />
+
 
     <LinearLayout
             android:id="@+id/lnlFocusFamily"

@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 
 import th.in.ffc.smartcardreader.ThaiIDReaderModule;
 
+
 public class ThaiIdSmartcardReader extends AppCompatActivity {
 
     private static final String TAG = "ThaiIdSmartcardReader";
@@ -36,6 +37,8 @@ public class ThaiIdSmartcardReader extends AppCompatActivity {
     private String cardDataInfo = "";
     private byte[] cardPhotoBytes = null;
     private String[] parsedCardData = null;
+
+    SmartCardInfo smartCardInfo = new SmartCardInfo();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,35 +180,48 @@ public class ThaiIdSmartcardReader extends AppCompatActivity {
 
                     // เลขประจำตัวประชาชน
                     displayInfo.append("เลขประจำตัวประชาชน: ").append(formatCitizenId(cardData[0])).append("\n\n");
-
+                    smartCardInfo.setCitizenId(cardData[0]);
                     // ชื่อ-นามสกุล (ไทย)
                     String thaiName = buildFullName(cardData[1], cardData[2], cardData[3], cardData[4]);
                     displayInfo.append("ชื่อ-นามสกุล (ไทย): ").append(thaiName).append("\n");
+                    smartCardInfo.setTitleThai(cardData[1]);
+                    smartCardInfo.setFirstNameThai(cardData[2]);
+                    smartCardInfo.setMiddleNameThai(cardData[3]);
+                    smartCardInfo.setLastNameThai(cardData[4]);
 
                     // ชื่อ-นามสกุล (อังกฤษ)
                     String englishName = buildFullName(cardData[5], cardData[6], cardData[7], cardData[8]);
                     displayInfo.append("ชื่อ-นามสกุล (อังกฤษ): ").append(englishName).append("\n\n");
+                    smartCardInfo.setTitleEnglish(cardData[5]);
+                    smartCardInfo.setFirstNameEnglish(cardData[6]);
+                    smartCardInfo.setMiddleNameEnglish(cardData[7]);
+                    smartCardInfo.setLastNameEnglish(cardData[8]);
 
                     // ที่อยู่
                     String address = buildAddressFromCardData(cardData);
                     displayInfo.append("ที่อยู่: ").append(address).append("\n\n");
+                    smartCardInfo.setAddress(address);
 
                     // เพศ
                     String gender = cardData[17].equals("1") ? "ชาย" :
                             cardData[17].equals("2") ? "หญิง" : cardData[17];
                     displayInfo.append("เพศ: ").append(gender).append("\n");
+                    smartCardInfo.setGender(cardData[17]);
 
                     // วันเกิด
                     displayInfo.append("วันเกิด: ").append(formatDateFromBuddhistEra(cardData[18])).append("\n\n");
+                    smartCardInfo.setBirthDate(cardData[18]); // รูปแบบ YYYYMMDD
 
                     // หน่วยงานที่ออกบัตร
                     displayInfo.append("หน่วยงานที่ออกบัตร: ").append(cardData[19]).append("\n");
+                    smartCardInfo.setIssuedBy(cardData[19]);
 
                     // วันที่ออกบัตร
                     displayInfo.append("วันที่ออกบัตร: ").append(formatDateFromBuddhistEra(cardData[20])).append("\n");
-
+                    smartCardInfo.setIssueDate(cardData[20]); // รูปแบบ YYYYMMDD
                     // วันหมดอายุ
                     displayInfo.append("วันหมดอายุ: ").append(formatDateFromBuddhistEra(cardData[21]));
+                    smartCardInfo.setExpireDate(cardData[21]); // รูปแบบ YYYYMMDD
 
                     txtCardInfo.setText(displayInfo.toString());
 
@@ -258,17 +274,17 @@ public class ThaiIdSmartcardReader extends AppCompatActivity {
             }
 
             // ส่งข้อมูลแยกไว้สำหรับใช้งานง่าย
-            intent.putExtra("citizenId", parsedCardData[0]);
-            intent.putExtra("titleThai", parsedCardData[1]);
-            intent.putExtra("firstNameThai", parsedCardData[2]);
-            intent.putExtra("middleNameThai", parsedCardData[3]);
-            intent.putExtra("lastNameThai", parsedCardData[4]);
-            intent.putExtra("titleEnglish", parsedCardData[5]);
-            intent.putExtra("firstNameEnglish", parsedCardData[6]);
-            intent.putExtra("middleNameEnglish", parsedCardData[7]);
-            intent.putExtra("lastNameEnglish", parsedCardData[8]);
-            intent.putExtra("gender", parsedCardData[17]); // 1=ชาย, 2=หญิง
-            intent.putExtra("birthDate", parsedCardData[18]); // รูปแบบ YYYYMMDD
+            intent.putExtra("citizenId", smartCardInfo.getCitizenId());
+            intent.putExtra("titleThai", smartCardInfo.getCitizenId());
+            intent.putExtra("firstNameThai", smartCardInfo.getFirstNameThai());
+            intent.putExtra("middleNameThai", smartCardInfo.getMiddleNameThai());
+            intent.putExtra("lastNameThai", smartCardInfo.getLastNameThai());
+            intent.putExtra("titleEnglish", smartCardInfo.getTitleEnglish());
+            intent.putExtra("firstNameEnglish", smartCardInfo.getFirstNameEnglish());
+            intent.putExtra("middleNameEnglish", smartCardInfo.getMiddleNameEnglish());
+            intent.putExtra("lastNameEnglish", smartCardInfo.getLastNameEnglish());
+            intent.putExtra("gender", smartCardInfo.getGender()); // 1=ชาย, 2=หญิง
+            intent.putExtra("birthDate", smartCardInfo.getBirthDate()); // รูปแบบ YYYYMMDD
 
             setResult(RESULT_OK, intent);
             finish();

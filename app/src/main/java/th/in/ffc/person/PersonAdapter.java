@@ -1250,20 +1250,21 @@ private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
          {
              isComplete = counselingInfo.getReferralDetail()!=null && !counselingInfo.getReferralDetail().isEmpty();
          }
-         if(counselingInfo.getProviderSignature()!=null && counselingInfo.getProviderSignature().length>0)
-         {
-             isComplete = true;
-         } else {
-             isComplete = false;
-             return isComplete;
-         }
-         if(counselingInfo.getPatientSignature()!=null && counselingInfo.getPatientSignature().length>0)
-         {
-             isComplete = true;
-         } else {
-             isComplete = false;
-             return isComplete;
-         }
+         // ตัดการตรวจสอบลายเซ็น
+//         if(counselingInfo.getProviderSignature()!=null && counselingInfo.getProviderSignature().length>0)
+//         {
+//             isComplete = true;
+//         } else {
+//             isComplete = false;
+//             return isComplete;
+//         }
+//         if(counselingInfo.getPatientSignature()!=null && counselingInfo.getPatientSignature().length>0)
+//         {
+//             isComplete = true;
+//         } else {
+//             isComplete = false;
+//             return isComplete;
+//         }
          return isComplete;
     }
     // ตรวจสอบความสมบูรณ์ของข้อมูลพื้นฐาน

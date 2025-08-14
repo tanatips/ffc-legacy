@@ -1322,10 +1322,12 @@ public class PersonProvider extends ContentProvider {
         System.out.println(builder.getTables());
         System.out.println(">> database <<");
         System.out.println("db:"+db.toString());
-        System.out.println("projection:"+projection);
         System.out.println("selection:"+selection );
         System.out.println("selectionArgs:"+selectionArgs);
-        builder.setDistinct(true);
+
+        String sql = builder.buildQuery(projection, selection, groupby, having, sortOrder, null);
+        System.out.println("Generated SQL: " + sql);
+//        builder.setDistinct(true);
         Cursor c = builder.query(db, projection, selection, selectionArgs,
                 groupby, having, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -4244,7 +4246,7 @@ public class PersonProvider extends ContentProvider {
 
         static {
             PROJECTION_MAP = new HashMap<String, String>();
-            PROJECTION_MAP.put(" distinct "," distinct ");
+//            PROJECTION_MAP.put(" distinct "," distinct ");
             PROJECTION_MAP.put(Person.FIRST_NAME, FNAME + " AS " + Person.FIRST_NAME);
 
             PROJECTION_MAP.put(Person.LAST_NAME, LNAME + " AS " + Person.LAST_NAME);
@@ -4292,7 +4294,7 @@ public class PersonProvider extends ContentProvider {
         public static final String HCODE = House.TABLENAME + "." + House.HCODE;
         public static final String VILLNAME = Village.TABLENAME + "." + Village.VILLNAME;
         public static final String PCUDODE = Person.TABLENAME + "." + Person.PCUPERSONCODE;
-        public static final String DISCHARGETYPE = "c person.dischargetype";
+        public static final String DISCHARGETYPE = "person.dischargetype";
         public static final String TYPELIVE = "person.typelive";
         public static final String VILLCODE = House.TABLENAME + "." + House.VILLCODE;
         public static final String TYPEDISCHART = Chronic.TABLENAME + "." + Chronic.TYPE_DISCHART;

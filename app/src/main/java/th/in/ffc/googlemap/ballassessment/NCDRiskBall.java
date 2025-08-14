@@ -154,7 +154,7 @@ public class NCDRiskBall implements LoaderCallbacks<Cursor> {
                 cl = new CursorLoader(context, queryRedBall, projection2, where, null, "birth");
                 break;
             case 3:
-                String[] projection3 = {"distinct pid", "hcode", "hno", "xgis", "ygis", "pid", "birth", "pcucodeperson", "fname", "lname", "villno", "villname", "villcode", "labresultdigit", "bsl", "hbp_s1", "hbp_d1", "hbp_s2", "hbp_d2", "labcode"};
+                String[] projection3 = {"pid", "hcode", "hno", "xgis", "ygis", "birth", "pcucodeperson", "fname", "lname", "villno", "villname", "villcode", "labresultdigit", "bsl", "hbp_s1", "hbp_d1", "hbp_s2", "hbp_d2", "labcode"};
                 where = "villno != 0  AND (groupcode IN('01','10') AND " +
                         "((((ncd_person_ncd_screen.hbp_s2 IS NOT NULL AND ncd_person_ncd_screen.hbp_s2  BETWEEN 140 and 159) "
                         + "OR (ncd_person_ncd_screen.hbp_s2  IS NULL AND ncd_person_ncd_screen.hbp_s1  BETWEEN 140 and 159))"
@@ -177,6 +177,16 @@ public class NCDRiskBall implements LoaderCallbacks<Cursor> {
                     where += " AND villno=" + fillterVillNo;
                 }
                 where +=" AND (person.pid|| person.pcucodeperson) NOT IN ( SELECT   persondeath.pid||persondeath.pcucodeperson  FROM persondeath )";
+                where += "AND (";
+                where +="        (ncd_person_ncd_screen.hbp_s1 > 139 AND ncd_person_ncd_screen.hbp_d1 > 80)";
+                where +="        OR  ";
+                where +="        (ncd_person_ncd_screen.hbp_s2 > 139 AND ncd_person_ncd_screen.hbp_d2 > 80)" ;
+                where +="    )";
+                where +="    AND (";
+                where +="        ncd_person_ncd_screen.bsl < 100 ";
+                where +="        OR ";
+                where +=" ncd_person_ncd_screen.bsl > 124" ;
+                where +="    )";
 
                 cl = new CursorLoader(context, queryNCDBall, projection4, where, null, "birth");
                 break;
@@ -236,10 +246,11 @@ public class NCDRiskBall implements LoaderCallbacks<Cursor> {
         return cl;
     }
 
+
     @Override
     public void onLoadFinished(Loader<Cursor> arg0, Cursor c) {
         int id = arg0.getId();
-        if (id != 99 && groupRisk != 4 && id != 999) {
+        if (id != 99 && /*groupRisk != 4 &&*/ id != 999) {
             Log.d("TEST", "EIEI11");
             if (c.moveToFirst()) {
                 do {
@@ -459,6 +470,9 @@ public class NCDRiskBall implements LoaderCallbacks<Cursor> {
         Date current = Date.newInstance(DateTime.getCurrentDate());
         AgeCalculator cal = new AgeCalculator(current, mBorn);
         Date age = cal.calulate();
+        if (age == null) {
+            return null;
+        }
         String ageReturn[] = age.toString().split("-");
         return ageReturn[0];
     }
@@ -473,6 +487,9 @@ public class NCDRiskBall implements LoaderCallbacks<Cursor> {
         Date current = Date.newInstance(DateTime.getCurrentDate());
         AgeCalculator cal = new AgeCalculator(current, mBorn);
         Date age = cal.calulate();
+        if (age == null) {
+            return false;
+        }
         String ageReturn[] = age.toString().split("-");
         int tempAge1 = Integer.parseInt(ageReturn[0]);
         if (tempAge1 >= tempAge) {

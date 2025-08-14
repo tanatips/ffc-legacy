@@ -4,20 +4,15 @@ package th.in.ffc.app.form.screening;
 import static th.in.ffc.util.DateConverter.convertToWesternDate;
 import static th.in.ffc.util.TransactionIdGenerator.generateTransId;
 
+import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -27,6 +22,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -40,7 +36,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -52,18 +47,16 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import th.in.ffc.MainActivity;
 import th.in.ffc.R;
-import th.in.ffc.SmartCardReaderActivity;
 import th.in.ffc.ThaiIdSmartcardReader;
-import th.in.ffc.api.nhso.ApiCaller;
 import th.in.ffc.api.nhso.ApiResponse;
 import th.in.ffc.api.nhso.AuthenCodeRequest;
 import th.in.ffc.api.nhso.NhsoApiCaller;
@@ -73,38 +66,24 @@ import th.in.ffc.app.form.screening.dao.ProvinceDao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
 import th.in.ffc.app.form.screening.dao.SfTokenDao;
 import th.in.ffc.app.form.screening.dao.SubDistrictDao;
-import th.in.ffc.app.form.screening.model.DataCenterInfo;
 import th.in.ffc.app.form.screening.model.DistrictInfo;
 import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.ProvinceInfo;
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.app.form.screening.model.SubDistrictInfo;
-import th.in.ffc.code.HouseListDialog;
-import th.in.ffc.person.BmiInfoActivity;
-import th.in.ffc.person.BmiInfoDialogFragment;
 
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.BMICalculator;
-import th.in.ffc.util.BMILevel;
 import th.in.ffc.util.DateConverter;
-import th.in.ffc.util.DateTime;
 import th.in.ffc.util.NetworkUtils;
-import th.in.ffc.util.NumberValidator;
-import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.util.ThaiDatePickerDialog;
 import th.in.ffc.widget.SearchableSpinner;
-
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
 
 import com.berry_med.monitordemo.activity.DeviceMainActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.HashMap;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -115,6 +94,7 @@ import org.json.JSONObject;
 
 public class PersonInfoFragment extends Fragment {
 
+    private static final int STORAGE_PERMISSION_REQUEST_CODE = 1001; ;
     int SMART_CARD_READER_CODE = 0;
 
 //    ThaiDatePicker birthday;
@@ -1190,6 +1170,7 @@ public class PersonInfoFragment extends Fragment {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(person.getPhoto(), 0, person.getPhoto().length);
                     if (bitmap != null) {
                         imgPerson.setImageBitmap(bitmap);
+                        saveImageToStorage(bitmap, person.getIdcard());
                     } else {
                         // ถ้าแปลงเป็น Bitmap ไม่สำเร็จ ให้ใช้รูปดีฟอลต์
                         imgPerson.setImageResource(R.drawable.ic_person);
@@ -1260,6 +1241,62 @@ public class PersonInfoFragment extends Fragment {
 
         }
     }
+    private void saveImageToStorage(Bitmap bitmap, String citizenId) {
+        String filename = "";
+        String tempFilename="";
+        try {
+            PersonDao personDao = new PersonDao(getContext());
+            PersonDao.PersonInfo  person =  personDao.getPersonByIdcard(citizenId);
+            // สร้าง path สำหรับบันทึกรูปภาพ
+            filename = person.getPcucodeperson()+person.getPid()+".jpg";
+            tempFilename = "tmp_"+person.getPcucodeperson()+person.getPid()+"_720p.jpg";
+            String directoryPath = "/sdcard/Android/data/th.in.ffc/pictures/person/";
+            File directory = new File(directoryPath);
+
+            // สร้าง directory หากยังไม่มี
+            if (!directory.exists()) {
+                boolean created = directory.mkdirs();
+                if (!created) {
+                    Log.e("PersonInfoFragment", "ไม่สามารถสร้าง directory ได้: " + directoryPath);
+                    return;
+                }
+            }
+
+            // สร้างชื่อไฟล์ใช้รหัสประชาชนเป็นชื่อไฟล์
+
+            File imageFile = new File(directory, filename);
+            File tempImageFile = new File(directory, tempFilename);
+
+            // บันทึกรูปภาพ
+            FileOutputStream outputStream = new FileOutputStream(imageFile);
+            FileOutputStream tempOutputStream = new FileOutputStream(tempImageFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, tempOutputStream);
+            outputStream.flush();
+            outputStream.close();
+            Toast.makeText(getContext(),imageFile.getAbsolutePath(),Toast.LENGTH_SHORT).show();
+            Log.d("PersonInfoFragment", "บันทึกรูปภาพสำเร็จ: " + imageFile.getAbsolutePath());
+
+        } catch (Exception e) {
+            Log.e("PersonInfoFragment", "เกิดข้อผิดพลาดในการบันทึกรูปภาพ: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private boolean hasStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
+
+    // หากต้องการขอ permission
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
     public void attachToFields(TextInputEditText... editTexts) {
         for (final TextInputEditText editText : editTexts) {
             editText.addTextChangedListener(new TextWatcher() {
@@ -1275,8 +1312,10 @@ public class PersonInfoFragment extends Fragment {
                         if(s!=null) {
                             if(!s.toString().isEmpty()) {
 //                                if(NumberValidator.isDouble(s.toString())) {
-                                    updater.update(s.toString());
-                                    dataPasser.onPersonInfo(personInfo);
+                                    if(!s.toString().equals(".")) {
+                                        updater.update(s.toString());
+                                        dataPasser.onPersonInfo(personInfo);
+                                    }
 //                                }
                             }
                         }
@@ -1696,6 +1735,7 @@ public class PersonInfoFragment extends Fragment {
                                 Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                                 imgPerson.setImageBitmap(bitmap);
                                 personInfo.setPhoto(byteArray);
+                                saveImageToStorage(bitmap, citizenIdFromCard);
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 imgPerson.setImageResource(R.drawable.ic_person);
@@ -2596,6 +2636,80 @@ public class PersonInfoFragment extends Fragment {
                     isValid = false;
                 } else {
                     txtTemperature.setError(null);
+                }
+            }
+            if (!txtWaistCircumference.getText().toString().trim().isEmpty()) {
+                try {
+                    double waistCircumference = Double.parseDouble(txtWaistCircumference.getText().toString());
+                    if (waistCircumference < 20 || waistCircumference > 200) {
+                        txtWaistCircumference.setError("รอบเอวไม่ถูกต้อง (20-200 เซนติเมตร)");
+                        isValid = false;
+                    } else {
+                        txtWaistCircumference.setError(null);
+                    }
+                } catch (NumberFormatException e) {
+                    txtWaistCircumference.setError("กรุณากรอกตัวเลขที่ถูกต้อง");
+                    isValid = false;
+                }
+            }
+
+            if (!txtBp.getText().toString().trim().isEmpty()) {
+                try {
+                    double heartRate = Double.parseDouble(txtBp.getText().toString());
+                    if (heartRate < 40 || heartRate > 200) {
+                        txtBp.setError("อัตราการเต้นของหัวใจไม่ถูกต้อง (40-200 ครั้งต่อนาที)");
+                        isValid = false;
+                    } else {
+                        txtBp.setError(null);
+                    }
+                } catch (NumberFormatException e) {
+                    txtBp.setError("กรุณากรอกตัวเลขที่ถูกต้อง");
+                    isValid = false;
+                }
+            }
+
+            if (!txtSymptomsPressure.getText().toString().trim().isEmpty()) {
+                try {
+                    double systolicPressure = Double.parseDouble(txtSymptomsPressure.getText().toString());
+                    if (systolicPressure < 70 || systolicPressure > 250) {
+                        txtSymptomsPressure.setError("ความดันโลหิตตัวบนไม่ถูกต้อง (70-250 mmHg)");
+                        isValid = false;
+                    } else {
+                        txtSymptomsPressure.setError(null);
+                    }
+                } catch (NumberFormatException e) {
+                    txtSymptomsPressure.setError("กรุณากรอกตัวเลขที่ถูกต้อง");
+                    isValid = false;
+                }
+            }
+
+            if (!txtDiastolicPressure.getText().toString().trim().isEmpty()) {
+                try {
+                    double diastolicPressure = Double.parseDouble(txtDiastolicPressure.getText().toString());
+                    if (diastolicPressure < 40 || diastolicPressure > 150) {
+                        txtDiastolicPressure.setError("ความดันโลหิตตัวล่างไม่ถูกต้อง (40-150 mmHg)");
+                        isValid = false;
+                    } else {
+                        txtDiastolicPressure.setError(null);
+                    }
+                } catch (NumberFormatException e) {
+                    txtDiastolicPressure.setError("กรุณากรอกตัวเลขที่ถูกต้อง");
+                    isValid = false;
+                }
+            }
+            if (!txtSymptomsPressure.getText().toString().trim().isEmpty() &&
+                    !txtDiastolicPressure.getText().toString().trim().isEmpty()) {
+                try {
+                    double systolic = Double.parseDouble(txtSymptomsPressure.getText().toString());
+                    double diastolic = Double.parseDouble(txtDiastolicPressure.getText().toString());
+
+                    if (systolic <= diastolic) {
+                        txtSymptomsPressure.setError("ความดันตัวบนต้องมากกว่าความดันตัวล่าง");
+                        txtDiastolicPressure.setError("ความดันตัวล่างต้องน้อยกว่าความดันตัวบน");
+                        isValid = false;
+                    }
+                } catch (NumberFormatException e) {
+                    // จัดการข้อผิดพลาดแล้วในการตรวจสอบแต่ละฟิลด์
                 }
             }
 

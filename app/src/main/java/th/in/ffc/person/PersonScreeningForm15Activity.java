@@ -2327,6 +2327,10 @@ private String getCardiovascularRiskSummary(Integer personId) {
             @Override
             public void onClick(View view) {
                 try {
+                    if(personInfo == null) {
+                        Toast.makeText(getBaseContext(), "กรุณากรอกข้อมูลบุคคล", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     PersonDao personDao = new PersonDao(mContext);
                     Person person = personDao.findByIdCard(personInfo.getIdcard());
                     if(personInfo.getIdcard()== null || personInfo.getIdcard().isEmpty() ){

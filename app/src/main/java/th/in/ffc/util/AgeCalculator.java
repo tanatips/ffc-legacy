@@ -54,7 +54,8 @@ public class AgeCalculator {
 
     public Date calulate() {
         if (born == null || current == null)
-            throw new NullPointerException("Born or Current is Null");
+            return null;
+//            throw new NullPointerException("Born or Current is Null");
 
         age = new Date();
         // Case: 0

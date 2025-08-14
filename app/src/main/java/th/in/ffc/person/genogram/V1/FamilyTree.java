@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -83,7 +84,7 @@ public class FamilyTree extends FFCFragmentActivity {
     private ProgressDialog mProgress;
     private AbsoluteLayout mDrawingArea;
     private int mDrawingAreaWidth;
-    private Button btnUnknown;
+    private ImageButton btnUnknown;
     private LinearLayout lnlFocusFamily;
     ImageView camShot;
 
@@ -523,7 +524,7 @@ public class FamilyTree extends FFCFragmentActivity {
 
         }
 
-        btnUnknown = (Button) findViewById(R.id.btnUnknown);
+        btnUnknown = (ImageButton) findViewById(R.id.btnUnknown);
         btnUnknown.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

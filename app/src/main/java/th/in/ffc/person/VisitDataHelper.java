@@ -95,9 +95,9 @@ public class VisitDataHelper {
 
         // ปีงบประมาณเริ่มตั้งแต่เดือนตุลาคม (เดือน 10)
         if (currentMonth >= 10) {
-            return String.valueOf(currentYear + 544 + 1); // เพิ่ม 1 สำหรับปีงบประมาณ
+            return String.valueOf(currentYear + 543 + 1); // เพิ่ม 1 สำหรับปีงบประมาณ
         } else {
-            return String.valueOf(currentYear + 544);
+            return String.valueOf(currentYear + 543);
         }
     }
 
