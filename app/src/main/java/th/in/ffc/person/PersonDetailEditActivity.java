@@ -45,6 +45,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ import th.in.ffc.intent.Action;
 import th.in.ffc.provider.CodeProvider;
 import th.in.ffc.provider.PersonProvider.Person;
 import th.in.ffc.provider.PersonProvider.PersonColumns;
+import th.in.ffc.util.ProfileImage;
 
 /**
  * add description here!
@@ -209,17 +211,26 @@ public class PersonDetailEditActivity extends PersonActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     byte[] byteArray = data.getByteArrayExtra("image");
                     String strIdcard = data.getStringExtra("result");
-                    if (byteArray != null) {
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                        f.imgPerson.setImageBitmap(bitmap);
-                    }
+                    Bitmap bitmap = null;;
+//                    if (byteArray != null) {
+//                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+//                        f.imgPerson.setImageBitmap(bitmap);
+//                        ProfileImage.saveImageToStorage(getApplicationContext(), bitmap, strIdcard);
+//                        Toast.makeText(getApplicationContext(),"onActivityResult !!!!!!",Toast.LENGTH_LONG).show();
+//                    }
                     if(strIdcard!=null){
                         String[] idcardInfo = strIdcard.split("#");
                         f.citizenId.setText(idcardInfo[0].toString());
+                        if(byteArray != null ) {
+                            bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                            f.imgPerson.setImageBitmap(bitmap);
+                            ProfileImage.saveImageToStorage(getApplicationContext(), bitmap, f.citizenId.getText().toString());
+
+                        }
                         f.fname.setText(idcardInfo[2].toString());
                         f.lname.setText(idcardInfo[4].toString());
                         f.hno.setText(idcardInfo[9].toString());
-                        if(idcardInfo[1].toString().equals("นาย")) {
+                        if(idcardInfo[1].toString().equals("นาย") || idcardInfo[1].toString().equals("Mr.")) {
                             f.sex.findViewById(R.id.male).setActivated(true);
                         } else {
                             f.sex.findViewById(R.id.female).setActivated(true);

@@ -76,6 +76,7 @@ import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.BMICalculator;
 import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.NetworkUtils;
+import th.in.ffc.util.ProfileImage;
 import th.in.ffc.util.ThaiDatePickerDialog;
 import th.in.ffc.widget.SearchableSpinner;
 
@@ -1170,7 +1171,7 @@ public class PersonInfoFragment extends Fragment {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(person.getPhoto(), 0, person.getPhoto().length);
                     if (bitmap != null) {
                         imgPerson.setImageBitmap(bitmap);
-                        saveImageToStorage(bitmap, person.getIdcard());
+                        ProfileImage.saveImageToStorage(getContext(), bitmap, person.getIdcard());
                     } else {
                         // ถ้าแปลงเป็น Bitmap ไม่สำเร็จ ให้ใช้รูปดีฟอลต์
                         imgPerson.setImageResource(R.drawable.ic_person);
@@ -1239,47 +1240,6 @@ public class PersonInfoFragment extends Fragment {
                 subDistrictName = person.getSubDistName();
             }
 
-        }
-    }
-    private void saveImageToStorage(Bitmap bitmap, String citizenId) {
-        String filename = "";
-        String tempFilename="";
-        try {
-            PersonDao personDao = new PersonDao(getContext());
-            PersonDao.PersonInfo  person =  personDao.getPersonByIdcard(citizenId);
-            // สร้าง path สำหรับบันทึกรูปภาพ
-            filename = person.getPcucodeperson()+person.getPid()+".jpg";
-            tempFilename = "tmp_"+person.getPcucodeperson()+person.getPid()+"_720p.jpg";
-            String directoryPath = "/sdcard/Android/data/th.in.ffc/pictures/person/";
-            File directory = new File(directoryPath);
-
-            // สร้าง directory หากยังไม่มี
-            if (!directory.exists()) {
-                boolean created = directory.mkdirs();
-                if (!created) {
-                    Log.e("PersonInfoFragment", "ไม่สามารถสร้าง directory ได้: " + directoryPath);
-                    return;
-                }
-            }
-
-            // สร้างชื่อไฟล์ใช้รหัสประชาชนเป็นชื่อไฟล์
-
-            File imageFile = new File(directory, filename);
-            File tempImageFile = new File(directory, tempFilename);
-
-            // บันทึกรูปภาพ
-            FileOutputStream outputStream = new FileOutputStream(imageFile);
-            FileOutputStream tempOutputStream = new FileOutputStream(tempImageFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, tempOutputStream);
-            outputStream.flush();
-            outputStream.close();
-            Toast.makeText(getContext(),imageFile.getAbsolutePath(),Toast.LENGTH_SHORT).show();
-            Log.d("PersonInfoFragment", "บันทึกรูปภาพสำเร็จ: " + imageFile.getAbsolutePath());
-
-        } catch (Exception e) {
-            Log.e("PersonInfoFragment", "เกิดข้อผิดพลาดในการบันทึกรูปภาพ: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     private boolean hasStoragePermission() {
@@ -1735,7 +1695,7 @@ public class PersonInfoFragment extends Fragment {
                                 Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                                 imgPerson.setImageBitmap(bitmap);
                                 personInfo.setPhoto(byteArray);
-                                saveImageToStorage(bitmap, citizenIdFromCard);
+                                 ProfileImage.saveImageToStorage(getContext(), bitmap, citizenIdFromCard);
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 imgPerson.setImageResource(R.drawable.ic_person);

@@ -52,8 +52,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
+
 import th.in.ffc.R;
 import th.in.ffc.SmartCardReaderActivity;
+import th.in.ffc.ThaiIdSmartcardReader;
 import th.in.ffc.app.FFCSearchListDialog;
 import th.in.ffc.app.form.EditFormActivity.EditTransaction;
 import th.in.ffc.code.*;
@@ -68,7 +71,7 @@ import th.in.ffc.util.ThaiDatePicker;
 import th.in.ffc.widget.ArrayFormatSpinner;
 import th.in.ffc.widget.SearchableButton;
 import th.in.ffc.widget.SearchableSpinner;
-
+import th.in.ffc.util.ProfileImage;
 /**
  * add description here! please
  *
@@ -161,14 +164,15 @@ public class PersonDetailEditFragment extends PersonFragment implements
         postcode = (EditText) view.findViewById(R.id.postcode);
         imgPerson = (ImageView) view.findViewById(R.id.imgPerson);
 //        smartcard_reader = (ImageButton) view.findViewById(R.id.smartcard_reader);
-//        smartcard_reader.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(getContext(), SmartCardReaderActivity.class);
-//                startActivityForResult(intent,SMART_CARD_READER_CODE);
-//
-//            }
-//        });
+        smartcard_reader = (ImageButton) view.findViewById(R.id.smartcard_reader);
+        smartcard_reader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), ThaiIdSmartcardReader.class);
+                startActivityForResult(intent,SMART_CARD_READER_CODE);
+
+            }
+        });
 
         return view;
     }
@@ -551,6 +555,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
                 if (byteArray != null) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                     imgPerson.setImageBitmap(bitmap);
+                    ProfileImage.saveImageToStorage(getContext(), bitmap, strIdcard);
                 }
             }
         }
