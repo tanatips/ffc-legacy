@@ -2364,23 +2364,23 @@ public class PersonInfoFragment extends Fragment {
                    // ตรวจสอบความซ้ำในฐานข้อมูล
 //                   if (validateIdCardDuplicate(idCard)) {
                        // ถ้าไม่ซ้ำ ให้ดำเนินการปกติ
-                       PersonDao personDao = new PersonDao(getContext());
-                       PersonDao.PersonInfo person = personDao.getPersonByIdcard(idCard);
-                       if (person != null) {
-                           if(!person.getTypelive().equals("4")) {
-                               personInfo.setHcode(person.getHcode());
-                               personInfo.setIdcard(idCard);
-                               dataPasser.onPersonInfo(personInfo);
-                          } else {
-                               showTypeLive4Dialog();
-                               // ไม่ set idcard เพราะจะ clear ใน dialog
-                               // รีเซ็ตสถานะก่อน return
-                               isValidatingIdCard = false;
-                               return;
-                           }
-                       } else {
-                           showNoDataFoundDialogSimple();
-                       }
+//                       PersonDao personDao = new PersonDao(getContext());
+//                       PersonDao.PersonInfo person = personDao.getPersonByIdcard(idCard);
+//                       if (person != null) {
+//                           if(!person.getTypelive().equals("4")) {
+//                               personInfo.setHcode(person.getHcode());
+//                               personInfo.setIdcard(idCard);
+//                               dataPasser.onPersonInfo(personInfo);
+//                          } else {
+//                               showTypeLive4Dialog();
+//                               // ไม่ set idcard เพราะจะ clear ใน dialog
+//                               // รีเซ็ตสถานะก่อน return
+//                               isValidatingIdCard = false;
+//                               return;
+//                           }
+//                       } else {
+//                           showNoDataFoundDialogSimple();
+//                       }
 
 
                        personInfo.setIdcard(idCard);

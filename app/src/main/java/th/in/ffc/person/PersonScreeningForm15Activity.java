@@ -2368,6 +2368,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
 //                            saveDrugsSix();
 //                            saveDrugsSeven();
 //                            saveDrugsEight();
+
                             saveDrugsCommon("Q1",drugsOneInfos);
                             saveDrugsCommon("Q2",drugsTwoInfos);
                             saveDrugsCommon("Q3",drugsThreeInfos);
@@ -3507,6 +3508,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
 
                 for (DrugsInfo drugsInfo : datas) {
                     // กำหนดค่าที่จำเป็น
+                    drugsInfo.setPersonInfoId(this.personInfo.getId());
                     drugsInfo.setQuestion(question);
                     drugsInfo.setIdcard(this.personInfo.getIdcard());
                     drugsInfo.setPersonInfoId(this.personInfo.getId());

@@ -177,7 +177,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="ส่วนต่างที่ไม่ได้เบิก:"
+                            android:text="ยอดค้างเบิก:"
                             android:textSize="16sp" />
 
                         <TextView

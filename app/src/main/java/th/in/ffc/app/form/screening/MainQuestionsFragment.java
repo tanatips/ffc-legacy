@@ -281,7 +281,7 @@ public class MainQuestionsFragment extends Fragment {
         if (questionsStateViewModel != null) {
             questionsStateViewModel.getQuestionTwoAnswers().observe(getViewLifecycleOwner(), answers -> {
                 if (answers != null) {
-                    checkAndToggleQuestions345Visibility();
+//                    checkAndToggleQuestions345Visibility();
                 }
             });
         }
