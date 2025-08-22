@@ -745,6 +745,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
 
         // 3. ความเสี่ยงด้านสุขภาพ - อย่างน้อย 1 ใน 2
         boolean hasHealthRisk = false;
+        int age = getPersonAge(context, personId);
 
         // ตรวจสอบเบาหวาน
         SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
@@ -757,13 +758,22 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         if (!hasHealthRisk) {
             SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
             List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
-            if (!cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0))) {
+                if (!cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0),age)) {
                 hasHealthRisk = true;
+            } else if (age < 35) {
+                // ถ้าอายุน้อยกว่า 35 และไม่มีการประเมินหัวใจ ให้ถือว่าผ่าน (เพราะไม่บังคับ)
+                // แต่ยังต้องมีการประเมินเบาหวาน
+                hasHealthRisk = false; // เก็บค่าเดิมไว้เพราะต้องมีอย่างน้อย 1 แบบประเมิน
             }
         }
 
         if (!hasHealthRisk) {
-            missingAssessments.add("ความเสี่ยงด้านสุขภาพ (อย่างน้อย 1 ใน 2 แบบ)");
+            String riskMsg = "ความเสี่ยงด้านสุขภาพ (อย่างน้อย 1 ใน 2 แบบ";
+            if (age < 35) {
+                riskMsg += " - หัวใจไม่บังคับสำหรับอายุ < 35 ปี";
+            }
+            riskMsg += ")";
+            missingAssessments.add(riskMsg);
         }
 
         // 4. การให้คำปรึกษา - ต้องมีเสมอ
@@ -852,6 +862,8 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             boolean has8qAssessment = !depression8qInfos.isEmpty() && is8qAssessmentComplete(depression8qInfos.get(0));
             if (!has8qAssessment) missingAssessments.add("แบบประเมิน 8Q");
         }
+        int age = getPersonAge(context, personId);
+
         // 6-7. ตรวจสอบความเสี่ยงด้านสุขภาพ (ทุกแบบ)
         SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
         List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
@@ -860,8 +872,12 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
 
         SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
         List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
-        boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0));
-        if (!hasCardioRisk) missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด");
+        boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0),age);
+        if (!hasCardioRisk && age >= 35) {
+            missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด (บังคับสำหรับอายุ >= 35 ปี)");
+        } else if (age < 35) {
+            Log.d("CARDIO_CHECK", "Cardiovascular assessment skipped - age " + age + " < 35 years");
+        }
 
         // 8. การให้คำปรึกษา
         CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
@@ -1014,97 +1030,121 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
             return "SubstanceUseStatus{usesTobacco=" + usesTobacco + ", usesAlcohol=" + usesAlcohol + "}";
         }
     }
-// เพิ่มเมธอดตรวจสอบแต่ละแบบประเมิน
-private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
-    if (drugsInfos == null || drugsInfos.isEmpty()) {
-        return false;
-    }
-    if( drugsInfos.size() == 70) {
-        Log.d("ASSIST_CHECK", "Drugs assessment incomplete - less than 10 records found");
-        return true; // ต้องมีอย่างน้อย 10 records สำหรับ Q1
-    }
-    try {
-        // ตรวจสอบ Q1 (คำถามการใช้สารเสพติด) - ต้องมี 10 subquestions (a-j)
-        Map<String, String> q1Answers = new HashMap<>();
 
-        // เก็บคำตอบ Q1 ทั้งหมด
-        for (DrugsInfo drug : drugsInfos) {
-            if ("Q1".equals(drug.getQuestion())) {
-                q1Answers.put(drug.getSubquestion(), drug.getAnswer());
-            }
+    private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
+        if (drugsInfos == null || drugsInfos.isEmpty()) {
+            Log.d("ASSIST_CHECK", "No drugs data found");
+            return false;
         }
 
-        // ตรวจสอบว่า Q1 ครบ 10 subquestions (a-j)
-        String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
-        for (String subQ : expectedSubQuestions) {
-            if (!q1Answers.containsKey(subQ)) {
-                Log.d("ASSIST_CHECK", "Missing Q1 subquestion: " + subQ);
-                return false; // ยังไม่ได้ตอบ Q1 ครบ
-            }
-        }
+        try {
+            // ตรวจสอบ Q1 (คำถามการใช้สารเสพติด) - ต้องมี 10 subquestions (a-j)
+            Map<String, String> q1Answers = new HashMap<>();
 
-        // ตรวจสอบว่า Q1 ตอบเป็น "0" ทั้งหมดหรือไม่
-        boolean allQ1Zero = true;
-        List<String> substancesUsed = new ArrayList<>(); // เก็บสารที่เคยใช้ (ตอบไม่ใช่ 0)
-
-        for (String subQ : expectedSubQuestions) {
-            String answer = q1Answers.get(subQ);
-            if (answer == null || answer.isEmpty()) {
-                Log.d("ASSIST_CHECK", "Q1 subquestion " + subQ + " has no answer");
-                return false;
+            // เก็บคำตอบ Q1 ทั้งหมด
+            for (DrugsInfo drug : drugsInfos) {
+                if ("Q1".equals(drug.getQuestion())) {
+                    q1Answers.put(drug.getSubquestion(), drug.getAnswer());
+                }
             }
 
-            if (!"0".equals(answer)) {
-                allQ1Zero = false;
-                substancesUsed.add(subQ); // เพิ่มสารที่เคยใช้ในรายการ
+            // ตรวจสอบว่า Q1 ครบ 10 subquestions (a-j)
+            String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+            for (String subQ : expectedSubQuestions) {
+                if (!q1Answers.containsKey(subQ) ||
+                        q1Answers.get(subQ) == null ||
+                        q1Answers.get(subQ).isEmpty()) {
+                    Log.d("ASSIST_CHECK", "Missing or empty Q1 subquestion: " + subQ);
+                    return false;
+                }
             }
-        }
 
-        // กรณีที่ Q1 ตอบเป็น "0" ทั้งหมด = ครบถ้วนแล้ว (ไม่เคยใช้สารใดๆ)
-        if (allQ1Zero) {
-            Log.d("ASSIST_CHECK", "All Q1 answers are 0 - Assessment complete");
-            return true;
-        }
+            // ตรวจสอบว่า Q1 ตอบเป็น "0" ทั้งหมดหรือไม่
+            boolean allQ1Zero = true;
+            List<String> substancesUsed = new ArrayList<>(); // เก็บสารที่เคยใช้ (ตอบไม่ใช่ 0)
 
-        // กรณีที่มีการใช้สารบางชนิด = ต้องตอบ Q2-Q8 สำหรับสารที่เคยใช้
-        Log.d("ASSIST_CHECK", "Substances used: " + substancesUsed.toString());
+            for (String subQ : expectedSubQuestions) {
+                String answer = q1Answers.get(subQ);
 
-        // ตรวจสอบ Q2-Q8 สำหรับสารที่เคยใช้
-        String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"};
+                if (!"0".equals(answer)) {
+                    allQ1Zero = false;
+                    substancesUsed.add(subQ); // เพิ่มสารที่เคยใช้ในรายการ
+                }
+            }
 
-        for (String substance : substancesUsed) {
-            for (String question : followUpQuestions) {
-                boolean found = false;
-                for (DrugsInfo drug : drugsInfos) {
-                    if (question.equals(drug.getQuestion()) &&
-                            substance.equals(drug.getSubquestion())) {
+            // กรณีที่ Q1 ตอบเป็น "0" ทั้งหมด = ครบถ้วนแล้ว (ไม่เคยใช้สารใดๆ)
+            if (allQ1Zero) {
+                Log.d("ASSIST_CHECK", "All Q1 answers are 0 - Assessment complete (no substance use)");
+                return true;
+            }
 
-                        // ตรวจสอบว่ามีคำตอบและไม่ใช่ค่าเริ่มต้น
-                        if (drug.getAnswer() != null &&
-                                !drug.getAnswer().isEmpty() &&
-                                !"0".equals(drug.getAnswer())) {
+            // กรณีที่มีการใช้สารบางชนิด = ต้องตอบ Q2-Q7 สำหรับสารที่เคยใช้
+            Log.d("ASSIST_CHECK", "Substances used (non-zero Q1): " + substancesUsed.toString());
+
+            // ตรวจสอบ Q2-Q4, Q6-Q7 สำหรับสารที่เคยใช้ (Q5 ไม่มี subquestion)
+            String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q6", "Q7"};
+
+            for (String substance : substancesUsed) {
+                for (String question : followUpQuestions) {
+                    boolean found = false;
+                    String foundAnswer = null;
+
+                    // หาคำตอบสำหรับ question + substance นี้
+                    for (DrugsInfo drug : drugsInfos) {
+                        if (question.equals(drug.getQuestion()) &&
+                                substance.equals(drug.getSubquestion())) {
+                            foundAnswer = drug.getAnswer();
                             found = true;
                             break;
                         }
                     }
-                }
 
-                if (!found) {
-                    Log.d("ASSIST_CHECK", "Missing answer for " + question + " substance " + substance);
-                    return false; // ยังไม่ได้ตอบคำถามครบ
+                    // ตรวจสอบว่ามีคำตอบและไม่ใช่ค่าเริ่มต้น
+                    if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
+                        Log.d("ASSIST_CHECK", "Missing answer for " + question + " substance " + substance);
+                        return false;
+                    }
+
+                    Log.d("ASSIST_CHECK", "Found " + question + substance + " = " + foundAnswer);
                 }
             }
+
+            // ตรวจสอบ Q5 แยกต่างหาก (ไม่มี subquestion a,b,c...)
+            // Q5 จะมีคำตอบเดียวสำหรับทุกสาร
+            if (!substancesUsed.isEmpty()) {
+                boolean foundQ5 = false;
+                String q5Answer = null;
+
+                for (DrugsInfo drug : drugsInfos) {
+                    if ("Q5".equals(drug.getQuestion())) {
+                        q5Answer = drug.getAnswer();
+                        foundQ5 = true;
+                        break;
+                    }
+                }
+
+                if (!foundQ5 || q5Answer == null || q5Answer.isEmpty()) {
+                    Log.d("ASSIST_CHECK", "Missing Q5 answer");
+                    return false;
+                }
+
+                Log.d("ASSIST_CHECK", "Found Q5 = " + q5Answer);
+            }
+
+            // ถ้าผ่านการตรวจสอบทั้งหมด
+            Log.d("ASSIST_CHECK", "All required ASSIST questions answered - Assessment complete");
+            Log.d("ASSIST_CHECK", "Total Q1 substances used: " + substancesUsed.size() +
+                    ", Follow-up questions required: Q2-Q4,Q6-Q7 for each substance + Q5 general = " +
+                    (substancesUsed.size() * 5 + (substancesUsed.isEmpty() ? 0 : 1)));
+
+            return true;
+
+        } catch (Exception e) {
+            Log.e("ASSIST_CHECK", "Error checking drugs completion: " + e.getMessage());
+            return false;
         }
-
-        Log.d("ASSIST_CHECK", "All required questions answered - Assessment complete");
-        return true;
-
-    } catch (Exception e) {
-        Log.e("ASSIST_CHECK", "Error checking drugs completion: " + e.getMessage());
-        return false;
     }
-}
-    private void debugAssistStatus(List<DrugsInfo> drugsInfos) {
+private void debugAssistStatus(List<DrugsInfo> drugsInfos) {
         if (drugsInfos == null || drugsInfos.isEmpty()) {
             Log.d("ASSIST_DEBUG", "No ASSIST data found");
             return;
@@ -1289,11 +1329,145 @@ private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
     }
 
     // ตรวจสอบความสมบูรณ์ของ Cardiovascular Risk
-    private boolean isCardiovascularRiskComplete(CardiovascularRiskInfo cardioRisk) {
-        // ตรวจสอบข้อมูลที่จำเป็นสำหรับ cardiovascular risk
-        return cardioRisk.getCholesterol() != null && !cardioRisk.getCholesterol().isEmpty();
+    private boolean isCardiovascularRiskComplete(CardiovascularRiskInfo cardioRisk, int age) {
+        // ถ้าอายุน้อยกว่า 35 ปี ไม่บังคับให้ตรวจสอบ
+        if (age < 35) {
+            Log.d("CARDIO_CHECK", "Age " + age + " < 35 years - Cardiovascular assessment not required");
+            return true;
+        }
+
+        // ถ้าอายุ 35 ปีขึ้นไป ต้องมีการตรวจสอบครบถ้วน
+        if (cardioRisk == null) {
+            Log.d("CARDIO_CHECK", "Age " + age + " >= 35 years - Cardiovascular assessment missing (null object)");
+            return false;
+        }
+
+        // ตรวจสอบ Required Fields สำหรับอายุ >= 35 ปี
+        boolean hasRequiredFields = true;
+        List<String> missingFields = new ArrayList<>();
+
+        // 1. Cholesterol (บังคับ)
+        if (cardioRisk.getCholesterol() == null || cardioRisk.getCholesterol().isEmpty()) {
+            hasRequiredFields = false;
+            missingFields.add("Cholesterol");
+        } else {
+            try {
+                double cholesterolValue = Double.parseDouble(cardioRisk.getCholesterol());
+                if (cholesterolValue <= 0) {
+                    hasRequiredFields = false;
+                    missingFields.add("Cholesterol (ค่าไม่ถูกต้อง)");
+                }
+            } catch (NumberFormatException e) {
+                hasRequiredFields = false;
+                missingFields.add("Cholesterol (รูปแบบไม่ถูกต้อง)");
+            }
+        }
+
+        // 2. Risk Percentage - ความเสี่ยงต่อการเกิดโรคหัวใจและหลอดเลือดในระยะเวลา 10 ปี (บังคับ)
+        if (cardioRisk.getRiskPercentage() == null || cardioRisk.getRiskPercentage().isEmpty()) {
+            hasRequiredFields = false;
+            missingFields.add("ความเสี่ยง 10 ปี (%)");
+        } else {
+            try {
+                double riskValue = Double.parseDouble(cardioRisk.getRiskPercentage());
+                if (riskValue < 0 || riskValue > 100) {
+                    hasRequiredFields = false;
+                    missingFields.add("ความเสี่ยง 10 ปี (ค่าไม่อยู่ในช่วง 0-100%)");
+                }
+            } catch (NumberFormatException e) {
+                hasRequiredFields = false;
+                missingFields.add("ความเสี่ยง 10 ปี (รูปแบบไม่ถูกต้อง)");
+            }
+        }
+
+        // 3. Risk Level - ระดับความเสี่ยงของท่านสูงเป็น (บังคับ)
+        if (cardioRisk.getRiskLevel() == null || cardioRisk.getRiskLevel().isEmpty()) {
+            hasRequiredFields = false;
+            missingFields.add("ระดับความเสี่ยง");
+        } else {
+            try {
+                double riskLevelValue = Double.parseDouble(cardioRisk.getRiskLevel());
+                if (riskLevelValue < 0) {
+                    hasRequiredFields = false;
+                    missingFields.add("ระดับความเสี่ยง (ค่าไม่ถูกต้อง)");
+                }
+            } catch (NumberFormatException e) {
+                hasRequiredFields = false;
+                missingFields.add("ระดับความเสี่ยง (รูปแบบไม่ถูกต้อง)");
+            }
+        }
+
+        // Log ผลการตรวจสอบ
+        if (hasRequiredFields) {
+            Log.d("CARDIO_CHECK", "Age " + age + " >= 35 years - Cardiovascular assessment complete with all required fields");
+        } else {
+            Log.d("CARDIO_CHECK", "Age " + age + " >= 35 years - Cardiovascular assessment incomplete. Missing: " +
+                    String.join(", ", missingFields));
+        }
+
+        return hasRequiredFields;
+    }
+    private CardiovascularValidationResult validateCardiovascularRisk(CardiovascularRiskInfo cardioRisk, int age) {
+        CardiovascularValidationResult result = new CardiovascularValidationResult();
+
+        // ถ้าอายุน้อยกว่า 35 ปี
+        if (age < 35) {
+            result.isRequired = false;
+            result.isComplete = true;
+            result.message = "ไม่บังคับสำหรับอายุ < 35 ปี";
+            return result;
+        }
+
+        // ถ้าอายุ >= 35 ปี
+        result.isRequired = true;
+
+        if (cardioRisk == null) {
+            result.isComplete = false;
+            result.message = "ต้องทำแบบประเมินโรคหัวใจและหลอดเลือด";
+            return result;
+        }
+
+        List<String> missingFields = new ArrayList<>();
+
+        // ตรวจสอบ required fields
+        if (cardioRisk.getCholesterol() == null || cardioRisk.getCholesterol().isEmpty()) {
+            missingFields.add("Cholesterol");
+        }
+
+        if (cardioRisk.getRiskPercentage() == null || cardioRisk.getRiskPercentage().isEmpty()) {
+            missingFields.add("ความเสี่ยง 10 ปี");
+        }
+
+        if (cardioRisk.getRiskLevel() == null || cardioRisk.getRiskLevel().isEmpty()) {
+            missingFields.add("ระดับความเสี่ยง");
+        }
+
+        if (missingFields.isEmpty()) {
+            result.isComplete = true;
+            result.message = "ครบถ้วน";
+        } else {
+            result.isComplete = false;
+            result.message = "ขาด: " + String.join(", ", missingFields);
+        }
+
+        return result;
     }
 
+    // เพิ่ม helper class สำหรับผลการตรวจสอบ
+    private static class CardiovascularValidationResult {
+        boolean isRequired = true;
+        boolean isComplete = false;
+        String message = "";
+
+        @Override
+        public String toString() {
+            return "CardiovascularValidationResult{" +
+                    "isRequired=" + isRequired +
+                    ", isComplete=" + isComplete +
+                    ", message='" + message + '\'' +
+                    '}';
+        }
+    }
     // Class สำหรับเก็บผลการตรวจสอบ
     private static class DataCompletionStatus {
         private boolean isComplete;

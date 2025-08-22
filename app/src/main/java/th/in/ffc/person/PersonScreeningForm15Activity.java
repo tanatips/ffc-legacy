@@ -216,11 +216,11 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
     private TextView textCompletedForms;
     private boolean has2QAbnormalResult = false;
     UserSessionManager sessionManager;
-    private QuestionFourFragment.OnDrugsDataSavedListener drugsDataSavedListener;
+//    private QuestionFourFragment.OnDrugsDataSavedListener drugsDataSavedListener;
 
-    public void setOnDrugsDataSavedListener(QuestionFourFragment.OnDrugsDataSavedListener listener) {
-        this.drugsDataSavedListener = listener;
-    }
+//    public void setOnDrugsDataSavedListener(QuestionFourFragment.OnDrugsDataSavedListener listener) {
+//        this.drugsDataSavedListener = listener;
+//    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -3647,9 +3647,9 @@ private String getCardiovascularRiskSummary(Integer personId) {
 //                    }
 
                     // ✅ เรียก callback เพื่ออัปเดตข้อมูลใน Fragment
-                    if (drugsDataSavedListener != null && drugsInfo.getId() != null) {
-                        drugsDataSavedListener.onDrugsDataSaved(drugsInfo.getSubquestion(), drugsInfo);
-                    }
+//                    if (drugsDataSavedListener != null && drugsInfo.getId() != null) {
+//                        drugsDataSavedListener.onDrugsDataSaved(drugsInfo.getSubquestion(), drugsInfo);
+//                    }
                     // Debug log
                     if (id != null || isUpdate) {
                         List<DrugsInfo> drugs = sfDrugsDao.getSfDrugsByPersonInfoId(Integer.parseInt(drugsInfo.getId()));
@@ -4742,7 +4742,6 @@ private String getCardiovascularRiskSummary(Integer personId) {
         // ป้องกัน infinite loop - อัพเดต PersonData เฉพาะเมื่อไม่ใช่การ auto-select
         if (sharedViewModel != null && data != null && !isUpdatingPersonData) {
             isUpdatingPersonData = true;
-
             try {
                 // ตรวจสอบความดันโลหิตจาก CardiovascularRisk
                 Boolean hasHypertension = null;

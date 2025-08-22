@@ -30,8 +30,6 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
     private List<SubstanceItem> substanceList;
     private OnFrequencySelectedListener listener;
     private boolean isUpdating = false;
-
-    // เพิ่ม TextWatcher เป็น field เพื่อให้สามารถถอดออกได้
     private TextWatcher textWatcher;
 
     public SubstanceTwoAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
@@ -45,6 +43,91 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_substance_problem, parent, false);
         return new FrequencyViewHolder(view);
+    }
+
+    /**
+     * อัปเดตรายการสารเสพติดที่แสดงใน Adapter
+     * เรียกใช้เมื่อมีการเปลี่ยนแปลงในคำถามที่ 1
+     */
+    public void updateSubstanceList(ArrayList<SubstanceItem> newSubstanceList) {
+        Log.d("SubstanceTwoAdapter", "Updating substance list. Old size: " + substanceList.size() +
+                ", New size: " + newSubstanceList.size());
+
+        // บันทึกรายการเดิมสำหรับเปรียบเทียบ
+        List<SubstanceItem> oldList = new ArrayList<>(substanceList);
+
+        // อัปเดตรายการใหม่
+        this.substanceList.clear();
+        this.substanceList.addAll(newSubstanceList);
+
+        // แจ้ง RecyclerView ว่าข้อมูลเปลี่ยนแปลง
+        notifyDataSetChanged();
+
+        // Log รายการที่เหลืออยู่
+        for (SubstanceItem item : newSubstanceList) {
+            Log.d("SubstanceTwoAdapter", "Substance in list: " + item.getId() + " - " + item.getName());
+        }
+    }
+
+    /**
+     * ล้างข้อมูลของสารเสพติดที่ระบุ
+     */
+    public void clearAnswerForSubstance(String substanceId) {
+        Log.d("SubstanceTwoAdapter", "Clearing answer for substance: " + substanceId);
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            if (item.getId().equals(substanceId)) {
+                // รีเซ็ตค่าเป็นค่าเริ่มต้น
+                item.setFrequency(-1);
+                item.setOtherDrugs("");
+                // แจ้ง RecyclerView ให้อัปเดต item นี้
+                notifyItemChanged(i);
+                Log.d("SubstanceTwoAdapter", "Cleared substance: " + substanceId);
+                break;
+            }
+        }
+    }
+
+    /**
+     * ล้างข้อมูลทั้งหมด
+     */
+    public void clearAllData() {
+        Log.d("SubstanceTwoAdapter", "Clearing all data");
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            item.setFrequency(-1);
+            item.setOtherDrugs("");
+        }
+
+        // แจ้ง RecyclerView ให้อัปเดตทั้งหมด
+        notifyDataSetChanged();
+        Log.d("SubstanceTwoAdapter", "All data cleared");
+    }
+
+    /**
+     * ตรวจสอบว่ามีสารเสพติดที่ระบุในรายการหรือไม่
+     */
+    public boolean hasSubstance(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ดึงข้อมูล SubstanceItem ตาม ID
+     */
+    public SubstanceItem getSubstanceById(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     public void updateAnswers(Map<String, AnswerFrequencyData> answers, String excludeId) {
@@ -91,32 +174,29 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
     public void updateAnswers(Map<String, AnswerFrequencyData> answers) {
         updateAnswers(answers, null);
     }
+
     @Override
     public void onBindViewHolder(@NonNull FrequencyViewHolder holder, int position) {
         SubstanceItem item = substanceList.get(position);
         holder.bind(item);
     }
+
     @Override
     public int getItemCount() {
         return substanceList.size();
     }
 
-    // แก้ไขในคลาส SubstanceTwoAdapter.java ที่เมธอด getRadioIdForFrequency และการผูกข้อมูล
-
     class FrequencyViewHolder extends RecyclerView.ViewHolder {
         private TextView titleText;
         private TextView descriptionText;
         private RadioGroup frequencyGroup;
-
         private TextInputLayout otherSubstanceLayout;
         private TextInputEditText otherSubstanceEdit;
-
         private RadioButton radioNever;
         private RadioButton radio1to2;
         private RadioButton radioMonthly;
         private RadioButton radioWeekly;
         private RadioButton radioDaily;
-
 
         public FrequencyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -130,12 +210,12 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
             radioMonthly = itemView.findViewById(R.id.radioMonthly);
             radioWeekly = itemView.findViewById(R.id.radioWeekly);
             radioDaily = itemView.findViewById(R.id.radioDaily);
-            radioNever.setText(radioNever.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioNever)+" คะแนน)");
-            radio1to2.setText(radio1to2.getText().toString()+" ("+getFrequencyForRadioId(R.id.radio1to2)+" คะแนน)");
-            radioMonthly.setText(radioMonthly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioMonthly)+" คะแนน)");
-            radioWeekly.setText(radioWeekly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioWeekly)+" คะแนน)");
-            radioDaily.setText(radioDaily.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioDaily)+" คะแนน)");
 
+            radioNever.setText(radioNever.getText().toString() + " (" + getFrequencyForRadioId(R.id.radioNever) + " คะแนน)");
+            radio1to2.setText(radio1to2.getText().toString() + " (" + getFrequencyForRadioId(R.id.radio1to2) + " คะแนน)");
+            radioMonthly.setText(radioMonthly.getText().toString() + " (" + getFrequencyForRadioId(R.id.radioMonthly) + " คะแนน)");
+            radioWeekly.setText(radioWeekly.getText().toString() + " (" + getFrequencyForRadioId(R.id.radioWeekly) + " คะแนน)");
+            radioDaily.setText(radioDaily.getText().toString() + " (" + getFrequencyForRadioId(R.id.radioDaily) + " คะแนน)");
         }
 
         public void bind(SubstanceItem item) {
@@ -159,7 +239,6 @@ public class SubstanceTwoAdapter extends RecyclerView.Adapter<SubstanceTwoAdapte
             int radioId = getRadioIdForFrequency(frequency);
             if (radioId != -1) {
                 frequencyGroup.check(radioId);
-
             }
 
             // ตั้งค่า listener หลังจากตั้งค่าการเลือกแล้ว

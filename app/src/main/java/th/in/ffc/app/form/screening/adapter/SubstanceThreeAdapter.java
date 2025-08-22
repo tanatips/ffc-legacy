@@ -17,6 +17,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import th.in.ffc.R;
@@ -26,15 +27,101 @@ import th.in.ffc.app.form.screening.model.SubstanceItem;
 import th.in.ffc.util.Log;
 
 public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAdapter.ViewHolder> {
-    private ArrayList<SubstanceItem> substanceList;
+    private List<SubstanceItem> substanceList;
     private OnFrequencySelectedListener listener;
-    private TextInputLayout otherSubstanceLayout; // เพิ่ม
-    private TextInputEditText otherSubstanceEdit; // เพิ่ม
     private boolean isUpdating = false;
+    private TextWatcher textWatcher;
+
     public SubstanceThreeAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
         this.substanceList = substanceList;
         this.listener = listener;
     }
+
+    /**
+     * อัปเดตรายการสารเสพติดที่แสดงใน Adapter
+     * เรียกใช้เมื่อมีการเปลี่ยนแปลงในคำถามที่ 1
+     */
+    public void updateSubstanceList(ArrayList<SubstanceItem> newSubstanceList) {
+        Log.d("SubstanceThreeAdapter", "Updating substance list. Old size: " + substanceList.size() +
+                ", New size: " + newSubstanceList.size());
+
+        // บันทึกรายการเดิมสำหรับเปรียบเทียบ
+        List<SubstanceItem> oldList = new ArrayList<>(substanceList);
+
+        // อัปเดตรายการใหม่
+        this.substanceList.clear();
+        this.substanceList.addAll(newSubstanceList);
+
+        // แจ้ง RecyclerView ว่าข้อมูลเปลี่ยนแปลง
+        notifyDataSetChanged();
+
+        // Log รายการที่เหลืออยู่
+        for (SubstanceItem item : newSubstanceList) {
+            Log.d("SubstanceThreeAdapter", "Substance in list: " + item.getId() + " - " + item.getName());
+        }
+    }
+
+    /**
+     * ล้างข้อมูลของสารเสพติดที่ระบุ
+     */
+    public void clearAnswerForSubstance(String substanceId) {
+        Log.d("SubstanceThreeAdapter", "Clearing answer for substance: " + substanceId);
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            if (item.getId().equals(substanceId)) {
+                // รีเซ็ตค่าเป็นค่าเริ่มต้น
+                item.setFrequency(-1);
+                item.setOtherDrugs("");
+                // แจ้ง RecyclerView ให้อัปเดต item นี้
+                notifyItemChanged(i);
+                Log.d("SubstanceThreeAdapter", "Cleared substance: " + substanceId);
+                break;
+            }
+        }
+    }
+
+    /**
+     * ล้างข้อมูลทั้งหมด
+     */
+    public void clearAllData() {
+        Log.d("SubstanceThreeAdapter", "Clearing all data");
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            item.setFrequency(-1);
+            item.setOtherDrugs("");
+        }
+
+        // แจ้ง RecyclerView ให้อัปเดตทั้งหมด
+        notifyDataSetChanged();
+        Log.d("SubstanceThreeAdapter", "All data cleared");
+    }
+
+    /**
+     * ตรวจสอบว่ามีสารเสพติดที่ระบุในรายการหรือไม่
+     */
+    public boolean hasSubstance(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ดึงข้อมูล SubstanceItem ตาม ID
+     */
+    public SubstanceItem getSubstanceById(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public void updateAnswers(Map<String, AnswerFrequencyData> answers, String excludeId) {
         if (isUpdating) return;
         isUpdating = true;
@@ -79,6 +166,7 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
     public void updateAnswers(Map<String, AnswerFrequencyData> answers) {
         updateAnswers(answers, null);
     }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -97,6 +185,7 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
     public int getItemCount() {
         return substanceList.size();
     }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView titleText;
         private TextView descriptionText;
@@ -122,6 +211,7 @@ public class SubstanceThreeAdapter extends RecyclerView.Adapter<SubstanceThreeAd
             radioMonthly = itemView.findViewById(R.id.radioMonthly);
             radioWeekly = itemView.findViewById(R.id.radioWeekly);
             radioDaily = itemView.findViewById(R.id.radioDaily);
+
             radioNever.setText(radioNever.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioNever)+" คะแนน)");
             radio1to2.setText(radio1to2.getText().toString()+" ("+getFrequencyForRadioId(R.id.radio1to2)+" คะแนน)");
             radioMonthly.setText(radioMonthly.getText().toString()+" ("+getFrequencyForRadioId(R.id.radioMonthly)+" คะแนน)");

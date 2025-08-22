@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import android.text.TextUtils;
@@ -26,15 +27,102 @@ import th.in.ffc.app.form.screening.listener.OnConcernSelectedListener;
 import th.in.ffc.app.form.screening.listener.OnFrequencySelectedListener;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
-public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapter.ViewHolder> {
-    private ArrayList<SubstanceItem> substanceList;
-    private OnFrequencySelectedListener listener;
+import th.in.ffc.util.Log;
 
+public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapter.ViewHolder> {
+    private List<SubstanceItem> substanceList;
+    private OnFrequencySelectedListener listener;
     private boolean isUpdating = false;
+    private TextWatcher textWatcher;
 
     public SubstanceSixAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
         this.substanceList = substanceList;
         this.listener = listener;
+    }
+
+    /**
+     * อัปเดตรายการสารเสพติดที่แสดงใน Adapter
+     * เรียกใช้เมื่อมีการเปลี่ยนแปลงในคำถามที่ 1
+     */
+    public void updateSubstanceList(ArrayList<SubstanceItem> newSubstanceList) {
+        Log.d("SubstanceSixAdapter", "Updating substance list. Old size: " + substanceList.size() +
+                ", New size: " + newSubstanceList.size());
+
+        // บันทึกรายการเดิมสำหรับเปรียบเทียบ
+        List<SubstanceItem> oldList = new ArrayList<>(substanceList);
+
+        // อัปเดตรายการใหม่
+        this.substanceList.clear();
+        this.substanceList.addAll(newSubstanceList);
+
+        // แจ้ง RecyclerView ว่าข้อมูลเปลี่ยนแปลง
+        notifyDataSetChanged();
+
+        // Log รายการที่เหลืออยู่
+        for (SubstanceItem item : newSubstanceList) {
+            Log.d("SubstanceSixAdapter", "Substance in list: " + item.getId() + " - " + item.getName());
+        }
+    }
+
+    /**
+     * ล้างข้อมูลของสารเสพติดที่ระบุ
+     */
+    public void clearAnswerForSubstance(String substanceId) {
+        Log.d("SubstanceSixAdapter", "Clearing answer for substance: " + substanceId);
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            if (item.getId().equals(substanceId)) {
+                // รีเซ็ตค่าเป็นค่าเริ่มต้น
+                item.setFrequency(-1);
+                item.setOtherDrugs("");
+                // แจ้ง RecyclerView ให้อัปเดต item นี้
+                notifyItemChanged(i);
+                Log.d("SubstanceSixAdapter", "Cleared substance: " + substanceId);
+                break;
+            }
+        }
+    }
+
+    /**
+     * ล้างข้อมูลทั้งหมด
+     */
+    public void clearAllData() {
+        Log.d("SubstanceSixAdapter", "Clearing all data");
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            item.setFrequency(-1);
+            item.setOtherDrugs("");
+        }
+
+        // แจ้ง RecyclerView ให้อัปเดตทั้งหมด
+        notifyDataSetChanged();
+        Log.d("SubstanceSixAdapter", "All data cleared");
+    }
+
+    /**
+     * ตรวจสอบว่ามีสารเสพติดที่ระบุในรายการหรือไม่
+     */
+    public boolean hasSubstance(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ดึงข้อมูล SubstanceItem ตาม ID
+     */
+    public SubstanceItem getSubstanceById(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     @NonNull
@@ -44,8 +132,6 @@ public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapte
                 .inflate(R.layout.item_substance_concern, parent, false);
         return new ViewHolder(view);
     }
-
-
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -116,8 +202,6 @@ public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapte
         private RadioButton radioWithin;
         private RadioButton radioBefore;
 
-
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleText = itemView.findViewById(R.id.titleText);
@@ -132,8 +216,8 @@ public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapte
             radioNever.setText(radioNever.getText().toString()+" ("+getValueForRadioId(R.id.radioNever)+" คะแนน)");
             radioWithin.setText(radioWithin.getText().toString()+" ("+getValueForRadioId(R.id.radioWithin)+" คะแนน)");
             radioBefore.setText(radioBefore.getText().toString()+" ("+getValueForRadioId(R.id.radioBefore)+" คะแนน)");
-
         }
+
         public void bind(SubstanceItem item) {
             titleText.setText(item.getName());
             if (!TextUtils.isEmpty(item.getDescription())) {
@@ -149,6 +233,7 @@ public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapte
 
             // ตั้งค่าการเลือกตามค่าที่มีอยู่
             int frequency = item.getFrequency();
+            Log.d("SubstanceSixAdapter", "bind: " + item.getId() + " frequency: " + frequency);
             int radioId = getRadioIdForValue(frequency);
             if (radioId != -1) {
                 answerGroup.check(radioId);
@@ -172,6 +257,9 @@ public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapte
                 if (textWatcher != null) {
                     otherSubstanceEdit.removeTextChangedListener(textWatcher);
                 }
+
+                // Log เพื่อตรวจสอบค่า otherDrugs
+                Log.d("SubstanceSixAdapter", "Item j otherDrugs: " + item.getOtherDrugs());
 
                 // ตรวจสอบและตั้งค่าข้อความโดยไม่กระทบ cursor position
                 String currentText = otherSubstanceEdit.getText() != null ? otherSubstanceEdit.getText().toString() : "";
@@ -224,6 +312,5 @@ public class SubstanceSixAdapter extends RecyclerView.Adapter<SubstanceSixAdapte
             if (radioId == R.id.radioBefore) return 3;
             return 0;
         }
-
     }
 }

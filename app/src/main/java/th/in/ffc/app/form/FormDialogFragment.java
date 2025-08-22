@@ -50,8 +50,10 @@ import th.in.ffc.app.form.screening.SuicideAssessment8qFragment;
 import th.in.ffc.app.form.screening.HealthRiskAssessmentFragment;
 import th.in.ffc.app.form.screening.CardiovascularRiskFragment;
 import th.in.ffc.app.form.screening.AlcoholFragment;
+import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression9qInfoDao;
 import th.in.ffc.app.form.screening.datalive.PersonInfoLiveData;
+import th.in.ffc.app.form.screening.model.CardiovascularRiskInfo;
 import th.in.ffc.app.form.screening.model.PersonData;
 import th.in.ffc.app.form.screening.model.SmokerInfo;
 import th.in.ffc.app.form.screening.model.StressDepression9qInfo;
@@ -81,7 +83,7 @@ public class FormDialogFragment extends DialogFragment {
         // รวบรวมข้อมูลจาก Fragment ต่างๆ (สามารถเพิ่มเติมได้ตามต้องการ)
     }
 
-    public static FormDialogFragment newInstance(String title, Fragment content,Integer send_to_claim) {
+    public static FormDialogFragment newInstance(String title, Fragment content, Integer send_to_claim) {
         FormDialogFragment fragment = new FormDialogFragment();
         fragment.formTitle = title;
         fragment.contentFragment = content;
@@ -125,7 +127,7 @@ public class FormDialogFragment extends DialogFragment {
         builder.setCustomTitle(customTitleView)
                 .setView(view)
                 .setPositiveButton("บันทึก", null)
-                .setNegativeButton("ยกเลิก",null);
+                .setNegativeButton("ยกเลิก", null);
 
         // สร้าง AlertDialog
         AlertDialog dialog = builder.create();
@@ -177,6 +179,7 @@ public class FormDialogFragment extends DialogFragment {
 
         return dialog;
     }
+
     private View createCustomTitleView(LayoutInflater inflater) {
         // สร้าง layout สำหรับ custom title
         LinearLayout titleLayout = new LinearLayout(getContext());
@@ -367,13 +370,12 @@ public class FormDialogFragment extends DialogFragment {
                     } else {
                         // แสดงการแนะนำเพิ่มเติมหลังจากบันทึกสำเร็จ
                         boolean has9QData = has9QData(activity);
-                        if(!has9QData) {
+                        if (!has9QData) {
                             showPost2QRecommendation(stress2qFragment, activity);
                         }
                     }
                 }
-            }
-            else if (contentFragment instanceof StressDepression9qFragment) {
+            } else if (contentFragment instanceof StressDepression9qFragment) {
                 StressDepression9qFragment stress9qFragment = (StressDepression9qFragment) contentFragment;
                 if (!stress9qFragment.isFormComplete()) {
                     isFormValid = false;
@@ -386,8 +388,7 @@ public class FormDialogFragment extends DialogFragment {
                         errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 9Q กรุณาลองใหม่อีกครั้ง";
                     }
                 }
-            }
-            else if (contentFragment instanceof SuicideAssessment8qFragment) {
+            } else if (contentFragment instanceof SuicideAssessment8qFragment) {
                 SuicideAssessment8qFragment suicide8qFragment = (SuicideAssessment8qFragment) contentFragment;
                 if (!suicide8qFragment.isFormComplete()) {
                     isFormValid = false;
@@ -400,21 +401,18 @@ public class FormDialogFragment extends DialogFragment {
                         errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมิน 9Q กรุณาลองใหม่อีกครั้ง";
                     }
                 }
-            }
-            else if (contentFragment instanceof HealthRiskAssessmentFragment) {
+            } else if (contentFragment instanceof HealthRiskAssessmentFragment) {
                 HealthRiskAssessmentFragment healthFragment = (HealthRiskAssessmentFragment) contentFragment;
                 if (!healthFragment.isFormComplete()) {
                     isFormValid = false;
-                        errorMessage = healthFragment.getDetailedValidationMessage();
+                    errorMessage = healthFragment.getDetailedValidationMessage();
                 }
-            }
-            else if (contentFragment instanceof CardiovascularRiskFragment) {
+            } else if (contentFragment instanceof CardiovascularRiskFragment) {
                 CardiovascularRiskFragment cardioFragment = (CardiovascularRiskFragment) contentFragment;
-                // สามารถเพิ่มการตรวจสอบรายละเอียดได้ในอนาคต
-                // if (!cardioFragment.isFormComplete()) {
-                //     isFormValid = false;
-                //     errorMessage = cardioFragment.getDetailedValidationMessage();
-                // }
+                 if (!cardioFragment.isFormComplete()) {
+                     isFormValid = false;
+                     errorMessage = cardioFragment.getDetailedValidationMessage();
+                 }
             }
             else if (contentFragment instanceof AlcoholFragment) {
                 AlcoholFragment alcoholFragment = (AlcoholFragment) contentFragment;
@@ -435,8 +433,7 @@ public class FormDialogFragment extends DialogFragment {
                         }
                     }
                 }
-            }
-            else if (contentFragment instanceof SmookingFragment) {
+            } else if (contentFragment instanceof SmookingFragment) {
                 SmookingFragment smokingFragment = (SmookingFragment) contentFragment;
                 if (!smokingFragment.isFormComplete()) {
                     isFormValid = false;
@@ -455,8 +452,7 @@ public class FormDialogFragment extends DialogFragment {
                         errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมินการสูบบุหรี่ กรุณาลองใหม่อีกครั้ง";
                     }
                 }
-            }
-            else if (contentFragment instanceof FagerstromNicotineFragment) {
+            } else if (contentFragment instanceof FagerstromNicotineFragment) {
                 FagerstromNicotineFragment fagerstromFragment = (FagerstromNicotineFragment) contentFragment;
                 if (!fagerstromFragment.isFormComplete()) {
                     isFormValid = false;
@@ -478,13 +474,14 @@ public class FormDialogFragment extends DialogFragment {
             if (btnOk != null) {
                 btnOk.performClick();
             }
-             // อัปเดตสถานะการกรอกข้อมูล
+            // อัปเดตสถานะการกรอกข้อมูล
             updateFormStatusAfterSave(activity);
 
             // ปิด Dialog เมื่อข้อมูลถูกต้อง
             dismiss();
         }
     }
+
     private boolean has9QData(PersonScreeningForm15Activity activity) {
         try {
             // ดึงข้อมูลที่จำเป็น
@@ -497,12 +494,11 @@ public class FormDialogFragment extends DialogFragment {
             }
 
             SfStressDepression9qInfoDao sfStressDepression9qInfoDao = new SfStressDepression9qInfoDao(activity);
-            List<StressDepression9qInfo> stressDepression9qs =   sfStressDepression9qInfoDao.getByPersonId(personId);
+            List<StressDepression9qInfo> stressDepression9qs = sfStressDepression9qInfoDao.getByPersonId(personId);
             if (stressDepression9qs == null || stressDepression9qs.isEmpty()) {
                 Log.d("FormDialogFragment", "ไม่พบข้อมูล 9Q สำหรับ personId: " + personId);
                 return false;
-            }
-            else {
+            } else {
                 Log.d("FormDialogFragment", "พบข้อมูล 9Q สำหรับ personId: " + personId);
                 return true;
             }
@@ -527,6 +523,7 @@ public class FormDialogFragment extends DialogFragment {
             }
         }, 500);
     }
+
     private void show2QNormalRecommendationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -564,6 +561,7 @@ public class FormDialogFragment extends DialogFragment {
 
         dialog.show();
     }
+
     private void show2QAbnormalRecommendationDialog(PersonScreeningForm15Activity activity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -629,6 +627,7 @@ public class FormDialogFragment extends DialogFragment {
 
         dialog.show();
     }
+
     private View createRecommendationTitleView(String title, int iconRes, String colorCode) {
         LinearLayout titleLayout = new LinearLayout(getContext());
         titleLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -820,6 +819,7 @@ public class FormDialogFragment extends DialogFragment {
 
         return titleLayout;
     }
+
     private boolean saveAlcoholToDatabase(AlcoholFragment alcoholFragment, PersonScreeningForm15Activity activity) {
         try {
             // ตรวจสอบข้อมูลที่จำเป็นก่อน
@@ -867,6 +867,7 @@ public class FormDialogFragment extends DialogFragment {
             return false;
         }
     }
+
     private boolean saveSmokingToDatabase(SmookingFragment smokingFragment, PersonScreeningForm15Activity activity) {
         try {
             // ตรวจสอบข้อมูลที่จำเป็นก่อน
@@ -914,6 +915,7 @@ public class FormDialogFragment extends DialogFragment {
             return false;
         }
     }
+
     private boolean saveStressDepression2qToDatabase(StressDepression2qFragment stress2qFragment, PersonScreeningForm15Activity activity) {
         try {
             // ตรวจสอบข้อมูลที่จำเป็นก่อน
@@ -952,6 +954,7 @@ public class FormDialogFragment extends DialogFragment {
             return false;
         }
     }
+
     private boolean validateRequiredDataForSaving(PersonScreeningForm15Activity activity) {
         int personId = getPersonIdFromActivity(activity);
         int visitno = getVisitNoFromActivity(activity);
@@ -978,6 +981,7 @@ public class FormDialogFragment extends DialogFragment {
 
         return true;
     }
+
     private void showHighRiskAlert(StressDepressionFragment stressFragment) {
         String riskLevel = stressFragment.getStressLevelFromScore();
         String recommendation = stressFragment.getRecommendation();
@@ -1027,6 +1031,7 @@ public class FormDialogFragment extends DialogFragment {
 
         dialog.show();
     }
+
     private View createHighRiskTitleView(String titleText) {
         LinearLayout titleLayout = new LinearLayout(getContext());
         titleLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -1054,6 +1059,7 @@ public class FormDialogFragment extends DialogFragment {
 
         return titleLayout;
     }
+
     private void showDetailedStressInfo(StressDepressionFragment stressFragment) {
         String detailedInfo = "รายละเอียดเพิ่มเติม:\n\n" +
                 "• ระดับความเครียด: " + stressFragment.getStressLevelFromScore() + "\n" +
@@ -1072,6 +1078,7 @@ public class FormDialogFragment extends DialogFragment {
                 .setIcon(R.drawable.ic_psychology)
                 .show();
     }
+
     private void showHighRiskAlert2Q(StressDepression2qFragment stress2qFragment) {
         String recommendation = stress2qFragment.get9QRecommendationText();
 
@@ -1126,6 +1133,7 @@ public class FormDialogFragment extends DialogFragment {
 
         dialog.show();
     }
+
     private void showGeneralHighRiskAlert(String title, String message, String recommendation) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -1158,6 +1166,7 @@ public class FormDialogFragment extends DialogFragment {
 
         dialog.show();
     }
+
     private void show9QRecommendationDialog(StressDepression2qFragment stress2qFragment) {
         String recommendation = stress2qFragment.get9QRecommendationText();
 
@@ -1248,27 +1257,28 @@ public class FormDialogFragment extends DialogFragment {
 
     private int getVisitNoFromActivity(PersonScreeningForm15Activity activity) {
 
-            try {
-                SharedViewModel viewModel = new ViewModelProvider(activity).get(SharedViewModel.class);
+        try {
+            SharedViewModel viewModel = new ViewModelProvider(activity).get(SharedViewModel.class);
 
-                // ใช้ getValue() แทน observe() เพื่อดึงค่าปัจจุบัน
-                PersonInfoLiveData personInfo = viewModel.getPersonInfoLiveDataMutableLiveData().getValue();
+            // ใช้ getValue() แทน observe() เพื่อดึงค่าปัจจุบัน
+            PersonInfoLiveData personInfo = viewModel.getPersonInfoLiveDataMutableLiveData().getValue();
 
-                if (personInfo != null && personInfo.getId() != null && !personInfo.getId().isEmpty()) {
-                    return Integer.parseInt(personInfo.getVisitno());
-                }
+            if (personInfo != null && personInfo.getId() != null && !personInfo.getId().isEmpty()) {
+                return Integer.parseInt(personInfo.getVisitno());
+            }
 
-                Log.w("FormDialogFragment", "ไม่พบ personId ใน SharedViewModel");
-                return 0; // คืนค่า 0 หากไม่พบ
+            Log.w("FormDialogFragment", "ไม่พบ personId ใน SharedViewModel");
+            return 0; // คืนค่า 0 หากไม่พบ
 
-            } catch (NumberFormatException e) {
-                Log.e("FormDialogFragment", "personId ไม่ใช่ตัวเลข", e);
-                return 0;
-            } catch (Exception e) {
-                Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการดึง personId", e);
-                return 0;
+        } catch (NumberFormatException e) {
+            Log.e("FormDialogFragment", "personId ไม่ใช่ตัวเลข", e);
+            return 0;
+        } catch (Exception e) {
+            Log.e("FormDialogFragment", "เกิดข้อผิดพลาดในการดึง personId", e);
+            return 0;
         }
     }
+
     private void showDetailedValidationDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -1302,6 +1312,7 @@ public class FormDialogFragment extends DialogFragment {
 
         dialog.show();
     }
+
     private View createValidationTitleView() {
         LinearLayout titleLayout = new LinearLayout(getContext());
         titleLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -1329,6 +1340,7 @@ public class FormDialogFragment extends DialogFragment {
 
         return titleLayout;
     }
+
     /**
      * อัปเดตสถานะหลังการบันทึกข้อมูล
      */
@@ -1566,7 +1578,8 @@ public class FormDialogFragment extends DialogFragment {
             }
         }
     }
-     // เพิ่มเมธอดสำหรับกำหนดสีตามประเภทแบบฟอร์ม
+
+    // เพิ่มเมธอดสำหรับกำหนดสีตามประเภทแบบฟอร์ม
     private int getTitleColor(String title) {
         if (title.contains("ซึมเศร้า")) {
             return Color.parseColor("#673AB7"); // ม่วง สำหรับโรคซึมเศร้า
@@ -1584,11 +1597,12 @@ public class FormDialogFragment extends DialogFragment {
             return Color.parseColor("#2C3E50"); // เทาเข้ม สำหรับอื่นๆ
         }
     }
+
     private int getTitleBackgroundColor(String title) {
-        if(title==null){
+        if (title == null) {
             return Color.parseColor("#F8F9FA");
         }
-        if(!title.isEmpty()) {
+        if (!title.isEmpty()) {
             if (title.contains("ซึมเศร้า")) {
                 return Color.parseColor("#F3E5F5"); // ม่วงอ่อน
             } else if (title.contains("เครียด")) {
@@ -1607,6 +1621,7 @@ public class FormDialogFragment extends DialogFragment {
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
+
     private boolean saveSuicideAssessment8qToDatabase(SuicideAssessment8qFragment suicide8qFragment, PersonScreeningForm15Activity activity) {
         try {
             // ตรวจสอบข้อมูลที่จำเป็นก่อน

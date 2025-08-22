@@ -1414,8 +1414,15 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 !healthRiskAssessmentInfo.getHealthRiskQ6().equals("0") &&
                 !healthRiskAssessmentInfo.getHealthRiskQ6().isEmpty();
 
+        // ตรวจสอบว่ามีค่าน้ำตาล FCBG หรือ FPG หรือไม่
+        boolean fcbgComplete = healthRiskAssessmentInfo.getFcbg() != null &&
+                !healthRiskAssessmentInfo.getFcbg().isEmpty();
+        boolean fpgComplete = healthRiskAssessmentInfo.getFpg() != null &&
+                !healthRiskAssessmentInfo.getFpg().isEmpty();
+
         // ตรวจสอบว่าตอบครบทุกข้อหรือไม่
-        return q1Complete && q2Complete && q3Complete && q4Complete && q5Complete && q6Complete;
+        return q1Complete && q2Complete && q3Complete && q4Complete && q5Complete && q6Complete
+                && (fcbgComplete || fpgComplete);
     }
 
     /**
@@ -1487,6 +1494,13 @@ public class HealthRiskAssessmentFragment extends Fragment {
                 healthRiskAssessmentInfo.getHealthRiskQ6().isEmpty()) {
             missingQuestions.add("ข้อ 6: ประวัติเบาหวานในครอบครัว");
         }
+        // ตรวจสอบค่าน้ำตาล FCBG และ FPG
+        if (healthRiskAssessmentInfo.getFcbg() == null || healthRiskAssessmentInfo.getFcbg().isEmpty()) {
+            missingQuestions.add("ค่าน้ำตาลในเลือด (FCBG)");
+        }
+        if (healthRiskAssessmentInfo.getFpg() == null || healthRiskAssessmentInfo.getFpg().isEmpty()) {
+            missingQuestions.add("ค่าน้ำตาลในเลือด (FPG)");
+        }
 
         if (!missingQuestions.isEmpty()) {
             StringBuilder message = new StringBuilder("แบบประเมินความเสี่ยงโรคเบาหวาน:\n");
@@ -1500,8 +1514,13 @@ public class HealthRiskAssessmentFragment extends Fragment {
             boolean hasFPG = healthRiskAssessmentInfo.getFpg() != null && !healthRiskAssessmentInfo.getFpg().isEmpty();
 
             if (!hasFCBG && !hasFPG) {
-                message.append("\nหมายเหตุ: ค่าน้ำตาลในเลือด (FCBG/FPG) เป็นข้อมูลเสริม ไม่บังคับกรอก");
+                message.append("• กรุณากรอกค่าน้ำตาลในเลือด (FCBG หรือ FPG)");
             }
+//            else if (!hasFCBG) {
+//                message.append("• กรุณากรอกค่าน้ำตาลในเลือด (FCBG) หรือ กรอกค่า 0 ถ้าไม่มีข้อมูล");
+//            } else if (!hasFPG) {
+//                message.append("• กรุณากรอกค่าน้ำตาลในเลือด (FPG) หรือ กรอกค่า 0 ถ้าไม่มีข้อมูล");
+//            }
 
             return message.toString().trim();
         }

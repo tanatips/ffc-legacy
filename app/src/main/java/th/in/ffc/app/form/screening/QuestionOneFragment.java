@@ -38,6 +38,7 @@ import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.QuestionsStateViewModel;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
 import th.in.ffc.person.PersonScreeningForm15Activity;
+import th.in.ffc.util.ContentHeightCalculator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -127,8 +128,10 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                     contentLayout.setVisibility(View.VISIBLE);
                     expandIcon.setImageResource(R.drawable.ic_expand_less);
                     notifyParentOfChange();
-                    calculateAndSetContentHeight();
+//                    calculateAndSetContentHeight();
+                    ContentHeightCalculator.calculateAutoHeight(recyclerView, contentLayout);
                 }
+                notifyParentOfChange();
             }
         });
 
@@ -338,12 +341,12 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
                             break;
                         }
                     }
-                    if (isAllQuestionsAnswered() && isAllSubstancesNeverUsed()) {
-                        // หน่วงเวลาเล็กน้อยให้ UI อัพเดตก่อน แล้วค่อยล้างข้อมูล
-                        new Handler().postDelayed(() -> {
-                            clearAllSubsequentQuestions();
-                        }, 200);
-                    }
+//                    if (isAllQuestionsAnswered() && isAllSubstancesNeverUsed()) {
+//                        // หน่วงเวลาเล็กน้อยให้ UI อัพเดตก่อน แล้วค่อยล้างข้อมูล
+//                        new Handler().postDelayed(() -> {
+//                            clearAllSubsequentQuestions();
+//                        }, 200);
+//                    }
 //                    if (isAllQuestionsAnswered() && isAllSubstancesNeverUsed()) {
 //                        // หน่วงเวลาเล็กน้อยให้ UI อัพเดตก่อน แล้วค่อยล้างข้อมูล
 //                        new Handler().postDelayed(() -> {
@@ -505,25 +508,7 @@ public class QuestionOneFragment extends Fragment implements OnSubstanceSelectio
         }
     }
     private void calculateAndSetContentHeight() {
-        if (recyclerView == null || adapter == null) return;
-
-        // คำนวณความสูงตามจำนวน items
-        int itemCount = adapter.getItemCount();
-        int estimatedItemHeight = (int) (60 * getResources().getDisplayMetrics().density); // ประมาณความสูงต่อ item
-        int totalHeight = itemCount * estimatedItemHeight;
-
-        // บวกเพิ่ม padding
-        totalHeight += recyclerView.getPaddingTop() + recyclerView.getPaddingBottom();
-
-        // กำหนดความสูงขั้นต่ำและสูงสุด
-        int minHeight = (int) (200 * getResources().getDisplayMetrics().density);
-        int maxHeight = (int) (600 * getResources().getDisplayMetrics().density);
-        totalHeight = Math.max(minHeight, Math.min(totalHeight, maxHeight));
-
-        // กำหนดความสูงให้กับ contentLayout
-        ViewGroup.LayoutParams params = contentLayout.getLayoutParams();
-        params.height =  (int) Math.round(totalHeight*2.5);
-        contentLayout.setLayoutParams(params);
+        ContentHeightCalculator.calculateAutoHeight(recyclerView, contentLayout);
     }
     private void measureAndSetContentHeight() {
         if (recyclerView == null) return;

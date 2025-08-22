@@ -19,6 +19,7 @@ import th.in.ffc.app.form.screening.datalive.SuicideAssessment8qLiveData;
 import th.in.ffc.app.form.screening.model.AssistScore;
 import th.in.ffc.app.form.screening.model.DrugsInfo;
 import th.in.ffc.app.form.screening.model.PersonData;
+import th.in.ffc.util.Log;
 
 public class SharedViewModel extends ViewModel {
 
@@ -174,6 +175,9 @@ public class SharedViewModel extends ViewModel {
     }
 
     public void setCardiovascularRiskLiveDataMutableLiveData(CardiovascularRiskLiveData value) {
+        if( value.getPersonId() == null) {
+            Log.e("SharedViewModel", "setCardiovascularRiskLiveDataMutableLiveData: value is null");
+        }
         this.cardiovascularRiskLiveDataMutableLiveData.setValue(value);
     }
     public MutableLiveData<PersonData> getPersonDataLiveData() {

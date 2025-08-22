@@ -17,23 +17,108 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.listener.OnFrequencySelectedListener;
 import th.in.ffc.app.form.screening.model.AnswerFrequencyData;
 import th.in.ffc.app.form.screening.model.SubstanceItem;
+import th.in.ffc.util.Log;
 
 public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAdapter.ViewHolder> {
-    private ArrayList<SubstanceItem> substanceList;
+    private List<SubstanceItem> substanceList;
     private OnFrequencySelectedListener listener;
-
-
     private boolean isUpdating = false;
 
     public SubstanceSevenAdapter(ArrayList<SubstanceItem> substanceList, OnFrequencySelectedListener listener) {
         this.substanceList = substanceList;
         this.listener = listener;
+    }
+
+    /**
+     * อัปเดตรายการสารเสพติดที่แสดงใน Adapter
+     * เรียกใช้เมื่อมีการเปลี่ยนแปลงในคำถามที่ 1
+     */
+    public void updateSubstanceList(ArrayList<SubstanceItem> newSubstanceList) {
+        Log.d("SubstanceSevenAdapter", "Updating substance list. Old size: " + substanceList.size() +
+                ", New size: " + newSubstanceList.size());
+
+        // บันทึกรายการเดิมสำหรับเปรียบเทียบ
+        List<SubstanceItem> oldList = new ArrayList<>(substanceList);
+
+        // อัปเดตรายการใหม่
+        this.substanceList.clear();
+        this.substanceList.addAll(newSubstanceList);
+
+        // แจ้ง RecyclerView ว่าข้อมูลเปลี่ยนแปลง
+        notifyDataSetChanged();
+
+        // Log รายการที่เหลืออยู่
+        for (SubstanceItem item : newSubstanceList) {
+            Log.d("SubstanceSevenAdapter", "Substance in list: " + item.getId() + " - " + item.getName());
+        }
+    }
+
+    /**
+     * ล้างข้อมูลของสารเสพติดที่ระบุ
+     */
+    public void clearAnswerForSubstance(String substanceId) {
+        Log.d("SubstanceSevenAdapter", "Clearing answer for substance: " + substanceId);
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            if (item.getId().equals(substanceId)) {
+                // รีเซ็ตค่าเป็นค่าเริ่มต้น
+                item.setFrequency(-1);
+                item.setOtherDrugs("");
+                // แจ้ง RecyclerView ให้อัปเดต item นี้
+                notifyItemChanged(i);
+                Log.d("SubstanceSevenAdapter", "Cleared substance: " + substanceId);
+                break;
+            }
+        }
+    }
+
+    /**
+     * ล้างข้อมูลทั้งหมด
+     */
+    public void clearAllData() {
+        Log.d("SubstanceSevenAdapter", "Clearing all data");
+
+        for (int i = 0; i < substanceList.size(); i++) {
+            SubstanceItem item = substanceList.get(i);
+            item.setFrequency(-1);
+            item.setOtherDrugs("");
+        }
+
+        // แจ้ง RecyclerView ให้อัปเดตทั้งหมด
+        notifyDataSetChanged();
+        Log.d("SubstanceSevenAdapter", "All data cleared");
+    }
+
+    /**
+     * ตรวจสอบว่ามีสารเสพติดที่ระบุในรายการหรือไม่
+     */
+    public boolean hasSubstance(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * ดึงข้อมูล SubstanceItem ตาม ID
+     */
+    public SubstanceItem getSubstanceById(String substanceId) {
+        for (SubstanceItem item : substanceList) {
+            if (item.getId().equals(substanceId)) {
+                return item;
+            }
+        }
+        return null;
     }
 
     @NonNull
@@ -43,8 +128,6 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
                 .inflate(R.layout.item_substance_concern, parent, false);
         return new ViewHolder(view);
     }
-
-
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -95,6 +178,7 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
             isUpdating = false;
         }
     }
+
     // เมธอด overload สำหรับการเรียกใช้แบบเดิม
     public void updateAnswers(Map<String, AnswerFrequencyData> answers) {
         updateAnswers(answers, null);
@@ -129,8 +213,8 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
             radioNever.setText(radioNever.getText().toString()+" ("+getValueForRadioId(R.id.radioNever)+" คะแนน)");
             radioWithin.setText(radioWithin.getText().toString()+" ("+getValueForRadioId(R.id.radioWithin)+" คะแนน)");
             radioBefore.setText(radioBefore.getText().toString()+" ("+getValueForRadioId(R.id.radioBefore)+" คะแนน)");
-
         }
+
         public void bind(SubstanceItem item) {
             titleText.setText(item.getName());
             if (!TextUtils.isEmpty(item.getDescription())) {
@@ -146,6 +230,7 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
 
             // ตั้งค่าการเลือกตามค่าที่มีอยู่
             int frequency = item.getFrequency();
+            Log.d("SubstanceSevenAdapter", "bind: " + item.getId() + " frequency: " + frequency);
             int radioId = getRadioIdForValue(frequency);
             if (radioId != -1) {
                 answerGroup.check(radioId);
@@ -169,6 +254,9 @@ public class SubstanceSevenAdapter extends RecyclerView.Adapter<SubstanceSevenAd
                 if (textWatcher != null) {
                     otherSubstanceEdit.removeTextChangedListener(textWatcher);
                 }
+
+                // Log เพื่อตรวจสอบค่า otherDrugs
+                Log.d("SubstanceSevenAdapter", "Item j otherDrugs: " + item.getOtherDrugs());
 
                 // ตรวจสอบและตั้งค่าข้อความโดยไม่กระทบ cursor position
                 String currentText = otherSubstanceEdit.getText() != null ? otherSubstanceEdit.getText().toString() : "";

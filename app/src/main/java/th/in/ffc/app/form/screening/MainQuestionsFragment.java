@@ -111,15 +111,14 @@ public class MainQuestionsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-//        DrugsLiveData drugsLiveData = new DrugsLiveData();
-//        drugsLiveData.setPersonId(personId);
-//        drugsLiveData.setVisitNo(visitNo);
-//        viewModel.setDrugsLiveDataMutableLiveData(drugsLiveData);
+
+        // สังเกตการเปลี่ยนแปลงของ Question 1 เพื่อกรองสารเสพติดที่แสดงในข้อ 2-7
+        observeQuestionOneChanges();
+
         // สังเกตการเปลี่ยนแปลงของ Question 2 เพื่อซ่อน/แสดงข้อ 3, 4, 5
         observeQuestionTwoChanges();
 
-        // คำนวณความสูงเริ่มต้นหลังจาก View พร้อม
+        // คำนวดความสูงเริ่มต้นหลังจาก View พร้อม
         view.post(() -> {
             forceRecalculateHeight();
         });
@@ -145,9 +144,6 @@ public class MainQuestionsFragment extends Fragment {
                     .add(R.id.question_eight_container, questionEightFragment)
                     .add(R.id.assist_summary_container, assistScoreFragment)
                     .commitNow();
-
-            // ซ่อน AssistScoreFragment ในตอนเริ่มต้น
-//            hideAssistScoreFragment();
         }
         return view;
     }
@@ -181,7 +177,7 @@ public class MainQuestionsFragment extends Fragment {
         templateList.add(new SubstanceItem("f", "f. สารระเหย", "กาว ทินเนอร์ เบนซิน ไนตรัส ฯลฯ"));
         templateList.add(new SubstanceItem("g", "g. ยากล่อมประสาทหรือยานอนหลับ", "วาเลี่ยม โรฮิปนอล ดอมิกุม มาโน โซแลม ฯลฯ"));
         templateList.add(new SubstanceItem("h", "h. ยาหลอนประสาท", "แอลเอสดี แอซิด เห็ดเมา พีซีพี ยาเค ฯลฯ"));
-        templateList.add(new SubstanceItem("i", "i. สารกลุ่มฝิ่น", "ฝิ่น เฮโรอีน มอร์ฟีน เมทาโดน บูพรีนอฟีน โคเดอีน ฯลฯ"));
+        templateList.add(new SubstanceItem("i", "i. สารกลุ่มกิ่น", "ฝิ่น เฮโรอีน มอร์ฟีน เมทาโดน บูพรีนอฟีน โคเดอีน ฯลฯ"));
         templateList.add(new SubstanceItem("j", "j. สารเสพติดอื่น ๆ", ""));
         return templateList;
     }
@@ -192,6 +188,33 @@ public class MainQuestionsFragment extends Fragment {
             newList.add(new SubstanceItem(item.getId(), item.getName(), item.getDescription()));
         }
         return newList;
+    }
+
+    /**
+     * สร้าง filtered substance list สำหรับข้อ 2-7 โดยแสดงเฉพาะที่เลือก "เคย" ในข้อ 1
+     */
+    private ArrayList<SubstanceItem> createFilteredSubstanceList(ArrayList<SubstanceItem> templateList) {
+        ArrayList<SubstanceItem> filteredList = new ArrayList<>();
+
+        if (questionOneFragment == null) {
+            return copySubstanceList(templateList); // ถ้ายังไม่มีข้อมูลให้แสดงทั้งหมดก่อน
+        }
+
+        Map<String, AnswerData> questionOneAnswers = questionOneFragment.getSelectedAnswers();
+        if (questionOneAnswers == null || questionOneAnswers.isEmpty()) {
+            return copySubstanceList(templateList); // ถ้ายังไม่มีข้อมูลให้แสดงทั้งหมดก่อน
+        }
+
+        // กรองเฉพาะสารเสพติดที่เลือก "เคย" ในข้อ 1
+        for (SubstanceItem item : templateList) {
+            AnswerData answer = questionOneAnswers.get(item.getId());
+            if (answer != null && answer.isHasUsed() != null && answer.isHasUsed()) {
+                filteredList.add(new SubstanceItem(item.getId(), item.getName(), item.getDescription()));
+            }
+        }
+
+        Log.d(TAG, "Filtered substance list size: " + filteredList.size());
+        return filteredList;
     }
 
     private void createAndSetupFragments(Map<String, ArrayList<SubstanceItem>> fragmentLists) {
@@ -210,6 +233,8 @@ public class MainQuestionsFragment extends Fragment {
 
         // ตั้งค่า arguments สำหรับแต่ละ fragment
         questionOneFragment.setArguments(createBundle(fragmentLists.get("one")));
+
+        // สำหรับข้อ 2-7 ให้ใช้ list เต็มก่อน แล้วจะ filter ภายหลังเมื่อมีการเปลี่ยนแปลงในข้อ 1
         questionTwoFragment.setArguments(createBundle(fragmentLists.get("two")));
         questionThreeFragment.setArguments(createBundle(fragmentLists.get("three")));
         questionFourFragment.setArguments(createBundle(fragmentLists.get("four")));
@@ -274,6 +299,222 @@ public class MainQuestionsFragment extends Fragment {
         }
     }
 
+
+    /**
+     * อัปเดตรายการสารเสพติดในข้อ 2-7 ตามการเลือกในข้อ 1
+     */
+    private void updateSubstanceListsForQuestions2To7() {
+        ArrayList<SubstanceItem> templateList = createSubstanceTemplateList();
+        ArrayList<SubstanceItem> filteredList = createFilteredSubstanceList(templateList);
+
+        Log.d(TAG, "Updating substance lists based on Question 1 answers");
+        Log.d(TAG, "Filtered substances count: " + filteredList.size());
+
+        ArrayList<SubstanceItem> filteredListForQ2 = createFilteredListWithCurrentData(filteredList, "Q2");
+        ArrayList<SubstanceItem> filteredListForQ3 = createFilteredListWithCurrentData(filteredList, "Q3");
+        ArrayList<SubstanceItem> filteredListForQ4 = createFilteredListWithCurrentData(filteredList, "Q4");
+//        ArrayList<SubstanceItem> filteredListForQ5 = createFilteredListWithCurrentData(filteredList, "Q5");
+        ArrayList<SubstanceItem> filteredListForQ6 = createFilteredListWithCurrentData(filteredList, "Q6");
+        ArrayList<SubstanceItem> filteredListForQ7 = createFilteredListWithCurrentData(filteredList, "Q7");
+
+
+        // อัปเดต Fragment ข้อ 2-7 ด้วยรายการที่กรองแล้ว
+        if (questionTwoFragment != null) {
+            questionTwoFragment.updateSubstanceList(filteredListForQ2);
+        }
+        if (questionThreeFragment != null) {
+            questionThreeFragment.updateSubstanceList(filteredListForQ3);
+        }
+        if (questionFourFragment != null) {
+            questionFourFragment.updateSubstanceList(filteredListForQ4);
+        }
+
+        // สำหรับข้อ 5 ต้องตัด a ออก
+        if (questionFiveFragment != null) {
+            ArrayList<SubstanceItem> filteredListForQ5 = new ArrayList<>();
+            for (SubstanceItem item : filteredList) {
+                if (!item.getId().equals("a")) {
+                    filteredListForQ5.add(item);
+                }
+            }
+            questionFiveFragment.updateSubstanceList(filteredListForQ5);
+        }
+
+        if (questionSixFragment != null) {
+            questionSixFragment.updateSubstanceList(filteredListForQ6);
+        }
+        if (questionSevenFragment != null) {
+            questionSevenFragment.updateSubstanceList(filteredListForQ7);
+        }
+
+        // ล้างข้อมูลใน ViewModel สำหรับสารเสพติดที่ไม่ได้เลือกในข้อ 1
+//        clearUnselectedSubstancesFromViewModel(filteredList);
+
+//        forceRecalculateHeight();
+    }
+    private Map<String, AnswerFrequencyData> getCurrentDataByQuestionType(String questionType) {
+        if (questionsStateViewModel == null) {
+            return null;
+        }
+
+        switch (questionType) {
+            case "Q2":
+                return questionsStateViewModel.getQuestionTwoAnswers().getValue();
+            case "Q3":
+                return questionsStateViewModel.getQuestionThreeAnswers().getValue();
+            case "Q4":
+                return questionsStateViewModel.getQuestionFourAnswers().getValue();
+            case "Q5":
+                return questionsStateViewModel.getQuestionFiveAnswers().getValue();
+            case "Q6":
+                return questionsStateViewModel.getQuestionSixAnswers().getValue();
+            case "Q7":
+                return questionsStateViewModel.getQuestionSevenAnswers().getValue();
+            default:
+                Log.w(TAG, "Unknown question type: " + questionType);
+                return null;
+        }
+    }
+    private ArrayList<SubstanceItem> createFilteredListWithCurrentData(ArrayList<SubstanceItem> baseFilteredList, String questionType) {
+        ArrayList<SubstanceItem> result = new ArrayList<>();
+
+        // ดึงข้อมูลปัจจุบันจาก ViewModel ตาม Question Type
+        Map<String, AnswerFrequencyData> currentData = getCurrentDataByQuestionType(questionType);
+
+        for (SubstanceItem baseItem : baseFilteredList) {
+            // สร้าง SubstanceItem ใหม่โดยใช้ข้อมูลจาก base
+            SubstanceItem newItem = new SubstanceItem(
+                    baseItem.getId(),
+                    baseItem.getName(),
+                    baseItem.getDescription()
+            );
+
+            // ใส่ข้อมูลปัจจุบันจาก ViewModel (ถ้ามี)
+            if (currentData != null && currentData.containsKey(baseItem.getId())) {
+                AnswerFrequencyData data = currentData.get(baseItem.getId());
+                if (data != null) {
+                    newItem.setFrequency(data.getFrequency());
+                    newItem.setOtherDrugs(data.getOtherDrugs());
+
+                    Log.d(TAG, questionType + " - Preserved data for " + baseItem.getId() +
+                            ": frequency=" + data.getFrequency() +
+                            ", otherDrugs=" + data.getOtherDrugs());
+                }
+            } else {
+                // ใช้ค่าเริ่มต้น
+                newItem.setFrequency(-1);
+                newItem.setOtherDrugs("");
+            }
+
+            result.add(newItem);
+        }
+
+        Log.d(TAG, questionType + " filtered list created with " + result.size() + " items");
+        return result;
+    }
+    /**
+     * ล้างข้อมูลใน ViewModel สำหรับสารเสพติดที่ไม่ได้เลือกในข้อ 1
+     */
+    private void clearUnselectedSubstancesFromViewModel(ArrayList<SubstanceItem> selectedSubstances) {
+        // สร้าง Set ของ substance IDs ที่ถูกเลือก
+        Map<String, Boolean> selectedIds = new HashMap<>();
+        for (SubstanceItem item : selectedSubstances) {
+            selectedIds.put(item.getId(), true);
+        }
+
+        // ล้างข้อมูลใน ViewModel สำหรับสารที่ไม่ได้เลือก
+        String[] allSubstanceIds = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+
+        for (String substanceId : allSubstanceIds) {
+            if (!selectedIds.containsKey(substanceId)) {
+                // ล้างข้อมูลสำหรับสารเสพติดที่ไม่ได้เลือก
+                clearSubstanceFromAllQuestions(substanceId);
+            }
+        }
+    }
+
+    /**
+     * ล้างข้อมูลของสารเสพติดที่ระบุออกจากคำถามทั้งหมด (ข้อ 2-8)
+     */
+    private void clearSubstanceFromAllQuestions(String substanceId) {
+        Log.d(TAG, "Clearing substance " + substanceId + " from all questions");
+
+        // ล้างจาก ViewModel
+        Map<String, AnswerFrequencyData> emptyAnswer = new HashMap<>();
+        emptyAnswer.put(substanceId, new AnswerFrequencyData(-1, ""));
+
+        // อัปเดต ViewModel โดยเก็บเฉพาะสารที่ไม่ต้องล้าง
+        updateViewModelWithoutSubstance(substanceId);
+
+        // ล้างจาก Fragments ถ้ามี method สำหรับล้างข้อมูลเฉพาะสาร
+        if (questionTwoFragment != null) {
+            questionTwoFragment.clearAnswerForSubstance(substanceId);
+        }
+        if (questionThreeFragment != null) {
+            // questionThreeFragment.clearAnswerForSubstance(substanceId);
+        }
+        if (questionFourFragment != null) {
+            // questionFourFragment.clearAnswerForSubstance(substanceId);
+        }
+        if (questionFiveFragment != null) {
+            // questionFiveFragment.clearAnswerForSubstance(substanceId);
+        }
+        if (questionSixFragment != null) {
+            // questionSixFragment.clearAnswerForSubstance(substanceId);
+        }
+        if (questionSevenFragment != null) {
+            // questionSevenFragment.clearAnswerForSubstance(substanceId);
+        }
+        if (questionEightFragment != null) {
+            // questionEightFragment.clearAnswerForSubstance(substanceId);
+        }
+    }
+
+    /**
+     * อัปเดต ViewModel โดยลบข้อมูลของสารเสพติดที่ระบุออก
+     */
+    private void updateViewModelWithoutSubstance(String substanceIdToRemove) {
+        // สำหรับข้อ 2-7
+        Map<String, AnswerFrequencyData> currentQ2 = questionsStateViewModel.getQuestionTwoAnswers().getValue();
+        Map<String, AnswerFrequencyData> currentQ3 = questionsStateViewModel.getQuestionThreeAnswers().getValue();
+        Map<String, AnswerFrequencyData> currentQ4 = questionsStateViewModel.getQuestionFourAnswers().getValue();
+        Map<String, AnswerFrequencyData> currentQ5 = questionsStateViewModel.getQuestionFiveAnswers().getValue();
+        Map<String, AnswerFrequencyData> currentQ6 = questionsStateViewModel.getQuestionSixAnswers().getValue();
+        Map<String, AnswerFrequencyData> currentQ7 = questionsStateViewModel.getQuestionSevenAnswers().getValue();
+
+        if (currentQ2 != null) {
+            currentQ2.put(substanceIdToRemove, new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionTwoAnswers(currentQ2);
+        }
+        if (currentQ3 != null) {
+            currentQ3.put(substanceIdToRemove, new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionThreeAnswers(currentQ3);
+        }
+        if (currentQ4 != null) {
+            Log.d("MainQuestionsFragment", "Q4 BEFORE clear - " + substanceIdToRemove + ": " +
+                    (currentQ4.get(substanceIdToRemove) != null ? currentQ4.get(substanceIdToRemove).getFrequency() : "null"));
+            currentQ4.put(substanceIdToRemove, new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionFourAnswers(currentQ4);
+            Log.d("MainQuestionsFragment", "Q4 AFTER clear - " + substanceIdToRemove + ": -1");
+        }
+        if (currentQ5 != null) {
+            currentQ5.put(substanceIdToRemove, new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionFiveAnswers(currentQ5);
+        }
+        if (currentQ6 != null) {
+            currentQ6.put(substanceIdToRemove, new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionSixAnswers(currentQ6);
+        }
+        if (currentQ7 != null) {
+            Log.d("MainQuestionsFragment", "Q7 BEFORE clear - " + substanceIdToRemove + ": " +
+                    (currentQ7.get(substanceIdToRemove) != null ? currentQ7.get(substanceIdToRemove).getFrequency() : "null"));
+
+            currentQ7.put(substanceIdToRemove, new AnswerFrequencyData(-1, ""));
+            questionsStateViewModel.setQuestionSevenAnswers(currentQ7);
+            Log.d("MainQuestionsFragment", "Q7 AFTER clear - " + substanceIdToRemove + ": -1");
+        }
+    }
+
     /**
      * สังเกตการเปลี่ยนแปลงของ Question 2 เพื่อซ่อน/แสดงข้อ 3, 4, 5
      */
@@ -286,6 +527,7 @@ public class MainQuestionsFragment extends Fragment {
             });
         }
     }
+
     public void clearQuestionTwoAnswerForSubstance(String substanceId) {
         Log.d("MainQuestionsFragment", "Clearing Q2 answer for substance: " + substanceId);
 
@@ -297,6 +539,7 @@ public class MainQuestionsFragment extends Fragment {
         // ล้างคำตอบในคำถาม 3-8 สำหรับสารเสพติดนั้นด้วย (ถ้ามี)
         clearSubsequentQuestionsForSubstance(substanceId);
     }
+
     private void clearSubsequentQuestionsForSubstance(String substanceId) {
         try {
             // ล้างคำตอบในคำถามที่ 3-8 ตามสารเสพติดที่ระบุ
@@ -387,7 +630,7 @@ public class MainQuestionsFragment extends Fragment {
 
         if (shouldHideQuestions345) {
             hideQuestions345();
-            clearQuestions345Data();
+//            clearQuestions345Data();
         } else {
             showQuestions345();
         }
@@ -572,6 +815,7 @@ public class MainQuestionsFragment extends Fragment {
             questionsStateViewModel.getQuestionOneAnswers().observe(getViewLifecycleOwner(), answers -> {
                 if (answers != null) {
 //                    checkAndToggleAssistScoreVisibility();
+                    updateSubstanceListsForQuestions2To7();
                 }
             });
         }
@@ -633,7 +877,7 @@ public class MainQuestionsFragment extends Fragment {
                 if (assistContainer != null) {
                     assistContainer.setVisibility(View.GONE);
 
-                    // บังคับคำนวณความสูงใหม่เมื่อซ่อน AssistScoreFragment
+                    // บังคับคำนวดความสูงใหม่เมื่อซ่อน AssistScoreFragment
                     forceRecalculateHeight();
 
                     Log.d(TAG, "AssistScoreFragment ซ่อนแล้ว");
@@ -654,7 +898,7 @@ public class MainQuestionsFragment extends Fragment {
     }
 
     /**
-     * คำนวณความสูงทั้งหมดของ Fragment รวมถึง AssistScoreFragment
+     * คำนวดความสูงทั้งหมดของ Fragment รวมถึง AssistScoreFragment
      */
     public int calculateTotalHeight() {
         int totalHeight = 0;
@@ -682,7 +926,7 @@ public class MainQuestionsFragment extends Fragment {
             View containerView = view.findViewById(containerId);
             if (containerView != null && containerView.getVisibility() == View.VISIBLE) {
 
-                // คำนวณความสูงของ Fragment แต่ละตัว
+                // คำนวดความสูงของ Fragment แต่ละตัว
                 int fragmentHeight = calculateFragmentHeight(containerId, containerView);
                 totalHeight += fragmentHeight;
 
@@ -725,6 +969,7 @@ public class MainQuestionsFragment extends Fragment {
         // กรณีทั่วไปสำหรับ Question Fragments
         return calculateQuestionFragmentHeight(childFragment, fragmentView);
     }
+
     private int calculateAssistScoreFragmentHeight(View fragmentView) {
         if (fragmentView.getVisibility() == View.GONE) {
             return 0;
@@ -739,13 +984,14 @@ public class MainQuestionsFragment extends Fragment {
         Log.d(TAG, "AssistScoreFragment height: " + height);
         return Math.max(height, 300); // ความสูงขั้นต่ำ
     }
+
     private int calculateQuestionFragmentHeight(Fragment fragment, View fragmentView) {
         ViewGroup contentLayout = getContentLayoutFromFragment(fragment, fragmentView);
         View headerLayout = getHeaderLayoutFromFragment(fragment, fragmentView);
 
         int totalFragmentHeight = 0;
 
-        // คำนวณความสูงของ Header (แสดงเสมอ)
+        // คำนวดความสูงของ Header (แสดงเสมอ)
         if (headerLayout != null) {
             headerLayout.measure(
                     View.MeasureSpec.makeMeasureSpec(getView().getWidth(), View.MeasureSpec.EXACTLY),
@@ -754,7 +1000,7 @@ public class MainQuestionsFragment extends Fragment {
             totalFragmentHeight += headerLayout.getMeasuredHeight();
         }
 
-        // คำนวณความสูงของ Content (ถ้าแสดงอยู่)
+        // คำนวดความสูงของ Content (ถ้าแสดงอยู่)
         if (contentLayout != null && contentLayout.getVisibility() == View.VISIBLE) {
             // Force measure content layout
             contentLayout.measure(
@@ -774,6 +1020,7 @@ public class MainQuestionsFragment extends Fragment {
         int minFragmentHeight = 100;
         return Math.max(totalFragmentHeight, minFragmentHeight);
     }
+
     private String getResourceName(int resourceId) {
         try {
             return getResources().getResourceEntryName(resourceId);
@@ -783,7 +1030,7 @@ public class MainQuestionsFragment extends Fragment {
     }
 
     /**
-     * บังคับให้คำนวณความสูงใหม่และรีเฟรช ViewPager
+     * บังคับให้คำนวดความสูงใหม่และรีเฟรช ViewPager
      */
     public void forceRecalculateHeight() {
         View view = getView();
@@ -804,6 +1051,7 @@ public class MainQuestionsFragment extends Fragment {
             });
         }
     }
+
     private void forceRemeasureAllFragments() {
         int[] containerIds = {
                 R.id.question_one_container,
@@ -882,7 +1130,7 @@ public class MainQuestionsFragment extends Fragment {
     public void notifyChildFragmentStateChanged() {
         Log.d(TAG, "Child fragment state changed - recalculating height");
 
-        // บังคับให้ Fragment คำนวณขนาดใหม่
+        // บังคับให้ Fragment คำนวดขนาดใหม่
         forceRecalculateHeight();
 
         // ตรวจสอบการแสดง AssistScoreFragment
@@ -918,6 +1166,7 @@ public class MainQuestionsFragment extends Fragment {
             Log.d(TAG, "ล้างข้อมูลทั้งหมดเสร็จสิ้น");
         }
     }
+
     private void clearViewModelData() {
         if (questionsStateViewModel != null) {
             // สร้าง empty data สำหรับแต่ละข้อ
@@ -945,6 +1194,7 @@ public class MainQuestionsFragment extends Fragment {
             Log.d(TAG, "ล้างข้อมูล ViewModel เสร็จสิ้น");
         }
     }
+
     private void clearAllFragmentsData() {
         // ล้างข้อมูลใน Fragment แต่ละตัว
         if (questionTwoFragment != null) {
@@ -971,6 +1221,7 @@ public class MainQuestionsFragment extends Fragment {
 
         Log.d(TAG, "ล้างข้อมูล Fragments เสร็จสิ้น");
     }
+
     private void clearDatabaseData() {
         try {
             SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
@@ -1321,10 +1572,12 @@ public class MainQuestionsFragment extends Fragment {
 
         Log.d(TAG, "ข้อมูลเปลี่ยนแปลง - รีเฟรช AssistScoreFragment");
     }
+
     public void onFormSaveCompleted() {
         Log.d(TAG, "แบบฟอร์มบันทึกเสร็จสิ้น - แจ้ง Activity เพื่ออัพเดตเมนู");
         notifyDataSaved();
     }
+
     /**
      * ตรวจสอบสถานะการแสดง AssistScoreFragment
      */
