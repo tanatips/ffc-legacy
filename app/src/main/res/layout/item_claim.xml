@@ -105,8 +105,9 @@
                 android:layout_weight="1"
                 android:text="ดูรายละเอียด"
                 android:textSize="12sp"
-                android:layout_marginEnd="4dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_green_dark"
+                android:layout_marginEnd="4dp" />
 
             <Button
                 android:id="@+id/btnCheckStatus"
@@ -115,8 +116,9 @@
                 android:layout_weight="1"
                 android:text="ตรวจสอบสถานะการเบิก"
                 android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_green_dark"
+                android:layout_marginStart="4dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

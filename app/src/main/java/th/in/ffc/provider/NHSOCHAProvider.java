@@ -604,14 +604,22 @@ public class NHSOCHAProvider extends ContentProvider {
         int count = 0;
 
         switch (mUriMatcher.match(uri)) {
+            case NHSO_CHA:
+                // รองรับการลบข้อมูลผ่าน NHSO_CHA URI (case 0)
+                count = db.delete(NHSOCHA.TABLENAME, selection, selectionArgs);
+                Log.d(TAG, "Delete via NHSO_CHA: " + count + " rows deleted with selection: " + selection);
+                break;
+
             case NHSO_CHA_ITEMS:
                 count = db.delete(NHSOCHA.TABLENAME, selection, selectionArgs);
+                Log.d(TAG, "Delete via NHSO_CHA_ITEMS: " + count + " rows deleted with selection: " + selection);
                 break;
 
             case NHSO_CHA_ITEM_ID:
                 selection = NHSOCHA.ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 count = db.delete(NHSOCHA.TABLENAME, selection, selectionArgs);
+                Log.d(TAG, "Delete via NHSO_CHA_ITEM_ID: " + count + " rows deleted for ID: " + ContentUris.parseId(uri));
                 break;
 
             default:
@@ -620,6 +628,7 @@ public class NHSOCHAProvider extends ContentProvider {
 
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+            Log.d(TAG, "Notified content resolver of changes after deleting " + count + " rows");
         }
 
         return count;

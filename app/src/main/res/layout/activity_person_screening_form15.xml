@@ -361,7 +361,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="5dp"
-                android:text="ยกเลิก"
+                android:text="กลับสู่หน้าหลัก"
                 android:textColor="@android:color/white"
                 android:background="@drawable/button_save_background" />
 

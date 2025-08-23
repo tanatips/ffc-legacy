@@ -30,6 +30,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import th.in.ffc.BuildConfig;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.dao.SfCardiovascularRiskInfoDao;
 import th.in.ffc.app.form.screening.dao.SfPersonInfoDao;
@@ -68,7 +69,9 @@ public class CardiovascularRiskFragment extends Fragment {
 
     private boolean isLoadingData = false;
     private boolean isObserverSetup = false;
+    private boolean isUpdatingUI = false;
 
+    private boolean isUpdating = false;
     public CardiovascularRiskFragment() {
         // Required empty public constructor
     }
@@ -255,32 +258,35 @@ public class CardiovascularRiskFragment extends Fragment {
             seekBarCardioGaugeTest.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (fromUser && cardiovascularRiskGauge != null && !isLoadingData) {
+                    if (!fromUser || isUpdating || isLoadingData) {
+                        return;
+                    }
+
+                    isUpdating = true;
+                    try {
+                        // อัพเดท EditText โดยไม่ trigger TextWatcher
+                        if (edtRiskPercentage != null) {
+                            edtRiskPercentage.setText(String.valueOf(progress));
+                        }
+
+                        // อัพเดท model
+                        if (cardiovascularRiskInfo != null) {
+                            cardiovascularRiskInfo.setRiskPercentage(String.valueOf(progress));
+                        }
+                        if (cardiovascularRiskLiveData != null) {
+                            cardiovascularRiskLiveData.setRiskPercentage(progress);
+                        }
+
+                        // อัพเดท Gauge
                         updateCardioGaugeWithPercentage(progress);
 
-                        // อัปเดตค่าใน EditText โดยป้องกัน TextWatcher trigger
-                        if (edtRiskPercentage != null) {
-                            // ใช้ temporary flag เพื่อป้องกัน TextWatcher
-                            boolean wasLoadingData = isLoadingData;
-                            isLoadingData = true;
-
-                            edtRiskPercentage.setText(String.valueOf(progress));
-
-                            // อัพเดท model โดยตรง
-                            if (cardiovascularRiskInfo != null) {
-                                cardiovascularRiskInfo.setRiskPercentage(String.valueOf(progress));
-                            }
-                            if (cardiovascularRiskLiveData != null) {
-                                cardiovascularRiskLiveData.setRiskPercentage(progress);
-                            }
-
-                            isLoadingData = wasLoadingData;
-
-                            // แจ้ง dataPasser
-                            if (dataPasser != null && cardiovascularRiskInfo != null) {
-                                dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
-                            }
+                        // แจ้ง dataPasser
+                        if (dataPasser != null && cardiovascularRiskInfo != null) {
+                            dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
                         }
+
+                    } finally {
+                        isUpdating = false;
                     }
                 }
 
@@ -292,43 +298,56 @@ public class CardiovascularRiskFragment extends Fragment {
             });
         }
     }
+
     private void updateCardioGaugeDisplay() {
         if (cardiovascularRiskGauge == null) return;
 
-        double currentPercentage = getCurrentCardioRiskPercentage();
-        CardiovascularRiskGaugeView.RiskLevel currentLevel = getCurrentCardioRiskLevelFromPercentage(currentPercentage);
-
-        // อัปเดต Gauge
-        cardiovascularRiskGauge.setRiskPercentage(currentPercentage);
-
-        // อัปเดตข้อความ
-        if (tvCardioGaugeEmoji != null) tvCardioGaugeEmoji.setText(currentLevel.emoji);
-        if (tvCardioGaugePercentage != null) {
-            tvCardioGaugePercentage.setText("ความเสี่ยง: " + String.format("%.1f", currentPercentage) + "%");
+        // เพิ่มการป้องกัน recursive call
+        if (isUpdatingUI) {
+            Log.d("CardiovascularRiskFragment", "Skipping updateCardioGaugeDisplay - already updating UI");
+            return;
         }
-        if (tvCardioGaugeLevel != null) {
-            tvCardioGaugeLevel.setText(currentLevel.label);
-            tvCardioGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
-        }
-        if (tvCardioGaugeCode != null) tvCardioGaugeCode.setText(currentLevel.code);
-        if (tvCardioGaugeRecommendation != null) {
-            String recommendation = getCardioRecommendation(currentPercentage);
-            tvCardioGaugeRecommendation.setText(recommendation);
 
-            // เปลี่ยนสีพื้นหลังตามระดับความเสี่ยง
-            if (currentPercentage < 10.0) {
-                tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#E8F5E8"));
-                tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#27AE60"));
-            } else if (currentPercentage <= 20.0) {
-                tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#FFF3CD"));
-                tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#856404"));
-            } else {
-                tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#F8D7DA"));
-                tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#721C24"));
+        isUpdatingUI = true;
+        try {
+            double currentPercentage = getCurrentCardioRiskPercentage();
+            CardiovascularRiskGaugeView.RiskLevel currentLevel = getCurrentCardioRiskLevelFromPercentage(currentPercentage);
+
+            // อัพเดท Gauge
+            cardiovascularRiskGauge.setRiskPercentage(currentPercentage);
+
+            // อัพเดทข้อความ
+            if (tvCardioGaugeEmoji != null) tvCardioGaugeEmoji.setText(currentLevel.emoji);
+            if (tvCardioGaugePercentage != null) {
+                tvCardioGaugePercentage.setText("ความเสี่ยง: " + String.format("%.1f", currentPercentage) + "%");
             }
-        }
+            if (tvCardioGaugeLevel != null) {
+                tvCardioGaugeLevel.setText(currentLevel.label);
+                tvCardioGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+            }
+            if (tvCardioGaugeCode != null) tvCardioGaugeCode.setText(currentLevel.code);
+            if (tvCardioGaugeRecommendation != null) {
+                String recommendation = getCardioRecommendation(currentPercentage);
+                tvCardioGaugeRecommendation.setText(recommendation);
 
-        Log.d("CardiovascularRiskFragment", "Cardio Gauge updated - Percentage: " + currentPercentage + "%, Level: " + currentLevel.label);
+                // เปลี่ยนสีพื้นหลังตามระดับความเสี่ยง
+                if (currentPercentage < 10.0) {
+                    tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#E8F5E8"));
+                    tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#27AE60"));
+                } else if (currentPercentage <= 20.0) {
+                    tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#FFF3CD"));
+                    tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#856404"));
+                } else {
+                    tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#F8D7DA"));
+                    tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#721C24"));
+                }
+            }
+
+            Log.d("CardiovascularRiskFragment", "Cardio Gauge updated - Percentage: " + currentPercentage + "%, Level: " + currentLevel.label);
+
+        } finally {
+            isUpdatingUI = false;
+        }
     }
     private double getCurrentCardioRiskPercentage() {
         try {
@@ -359,10 +378,103 @@ public class CardiovascularRiskFragment extends Fragment {
             return "🚨 ต้องการการดูแลอย่างเร่งด่วน - ควรพบแพทย์เพื่อประเมินและวางแผนการรักษา";
         }
     }
-    public void updateCardioGaugeWithPercentage(double percentage) {
-        if (cardiovascularRiskGauge != null) {
+    private void updateCardioGaugeWithPercentage(double percentage) {
+        Log.d("CardiovascularRiskFragment", "=== updateCardioGaugeWithPercentage called with: " + percentage + " ===");
+
+        if (isUpdatingUI || isUpdating) {
+            Log.d("CardiovascularRiskFragment", "Skipping updateCardioGaugeWithPercentage - already updating (isUpdatingUI: " + isUpdatingUI + ", isUpdating: " + isUpdating + ")");
+            return; // ป้องกัน loop
+        }
+
+        // ตรวจสอบว่า Gauge มีอยู่หรือไม่
+        if (cardiovascularRiskGauge == null) {
+            Log.e("CardiovascularRiskFragment", "cardiovascularRiskGauge is null!");
+            return;
+        }
+
+        isUpdatingUI = true;
+        try {
+            Log.d("CardiovascularRiskFragment", "Updating gauge with percentage: " + percentage);
+
+            // อัพเดท Gauge โดยตรง
             cardiovascularRiskGauge.setRiskPercentage(percentage);
-            updateCardioGaugeDisplay();
+            Log.d("CardiovascularRiskFragment", "Gauge setRiskPercentage completed");
+
+            // อัพเดท display โดยตรงแทนการเรียก updateCardioGaugeDisplay()
+            CardiovascularRiskGaugeView.RiskLevel currentLevel = getCurrentCardioRiskLevelFromPercentage(percentage);
+            Log.d("CardiovascularRiskFragment", "Got risk level: " + currentLevel.label);
+
+            if (tvCardioGaugeEmoji != null) {
+                tvCardioGaugeEmoji.setText(currentLevel.emoji);
+                Log.d("CardiovascularRiskFragment", "Updated emoji: " + currentLevel.emoji);
+            }
+
+            if (tvCardioGaugePercentage != null) {
+                String percentageText = "ความเสี่ยง: " + String.format("%.1f", percentage) + "%";
+                tvCardioGaugePercentage.setText(percentageText);
+                Log.d("CardiovascularRiskFragment", "Updated percentage text: " + percentageText);
+            }
+
+            if (tvCardioGaugeLevel != null) {
+                tvCardioGaugeLevel.setText(currentLevel.label);
+                tvCardioGaugeLevel.setTextColor(Color.parseColor(currentLevel.color));
+                Log.d("CardiovascularRiskFragment", "Updated level text: " + currentLevel.label);
+            }
+
+            if (tvCardioGaugeCode != null) {
+                tvCardioGaugeCode.setText(currentLevel.code);
+                Log.d("CardiovascularRiskFragment", "Updated code: " + currentLevel.code);
+            }
+
+            // อัพเดท recommendation และสี background
+            if (tvCardioGaugeRecommendation != null) {
+                String recommendation = getCardioRecommendation(percentage);
+                tvCardioGaugeRecommendation.setText(recommendation);
+
+                // เปลี่ยนสีพื้นหลังตามระดับความเสี่ยง
+                if (percentage < 10.0) {
+                    tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#E8F5E8"));
+                    tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#27AE60"));
+                } else if (percentage <= 20.0) {
+                    tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#FFF3CD"));
+                    tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#856404"));
+                } else {
+                    tvCardioGaugeRecommendation.setBackgroundColor(Color.parseColor("#F8D7DA"));
+                    tvCardioGaugeRecommendation.setTextColor(Color.parseColor("#721C24"));
+                }
+                Log.d("CardiovascularRiskFragment", "Updated recommendation: " + recommendation);
+            }
+
+            Log.d("CardiovascularRiskFragment", "Cardio Gauge updated successfully - Percentage: " + percentage + "%, Level: " + currentLevel.label);
+
+        } catch (Exception e) {
+            Log.e("CardiovascularRiskFragment", "Error updating cardio gauge: " + e.getMessage(), e);
+        } finally {
+            isUpdatingUI = false;
+            Log.d("CardiovascularRiskFragment", "=== updateCardioGaugeWithPercentage completed ===");
+        }
+    }
+    public void testGaugeUpdate() {
+        Log.d("CardiovascularRiskFragment", "=== Testing Gauge Update ===");
+        Log.d("CardiovascularRiskFragment", "cardiovascularRiskGauge: " + (cardiovascularRiskGauge != null ? "NOT NULL" : "NULL"));
+        Log.d("CardiovascularRiskFragment", "tvCardioGaugePercentage: " + (tvCardioGaugePercentage != null ? "NOT NULL" : "NULL"));
+        Log.d("CardiovascularRiskFragment", "tvCardioGaugeLevel: " + (tvCardioGaugeLevel != null ? "NOT NULL" : "NULL"));
+        Log.d("CardiovascularRiskFragment", "tvCardioGaugeEmoji: " + (tvCardioGaugeEmoji != null ? "NOT NULL" : "NULL"));
+
+        // ทดสอบอัพเดท Gauge ด้วยค่าตัวอย่าง
+        if (cardiovascularRiskGauge != null) {
+            updateCardioGaugeWithPercentage(25.0); // ทดสอบด้วยค่าความเสี่ยงสูง
+        }
+    }
+    private void debugLogMethodCall(String methodName) {
+        if (BuildConfig.DEBUG) {
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            StringBuilder callStack = new StringBuilder();
+            for (int i = 3; i < Math.min(6, stackTrace.length); i++) {
+                callStack.append(stackTrace[i].getMethodName()).append(" -> ");
+            }
+            Log.d("CardiovascularRiskFragment", methodName + " called from: " + callStack.toString() +
+                    " (isUpdating: " + isUpdating + ", isLoadingData: " + isLoadingData + ", isUpdatingUI: " + isUpdatingUI + ")");
         }
     }
 
@@ -388,6 +500,7 @@ public class CardiovascularRiskFragment extends Fragment {
                 isLoadingData = true;
 
                 try {
+
                     String personId = null;
 
                     if (data != null && data.getPersonId() != null) {
@@ -420,6 +533,7 @@ public class CardiovascularRiskFragment extends Fragment {
             Log.e("CardiovascularRiskFragment", "Error loading data: " + e.getMessage());
             isLoadingData = false;
         }
+        isObserverSetup = true;
     }
     private void logEditAttempt(String fieldName, String value) {
         Log.d("CardiovascularRiskFragment", "User editing " + fieldName + ": " + value +
@@ -494,49 +608,74 @@ public class CardiovascularRiskFragment extends Fragment {
                 cardiovascularRiskInfo.setPersonId(personId);
                 cardiovascularRiskInfo.setIdcard(personInfo.getIdcard());
 
-                // ตั้งค่าเพศ
-                if (personInfo.getGender() != null) {
-                    cardiovascularRiskInfo.setGender(personInfo.getGender());
-                    if (personInfo.getGender().equals("M")) {
-                        rbMale.setChecked(true);
-                    } else if (personInfo.getGender().equals("F")) {
-                        rbFemale.setChecked(true);
+                // ตั้งค่า flags ก่อน load ข้อมูล
+                boolean wasUpdating = isUpdating;
+                boolean wasLoadingData = isLoadingData;
+                isUpdating = true;
+                isLoadingData = true;
+
+                try {
+                    // ตั้งค่าเพศ
+                    if (personInfo.getGender() != null) {
+                        cardiovascularRiskInfo.setGender(personInfo.getGender());
+                        if (personInfo.getGender().equals("M")) {
+                            rbMale.setChecked(true);
+                        } else if (personInfo.getGender().equals("F")) {
+                            rbFemale.setChecked(true);
+                        }
                     }
-                }
 
-                // คำนวณอายุ
-                if (personInfo.getBirthday() != null && !personInfo.getBirthday().isEmpty()) {
-                    try {
-                        int age = th.in.ffc.util.AgeCalculator.calculateAge(personInfo.getBirthday());
-                        cardiovascularRiskInfo.setAge(String.valueOf(age));
-                        edtAge.setText(String.valueOf(age));
-                    } catch (Exception e) {
-                        Log.e("CardiovascularRiskFragment", "Error calculating age: " + e.getMessage());
+                    // คำนวณอายุ - ใช้ setTextSilently()
+                    if (personInfo.getBirthday() != null && !personInfo.getBirthday().isEmpty()) {
+                        try {
+                            int age = th.in.ffc.util.AgeCalculator.calculateAge(personInfo.getBirthday());
+                            cardiovascularRiskInfo.setAge(String.valueOf(age));
+                            setTextSilently(edtAge, String.valueOf(age)); // ← แก้ไขจุดนี้!
+                        } catch (Exception e) {
+                            Log.e("CardiovascularRiskFragment", "Error calculating age: " + e.getMessage());
+                        }
                     }
+
+                    // ตั้งค่าความดัน - ใช้ setTextSilently()
+                    if (personInfo.getSystolic_pressure() > 0) {
+                        String bpValue = String.valueOf((int) personInfo.getSystolic_pressure());
+                        cardiovascularRiskInfo.setBloodPressure(bpValue);
+                        setTextSilently(edtBP, bpValue); // ← แก้ไขจุดนี้!
+                    }
+
+                    // ตั้งค่ารอบเอว - ใช้ setTextSilently()
+                    if (personInfo.getWaist_size() > 0) {
+                        String waistValue = String.valueOf((int) personInfo.getWaist_size());
+                        cardiovascularRiskInfo.setWaistSize(waistValue);
+                        setTextSilently(edtWaist, waistValue); // ← แก้ไขจุดนี้!
+                    }
+
+                    // ตั้งค่าส่วนสูง - ใช้ setTextSilently()
+                    if (personInfo.getHeight() > 0) {
+                        String heightValue = String.valueOf((int) personInfo.getHeight());
+                        cardiovascularRiskInfo.setHeight(heightValue);
+                        setTextSilently(edtHeight, heightValue); // ← แก้ไขจุดนี้!
+                    }
+
+                } finally {
+                    isLoadingData = wasLoadingData;
+                    isUpdating = wasUpdating;
                 }
 
-                // ตั้งค่าความดัน
-                if (personInfo.getSystolic_pressure() > 0) {
-                    cardiovascularRiskInfo.setBloodPressure(String.valueOf((int) personInfo.getSystolic_pressure()));
-                    edtBP.setText(String.valueOf((int) personInfo.getSystolic_pressure()));
+                // อัพเดท LiveData หลังจากตั้งค่า flag แล้ว
+                if (cardiovascularRiskLiveData != null) {
+                    cardiovascularRiskLiveData.setPersonId(personId);
                 }
 
-                // ตั้งค่ารอบเอว
-                if (personInfo.getWaist_size() > 0) {
-                    cardiovascularRiskInfo.setWaistSize(String.valueOf((int) personInfo.getWaist_size()));
-                    edtWaist.setText(String.valueOf((int) personInfo.getWaist_size()));
+                // อัพเดท SharedViewModel อย่างระมัดระวัง
+                if (shareViewModel != null && !wasLoadingData) {
+                    shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
                 }
 
-                // ตั้งค่าส่วนสูง
-                if (personInfo.getHeight() > 0) {
-                    cardiovascularRiskInfo.setHeight(String.valueOf((int) personInfo.getHeight()));
-                    edtHeight.setText(String.valueOf((int) personInfo.getHeight()));
+                // แจ้ง dataPasser ในท้ายสุด
+                if (dataPasser != null) {
+                    dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
                 }
-
-                // อัพเดต LiveData
-                cardiovascularRiskLiveData.setPersonId(personId);
-                shareViewModel.setCardiovascularRiskLiveDataMutableLiveData(cardiovascularRiskLiveData);
-                dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
 
                 Log.d("CardiovascularRiskFragment", "Loaded basic person info for personId: " + personId);
             }
@@ -576,19 +715,59 @@ public class CardiovascularRiskFragment extends Fragment {
         super.onDestroyView();
         isObserverSetup = false;
         isLoadingData = false;
+        isUpdating = false;
+        isUpdatingUI = false;
     }
-    private void loadExistingData() {
-        if (cardiovascularRiskInfo == null) {
-            cardiovascularRiskInfo = new CardiovascularRiskInfo();
-        };
+    private void setTextSilently(EditText editText, String value) {
+        if (editText == null) return;
 
+        // เก็บสถานะเดิม
+        boolean wasUpdating = isUpdating;
+        boolean wasLoadingData = isLoadingData;
+
+        // ตั้งค่า flags
+        isUpdating = true;
         isLoadingData = true;
 
         try {
-            // Load age
-            if (cardiovascularRiskInfo.getAge() != null) {
-                edtAge.setText(cardiovascularRiskInfo.getAge());
+            String newText = (value != null) ? value : "";
+            String currentText = editText.getText().toString();
+
+            // เปรียบเทียบก่อน setText เพื่อป้องกันการเปลี่ยนแปลงที่ไม่จำเป็น
+            if (!currentText.equals(newText)) {
+                editText.setText(newText);
+                if (newText.length() > 0) {
+                    editText.setSelection(newText.length());
+                }
+                Log.d("CardiovascularRiskFragment", "setTextSilently: " + editText.getResources().getResourceEntryName(editText.getId()) + " = " + newText);
             }
+        } catch (Exception e) {
+            Log.e("CardiovascularRiskFragment", "Error setting text silently: " + e.getMessage());
+        } finally {
+            // คืนค่า flags เดิม
+            isUpdating = wasUpdating;
+            isLoadingData = wasLoadingData;
+        }
+    }
+    private void loadExistingData() {
+        debugLogMethodCall("loadExistingData");
+        if (cardiovascularRiskInfo == null) {
+            cardiovascularRiskInfo = new CardiovascularRiskInfo();
+        }
+
+        isUpdating = true;
+        isLoadingData = true;
+
+        try {
+            // Load ข้อมูลทั้งหมดโดยไม่ trigger listeners
+            setTextSilently(edtAge, cardiovascularRiskInfo.getAge());
+            setTextSilently(edtBP, cardiovascularRiskInfo.getBloodPressure());
+            setTextSilently(edtWaist, cardiovascularRiskInfo.getWaistSize());
+            setTextSilently(edtHeight, cardiovascularRiskInfo.getHeight());
+            setTextSilently(edtCholesterol, cardiovascularRiskInfo.getCholesterol());
+            setTextSilently(edtRiskPercentage, cardiovascularRiskInfo.getRiskPercentage());
+            setTextSilently(edtRiskLevel, cardiovascularRiskInfo.getRiskLevel());
+            setTextSilently(edtRecommendation, cardiovascularRiskInfo.getRecommendation());
 
             // Load gender
             String gender = cardiovascularRiskInfo.getGender();
@@ -600,51 +779,20 @@ public class CardiovascularRiskFragment extends Fragment {
                 }
             }
 
-            // Load blood pressure
-            if (cardiovascularRiskInfo.getBloodPressure() != null) {
-                edtBP.setText(cardiovascularRiskInfo.getBloodPressure());
-            }
-
-            // Load waist size
-            if (cardiovascularRiskInfo.getWaistSize() != null) {
-                edtWaist.setText(cardiovascularRiskInfo.getWaistSize());
-            }
-
-            // Load height
-            if (cardiovascularRiskInfo.getHeight() != null) {
-                edtHeight.setText(cardiovascularRiskInfo.getHeight());
-            }
-
-            // Load cholesterol
-            if (cardiovascularRiskInfo.getCholesterol() != null) {
-                edtCholesterol.setText(cardiovascularRiskInfo.getCholesterol());
-            }
-
-            // Load smoking status
+            // Load checkboxes
             cbSmoking.setChecked(cardiovascularRiskInfo.getIsSmoking() != null &&
                     cardiovascularRiskInfo.getIsSmoking().equals("1"));
-
-            // Load diabetes status
             cbDiabetes.setChecked(cardiovascularRiskInfo.getHasDiabetes() != null &&
                     cardiovascularRiskInfo.getHasDiabetes().equals("1"));
 
-            // Load recommendation
-            if (cardiovascularRiskInfo.getRecommendation() != null) {
-                edtRecommendation.setText(cardiovascularRiskInfo.getRecommendation());
-            }
-            if (cardiovascularRiskInfo.getRiskPercentage() != null) {
-                edtRiskPercentage.setText(cardiovascularRiskInfo.getRiskPercentage());
-            }
-
-            if (cardiovascularRiskInfo.getRiskLevel() != null) {
-                edtRiskLevel.setText(cardiovascularRiskInfo.getRiskLevel());
-            }
+            // อัพเดท Gauge หลังจาก load ข้อมูลเสร็จ
             updateCardioGaugeDisplay();
-        }
-        catch (Exception e) {
+
+        } catch (Exception e) {
             Log.e("CardiovascularRiskFragment", "Error loading existing data: " + e.getMessage());
         } finally {
             isLoadingData = false;
+            isUpdating = false;
         }
 
     }
@@ -725,83 +873,89 @@ public class CardiovascularRiskFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isLoadingData) {
+                if (isUpdating || isLoadingData) {
                     Log.d("CardiovascularRiskFragment", "Skipping RiskLevel TextWatcher - loading data");
                     return;
                 }
 
-                if (!TextUtils.isEmpty(s)) {
-                    try {
-                        double level = Double.parseDouble(s.toString());
+                isUpdating = true;
+                try {
+                    if (!TextUtils.isEmpty(s)) {
+                        try {
+                            double level = Double.parseDouble(s.toString());
 
-                        // อัพเดท Model อย่างปลอดภัย
-                        if (cardiovascularRiskInfo != null) {
-                            cardiovascularRiskInfo.setRiskLevel(s.toString());
+                            // อัพเดท Model อย่างปลอดภัย
+                            if (cardiovascularRiskInfo != null) {
+                                cardiovascularRiskInfo.setRiskLevel(s.toString());
+                            }
+                            if (cardiovascularRiskLiveData != null) {
+                                cardiovascularRiskLiveData.setRiskLevel(level);
+                            }
+
+                            if (dataPasser != null && cardiovascularRiskInfo != null) {
+                                dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+                            }
+
+                        } catch (NumberFormatException e) {
+                            Log.e("CardiovascularRiskFragment", "Invalid level format: " + s.toString());
                         }
-                        if (cardiovascularRiskLiveData != null) {
-                            cardiovascularRiskLiveData.setRiskLevel(level);
-                        }
-
-                        // อัพเดท SharedViewModel อย่างระมัดระวัง
-                        updateSharedViewModelSafelyForInput();
-
-                        if (dataPasser != null && cardiovascularRiskInfo != null) {
-                            dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
-                        }
-
-                    } catch (NumberFormatException e) {
-                        Log.e("CardiovascularRiskFragment", "Invalid level format: " + s.toString());
                     }
+                } finally {
+                    isUpdating = false;
                 }
             }
         });
-        // Listener สำหรับ CheckBox
+
         cbSmoking.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isLoadingData) {
-                    Log.d("CardiovascularRiskFragment", "Skipping Smoking CheckBox - loading data");
+                if (isUpdating || isLoadingData) {
                     return;
                 }
 
-                if (cardiovascularRiskInfo != null) {
-                    cardiovascularRiskInfo.setIsSmoking(isChecked ? "1" : "0");
-                }
-                if (cardiovascularRiskLiveData != null) {
-                    cardiovascularRiskLiveData.setIsSmoking(isChecked);
-                }
+                isUpdating = true;
+                try {
+                    if (cardiovascularRiskInfo != null) {
+                        cardiovascularRiskInfo.setIsSmoking(isChecked ? "1" : "0");
+                    }
+                    if (cardiovascularRiskLiveData != null) {
+                        cardiovascularRiskLiveData.setIsSmoking(isChecked);
+                    }
 
-                updateSharedViewModelSafelyForInput();
-
-                if (dataPasser != null && cardiovascularRiskInfo != null) {
-                    dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+                    if (dataPasser != null && cardiovascularRiskInfo != null) {
+                        dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+                    }
+                    // ไม่เรียก calculateRisk() เพื่อป้องกัน loop
+                } finally {
+                    isUpdating = false;
                 }
-                calculateRisk();
             }
         });
 
         cbDiabetes.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                if (isLoadingData) {
+                if (isUpdating || isLoadingData) {
                     Log.d("CardiovascularRiskFragment", "Skipping Diabetes CheckBox - loading data");
                     return;
                 }
 
-                if (cardiovascularRiskInfo != null) {
-                    cardiovascularRiskInfo.setHasDiabetes(isChecked ? "1" : "0");
-                }
-                if (cardiovascularRiskLiveData != null) {
-                    cardiovascularRiskLiveData.setHasDiabetes(isChecked);
-                }
+                isUpdating = true;
+                try {
+                    if (cardiovascularRiskInfo != null) {
+                        cardiovascularRiskInfo.setHasDiabetes(isChecked ? "1" : "0");
+                    }
+                    if (cardiovascularRiskLiveData != null) {
+                        cardiovascularRiskLiveData.setHasDiabetes(isChecked);
+                    }
 
-                updateSharedViewModelSafelyForInput();
-
-                if (dataPasser != null && cardiovascularRiskInfo != null) {
-                    dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+                    if (dataPasser != null && cardiovascularRiskInfo != null) {
+                        dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+                    }
+                    // ไม่เรียก calculateRisk() เพื่อป้องกัน loop
+                } finally {
+                    isUpdating = false;
                 }
-                calculateRisk();
             }
         });
         edtAge.addTextChangedListener(createSafeTextWatcher(new TextChangeCallback() {
@@ -813,7 +967,7 @@ public class CardiovascularRiskFragment extends Fragment {
                 if (cardiovascularRiskLiveData != null) {
                     cardiovascularRiskLiveData.setAge(s);
                 }
-                calculateRisk();
+                // ไม่เรียก calculateRisk() เพื่อป้องกัน loop
             }
         }));
 
@@ -826,7 +980,7 @@ public class CardiovascularRiskFragment extends Fragment {
                 if (cardiovascularRiskLiveData != null) {
                     cardiovascularRiskLiveData.setBloodPressure(s);
                 }
-                calculateRisk();
+                // ไม่เรียก calculateRisk() เพื่อป้องกัน loop
             }
         }));
 
@@ -839,7 +993,7 @@ public class CardiovascularRiskFragment extends Fragment {
                 if (cardiovascularRiskLiveData != null) {
                     cardiovascularRiskLiveData.setWaistSize(s);
                 }
-                calculateRisk();
+                // ลบ calculateRisk() ออก เพื่อป้องกัน loop
             }
         }));
 
@@ -852,7 +1006,7 @@ public class CardiovascularRiskFragment extends Fragment {
                 if (cardiovascularRiskLiveData != null) {
                     cardiovascularRiskLiveData.setHeight(s);
                 }
-                calculateRisk();
+                // ลบ calculateRisk() ออก เพื่อป้องกัน loop
             }
         }));
 
@@ -865,7 +1019,7 @@ public class CardiovascularRiskFragment extends Fragment {
                 if (cardiovascularRiskLiveData != null) {
                     cardiovascularRiskLiveData.setCholesterol(s);
                 }
-                calculateRisk();
+                // ลบ calculateRisk() ออก เพื่อป้องกัน loop
             }
         }));
 
@@ -881,53 +1035,60 @@ public class CardiovascularRiskFragment extends Fragment {
                 }
             }
         }));
+
         // ปรับปรุง Gender RadioGroup Listener เพื่อตั้งค่าเพศใน Model
         rgGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (isLoadingData) {
+                if (isUpdating || isLoadingData) {
                     Log.d("CardiovascularRiskFragment", "Skipping Gender RadioGroup - loading data");
                     return;
                 }
 
-                String gender = "";
-                if (checkedId == R.id.rbMale) {
-                    gender = "M";
-                    if (cardiovascularRiskInfo != null) {
-                        cardiovascularRiskInfo.setGender("M");
+                isUpdating = true;
+                try {
+                    String gender = "";
+                    if (checkedId == R.id.rbMale) {
+                        gender = "M";
+                        if (cardiovascularRiskInfo != null) {
+                            cardiovascularRiskInfo.setGender("M");
+                        }
+                    } else if (checkedId == R.id.rbFemale) {
+                        gender = "F";
+                        if (cardiovascularRiskInfo != null) {
+                            cardiovascularRiskInfo.setGender("F");
+                        }
                     }
-                } else if (checkedId == R.id.rbFemale) {
-                    gender = "F";
-                    if (cardiovascularRiskInfo != null) {
-                        cardiovascularRiskInfo.setGender("F");
+
+                    if (cardiovascularRiskLiveData != null) {
+                        cardiovascularRiskLiveData.setSelectedGender(checkedId);
                     }
-                }
 
-                if (cardiovascularRiskLiveData != null) {
-                    cardiovascularRiskLiveData.setSelectedGender(checkedId);
+                    if (dataPasser != null && cardiovascularRiskInfo != null) {
+                        dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
+                    }
+                    // ลบ calculateRisk() ออก เพื่อป้องกัน loop
+                } finally {
+                    isUpdating = false;
                 }
-
-                updateSharedViewModelSafelyForInput();
-
-                if (dataPasser != null && cardiovascularRiskInfo != null) {
-                    dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
-                }
-                calculateRisk();
             }
         });
     }
     private void updateSharedViewModelSafelyForInput() {
-        // อัพเดท SharedViewModel เฉพาะเมื่อเป็นการแก้ไขจาก user
-        // และไม่อยู่ในระหว่างการโหลดข้อมูล
-        if (shareViewModel != null && !isLoadingData && cardiovascularRiskLiveData != null) {
-            // ไม่เรียก setCardiovascularRiskLiveDataMutableLiveData เพื่อป้องกัน observer loop
-            // แค่อัพเดทข้อมูลใน object ที่มีอยู่แล้ว
+        if (shareViewModel != null && !isLoadingData && !isUpdating && cardiovascularRiskLiveData != null) {
             Log.d("CardiovascularRiskFragment", "Updating data from user input");
-
             // อัพเดทข้อมูลโดยไม่ trigger observer
             // เนื่องจากเราอัพเดทข้อมูลใน object เดิมแล้ว
         }
     }
+    public void resetUpdateFlags() {
+        isUpdating = false;
+        isLoadingData = false;
+        isUpdatingUI = false;
+        Log.d("CardiovascularRiskFragment", "Reset all update flags");
+    }
+
+
     private void updateSharedViewModelSafely() {
         if (shareViewModel != null && !isLoadingData && cardiovascularRiskLiveData != null) {
             Log.d("CardiovascularRiskFragment", "Updating ViewModel safely");
@@ -959,19 +1120,21 @@ public class CardiovascularRiskFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (isLoadingData) {
-                    Log.d("CardiovascularRiskFragment", "Skipping TextWatcher - loading data");
+                if (isUpdating || isLoadingData) {
+                    Log.d("CardiovascularRiskFragment", "Skipping TextWatcher - updating/loading");
                     return;
                 }
 
-//                if (!TextUtils.isEmpty(s)) {
+                isUpdating = true;
+                try {
                     callback.onTextChanged(s.toString());
-                    updateSharedViewModelSafelyForInput();
 
                     if (dataPasser != null && cardiovascularRiskInfo != null) {
                         dataPasser.onCardiovascularRiskInfo(cardiovascularRiskInfo);
                     }
-//                }
+                } finally {
+                    isUpdating = false;
+                }
             }
         };
     }

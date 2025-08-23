@@ -30,6 +30,7 @@ import java.util.List;
 import th.in.ffc.R;
 import th.in.ffc.app.form.screening.dao.SfHealthRiskAssessmentInfoDao;
 import th.in.ffc.app.form.screening.dao.SfStressDepression2qInfoDao;
+import th.in.ffc.app.form.screening.datalive.CardiovascularRiskLiveData;
 import th.in.ffc.app.form.screening.datalive.HealthRiskAssessmentLiveData;
 import th.in.ffc.app.form.screening.datalive.SmookingLiveData;
 import th.in.ffc.app.form.screening.datalive.StressDepression9qLiveData;
@@ -110,12 +111,26 @@ public class HealthRiskAssessmentFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         shareViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class); // เปลี่ยนจาก this
+//
+//        // แก้ไข: ตรวจสอบและสร้างให้แน่นอน
+//        healthRiskAssessmentLiveData = shareViewModel.getHealthRiskAssessmentLiveDataMutableLiveData().getValue();
+//        if (healthRiskAssessmentLiveData == null) {
+//            healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
+//            shareViewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+//        }
 
-        // แก้ไข: ตรวจสอบและสร้างให้แน่นอน
-        healthRiskAssessmentLiveData = shareViewModel.getHealthRiskAssessmentLiveDataMutableLiveData().getValue();
-        if (healthRiskAssessmentLiveData == null) {
+        // แก้ไข: ตรวจสอบว่ามี cardiovascularRiskLiveData อยู่แล้วหรือไม่
+        if (shareViewModel.getHealthRiskAssessmentLiveDataMutableLiveData() != null &&
+                shareViewModel.getHealthRiskAssessmentLiveDataMutableLiveData().getValue() != null) {
+            // ใช้ข้อมูลที่มีอยู่แล้ว
+            healthRiskAssessmentLiveData = shareViewModel.getHealthRiskAssessmentLiveDataMutableLiveData().getValue();
+            android.util.Log.d("healthRiskAssessmentLiveData", "Using existing LiveData with personId: " +
+                    (healthRiskAssessmentLiveData.getPersonId() != null ? healthRiskAssessmentLiveData.getPersonId() : "null"));
+        } else {
+            // สร้างใหม่เฉพาะเมื่อไม่มีข้อมูล
             healthRiskAssessmentLiveData = new HealthRiskAssessmentLiveData();
             shareViewModel.setHealthRiskAssessmentLiveDataMutableLiveData(healthRiskAssessmentLiveData);
+            android.util.Log.d("CardiovascularRiskFragment", "Created new LiveData");
         }
     }
 
@@ -653,8 +668,8 @@ public class HealthRiskAssessmentFragment extends Fragment {
                         for (HealthRiskAssessmentInfo healthRiskAssessmentInfo1 : healthRiskAssessmentInfos) {
                             Log.d("healthRiskAssessmentInfo1", "Found existing data with ID: " + healthRiskAssessmentInfo1.getId());
                             setHealthRiskInfo(healthRiskAssessmentInfo1);
-                            editFcbg.setText(healthRiskAssessmentInfo1.getFcbg());
-                            editFpg.setText(healthRiskAssessmentInfo1.getFpg());
+//                            editFcbg.setText(healthRiskAssessmentInfo1.getFcbg());
+//                            editFpg.setText(healthRiskAssessmentInfo1.getFpg());
                         }
                     } else {
                         // ไม่มีข้อมูลเดิม - สร้างใหม่
@@ -703,12 +718,14 @@ public class HealthRiskAssessmentFragment extends Fragment {
 //            setTextSilently(editFcbg, healthRiskAssessmentInfo.getFcbg());
 //            setTextSilently(editFpg, healthRiskAssessmentInfo.getFpg());
 
-//            editFcbg.setText(healthRiskAssessmentInfo.getFcbg());
-//            editFpg.setText(healthRiskAssessmentInfo.getFpg());
 
             updateScoreAndHighlight();
             updateGlucoseHighlightFromCurrentData();
             updateBloodSugarGaugeDisplay();
+
+            editFcbg.setText(healthRiskAssessmentInfo.getFcbg());
+            editFpg.setText(healthRiskAssessmentInfo.getFpg());
+
 
         } finally {
             isUpdating = false;
@@ -1303,10 +1320,12 @@ public class HealthRiskAssessmentFragment extends Fragment {
                     return;
                 }
 
+
                 String text = s.toString().trim();
 
                 if (text.isEmpty()) {
                     healthRiskAssessmentInfo.setFcbg("");
+                    healthRiskAssessmentLiveData.setFcbg("");
 //                    clearGlucoseHighlight();
                     updateBloodSugarGaugeDisplay();
                     notifyDataPasser();
@@ -1314,16 +1333,37 @@ public class HealthRiskAssessmentFragment extends Fragment {
                     try {
                         double fcbgValue = Double.parseDouble(text);
                         healthRiskAssessmentInfo.setFcbg(text);
+                        healthRiskAssessmentLiveData.setFcbg(text);
 //                        highlightGlucoseRow(fcbgValue);
                         updateBloodSugarGaugeDisplay();
                         notifyDataPasser();
                     } catch (NumberFormatException e) {
                         healthRiskAssessmentInfo.setFcbg(text);
+                        healthRiskAssessmentLiveData.setFcbg(text);
 //                        clearGlucoseHighlight();
                         resetBloodSugarGauge();
                         notifyDataPasser();
                     }
                 }
+                shareViewModel.getPersonDataLiveData()
+                        .observe(getViewLifecycleOwner(), personData -> {
+                            if (personData != null) {
+                                if(text.isEmpty()) {
+                                    personData.setFcbg(null);
+                                } else {
+                                    // แปลงเป็น Double และตั้งค่าให้กับ PersonData
+                                    if (text.equals("-")) {
+                                        personData.setFcbg(null);
+                                    } else if (text.equals(".")) {
+                                        personData.setFcbg(0.0);
+                                    } else {
+                                        personData.setFcbg(Double.parseDouble(text));
+                                    }
+                                }
+//                                personData.setFcbg(Double.parseDouble(text));
+                                autoFillGlucoseValues(personData);
+                            }
+                        });
             }
         });
 
@@ -1345,6 +1385,7 @@ public class HealthRiskAssessmentFragment extends Fragment {
 
                 if (text.isEmpty()) {
                     healthRiskAssessmentInfo.setFpg("");
+                    healthRiskAssessmentLiveData.setFpg("");
 //                    clearGlucoseHighlight();
                     updateBloodSugarGaugeDisplay();
                     notifyDataPasser();
@@ -1352,15 +1393,35 @@ public class HealthRiskAssessmentFragment extends Fragment {
                     try {
                         double fpgValue = Double.parseDouble(text);
                         healthRiskAssessmentInfo.setFpg(text);
+                        healthRiskAssessmentLiveData.setFpg(text);
 //                        highlightGlucoseRow(fpgValue);
                         updateBloodSugarGaugeDisplay();
                         notifyDataPasser();
                     } catch (NumberFormatException e) {
                         healthRiskAssessmentInfo.setFpg(text);
+                        healthRiskAssessmentLiveData.setFpg(text);
 //                        clearGlucoseHighlight();
                         resetBloodSugarGauge();
                         notifyDataPasser();
                     }
+                    shareViewModel.getPersonDataLiveData()
+                            .observe(getViewLifecycleOwner(), personData -> {
+                                if (personData != null) {
+                                    if(text.isEmpty()) {
+                                        personData.setFpg(null);
+                                    } else {
+                                        // แปลงเป็น Double และตั้งค่าให้กับ PersonData
+                                        if (text.equals("-")) {
+                                            personData.setFpg(null);
+                                        } else if (text.equals(".")) {
+                                            personData.setFpg(0.0);
+                                        } else {
+                                            personData.setFpg(Double.parseDouble(text));
+                                        }
+                                    }
+                                    autoFillGlucoseValues(personData);
+                                }
+                            });
                 }
             }
         });

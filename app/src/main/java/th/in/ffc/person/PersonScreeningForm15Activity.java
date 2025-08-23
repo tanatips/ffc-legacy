@@ -113,6 +113,7 @@ import th.in.ffc.provider.CounselingSignatureProvider;
 import th.in.ffc.provider.F43SpecialPPProvider;
 import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.provider.ScreeningResultCode;
+import th.in.ffc.service.ScreeningCompletionHandler;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.DateConverter;
@@ -2388,6 +2389,7 @@ private String getCardiovascularRiskSummary(Integer personId) {
                             setDataLive(personInfo.getId(), personInfo.getVisitno());
                             updateMenuAfterSubstanceChange();
                             Toast.makeText(getBaseContext(), "บันทึกข้อมูลแล้ว", Toast.LENGTH_SHORT).show();
+                            checkScreeningCompletion();
                         }
                     }
                     } catch(Exception e){
@@ -2449,6 +2451,22 @@ private String getCardiovascularRiskSummary(Integer personId) {
         previousAlcoholUse = currentAlcoholUse;
         hasTobaccoUse = currentTobaccoUse;
         hasAlcoholUse = currentAlcoholUse;
+    }
+    private void checkScreeningCompletion() {
+        ScreeningCompletionHandler handler = new ScreeningCompletionHandler(this, personInfo);
+
+        if (handler.validateScreeningData()) {
+            handler.showClaimConfirmationDialog();
+        } else {
+            String message = handler.getScreeningStatusMessage();
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean validateScreeningData() {
+        // ใส่ logic การตรวจสอบเงื่อนไขการคัดกรองที่นี่
+        // return true ถ้าครบถ้วน, false ถ้าไม่ครบถ้วน
+        return true;
     }
     private void showSubstanceChangeDialog(boolean tobaccoChanged, boolean alcoholChanged,
                                            boolean prevTobacco, boolean prevAlcohol,
@@ -3036,7 +3054,10 @@ private String getCardiovascularRiskSummary(Integer personId) {
         // เพิ่มหมวดหมู่
         categoryList.add("การคัดกรองสารเสพติด");
         categoryList.add("ภาวะเครียด-ซึมเศร้า");
-        categoryList.add("ความเสี่ยงด้านสุขภาพ");
+        if( personAge >= 35 ) {
+            categoryList.add("ความเสี่ยงด้านสุขภาพ");
+        }
+
         categoryList.add("สรุปผลการคัดกรอง");
 
         // 1. หมวดหมู่ การคัดกรองสารเสพติด
@@ -3075,10 +3096,12 @@ private String getCardiovascularRiskSummary(Integer personId) {
         subcategoryMap.put("ภาวะเครียด-ซึมเศร้า", mentalHealth);
 
         // 3. หมวดหมู่ ความเสี่ยงด้านสุขภาพ (คงเดิม)
-        List<String> healthRisks = new ArrayList<>();
-        healthRisks.add("แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน");
-        healthRisks.add("คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด");
-        subcategoryMap.put("ความเสี่ยงด้านสุขภาพ", healthRisks);
+        if( personAge >= 35 ) {
+            List<String> healthRisks = new ArrayList<>();
+            healthRisks.add("แบบประเมินความเสี่ยงการเกิดโรคเบาหวาน");
+            healthRisks.add("คัดกรองความเสี่ยงโรคหัวใจและหลอดเลือด");
+            subcategoryMap.put("ความเสี่ยงด้านสุขภาพ", healthRisks);
+        }
 
         // 4. หมวดหมู่ สรุปการคัดกรอง (คงเดิม)
         List<String> sfSummary = new ArrayList<>();

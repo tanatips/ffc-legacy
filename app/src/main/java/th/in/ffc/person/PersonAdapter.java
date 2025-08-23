@@ -79,6 +79,7 @@ import th.in.ffc.dao.VisitDiagDao;
 import th.in.ffc.model.UserModel;
 import th.in.ffc.provider.ScreeningFormProvider;
 import th.in.ffc.security.LoginActivity;
+import th.in.ffc.service.ClaimSubmissionService;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
 import th.in.ffc.util.InvoiceNumberGenerator;
@@ -106,6 +107,7 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
     PersonInfo personInfo;
 
     public static boolean isPartialValidationMode = false;
+    private ClaimSubmissionService claimSubmissionService;
 
 
     // เพิ่ม interface สำหรับปุ่ม
@@ -128,6 +130,9 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.person_item, parent, false);
         this.dateFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss", Locale.US);
+
+        this.claimSubmissionService = new ClaimSubmissionService(parent.getContext());
+
         return new PersonViewHolder(view);
     }
 
@@ -234,282 +239,318 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                     mContext = itemView.getContext();
                     int position = getBindingAdapterPosition();
                     PersonInfo person = personList.get(position);
-                    listener.onItemClick(person, isButtonClicked);
 
-//                    personList.remove(getBindingAdapterPosition());
-//                    notifyItemRemoved(getBindingAdapterPosition());
-
-                    notifyItemRangeChanged(getBindingAdapterPosition(), personList.size());
-//                    Toast.makeText(itemView.getContext(), tvIdcard.getText().toString(), Toast.LENGTH_LONG ).show();
-                    String[] names = tvName.getText().toString().split(" ");
-                    List<PersonInfo>  personInfos =  SfPersonInfoDao.getSfPersonInfoById(Integer.valueOf(tvPersonId.getText().toString()));
-                    personInfo = new PersonInfo();
-                    SharedPreferences prefs = mContext.getSharedPreferences(LoginActivity.PREFS_FILE, Context.MODE_PRIVATE);
-                    String pcuCode = prefs.getString(EXTRA_PCUCODE, "");
-                    if(!personInfos.isEmpty()) {
-                        personInfo = personInfos.get(0);
-                        personInfo.setHcode(pcuCode);  // รหัสสถานบริการ)
-                    }
-                    UserSessionManager userSessionManager = new UserSessionManager(itemView.getContext());
-                    String user = userSessionManager.getUser();
-//                    Toast.makeText(itemView.getContext(), user,Toast.LENGTH_LONG).show();
-
-                    NHSOPatientService nhsoPatientService = new NHSOPatientService(itemView.getContext());
-                    NHSOHospitalService nhsoHospitalService = new NHSOHospitalService(itemView.getContext());
-                    NHSOPractitionerService nhsoPractitionerService = new NHSOPractitionerService(itemView.getContext());
-                    NHSOOPDService nhsoopdService =new NHSOOPDService(itemView.getContext());
-                    NHSOPatientInfo patient = new NHSOPatientInfo();
-                    NHSOHospitalInfo hospital = new NHSOHospitalInfo();
-                    NHSOPractitionerInfo practitioner = new NHSOPractitionerInfo();
-                    List<NHSOPractitionerInfo> practitioners = new ArrayList<>();
-                    List<NHSOHospitalInfo> hospitals = new ArrayList<>();
-
-                        practitioner.setSeq(personInfo.getVisitNo());
-                        practitioner.setHcode(personInfo.getHcode());
-                        practitioner.setCid(userSessionManager.getIdcard());
-
-
-                    practitioners.add(practitioner);
-                    NHSOOPDInfo hnSoOPDInfo = new NHSOOPDInfo();
-
-                    VisitDao visitDao = new VisitDao(itemView.getContext().getContentResolver());
-                    long visitId = Long.valueOf(personInfo.getVisitNo());
-                    String seq = personInfo.getSeq();
-//                    long visitId = visitDao.saveNewVisitWithVitalSigns(
-//                            userSessionManager.getPcuCode(),                     // pcucode
-//                            userSessionManager.getPcuCode(),                     // pcucodePerson
-//                            personInfo.getIdcard(),                              // pid
-//                            personInfo.getCreated_date(),                        // visitDate
-//                            (float)personInfo.getWeight(),                       // weight
-//                            (float)personInfo.getHeight(),                       // height
-//                            personInfo.getBp(),                                  // pressure
-//                            (float)personInfo.getTemperature(),                  // temperature
-//                            Integer.valueOf(personInfo.getBp()!=null?personInfo.getBp():"0"),                               // pluse
-//                            (float)personInfo.getWaist_size(),                   // waist
-//                            String.valueOf(personInfo.getSystolic_pressure()),                 // systolic
-//                            String.valueOf(personInfo.getDiastolic_pressure()),                // diastolic                               // diagnote
-//                            userSessionManager.getUsername()                     // username
-//                    );
-                    // แฟ้ม 1
-                    patient.setType("CID");
-                    patient.setCid(personInfo.getIdcard());
-                    patient.setNameGiven(names[0]);
-                    patient.setNameFamily(names[1]);
-                    patient.setSeq(seq);
-                    patient.setBirthDate(personInfo.getBirthday());
-                    patient.setGender(personInfo.getGender().equals("M")?"1":"2");
-                    patient.setAddressLine(personInfo.getHomeNo()+" หมู่ที่ "+personInfo.getVillageNo());
-                    patient.setAddressCity(personInfo.getSubDistCode());
-                    patient.setAddressDistrict(personInfo.getDistCode());
-                    patient.setAddressState(personInfo.getProvCode());
-                    patient.setAddressPostalCode(personInfo.getPostCode());
-                    patient.setHn(personInfo.getHn());
-                    nhsoPatientService.createPatient(patient, userSessionManager.getUser());
-
-                    // แฟ้ม 2
-                    hospital.setSeq(seq);
-                    hospital.setHcode(personInfo.getHcode());
-                    nhsoHospitalService.createHospital(hospital, userSessionManager.getUser());
-
-                    // แฟ้ม 3
-
-                    practitioner.setSeq(seq);
-                    practitioner.setHcode(personInfo.getHcode());
-                    practitioner.setCid(personInfo.getIdcard());
-                    nhsoPractitionerService.createPractitioner(practitioner,userSessionManager.getUser());
-
-                    // แฟ้ม 4
-                    hnSoOPDInfo.setSeq(seq);
-                    hnSoOPDInfo.setHtype("1");
-                    hnSoOPDInfo.setUuc("1");
-
-                    try {
-                        hnSoOPDInfo.setDateOPD(dateFormat.parse(personInfo.getCreated_date()));
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                    SfTokenDao sfTokenDao = new SfTokenDao(itemView.getContext());
-                    NhsoApiCaller nhsoApiCaller = new NhsoApiCaller(itemView.getContext());
-                    List<SfToken>  sfTokens   = sfTokenDao.getAllTokens();
-                    String token = "";
-                    if(sfTokens.size()>0){
-                        token = sfTokens.get(0).getTokenAuth();
-                    }
-                    nhsoApiCaller.testRealPersonApi(personInfo.getIdcard(),token, new NhsoApiCaller.RealPersonApiCallback() {
+                    btnSubmitClaim.setEnabled(false);
+                    btnSubmitClaim.setText("กำลังส่ง...");
+                    claimSubmissionService.setClaimSubmissionListener(new ClaimSubmissionService.ClaimSubmissionListener() {
                         @Override
-                        public void onSuccess(String response) {
-                            String inscl=  nhsoApiCaller.extractInsuranceCode(response);
-                            hnSoOPDInfo.setInscl(inscl);
-                            Log.d("NHSO: inscl", inscl);
-                            nhsoopdService.createOPD(hnSoOPDInfo,userSessionManager.getUser());
+                        public void onClaimSubmissionSuccess(String message, String seqNo) {
+                            // อัพเดท UI เมื่อสำเร็จ
+                            btnSubmitClaim.setText("ส่งข้อมูลเรียบร้อย");
+                            btnSubmitClaim.setEnabled(false);
+                            btnViewClaimList.setVisibility(View.VISIBLE);
 
-                            VisitDiagDao visitDiagDao = new VisitDiagDao(itemView.getContext());
+                            tvDataStatus.setText("✅ ส่งข้อมูลแล้ว");
+                            tvDataStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_green_dark));
 
-                            // แฟ้ม 5
-                            List<VisitDiagInfo> visitDiagInfos = visitDiagDao.getVisitDiagByVisitNo(personInfo.getVisitNo());
-                            NHSODiagnosisInfo nhsoDiagnosisInfo = new NHSODiagnosisInfo();
-                            List<NHSODiagnosisInfo> nhsoDiagnosisInfos = new ArrayList<>();
-                            NHSODiagnosisService nhsoDiagnosisService = new NHSODiagnosisService(itemView.getContext());
+                            // แสดง Toast
+                            Toast.makeText(itemView.getContext(), message, Toast.LENGTH_LONG).show();
 
-                            for( VisitDiagInfo visitDiagInfo : visitDiagInfos) {
-                                nhsoDiagnosisInfo = new NHSODiagnosisInfo();
-                                nhsoDiagnosisInfo.setSeq(seq);
-                                nhsoDiagnosisInfo.setDiag(visitDiagInfo.getDiagcode().replace(".",""));
-                                nhsoDiagnosisInfo.setDiagType(visitDiagInfo.getDxtype());
-                                try {
-                                    nhsoDiagnosisInfo.setDateDx(dateFormat.parse(personInfo.getCreated_date()));
-                                } catch (ParseException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                nhsoDiagnosisInfos.add(nhsoDiagnosisInfo);
-                                nhsoDiagnosisService.createDiagnosis(nhsoDiagnosisInfo,userSessionManager.getUser());
+                            // อัพเดท adapter
+                            notifyItemChanged(position);
+
+                            // เรียก listener หลัก (ถ้ามี)
+                            if (listener != null) {
+                                listener.onItemClick(person, isButtonClicked);
                             }
-
-
-//                    Toast.makeText(itemView.getContext(), "บันทึกข้อมูลเรียบร้อย", Toast.LENGTH_LONG).show();
-
-                            // แฟ้ม 7
-                            InvoiceNumberGenerator invoiceNumberGenerator =new InvoiceNumberGenerator(itemView.getContext());
-                            String invoiceNumber = invoiceNumberGenerator.generateInvoiceNumber();
-                            NHSOCHADService chadService = new NHSOCHADService(itemView.getContext());
-                            NHSOCHADInfo nhsochadInfo = new NHSOCHADInfo();
-                            List<NHSOCHADInfo> nhsochadInfos = new ArrayList<>();
-                            nhsochadInfo.setSeq(seq);
-                            nhsochadInfo.setStdcode("1170884"); /* 1170884 (TMTID) 220001 (TMLT Code) 9099264 (TTMTID) */
-                            nhsochadInfo.setInvoiceNo(invoiceNumber);  // เลขที่อ้างอิงในแจ้งหนี้
-
-                            try {
-                                nhsochadInfo.setServdate(dateFormat.parse(personInfo.getCreated_date()));
-                            } catch (ParseException e) {
-                                throw new RuntimeException(e);
-                            }
-                            nhsochadInfo.setCodesys("002");      // ระบบรหัสที่ใช้ (TMLT)
-                            nhsochadInfo.setBillgrcs("04");      // หมวดค่าใช้จ่าย
-                            nhsochadInfo.setQty(1);              // จำนวนที่ใช้
-
-                            SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(itemView.getContext());
-                            List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos =  sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
-                            SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(itemView.getContext());
-                            List<CardiovascularRiskInfo> cardiovascularRiskInfos = sfCardiovascularRiskInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
-                            double fpg= 0.0;
-                            double choresteral = 0.0;
-                            if(!healthRiskAssessmentInfos.isEmpty())
-                            {
-                                if(healthRiskAssessmentInfos.get(0).getFpg()==null && healthRiskAssessmentInfos.get(0).getFpg().isEmpty() && Objects.equals(healthRiskAssessmentInfos.get(0).getFpg(), "")) {
-                                    fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
-                                }
-                            }
-                            if(!cardiovascularRiskInfos.isEmpty())
-                            {
-                                if(cardiovascularRiskInfos.get(0).getCholesterol()==null && cardiovascularRiskInfos.get(0).getCholesterol().isEmpty() && Objects.equals(cardiovascularRiskInfos.get(0).getCholesterol(), "")) {
-                                    choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol());
-                                }
-                            }
-                            double cost13 = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,0);
-                            double costFpg = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),fpg,0);
-                            double costChoresteral = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,choresteral);
-                            double costTotal = cost13+costFpg+costChoresteral;
-                            nhsochadInfo.setUnitprice(costTotal);    // ราคาต่อหน่วย
-                            nhsochadInfo.setChargeamt(costTotal);    // จำนวนเงินเรียกเก็บ
-
-                            nhsochadInfos.add(nhsochadInfo);
-                            chadService.createCHAD(nhsochadInfo, userSessionManager.getUser());
-
-                            // แฟ้ม 8
-                            NHSOCHAInfo chaInfo = new NHSOCHAInfo();
-                            List<NHSOCHAInfo> chaInfos = new ArrayList<>();
-                            NHSOCHAService chaService = new NHSOCHAService(itemView.getContext());
-                            chaInfo.setSeq(seq);
-                            try {
-                                chaInfo.setDate(dateFormat.parse(personInfo.getCreated_date()));
-                            } catch (ParseException e) {
-                                throw new RuntimeException(e);
-                            }
-                            double amount = 0.0,total=0.0 ,memo = 0.0;
-                            amount = costTotal;
-                            total = costTotal;
-                            chaInfo.setChrgitem("I1"); // ทำหัตถการ และบริการวิสัญญี
-                            chaInfo.setInvoiceNo(invoiceNumber);
-                            chaInfo.setAmount(amount);
-                            chaInfo.setTotal(total);
-
-                            chaInfos.add(chaInfo);
-                            chaService.createCHA(chaInfo, userSessionManager.getUser());
-                            isButtonClicked = false;
-                            // 2. สร้าง JSON ด้วย NHSOJsonConverter
-                            JSONObject jsonObject = NHSOJsonConverter.createNHSORequestJson(
-                                    patient, // แฟ้ม 1
-                                    hospital, // แฟ้ม 2
-                                    practitioners, // แฟ้ม 3
-                                    hnSoOPDInfo, // แฟ้ม 4
-                                    nhsoDiagnosisInfos, // แฟ้ม 5
-                                    chaInfos, // แฟ้ม 7
-                                    nhsochadInfos // แฟ้ม 8
-                            );
-                            Log.d("== NHSO ==", jsonObject.toString());
-                            if (jsonObject == null) {
-                                showMessage("ไม่สามารถสร้างข้อมูล JSON ได้");
-                                return;
-                            }
-                            NHSOClaimDataDao claimDataDao = new NHSOClaimDataDao(itemView.getContext());
-                            claimDataDao.saveClaimData(Integer.parseInt(personInfo.getVisitNo()), jsonObject);
-
-                            NHSOFSDataApiCaller apiCaller = new NHSOFSDataApiCaller(itemView.getContext());
-                            apiCaller.sendFSData(jsonObject, new NHSOFSDataApiCaller.FSDataApiCallback() {
-                                @Override
-                                public void onSuccess(String response) {
-                                    Log.d(TAG, "API Response: " + response);
-
-                                    // แปลงข้อมูล JSON เป็น FSDataResponse
-                                    try {
-
-                                        FSDataResponse[] fsResponses = new Gson().fromJson(response, FSDataResponse[].class);
-                                        FSDataResponse fsResponse = fsResponses[0];
-                                        if (fsResponse.isSuccess()) {
-                                            // กรณีสำเร็จ
-                                            showMessage("ส่งข้อมูลสำเร็จ! seq no: " + fsResponse.getSeq());
-
-                                            // อัพเดทสถานะการส่งข้อมูลในฐานข้อมูล
-                                            updateSyncStatus(String.valueOf(visitId), true);
-                                            // อัพเดทข้อมูล claim ในตาราง ffc_sf_person_info
-                                            String currentDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new java.util.Date());
-                                            SfPersonInfoDao.updateClaimInfo(
-                                                    person.getId(),        // ID ของผู้ป่วย
-                                                    fsResponse.getId(),         // ID การเคลม
-                                                    "",                      // สถานะการเคลม
-                                                    "",              // ข้อความ
-                                                    currentDateTime,
-                                                    String.valueOf(visitId)
-                                            );
-                                            claimDataDao.updateSuccessStatus((int) visitId, fsResponse.getSeq(), response);
-                                            Log.d(TAG, "Updated claim information for person ID: " + personInfo.getId());
-                                        } else {
-                                            // กรณีไม่สำเร็จ
-                                            showMessage("ส่งข้อมูลไม่สำเร็จ: " + fsResponse.getErrorSummary());
-                                        }
-                                    } catch (Exception e) {
-                                        showMessage("ส่งข้อมูลสำเร็จ แต่ไม่สามารถประมวลผลการตอบกลับได้: " + e.getMessage());
-                                    }
-                                }
-
-                                @Override
-                                public void onError(String errorMessage, Exception e) {
-                                    Log.e(TAG, "API Error: " + errorMessage+" "+e.getMessage());
-                                    showMessage("เกิดข้อผิดพลาด: " + errorMessage);
-                                    // เมื่อ API สำเร็จ - อัพเดทสถานะ
-                                    claimDataDao.updateFailedStatus((int)visitId, errorMessage);
-                                }
-                            });
                         }
 
                         @Override
-                        public void onError(String errorMessage) {
+                        public void onClaimSubmissionError(String errorMessage) {
+                            // อัพเดท UI เมื่อเกิดข้อผิดพลาด
+                            btnSubmitClaim.setText("ส่งข้อมูล");
+                            btnSubmitClaim.setEnabled(true);
 
-                            Log.e("NHSO", errorMessage);
-                            Toast.makeText(itemView.getContext(), "Error:"+errorMessage, Toast.LENGTH_LONG).show();
+                            tvDataStatus.setText("❌ ส่งข้อมูลไม่สำเร็จ");
+                            tvDataStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_red_dark));
 
+                            // แสดง Toast
+                            Toast.makeText(itemView.getContext(), "เกิดข้อผิดพลาด: " + errorMessage, Toast.LENGTH_LONG).show();
+
+                            // อัพเดท adapter
+                            notifyItemChanged(position);
+                        }
+
+                        @Override
+                        public void onClaimSubmissionProgress(String message) {
+                            // อัพเดท UI แสดงความคืบหน้า
+                            tvDataStatus.setText("⏳ " + message);
+                            tvDataStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), android.R.color.holo_blue_dark));
                         }
                     });
+
+                    // เริ่มการส่งเคลม
+                    claimSubmissionService.submitClaim(person);
+
+                    isButtonClicked = false;
+
+// =========================================================================================
+
+//                    listener.onItemClick(person, isButtonClicked);
+//
+//                    notifyItemRangeChanged(getBindingAdapterPosition(), personList.size());
+//
+//                    String[] names = tvName.getText().toString().split(" ");
+//                    List<PersonInfo>  personInfos =  SfPersonInfoDao.getSfPersonInfoById(Integer.valueOf(tvPersonId.getText().toString()));
+//                    personInfo = new PersonInfo();
+//                    SharedPreferences prefs = mContext.getSharedPreferences(LoginActivity.PREFS_FILE, Context.MODE_PRIVATE);
+//                    String pcuCode = prefs.getString(EXTRA_PCUCODE, "");
+//                    if(!personInfos.isEmpty()) {
+//                        personInfo = personInfos.get(0);
+//                        personInfo.setHcode(pcuCode);  // รหัสสถานบริการ)
+//                    }
+//                    UserSessionManager userSessionManager = new UserSessionManager(itemView.getContext());
+//                    String user = userSessionManager.getUser();
+////                    Toast.makeText(itemView.getContext(), user,Toast.LENGTH_LONG).show();
+//
+//                    NHSOPatientService nhsoPatientService = new NHSOPatientService(itemView.getContext());
+//                    NHSOHospitalService nhsoHospitalService = new NHSOHospitalService(itemView.getContext());
+//                    NHSOPractitionerService nhsoPractitionerService = new NHSOPractitionerService(itemView.getContext());
+//                    NHSOOPDService nhsoopdService =new NHSOOPDService(itemView.getContext());
+//                    NHSOPatientInfo patient = new NHSOPatientInfo();
+//                    NHSOHospitalInfo hospital = new NHSOHospitalInfo();
+//                    NHSOPractitionerInfo practitioner = new NHSOPractitionerInfo();
+//                    List<NHSOPractitionerInfo> practitioners = new ArrayList<>();
+//                    List<NHSOHospitalInfo> hospitals = new ArrayList<>();
+//
+//                        practitioner.setSeq(personInfo.getVisitNo());
+//                        practitioner.setHcode(personInfo.getHcode());
+//                        practitioner.setCid(userSessionManager.getIdcard());
+//
+//
+//                    practitioners.add(practitioner);
+//                    NHSOOPDInfo hnSoOPDInfo = new NHSOOPDInfo();
+//
+//                    VisitDao visitDao = new VisitDao(itemView.getContext().getContentResolver());
+//                    long visitId = Long.valueOf(personInfo.getVisitNo());
+//                    String seq = personInfo.getSeq();
+//                    // แฟ้ม 1
+//                    patient.setType("CID");
+//                    patient.setCid(personInfo.getIdcard());
+//                    patient.setNameGiven(names[0]);
+//                    patient.setNameFamily(names[1]);
+//                    patient.setSeq(seq);
+//                    patient.setBirthDate(personInfo.getBirthday());
+//                    patient.setGender(personInfo.getGender().equals("M")?"1":"2");
+//                    patient.setAddressLine(personInfo.getHomeNo()+" หมู่ที่ "+personInfo.getVillageNo());
+//                    patient.setAddressCity(personInfo.getSubDistCode());
+//                    patient.setAddressDistrict(personInfo.getDistCode());
+//                    patient.setAddressState(personInfo.getProvCode());
+//                    patient.setAddressPostalCode(personInfo.getPostCode());
+//                    patient.setHn(personInfo.getHn());
+//                    nhsoPatientService.createPatient(patient, userSessionManager.getUser());
+//
+//                    // แฟ้ม 2
+//                    hospital.setSeq(seq);
+//                    hospital.setHcode(personInfo.getHcode());
+//                    nhsoHospitalService.createHospital(hospital, userSessionManager.getUser());
+//
+//                    // แฟ้ม 3
+//
+//                    practitioner.setSeq(seq);
+//                    practitioner.setHcode(personInfo.getHcode());
+//                    practitioner.setCid(personInfo.getIdcard());
+//                    nhsoPractitionerService.createPractitioner(practitioner,userSessionManager.getUser());
+//
+//                    // แฟ้ม 4
+//                    hnSoOPDInfo.setSeq(seq);
+//                    hnSoOPDInfo.setHtype("1");
+//                    hnSoOPDInfo.setUuc("1");
+//
+//                    try {
+//                        hnSoOPDInfo.setDateOPD(dateFormat.parse(personInfo.getCreated_date()));
+//                    } catch (ParseException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    SfTokenDao sfTokenDao = new SfTokenDao(itemView.getContext());
+//                    NhsoApiCaller nhsoApiCaller = new NhsoApiCaller(itemView.getContext());
+//                    List<SfToken>  sfTokens   = sfTokenDao.getAllTokens();
+//                    String token = "";
+//                    if(sfTokens.size()>0){
+//                        token = sfTokens.get(0).getTokenAuth();
+//                    }
+//                    nhsoApiCaller.testRealPersonApi(personInfo.getIdcard(),token, new NhsoApiCaller.RealPersonApiCallback() {
+//                        @Override
+//                        public void onSuccess(String response) {
+//                            String inscl=  nhsoApiCaller.extractInsuranceCode(response);
+//                            hnSoOPDInfo.setInscl(inscl);
+//                            Log.d("NHSO: inscl", inscl);
+//                            nhsoopdService.createOPD(hnSoOPDInfo,userSessionManager.getUser());
+//
+//                            VisitDiagDao visitDiagDao = new VisitDiagDao(itemView.getContext());
+//
+//                            // แฟ้ม 5
+//                            List<VisitDiagInfo> visitDiagInfos = visitDiagDao.getVisitDiagByVisitNo(personInfo.getVisitNo());
+//                            NHSODiagnosisInfo nhsoDiagnosisInfo = new NHSODiagnosisInfo();
+//                            List<NHSODiagnosisInfo> nhsoDiagnosisInfos = new ArrayList<>();
+//                            NHSODiagnosisService nhsoDiagnosisService = new NHSODiagnosisService(itemView.getContext());
+//
+//                            for( VisitDiagInfo visitDiagInfo : visitDiagInfos) {
+//                                nhsoDiagnosisInfo = new NHSODiagnosisInfo();
+//                                nhsoDiagnosisInfo.setSeq(seq);
+//                                nhsoDiagnosisInfo.setDiag(visitDiagInfo.getDiagcode().replace(".",""));
+//                                nhsoDiagnosisInfo.setDiagType(visitDiagInfo.getDxtype());
+//                                try {
+//                                    nhsoDiagnosisInfo.setDateDx(dateFormat.parse(personInfo.getCreated_date()));
+//                                } catch (ParseException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                                nhsoDiagnosisInfos.add(nhsoDiagnosisInfo);
+//                                nhsoDiagnosisService.createDiagnosis(nhsoDiagnosisInfo,userSessionManager.getUser());
+//                            }
+//
+//                            // แฟ้ม 7
+//                            InvoiceNumberGenerator invoiceNumberGenerator =new InvoiceNumberGenerator(itemView.getContext());
+//                            String invoiceNumber = invoiceNumberGenerator.generateInvoiceNumber();
+//                            NHSOCHADService chadService = new NHSOCHADService(itemView.getContext());
+//                            NHSOCHADInfo nhsochadInfo = new NHSOCHADInfo();
+//                            List<NHSOCHADInfo> nhsochadInfos = new ArrayList<>();
+//                            nhsochadInfo.setSeq(seq);
+//                            nhsochadInfo.setStdcode("1170884"); /* 1170884 (TMTID) 220001 (TMLT Code) 9099264 (TTMTID) */
+//                            nhsochadInfo.setInvoiceNo(invoiceNumber);  // เลขที่อ้างอิงในแจ้งหนี้
+//
+//                            try {
+//                                nhsochadInfo.setServdate(dateFormat.parse(personInfo.getCreated_date()));
+//                            } catch (ParseException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                            nhsochadInfo.setCodesys("002");      // ระบบรหัสที่ใช้ (TMLT)
+//                            nhsochadInfo.setBillgrcs("04");      // หมวดค่าใช้จ่าย
+//                            nhsochadInfo.setQty(1);              // จำนวนที่ใช้
+//
+//                            SfHealthRiskAssessmentInfoDao sfHealthRiskAssessmentInfoDao = new SfHealthRiskAssessmentInfoDao(itemView.getContext());
+//                            List<HealthRiskAssessmentInfo> healthRiskAssessmentInfos =  sfHealthRiskAssessmentInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+//                            SfCardiovascularRiskInfoDao sfCardiovascularRiskInfoDao = new SfCardiovascularRiskInfoDao(itemView.getContext());
+//                            List<CardiovascularRiskInfo> cardiovascularRiskInfos = sfCardiovascularRiskInfoDao.getByPersonId(Integer.parseInt(personInfo.getId()));
+//                            double fpg= 0.0;
+//                            double choresteral = 0.0;
+//                            if(!healthRiskAssessmentInfos.isEmpty())
+//                            {
+//                                if(healthRiskAssessmentInfos.get(0).getFpg()==null && healthRiskAssessmentInfos.get(0).getFpg().isEmpty() && Objects.equals(healthRiskAssessmentInfos.get(0).getFpg(), "")) {
+//                                    fpg = Double.parseDouble(healthRiskAssessmentInfos.get(0).getFpg());
+//                                }
+//                            }
+//                            if(!cardiovascularRiskInfos.isEmpty())
+//                            {
+//                                if(cardiovascularRiskInfos.get(0).getCholesterol()==null && cardiovascularRiskInfos.get(0).getCholesterol().isEmpty() && Objects.equals(cardiovascularRiskInfos.get(0).getCholesterol(), "")) {
+//                                    choresteral = Double.parseDouble(cardiovascularRiskInfos.get(0).getCholesterol());
+//                                }
+//                            }
+//                            double cost13 = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,0);
+//                            double costFpg = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),fpg,0);
+//                            double costChoresteral = AgeCalculator.calculateServiceCost(AgeCalculator.calculateAge(personInfo.getBirthday()),0,choresteral);
+//                            double costTotal = cost13+costFpg+costChoresteral;
+//                            nhsochadInfo.setUnitprice(costTotal);    // ราคาต่อหน่วย
+//                            nhsochadInfo.setChargeamt(costTotal);    // จำนวนเงินเรียกเก็บ
+//
+//                            nhsochadInfos.add(nhsochadInfo);
+//                            chadService.createCHAD(nhsochadInfo, userSessionManager.getUser());
+//
+//                            // แฟ้ม 8
+//                            NHSOCHAInfo chaInfo = new NHSOCHAInfo();
+//                            List<NHSOCHAInfo> chaInfos = new ArrayList<>();
+//                            NHSOCHAService chaService = new NHSOCHAService(itemView.getContext());
+//                            chaInfo.setSeq(seq);
+//                            try {
+//                                chaInfo.setDate(dateFormat.parse(personInfo.getCreated_date()));
+//                            } catch (ParseException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                            double amount = 0.0,total=0.0 ,memo = 0.0;
+//                            amount = costTotal;
+//                            total = costTotal;
+//                            chaInfo.setChrgitem("I1"); // ทำหัตถการ และบริการวิสัญญี
+//                            chaInfo.setInvoiceNo(invoiceNumber);
+//                            chaInfo.setAmount(amount);
+//                            chaInfo.setTotal(total);
+//
+//                            chaInfos.add(chaInfo);
+//                            chaService.createCHA(chaInfo, userSessionManager.getUser());
+//                            isButtonClicked = false;
+//                            // 2. สร้าง JSON ด้วย NHSOJsonConverter
+//                            JSONObject jsonObject = NHSOJsonConverter.createNHSORequestJson(
+//                                    patient, // แฟ้ม 1
+//                                    hospital, // แฟ้ม 2
+//                                    practitioners, // แฟ้ม 3
+//                                    hnSoOPDInfo, // แฟ้ม 4
+//                                    nhsoDiagnosisInfos, // แฟ้ม 5
+//                                    chaInfos, // แฟ้ม 7
+//                                    nhsochadInfos // แฟ้ม 8
+//                            );
+//                            Log.d("== NHSO ==", jsonObject.toString());
+//                            if (jsonObject == null) {
+//                                showMessage("ไม่สามารถสร้างข้อมูล JSON ได้");
+//                                return;
+//                            }
+//                            NHSOClaimDataDao claimDataDao = new NHSOClaimDataDao(itemView.getContext());
+//                            claimDataDao.saveClaimData(Integer.parseInt(personInfo.getVisitNo()), jsonObject);
+//
+//                            NHSOFSDataApiCaller apiCaller = new NHSOFSDataApiCaller(itemView.getContext());
+//                            apiCaller.sendFSData(jsonObject, new NHSOFSDataApiCaller.FSDataApiCallback() {
+//                                @Override
+//                                public void onSuccess(String response) {
+//                                    Log.d(TAG, "API Response: " + response);
+//
+//                                    // แปลงข้อมูล JSON เป็น FSDataResponse
+//                                    try {
+//
+//                                        FSDataResponse[] fsResponses = new Gson().fromJson(response, FSDataResponse[].class);
+//                                        FSDataResponse fsResponse = fsResponses[0];
+//                                        if (fsResponse.isSuccess()) {
+//                                            // กรณีสำเร็จ
+//                                            showMessage("ส่งข้อมูลสำเร็จ! seq no: " + fsResponse.getSeq());
+//
+//                                            // อัพเดทสถานะการส่งข้อมูลในฐานข้อมูล
+//                                            updateSyncStatus(String.valueOf(visitId), true);
+//                                            // อัพเดทข้อมูล claim ในตาราง ffc_sf_person_info
+//                                            String currentDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new java.util.Date());
+//                                            SfPersonInfoDao.updateClaimInfo(
+//                                                    person.getId(),        // ID ของผู้ป่วย
+//                                                    fsResponse.getId(),         // ID การเคลม
+//                                                    "",                      // สถานะการเคลม
+//                                                    "",              // ข้อความ
+//                                                    currentDateTime,
+//                                                    String.valueOf(visitId)
+//                                            );
+//                                            claimDataDao.updateSuccessStatus((int) visitId, fsResponse.getSeq(), response);
+//                                            Log.d(TAG, "Updated claim information for person ID: " + personInfo.getId());
+//                                        } else {
+//                                            // กรณีไม่สำเร็จ
+//                                            showMessage("ส่งข้อมูลไม่สำเร็จ: " + fsResponse.getErrorSummary());
+//                                        }
+//                                    } catch (Exception e) {
+//                                        showMessage("ส่งข้อมูลสำเร็จ แต่ไม่สามารถประมวลผลการตอบกลับได้: " + e.getMessage());
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void onError(String errorMessage, Exception e) {
+//                                    Log.e(TAG, "API Error: " + errorMessage+" "+e.getMessage());
+//                                    showMessage("เกิดข้อผิดพลาด: " + errorMessage);
+//                                    // เมื่อ API สำเร็จ - อัพเดทสถานะ
+//                                    claimDataDao.updateFailedStatus((int)visitId, errorMessage);
+//                                }
+//                            });
+//                        }
+//
+//                        @Override
+//                        public void onError(String errorMessage) {
+//
+//                            Log.e("NHSO", errorMessage);
+//                            Toast.makeText(itemView.getContext(), "Error:"+errorMessage, Toast.LENGTH_LONG).show();
+//
+//                        }
+//                    });
                     }
             });
             itemView.setOnClickListener(v -> {
@@ -865,19 +906,23 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         int age = getPersonAge(context, personId);
 
         // 6-7. ตรวจสอบความเสี่ยงด้านสุขภาพ (ทุกแบบ)
-        SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
-        List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
-        boolean hasHealthRisk = !healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0));
-        if (!hasHealthRisk) missingAssessments.add("แบบประเมินโรคเบาหวาน");
-
-        SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
-        List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
-        boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0),age);
-        if (!hasCardioRisk && age >= 35) {
-            missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด (บังคับสำหรับอายุ >= 35 ปี)");
-        } else if (age < 35) {
-            Log.d("CARDIO_CHECK", "Cardiovascular assessment skipped - age " + age + " < 35 years");
-        }
+//        SfHealthRiskAssessmentInfoDao healthRiskDao = new SfHealthRiskAssessmentInfoDao(context);
+//        List<HealthRiskAssessmentInfo> healthRiskInfos = healthRiskDao.getByPersonId(personId);
+//        boolean hasHealthRisk = !healthRiskInfos.isEmpty() && isHealthRiskComplete(healthRiskInfos.get(0));
+//        if( !hasHealthRisk && age >= 35) {
+//            missingAssessments.add("แบบประเมินโรคเบาหวาน (ไม่บังคับสำหรับอายุ >= 35 ปี)");
+//        } else if (age < 35) {
+//            Log.d("HEALTH_RISK_CHECK", "Health risk assessment skipped - age " + age + " < 35 years");
+//        }
+//
+//        SfCardiovascularRiskInfoDao cardioDao = new SfCardiovascularRiskInfoDao(context);
+//        List<CardiovascularRiskInfo> cardioInfos = cardioDao.getByPersonId(personId);
+//        boolean hasCardioRisk = !cardioInfos.isEmpty() && isCardiovascularRiskComplete(cardioInfos.get(0),age);
+//        if (!hasCardioRisk && age >= 35) {
+//            missingAssessments.add("แบบประเมินโรคหัวใจและหลอดเลือด (ไม่บังคับสำหรับอายุ >= 35 ปี)");
+//        } else if (age < 35) {
+//            Log.d("CARDIO_CHECK", "Cardiovascular assessment skipped - age " + age + " < 35 years");
+//        }
 
         // 8. การให้คำปรึกษา
         CounselingSignatureDao counselingDao = new CounselingSignatureDao(context);
@@ -1031,92 +1076,219 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
         }
     }
 
-    private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
-        if (drugsInfos == null || drugsInfos.isEmpty()) {
-            Log.d("ASSIST_CHECK", "No drugs data found");
-            return false;
+//    private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
+//        if (drugsInfos == null || drugsInfos.isEmpty()) {
+//            Log.d("ASSIST_CHECK", "No drugs data found");
+//            return false;
+//        }
+//
+//        try {
+//            // ตรวจสอบ Q1 (คำถามการใช้สารเสพติด) - ต้องมี 10 subquestions (a-j)
+//            Map<String, String> q1Answers = new HashMap<>();
+//
+//            // เก็บคำตอบ Q1 ทั้งหมด
+//            for (DrugsInfo drug : drugsInfos) {
+//                if ("Q1".equals(drug.getQuestion())) {
+//                    q1Answers.put(drug.getSubquestion(), drug.getAnswer());
+//                }
+//            }
+//
+//            // ตรวจสอบว่า Q1 ครบ 10 subquestions (a-j)
+//            String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+//            for (String subQ : expectedSubQuestions) {
+//                if (!q1Answers.containsKey(subQ) ||
+//                        q1Answers.get(subQ) == null ||
+//                        q1Answers.get(subQ).isEmpty()) {
+//                    Log.d("ASSIST_CHECK", "Missing or empty Q1 subquestion: " + subQ);
+//                    return false;
+//                }
+//            }
+//
+//            // ตรวจสอบว่า Q1 ตอบเป็น "0" ทั้งหมดหรือไม่
+//            boolean allQ1Zero = true;
+//            List<String> substancesUsed = new ArrayList<>(); // เก็บสารที่เคยใช้ (ตอบไม่ใช่ 0)
+//
+//            for (String subQ : expectedSubQuestions) {
+//                String answer = q1Answers.get(subQ);
+//
+//                if (!"0".equals(answer)) {
+//                    allQ1Zero = false;
+//                    substancesUsed.add(subQ); // เพิ่มสารที่เคยใช้ในรายการ
+//                }
+//            }
+//
+//            // กรณีที่ Q1 ตอบเป็น "0" ทั้งหมด = ครบถ้วนแล้ว (ไม่เคยใช้สารใดๆ)
+//            if (allQ1Zero) {
+//                Log.d("ASSIST_CHECK", "All Q1 answers are 0 - Assessment complete (no substance use)");
+//                return true;
+//            }
+//
+//            // กรณีที่มีการใช้สารบางชนิด = ต้องตอบ Q2-Q7 สำหรับสารที่เคยใช้
+//            Log.d("ASSIST_CHECK", "Substances used (non-zero Q1): " + substancesUsed.toString());
+//
+//            // ตรวจสอบ Q2-Q4, Q6-Q7 สำหรับสารที่เคยใช้ (Q5 ไม่มี subquestion)
+//            String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q6", "Q7"};
+//
+//            for (String substance : substancesUsed) {
+//                for (String question : followUpQuestions) {
+//                    boolean found = false;
+//                    String foundAnswer = null;
+//
+//                    // หาคำตอบสำหรับ question + substance นี้
+//                    for (DrugsInfo drug : drugsInfos) {
+//                        if (question.equals(drug.getQuestion()) &&
+//                                substance.equals(drug.getSubquestion())) {
+//                            foundAnswer = drug.getAnswer();
+//                            found = true;
+//                            break;
+//                        }
+//                    }
+//
+//                    // ตรวจสอบว่ามีคำตอบและไม่ใช่ค่าเริ่มต้น
+//                    if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
+//                        Log.d("ASSIST_CHECK", "Missing answer for " + question + " substance " + substance);
+//                        return false;
+//                    }
+//
+//                    Log.d("ASSIST_CHECK", "Found " + question + substance + " = " + foundAnswer);
+//                }
+//            }
+//
+//            // ตรวจสอบ Q5 แยกต่างหาก (ไม่มี subquestion a,b,c...)
+//            // Q5 จะมีคำตอบเดียวสำหรับทุกสาร
+//            if (!substancesUsed.isEmpty()) {
+//                boolean foundQ5 = false;
+//                String q5Answer = null;
+//
+//                for (DrugsInfo drug : drugsInfos) {
+//                    if ("Q5".equals(drug.getQuestion())) {
+//                        q5Answer = drug.getAnswer();
+//                        foundQ5 = true;
+//                        break;
+//                    }
+//                }
+//
+//                if (!foundQ5 || q5Answer == null || q5Answer.isEmpty()) {
+//                    Log.d("ASSIST_CHECK", "Missing Q5 answer");
+//                    return false;
+//                }
+//
+//                Log.d("ASSIST_CHECK", "Found Q5 = " + q5Answer);
+//            }
+//
+//            // ถ้าผ่านการตรวจสอบทั้งหมด
+//            Log.d("ASSIST_CHECK", "All required ASSIST questions answered - Assessment complete");
+//            Log.d("ASSIST_CHECK", "Total Q1 substances used: " + substancesUsed.size() +
+//                    ", Follow-up questions required: Q2-Q4,Q6-Q7 for each substance + Q5 general = " +
+//                    (substancesUsed.size() * 5 + (substancesUsed.isEmpty() ? 0 : 1)));
+//
+//            return true;
+//
+//        } catch (Exception e) {
+//            Log.e("ASSIST_CHECK", "Error checking drugs completion: " + e.getMessage());
+//            return false;
+//        }
+//    }
+//
+private boolean isDrugsComplete(List<DrugsInfo> drugsInfos) {
+    if (drugsInfos == null || drugsInfos.isEmpty()) {
+        Log.d("ASSIST_CHECK", "No drugs data found");
+        return false;
+    }
+
+    try {
+        // ตรวจสอบ Q1 (คำถามการใช้สารเสพติด) - ต้องมี 10 subquestions (a-j)
+        Map<String, String> q1Answers = new HashMap<>();
+
+        // เก็บคำตอบ Q1 ทั้งหมด
+        for (DrugsInfo drug : drugsInfos) {
+            if ("Q1".equals(drug.getQuestion())) {
+                q1Answers.put(drug.getSubquestion(), drug.getAnswer());
+            }
         }
 
-        try {
-            // ตรวจสอบ Q1 (คำถามการใช้สารเสพติด) - ต้องมี 10 subquestions (a-j)
-            Map<String, String> q1Answers = new HashMap<>();
-
-            // เก็บคำตอบ Q1 ทั้งหมด
-            for (DrugsInfo drug : drugsInfos) {
-                if ("Q1".equals(drug.getQuestion())) {
-                    q1Answers.put(drug.getSubquestion(), drug.getAnswer());
-                }
+        // ตรวจสอบว่า Q1 ครบ 10 subquestions (a-j)
+        String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
+        for (String subQ : expectedSubQuestions) {
+            if (!q1Answers.containsKey(subQ) ||
+                    q1Answers.get(subQ) == null ||
+                    q1Answers.get(subQ).isEmpty()) {
+                Log.d("ASSIST_CHECK", "Missing or empty Q1 subquestion: " + subQ);
+                return false;
             }
+        }
 
-            // ตรวจสอบว่า Q1 ครบ 10 subquestions (a-j)
-            String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
-            for (String subQ : expectedSubQuestions) {
-                if (!q1Answers.containsKey(subQ) ||
-                        q1Answers.get(subQ) == null ||
-                        q1Answers.get(subQ).isEmpty()) {
-                    Log.d("ASSIST_CHECK", "Missing or empty Q1 subquestion: " + subQ);
+        // ตรวจสอบว่า Q1 ตอบเป็น "0" ทั้งหมดหรือไม่
+        boolean allQ1Zero = true;
+        List<String> substancesUsed = new ArrayList<>(); // เก็บสารที่เคยใช้ (ตอบไม่ใช่ 0)
+
+        for (String subQ : expectedSubQuestions) {
+            String answer = q1Answers.get(subQ);
+
+            if (!"0".equals(answer)) {
+                allQ1Zero = false;
+                substancesUsed.add(subQ); // เพิ่มสารที่เคยใช้ในรายการ
+            }
+        }
+
+        // กรณีที่ Q1 ตอบเป็น "0" ทั้งหมด = ครบถ้วนแล้ว (ไม่เคยใช้สารใดๆ)
+        if (allQ1Zero) {
+            Log.d("ASSIST_CHECK", "All Q1 answers are 0 - Assessment complete (no substance use)");
+            return true;
+        }
+
+        // กรณีที่มีการใช้สารบางชนิด = ต้องตอบ Q2-Q7 สำหรับสารที่เคยใช้
+        Log.d("ASSIST_CHECK", "Substances used (non-zero Q1): " + substancesUsed.toString());
+
+        // ตรวจสอบ Q2-Q4, Q6-Q7 สำหรับสารที่เคยใช้ (Q5 ไม่มี subquestion)
+        String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q6", "Q7"};
+
+        for (String substance : substancesUsed) {
+            for (String question : followUpQuestions) {
+                boolean found = false;
+                String foundAnswer = null;
+
+                // หาคำตอบสำหรับ question + substance นี้
+                for (DrugsInfo drug : drugsInfos) {
+                    if (question.equals(drug.getQuestion()) &&
+                            substance.equals(drug.getSubquestion())) {
+                        foundAnswer = drug.getAnswer();
+                        found = true;
+                        break;
+                    }
+                }
+
+                // ตรวจสอบว่ามีคำตอบและไม่ใช่ค่าเริ่มต้น
+                if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
+                    Log.d("ASSIST_CHECK", "Missing answer for " + question + " substance " + substance);
                     return false;
                 }
+
+                Log.d("ASSIST_CHECK", "Found " + question + substance + " = " + foundAnswer);
             }
+        }
 
-            // ตรวจสอบว่า Q1 ตอบเป็น "0" ทั้งหมดหรือไม่
-            boolean allQ1Zero = true;
-            List<String> substancesUsed = new ArrayList<>(); // เก็บสารที่เคยใช้ (ตอบไม่ใช่ 0)
-
-            for (String subQ : expectedSubQuestions) {
-                String answer = q1Answers.get(subQ);
-
-                if (!"0".equals(answer)) {
-                    allQ1Zero = false;
-                    substancesUsed.add(subQ); // เพิ่มสารที่เคยใช้ในรายการ
-                }
-            }
-
-            // กรณีที่ Q1 ตอบเป็น "0" ทั้งหมด = ครบถ้วนแล้ว (ไม่เคยใช้สารใดๆ)
-            if (allQ1Zero) {
-                Log.d("ASSIST_CHECK", "All Q1 answers are 0 - Assessment complete (no substance use)");
-                return true;
-            }
-
-            // กรณีที่มีการใช้สารบางชนิด = ต้องตอบ Q2-Q7 สำหรับสารที่เคยใช้
-            Log.d("ASSIST_CHECK", "Substances used (non-zero Q1): " + substancesUsed.toString());
-
-            // ตรวจสอบ Q2-Q4, Q6-Q7 สำหรับสารที่เคยใช้ (Q5 ไม่มี subquestion)
-            String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q6", "Q7"};
-
+        // ตรวจสอบ Q5 แยกต่างหาก
+        // Q5 จะมี subquestion แต่จะไม่มี "a" (ยาสูบ)
+        // Q5 จะมีเมื่อมีการใช้สารอย่างน้อย 1 ชนิด
+        if (!substancesUsed.isEmpty()) {
+            // สร้างรายการสารที่ต้องมี Q5 (ยกเว้น "a" ที่เป็นยาสูบ)
+            List<String> substancesNeedingQ5 = new ArrayList<>();
             for (String substance : substancesUsed) {
-                for (String question : followUpQuestions) {
-                    boolean found = false;
-                    String foundAnswer = null;
-
-                    // หาคำตอบสำหรับ question + substance นี้
-                    for (DrugsInfo drug : drugsInfos) {
-                        if (question.equals(drug.getQuestion()) &&
-                                substance.equals(drug.getSubquestion())) {
-                            foundAnswer = drug.getAnswer();
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    // ตรวจสอบว่ามีคำตอบและไม่ใช่ค่าเริ่มต้น
-                    if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
-                        Log.d("ASSIST_CHECK", "Missing answer for " + question + " substance " + substance);
-                        return false;
-                    }
-
-                    Log.d("ASSIST_CHECK", "Found " + question + substance + " = " + foundAnswer);
+                if (!"a".equals(substance)) { // ยกเว้น "a" (ยาสูบ)
+                    substancesNeedingQ5.add(substance);
                 }
             }
 
-            // ตรวจสอบ Q5 แยกต่างหาก (ไม่มี subquestion a,b,c...)
-            // Q5 จะมีคำตอบเดียวสำหรับทุกสาร
-            if (!substancesUsed.isEmpty()) {
+            // ตรวจสอบ Q5 สำหรับสารที่ต้องมี (ไม่รวม "a")
+            for (String substance : substancesNeedingQ5) {
                 boolean foundQ5 = false;
                 String q5Answer = null;
 
+                // หา Q5 สำหรับสาร substance นี้
                 for (DrugsInfo drug : drugsInfos) {
-                    if ("Q5".equals(drug.getQuestion())) {
+                    if ("Q5".equals(drug.getQuestion()) &&
+                            substance.equals(drug.getSubquestion())) {
                         q5Answer = drug.getAnswer();
                         foundQ5 = true;
                         break;
@@ -1124,27 +1296,42 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.PersonView
                 }
 
                 if (!foundQ5 || q5Answer == null || q5Answer.isEmpty()) {
-                    Log.d("ASSIST_CHECK", "Missing Q5 answer");
+                    Log.d("ASSIST_CHECK", "Missing Q5 answer for substance: " + substance);
                     return false;
                 }
 
-                Log.d("ASSIST_CHECK", "Found Q5 = " + q5Answer);
+                Log.d("ASSIST_CHECK", "Found Q5" + substance + " = " + q5Answer);
             }
 
-            // ถ้าผ่านการตรวจสอบทั้งหมด
-            Log.d("ASSIST_CHECK", "All required ASSIST questions answered - Assessment complete");
-            Log.d("ASSIST_CHECK", "Total Q1 substances used: " + substancesUsed.size() +
-                    ", Follow-up questions required: Q2-Q4,Q6-Q7 for each substance + Q5 general = " +
-                    (substancesUsed.size() * 5 + (substancesUsed.isEmpty() ? 0 : 1)));
+            // Log สำหรับ debug
+            if (substancesUsed.contains("a")) {
+                Log.d("ASSIST_CHECK", "Substance 'a' (tobacco) used - Q5a not required");
+            }
 
-            return true;
-
-        } catch (Exception e) {
-            Log.e("ASSIST_CHECK", "Error checking drugs completion: " + e.getMessage());
-            return false;
+            if (substancesNeedingQ5.isEmpty()) {
+                Log.d("ASSIST_CHECK", "Only tobacco (a) used - no Q5 required");
+            }
+        } else {
+            // ไม่ควรเข้ามาที่นี่ เพราะถ้าไม่ใช้สารใดๆ ควร return true ไปแล้วข้างบน
+            Log.d("ASSIST_CHECK", "No substances used - Q5 not required");
         }
+
+        // ถ้าผ่านการตรวจสอบทั้งหมด
+        Log.d("ASSIST_CHECK", "All required ASSIST questions answered - Assessment complete");
+        Log.d("ASSIST_CHECK", "Total Q1 substances used: " + substancesUsed.size() +
+                ", Follow-up questions required per substance: Q2-Q4,Q6-Q7 = " +
+                (substancesUsed.size() * 5) +
+                ", Q5 required for substances (excluding 'a'): " +
+                (substancesUsed.contains("a") ? substancesUsed.size() - 1 : substancesUsed.size()));
+
+        return true;
+
+    } catch (Exception e) {
+        Log.e("ASSIST_CHECK", "Error checking drugs completion: " + e.getMessage());
+        return false;
     }
-private void debugAssistStatus(List<DrugsInfo> drugsInfos) {
+}
+    private void debugAssistStatus(List<DrugsInfo> drugsInfos) {
         if (drugsInfos == null || drugsInfos.isEmpty()) {
             Log.d("ASSIST_DEBUG", "No ASSIST data found");
             return;

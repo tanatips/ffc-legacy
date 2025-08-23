@@ -9,6 +9,8 @@ public class HealthRiskAssessmentLiveData {
     private Integer selectHealthRiskQ4;
     private Integer selectHealthRiskQ5;
     private Integer selectHealthRiskQ6;
+    private String fcbg;
+    private String fpg;
 
     public Integer getSelectHealthRiskQ1() {
         return selectHealthRiskQ1;
@@ -72,5 +74,18 @@ public class HealthRiskAssessmentLiveData {
 
     public void setVisitNo(String visitNo) {
         this.visitNo = visitNo;
+    }
+
+    public String getFcbg() {
+        return fcbg;
+    }
+    public void setFcbg(String fcbg) {
+        this.fcbg = fcbg;
+    }
+    public String getFpg() {
+        return fpg;
+    }
+    public void setFpg(String fpg) {
+        this.fpg = fpg;
     }
 }

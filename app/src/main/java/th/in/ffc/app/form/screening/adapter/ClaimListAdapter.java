@@ -115,8 +115,10 @@ public class ClaimListAdapter extends RecyclerView.Adapter<ClaimListAdapter.Clai
 
 
         // แสดงวันที่รับบริการ/วันที่ทำรายการ
-        String serviceDate = (claim.getServiceDate() != null) ? formatDate(claim.getServiceDate()) : "-";
-        String claimDate = (claim.getClaimDate() != null) ? formatDate(claim.getClaimDate()) : "-";
+//        String serviceDate = (claim.getServiceDate() != null) ? formatDate(claim.getServiceDate()) : "-";
+//        String claimDate = (claim.getClaimDate() != null) ? formatDate(claim.getClaimDate()) : "-";
+        String serviceDate = (claim.getServiceDate() != null) ? claim.getServiceDate() : "-";
+        String claimDate = (claim.getClaimDate() != null) ? claim.getClaimDate() : "-";
 
         holder.tvServiceDate.setText("วันที่รับบริการ: " + serviceDate);
         holder.tvClaimDate.setText("วันที่ทำรายการ: " + claimDate);
