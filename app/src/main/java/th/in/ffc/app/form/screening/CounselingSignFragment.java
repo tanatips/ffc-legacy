@@ -1579,5 +1579,199 @@ public class CounselingSignFragment extends Fragment {
 
         Log.d("CounselingSign", "=== END FIXING RADIO BUTTON ISSUE ===");
     }
+    public boolean isFormComplete() {
+        Log.d("CounselingSign", "=== CHECKING FORM COMPLETENESS ===");
 
+        // ตรวจสอบว่าเลือก radio button หรือไม่
+        if (radioGroupCounseling.getCheckedRadioButtonId() == -1) {
+            Log.w("CounselingSign", "Form incomplete: No counseling type selected");
+            return false;
+        }
+
+        // ตรวจสอบ detail ตามประเภทที่เลือก
+        if (radioButtonProvideConsult.isChecked()) {
+            String consultDetail = editTextConsultDetail.getText().toString().trim();
+            if (consultDetail.isEmpty()) {
+                Log.w("CounselingSign", "Form incomplete: Consult detail is required but empty");
+                return false;
+            }
+        } else if (radioButtonSendToDoctor.isChecked()) {
+            String referralDetail = editTextReferralDetail.getText().toString().trim();
+            if (referralDetail.isEmpty()) {
+                Log.w("CounselingSign", "Form incomplete: Referral detail is required but empty");
+                return false;
+            }
+        }
+
+        // ตรวจสอบลายเซ็นผู้รับบริการ
+        boolean patientSigEmpty = signatureViewPatient.isEmpty();
+        byte[] patientSigBytes = signatureViewPatient.getSignatureAsByteArray();
+        boolean hasPatientSignature = !patientSigEmpty || (patientSigBytes != null && patientSigBytes.length > 0);
+
+        if (!hasPatientSignature) {
+            Log.w("CounselingSign", "Form incomplete: Patient signature is required but empty");
+            return false;
+        }
+
+        // ตรวจสอบลายเซ็นผู้ให้บริการ
+        boolean providerSigEmpty = signatureViewProvider.isEmpty();
+        byte[] providerSigBytes = signatureViewProvider.getSignatureAsByteArray();
+        boolean hasProviderSignature = !providerSigEmpty || (providerSigBytes != null && providerSigBytes.length > 0);
+
+        if (!hasProviderSignature) {
+            Log.w("CounselingSign", "Form incomplete: Provider signature is required but empty");
+            return false;
+        }
+
+        Log.d("CounselingSign", "Form is complete");
+        return true;
+    }
+    public String getDetailedValidationMessage() {
+        Log.d("CounselingSign", "=== GETTING DETAILED VALIDATION MESSAGE ===");
+
+        StringBuilder validationMessage = new StringBuilder();
+
+        // ตรวจสอบการเลือกประเภทการให้บริการ
+        if (radioGroupCounseling.getCheckedRadioButtonId() == -1) {
+            validationMessage.append("❌ กรุณาเลือกประเภทการให้บริการ:\n");
+            validationMessage.append("   • ให้คำแนะนำ\n");
+            validationMessage.append("   • ส่งต่อแพทย์/รับบริการตามสิทธิ\n\n");
+        } else {
+            // ตรวจสอบรายละเอียดตามประเภทที่เลือก
+            if (radioButtonProvideConsult.isChecked()) {
+                String consultDetail = editTextConsultDetail.getText().toString().trim();
+                if (consultDetail.isEmpty()) {
+                    validationMessage.append("❌ กรุณากรอกรายละเอียดคำแนะนำ:\n");
+                    validationMessage.append("   • ระบุคำแนะนำที่ให้แก่ผู้รับบริการ\n");
+                    validationMessage.append("   • คำแนะนำควรชัดเจนและเป็นประโยชน์\n\n");
+                } else {
+                    validationMessage.append("✅ ประเภทการให้บริการ: ให้คำแนะนำ\n");
+                    validationMessage.append("✅ รายละเอียดคำแนะนำ: ครบถ้วน\n\n");
+                }
+            } else if (radioButtonSendToDoctor.isChecked()) {
+                String referralDetail = editTextReferralDetail.getText().toString().trim();
+                if (referralDetail.isEmpty()) {
+                    validationMessage.append("❌ กรุณากรอกรายละเอียดการส่งต่อ:\n");
+                    validationMessage.append("   • ระบุโรงพยาบาล/แผนก/หน่วยบริการที่ส่งต่อ\n");
+                    validationMessage.append("   • เหตุผลในการส่งต่อ\n");
+                    validationMessage.append("   • ข้อมูลเพิ่มเติมที่จำเป็น\n\n");
+                } else {
+                    validationMessage.append("✅ ประเภทการให้บริการ: ส่งต่อแพทย์/รับบริการตามสิทธิ\n");
+                    validationMessage.append("✅ รายละเอียดการส่งต่อ: ครบถ้วน\n\n");
+                }
+            }
+        }
+
+        // ตรวจสอบลายเซ็นผู้รับบริการ
+        boolean patientSigEmpty = signatureViewPatient.isEmpty();
+        byte[] patientSigBytes = signatureViewPatient.getSignatureAsByteArray();
+        boolean hasPatientSignature = !patientSigEmpty || (patientSigBytes != null && patientSigBytes.length > 0);
+
+        if (!hasPatientSignature) {
+            validationMessage.append("❌ กรุณาลงลายมือชื่อผู้รับบริการ:\n");
+            validationMessage.append("   • ให้ผู้รับบริการลงลายมือชื่อในช่องที่กำหนด\n");
+            validationMessage.append("   • ลายเซ็นเป็นการยืนยันการรับบริการ\n\n");
+        } else {
+            validationMessage.append("✅ ลายเซ็นผู้รับบริการ: ครบถ้วน\n\n");
+        }
+
+        // ตรวจสอบลายเซ็นผู้ให้บริการ
+        boolean providerSigEmpty = signatureViewProvider.isEmpty();
+        byte[] providerSigBytes = signatureViewProvider.getSignatureAsByteArray();
+        boolean hasProviderSignature = !providerSigEmpty || (providerSigBytes != null && providerSigBytes.length > 0);
+
+        if (!hasProviderSignature) {
+            validationMessage.append("❌ กรุณาลงลายมือชื่อผู้ให้บริการ:\n");
+            validationMessage.append("   • ให้ผู้ให้บริการลงลายมือชื่อในช่องที่กำหนด\n");
+            validationMessage.append("   • ลายเซ็นเป็นการยืนยันการให้บริการ\n\n");
+        } else {
+            validationMessage.append("✅ ลายเซ็นผู้ให้บริการ: ครบถ้วน\n\n");
+        }
+
+        // สรุปผลการตรวจสอบ
+        if (isFormComplete()) {
+            validationMessage.append("🎉 ข้อมูลครบถ้วนแล้ว พร้อมบันทึก");
+        } else {
+            validationMessage.append("⚠️ กรุณาแก้ไขข้อมูลที่ขาดหายไปก่อนบันทึก");
+        }
+
+        String result = validationMessage.toString();
+        Log.d("CounselingSign", "Validation message: " + result);
+
+        return result;
+    }
+    public void showDetailedValidationMessage() {
+        String message = getDetailedValidationMessage();
+
+        if (!isFormComplete()) {
+            // แสดง AlertDialog สำหรับข้อความแจ้งเตือน
+            new android.app.AlertDialog.Builder(getContext())
+                    .setTitle("ข้อมูลไม่ครบถ้วน")
+                    .setMessage(message)
+                    .setPositiveButton("เข้าใจแล้ว", null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        } else {
+            Toast.makeText(getContext(), "ข้อมูลครบถ้วนแล้ว", Toast.LENGTH_SHORT).show();
+        }
+    }
+    public void showCompletionStatus() {
+        Log.d("CounselingSign", "=== SHOWING COMPLETION STATUS ===");
+
+        boolean isComplete = isFormComplete();
+        String statusMessage;
+
+        if (isComplete) {
+            statusMessage = "✅ ข้อมูลการให้คำปรึกษาครบถ้วนแล้ว";
+            Toast.makeText(getContext(), statusMessage, Toast.LENGTH_SHORT).show();
+        } else {
+            statusMessage = "⚠️ ข้อมูลการให้คำปรึกษายังไม่ครบถ้วน";
+            // แสดง detailed message
+            showDetailedValidationMessage();
+        }
+
+        Log.d("CounselingSign", "Completion status: " + statusMessage);
+    }
+    public boolean isConsultDetailRequired() {
+        return radioButtonProvideConsult.isChecked();
+    }
+
+    public boolean isReferralDetailRequired() {
+        return radioButtonSendToDoctor.isChecked();
+    }
+
+    public boolean hasValidConsultDetail() {
+        if (!isConsultDetailRequired()) return true;
+        return !editTextConsultDetail.getText().toString().trim().isEmpty();
+    }
+
+    public boolean hasValidReferralDetail() {
+        if (!isReferralDetailRequired()) return true;
+        return !editTextReferralDetail.getText().toString().trim().isEmpty();
+    }
+
+    public boolean hasValidPatientSignature() {
+        boolean patientSigEmpty = signatureViewPatient.isEmpty();
+        byte[] patientSigBytes = signatureViewPatient.getSignatureAsByteArray();
+        return !patientSigEmpty || (patientSigBytes != null && patientSigBytes.length > 0);
+    }
+
+    public boolean hasValidProviderSignature() {
+        boolean providerSigEmpty = signatureViewProvider.isEmpty();
+        byte[] providerSigBytes = signatureViewProvider.getSignatureAsByteArray();
+        return !providerSigEmpty || (providerSigBytes != null && providerSigBytes.length > 0);
+    }
+    private boolean validateFormEnhanced() {
+        Log.d("CounselingSign", "=== ENHANCED VALIDATE FORM ===");
+
+        // ใช้ isFormComplete() แทน
+        if (!isFormComplete()) {
+            // แสดงข้อความแจ้งเตือนแบบละเอียด
+            showDetailedValidationMessage();
+            return false;
+        }
+
+        Log.d("CounselingSign", "Enhanced validation passed");
+        return true;
+    }
 }

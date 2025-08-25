@@ -64,7 +64,7 @@ public class ScreeningCompletionHandler {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         builder.setTitle("ยืนยันการส่งข้อมูล");
-        builder.setMessage("การคัดกรองสำเร็จเรียบร้อยแล้ว\n\nต้องการส่งข้อมูลไปยัง NHSO เพื่อเบิกค่าบริการหรือไม่?");
+        builder.setMessage("การคัดกรองสำเร็จเรียบร้อยแล้ว\n\nต้องการส่งข้อมูลไปยัง สปสช เพื่อเบิกค่าบริการหรือไม่?");
 
         // ปุ่มยืนยัน - ส่งข้อมูลเบิก
         builder.setPositiveButton("ส่งข้อมูลเบิก", new DialogInterface.OnClickListener() {
@@ -77,14 +77,14 @@ public class ScreeningCompletionHandler {
         });
 
         // ปุ่มยกเลิก
-        builder.setNegativeButton("ยกเลิก", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // แสดง Toast แจ้งว่ายกเลิกการส่งข้อมูล
-                Toast.makeText(context, "ยกเลิกการส่งข้อมูลเบิก", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });
+//        builder.setNegativeButton("ยกเลิก", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                // แสดง Toast แจ้งว่ายกเลิกการส่งข้อมูล
+//                Toast.makeText(context, "ยกเลิกการส่งข้อมูลเบิก", Toast.LENGTH_SHORT).show();
+//                dialog.dismiss();
+//            }
+//        });
 
         // ปุ่ม "ส่งทีหลัง" (ตัวเลือกเพิ่มเติม)
         builder.setNeutralButton("ส่งทีหลัง", new DialogInterface.OnClickListener() {

@@ -262,7 +262,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/address"/>
+        android:text="ที่อยู่ตามบัตรประชาชน"/>
 
     <TextView
         style="@style/FFC.TextView.Subject"

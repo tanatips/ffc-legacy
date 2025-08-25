@@ -61,9 +61,12 @@ public class StateNotFoundDatabase extends FFCFragmentActivity {
 
     private static final int REQUEST_CODE_ASK_PERMISSIONS_EXTERNAL_STORAGE = 12;
 
+    public static th.in.ffc.app.FFCFragmentActivity mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         if (SDK_INT >= Build.VERSION_CODES.R) {
             checkExternalStoragePermission();
         }
@@ -76,8 +79,8 @@ public class StateNotFoundDatabase extends FFCFragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        File userDb = new File(FamilyFolderCollector.PATH_USER_DATABASE);
-        File dataDb = new File(FamilyFolderCollector.PATH_ENCRYPTED_DATABASE);
+        File userDb = new File(getAppSpecificDatabasePath());
+        File dataDb = new File(getAppSpecificEncryptedDatabasePath());
         if (userDb.exists() && dataDb.exists()) {
             this.finish();
         }
@@ -113,10 +116,30 @@ public class StateNotFoundDatabase extends FFCFragmentActivity {
     }
     @Override
     public void onBackPressed() {
-        File userDb = new File(FamilyFolderCollector.PATH_USER_DATABASE);
-        File dataDb = new File(FamilyFolderCollector.PATH_ENCRYPTED_DATABASE);
+        File userDb = new File(getAppSpecificDatabasePath());
+        File dataDb = new File(getAppSpecificEncryptedDatabasePath());
         if (userDb.exists() && dataDb.exists()) {
             this.finish();
         }
+    }
+    public static String getAppSpecificDatabasePath() {
+        if (mContext != null) {
+            File externalFilesDir = mContext.getExternalFilesDir("databases");
+            if (externalFilesDir != null) {
+                return externalFilesDir.getAbsolutePath() + "/uJHCIS.db";
+            }
+        }
+        // Fallback ไปยัง internal storage
+        Log.d("StateNotFoundDatabase", "Using internal storage for database path");
+        return mContext.getDatabasePath("uJHCIS.db").getAbsolutePath();
+    }
+    public static String getAppSpecificEncryptedDatabasePath() {
+        if (mContext != null) {
+            File externalFilesDir = mContext.getExternalFilesDir("databases");
+            if (externalFilesDir != null) {
+                return externalFilesDir.getAbsolutePath() + "/mJHCIS.sdb";
+            }
+        }
+        return "/data/data/th.in.ffc/databases/mJHCIS.sdb";
     }
 }

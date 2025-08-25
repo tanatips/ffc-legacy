@@ -229,7 +229,7 @@ public class PersonDetailEditActivity extends PersonActivity {
                         }
                         f.fname.setText(idcardInfo[2].toString());
                         f.lname.setText(idcardInfo[4].toString());
-                        f.hno.setText(idcardInfo[9].toString());
+//                        f.hno.setText(idcardInfo[9].toString());
                         if(idcardInfo[1].toString().equals("นาย") || idcardInfo[1].toString().equals("Mr.")) {
                             f.sex.findViewById(R.id.male).setActivated(true);
                         } else {

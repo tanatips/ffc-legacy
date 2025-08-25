@@ -47,8 +47,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -2327,6 +2325,7 @@ public class PersonInfoFragment extends Fragment {
     */
    private void setupEnhancedCitizenIdTextWatcher() {
        citizenId.addTextChangedListener(new TextWatcher() {
+
            @Override
            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                // ไม่ต้องทำอะไร
@@ -2361,6 +2360,12 @@ public class PersonInfoFragment extends Fragment {
                    // ตั้งสถานะว่ากำลังตรวจสอบ
                    isValidatingIdCard = true;
 
+                   // ตรวจสอบการคัดกรองรายวันก่อน
+                   if (!validateDailyScreeningLimit(idCard)) {
+                       // ถ้าเคยทำคัดกรองแล้ว ให้หยุดการดำเนินการ
+                       isValidatingIdCard = false;
+                       return;
+                   }
                    // ตรวจสอบความซ้ำในฐานข้อมูล
 //                   if (validateIdCardDuplicate(idCard)) {
                        // ถ้าไม่ซ้ำ ให้ดำเนินการปกติ
@@ -2398,6 +2403,7 @@ public class PersonInfoFragment extends Fragment {
                    isValidatingIdCard = false;
                }
            }
+
            private void showTypeLive4Dialog() {
                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                builder.setTitle("แจ้งเตือน");
@@ -2875,4 +2881,149 @@ public class PersonInfoFragment extends Fragment {
         this.originalIdCard = originalIdCard != null ? originalIdCard : "";
         Log.d("PersonInfoFragment", "Edit mode set to: " + isEditMode + ", Original ID: " + originalIdCard);
     }
+    private boolean validateDailyScreeningLimit(String idCard) {
+        if (idCard == null || idCard.length() != 13 || isDialogShowing) {
+            return false;
+        }
+
+        // ถ้าอยู่ในโหมดแก้ไขและเลขบัตรประชาชนเป็นของเดิม ให้ผ่านการตรวจสอบ
+        if (isEditMode && idCard.equals(originalIdCard)) {
+            Log.d("PersonInfoFragment", "Edit mode: Same ID card, skipping daily screening check");
+            return true;
+        }
+
+        PersonDao personDao = new PersonDao(getContext());
+        boolean hasScreeningToday = personDao.hasScreeningToday(idCard);
+
+        if (hasScreeningToday) {
+            PersonDao.ScreeningInfo existingScreening = personDao.getTodayScreeningByIdcard(idCard);
+
+            if (existingScreening != null) {
+                showDailyScreeningLimitDialog(existingScreening);
+            } else {
+                Toast.makeText(getContext(),
+                        "เลขบัตรประชาชนนี้เคยทำแบบคัดกรองในวันนี้แล้ว",
+                        Toast.LENGTH_LONG).show();
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+    private void showDailyScreeningLimitDialog(PersonDao.ScreeningInfo existingScreening) {
+        // ป้องกันการเปิด Dialog ซ้ำ
+        if (isDialogShowing) {
+            return;
+        }
+
+        isDialogShowing = true;
+
+        // สร้าง custom view สำหรับ dialog
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_screening_limit_warning, null);
+        TextView tvMessage = dialogView.findViewById(R.id.tvScreeningMessage);
+        TextView tvExistingInfo = dialogView.findViewById(R.id.tvExistingScreeningInfo);
+
+        String message = "เลขบัตรประชาชนนี้เคยทำแบบคัดกรองในวันนี้แล้ว\n\n" +
+                "ไม่สามารถทำแบบคัดกรองซ้ำในวันเดียวกันได้\n\n" +
+                "กรุณากลับมาทำแบบคัดกรองในวันถัดไป";
+
+        String existingInfo = "ข้อมูลการคัดกรองที่มีอยู่:\n" +
+                "ชื่อ: " + existingScreening.getFname() + " " + existingScreening.getLname() + "\n" +
+                "วันที่ทำแบบคัดกรอง: " + formatDateForDisplay(existingScreening.getCreatedDate()) + "\n" +
+                "ผู้บันทึก: " + (existingScreening.getCreatedBy() != null ? existingScreening.getCreatedBy() : "ระบบ");
+
+        tvMessage.setText(message);
+        tvExistingInfo.setText(existingInfo);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("เคยทำแบบคัดกรองแล้ว")
+                .setView(dialogView)
+                .setIcon(R.drawable.ic_warning)
+                .setPositiveButton("ตกลง", (dialog, which) -> {
+                    // เคลียร์ข้อมูลในฟอร์มโดยไม่ทริกเกอร์ TextWatcher
+                    clearFormSafelyForDailyLimit();
+                    isDialogShowing = false;
+                    dialog.dismiss();
+                })
+//                .setNegativeButton("ดูข้อมูลเดิม", (dialog, which) -> {
+//                    // แสดงข้อมูลการคัดกรองเดิม (ถ้าต้องการ)
+//                    showExistingScreeningDetails(existingScreening);
+//                    isDialogShowing = false;
+//                    dialog.dismiss();
+//                })
+                .setOnDismissListener(dialog -> {
+                    isDialogShowing = false;
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void showExistingScreeningDetails(PersonDao.ScreeningInfo screeningInfo) {
+        // สามารถเพิ่มการแสดงรายละเอียดเพิ่มเติมได้ที่นี่
+        // เช่น เปิดหน้าแสดงผลการคัดกรองเดิม
+        Toast.makeText(getContext(),
+                "กำลังแสดงข้อมูลการคัดกรองเดิม...",
+                Toast.LENGTH_SHORT).show();
+
+        // ตัวอย่าง: เปิด Activity แสดงผลการคัดกรอง
+        // Intent intent = new Intent(getContext(), ScreeningResultActivity.class);
+        // intent.putExtra("screening_id", screeningInfo.getId());
+        // startActivity(intent);
+    }
+    private void clearFormSafelyForDailyLimit() {
+        // หยุดการทำงานของ TextWatcher ชั่วคราว
+        isValidatingIdCard = true;
+
+        try {
+            // เคลียร์เฉพาะข้อมูลที่จำเป็น
+            citizenId.setText("");
+            citizenId.setError(null);
+            personInfo.setIdcard("");
+
+            // เคลียร์รูปภาพ
+            imgPerson.setImageResource(R.drawable.ic_person);
+            personInfo.setPhoto(null);
+
+            // เคลียร์ชื่อ
+            fname.setText("");
+            fname.setError(null);
+            personInfo.setFname("");
+
+            // เคลียร์นามสกุล
+            lname.setText("");
+            lname.setError(null);
+            personInfo.setLname("");
+
+            // เคลียร์วันเกิด
+            txtBirthDay.setText("");
+            txtBirthDay.setError(null);
+            personInfo.setBirthday("");
+
+            // เคลียร์เพศ
+            rdoMale.setChecked(false);
+            rdoFemale.setChecked(false);
+            personInfo.setGender("");
+
+            // รีเซ็ตค่าการตรวจสอบอายุ
+            currentAge = 0;
+            isValidAge = false;
+
+            // อัพเดท PersonInfo ใน dataPasser
+            dataPasser.onPersonInfo(personInfo);
+
+            // Focus กลับไปที่ช่องเลขบัตรประชาชน
+            citizenId.requestFocus();
+
+            Toast.makeText(getContext(), "เคลียร์ข้อมูลเนื่องจากเคยทำแบบคัดกรองในวันนี้แล้ว", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Log.e("PersonInfoFragment", "Error clearing form for daily limit: " + e.getMessage());
+        } finally {
+            // คืนค่าสถานะการทำงานของ TextWatcher
+            isValidatingIdCard = false;
+        }
+    }
+
 }

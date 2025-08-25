@@ -85,6 +85,7 @@ public class ScreeningFormProvider extends ContentProvider {
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ITEMS = 37;
     private static final int SF_CARDIOVASCULAR_RISK_INFO_ID = 38;
     private static final int SF_DRUGS_SUMMARY = 39;
+    private static final int SF_PERSON_INFO_BY_IDCARD = 101;
 
     boolean isFirstRun = true;
 
@@ -151,6 +152,8 @@ public class ScreeningFormProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "sf_cardiovascular_risk_info", SF_CARDIOVASCULAR_RISK_INFO);
         mUriMatcher.addURI(AUTHORITY, "sf_cardiovascular_risk_info/list", SF_CARDIOVASCULAR_RISK_INFO_ITEMS);
         mUriMatcher.addURI(AUTHORITY, "sf_cardiovascular_risk_info/#", SF_CARDIOVASCULAR_RISK_INFO_ID);
+
+        mUriMatcher.addURI(AUTHORITY, "sf_person_info/idcard/*", SF_PERSON_INFO_BY_IDCARD);
 
     }
 
@@ -229,6 +232,22 @@ public class ScreeningFormProvider extends ContentProvider {
         String having = null;
         switch (mUriMatcher.match(uri)) {
             case ScreeningFormProvider.SF_PERSON_INFO_ITEMS:
+                builder.setTables(SfPersonInfo.TABLENAME);
+                builder.setProjectionMap(SfPersonInfo.PROJECTION_MAP);
+                break;
+            case SF_PERSON_INFO_BY_IDCARD:
+                String idcard = uri.getLastPathSegment();
+                if (selection == null) {
+                    selection = SfPersonInfo.IDCARD + "=?";
+                    selectionArgs = new String[]{idcard};
+                } else {
+                    selection = "(" + selection + ") AND " + SfPersonInfo.IDCARD + "=?";
+                    // เพิ่ม idcard เข้าไปใน selectionArgs
+                    String[] newArgs = new String[selectionArgs.length + 1];
+                    System.arraycopy(selectionArgs, 0, newArgs, 0, selectionArgs.length);
+                    newArgs[newArgs.length - 1] = idcard;
+                    selectionArgs = newArgs;
+                }
                 builder.setTables(SfPersonInfo.TABLENAME);
                 builder.setProjectionMap(SfPersonInfo.PROJECTION_MAP);
                 break;

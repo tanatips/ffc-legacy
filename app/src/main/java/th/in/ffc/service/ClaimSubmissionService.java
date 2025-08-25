@@ -613,7 +613,7 @@ public class ClaimSubmissionService {
                         fsResponse.getSeq(), response);
 
                 Log.d(TAG, "Updated claim information for person ID: " + personInfo.getId());
-                notifySuccess("ส่งข้อมูลสำเร็จ! seq no: " + fsResponse.getSeq(), fsResponse.getSeq());
+                notifySuccess("ส่งข้อมูลสำเร็จ! seq no: " + fsResponse.getSeq(), fsResponse.getId());
 
             } else {
                 notifyError("ส่งข้อมูลไม่สำเร็จ: " + fsResponse.getErrorSummary());

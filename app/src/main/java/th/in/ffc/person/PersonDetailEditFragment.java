@@ -544,20 +544,4 @@ public class PersonDetailEditFragment extends PersonFragment implements
             postcode.setText(c.getString(6));
         }
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SMART_CARD_READER_CODE ) {
-            if (resultCode == Activity.RESULT_OK) {
-                byte[] byteArray = data.getByteArrayExtra("image");
-                String strIdcard = data.getStringExtra("result");
-                if (byteArray != null) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                    imgPerson.setImageBitmap(bitmap);
-                    ProfileImage.saveImageToStorage(getContext(), bitmap, strIdcard);
-                }
-            }
-        }
-    }
 }

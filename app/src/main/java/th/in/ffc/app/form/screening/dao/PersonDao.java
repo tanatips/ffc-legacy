@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import th.in.ffc.provider.PersonProvider;
+import th.in.ffc.provider.ScreeningFormProvider;
 
 /**
  * DAO class สำหรับจัดการข้อมูลใน table person
@@ -224,7 +225,150 @@ public class PersonDao {
         return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US)
                 .format(new java.util.Date());
     }
+    public boolean hasScreeningToday(String idcard) {
+        if (idcard == null || idcard.trim().isEmpty()) {
+            return false;
+        }
 
+        boolean hasScreening = false;
+
+        try {
+            // ใช้ URI ที่ถูกต้อง
+            Uri uri = Uri.withAppendedPath(
+                    ScreeningFormProvider.SfPersonInfo.CONTENT_URI,
+                    "idcard/" + idcard
+            );
+
+            // กำหนด columns ที่ต้องการ
+            String[] projection = {
+                    ScreeningFormProvider.SfPersonInfo.ID,
+                    ScreeningFormProvider.SfPersonInfo.IDCARD,
+                    ScreeningFormProvider.SfPersonInfo.CREATED_DATE
+            };
+
+            // กำหนดวันที่ปัจจุบัน
+            String today = getCurrentDate(); // รูปแบบ yyyy-MM-dd
+
+            // สร้างเงื่อนไขการค้นหา - หาเลขบัตรประชาชนในวันเดียวกัน
+            String selection = "DATE(" + ScreeningFormProvider.SfPersonInfo.CREATED_DATE + ") = ?";
+            String[] selectionArgs = {today};
+
+            Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
+
+            if (cursor != null) {
+                hasScreening = cursor.getCount() > 0;
+                Log.d(TAG, "Found " + cursor.getCount() + " screening records for idcard: " + idcard + " on date: " + today);
+                cursor.close();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking screening today for idcard: " + idcard, e);
+        }
+
+        return hasScreening;
+    }
+    /**
+     * ดึงข้อมูลการคัดกรองล่าสุดของเลขบัตรประชาชนในวันเดียวกัน
+     * @param idcard เลขบัตรประชาชน 13 หลัก
+     * @return ScreeningInfo object หรือ null ถ้าไม่พบข้อมูล
+     */
+    public ScreeningInfo getTodayScreeningByIdcard(String idcard) {
+        if (idcard == null || idcard.trim().isEmpty()) {
+            return null;
+        }
+
+        ScreeningInfo screening = null;
+
+        try {
+            // ใช้ URI ที่ถูกต้อง
+            Uri uri = Uri.withAppendedPath(
+                    ScreeningFormProvider.SfPersonInfo.CONTENT_URI,
+                    "idcard/" + idcard
+            );
+
+            // กำหนด columns ที่ต้องการ
+            String[] projection = {
+                    ScreeningFormProvider.SfPersonInfo.ID,
+                    ScreeningFormProvider.SfPersonInfo.IDCARD,
+                    ScreeningFormProvider.SfPersonInfo.FNAME,
+                    ScreeningFormProvider.SfPersonInfo.LNAME,
+                    ScreeningFormProvider.SfPersonInfo.CREATED_DATE,
+                    ScreeningFormProvider.SfPersonInfo.CREATED_BY
+            };
+
+            // กำหนดวันที่ปัจจุบัน
+            String today = getCurrentDate();
+
+            // สร้างเงื่อนไขการค้นหา
+            String selection = "DATE(" + ScreeningFormProvider.SfPersonInfo.CREATED_DATE + ") = ?";
+            String[] selectionArgs = {today};
+            String sortOrder = ScreeningFormProvider.SfPersonInfo.CREATED_DATE + " DESC";
+
+            Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                screening = new ScreeningInfo();
+                screening.setId(cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfPersonInfo.ID)));
+                screening.setIdcard(cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfPersonInfo.IDCARD)));
+                screening.setFname(cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfPersonInfo.FNAME)));
+                screening.setLname(cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfPersonInfo.LNAME)));
+                screening.setCreatedDate(cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfPersonInfo.CREATED_DATE)));
+                screening.setCreatedBy(cursor.getString(cursor.getColumnIndex(ScreeningFormProvider.SfPersonInfo.CREATED_BY)));
+
+                Log.d(TAG, "Found today's screening for idcard: " + idcard +
+                        ", created at: " + screening.getCreatedDate());
+            } else {
+                Log.d(TAG, "No screening found today for idcard: " + idcard);
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting today screening by idcard: " + idcard, e);
+        }
+
+        return screening;
+    }
+    /**
+     * ดึงวันที่ปัจจุบันในรูปแบบ yyyy-MM-dd
+     * @return String วันที่ปัจจุบัน
+     */
+    private String getCurrentDate() {
+        return new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date());
+    }
+
+    /**
+     * จัดรูปแบบวันที่เวลาเป็นรูปแบบที่อ่านง่าย
+     * @param dateTimeString วันที่เวลาในรูปแบบ yyyy-MM-dd HH:mm:ss
+     * @return วันที่เวลาในรูปแบบไทย
+     */
+    private String formatDateTimeForDisplay(String dateTimeString) {
+        try {
+            if (dateTimeString == null || dateTimeString.isEmpty()) {
+                return "ไม่ระบุ";
+            }
+
+            java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US);
+            java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", new java.util.Locale("th", "TH"));
+
+            java.util.Date date = inputFormat.parse(dateTimeString);
+            if (date != null) {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(java.util.Calendar.YEAR, 543); // แปลงเป็นพุทธศักราช
+
+                return outputFormat.format(cal.getTime());
+            }
+
+            return dateTimeString;
+        } catch (Exception e) {
+            Log.e(TAG, "Error formatting datetime: " + e.getMessage());
+            return dateTimeString;
+        }
+    }
     /**
      * Inner class สำหรับเก็บข้อมูลบุคคล
      */
@@ -298,6 +442,48 @@ public class PersonDao {
                     ", birth='" + birth + '\'' +
                     ", sex='" + sex + '\'' +
                     ", typelive='" + typelive + '\'' +
+                    '}';
+        }
+    }
+    public static class ScreeningInfo {
+        private String id;
+        private String idcard;
+        private String fname;
+        private String lname;
+        private String createdDate;
+        private String createdBy;
+
+        // Constructors
+        public ScreeningInfo() {}
+
+        // Getters and Setters
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+
+        public String getIdcard() { return idcard; }
+        public void setIdcard(String idcard) { this.idcard = idcard; }
+
+        public String getFname() { return fname; }
+        public void setFname(String fname) { this.fname = fname; }
+
+        public String getLname() { return lname; }
+        public void setLname(String lname) { this.lname = lname; }
+
+        public String getCreatedDate() { return createdDate; }
+        public void setCreatedDate(String createdDate) { this.createdDate = createdDate; }
+
+        public String getCreatedBy() { return createdBy; }
+        public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+        @Override
+        public String toString() {
+            return "ScreeningInfo{" +
+                    "id='" + id + '\'' +
+                    ", idcard='" + idcard + '\'' +
+                    ", fname='" + fname + '\'' +
+                    ", lname='" + lname + '\'' +
+                    ", createdDate='" + createdDate + '\'' +
+                    ", createdBy='" + createdBy + '\'' +
                     '}';
         }
     }

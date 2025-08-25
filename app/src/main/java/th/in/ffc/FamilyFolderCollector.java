@@ -60,7 +60,8 @@ public class FamilyFolderCollector extends Application {
     /**
      * External private directory on SDCard
      */
-    private static final String DIRECTORY_EXTERNAL = "/sdcard/Android/data/th.in.ffc/";
+    private static final String DIRECTORY_EXTERNAL = "/sdcard/Android/data/th.in.ffc/files/";
+
 
     public static final String DATABASE_TEMP = "tmp_mJHCIS.sdb";
     public static final String DATABASE_USER = "uJHCIS.db";

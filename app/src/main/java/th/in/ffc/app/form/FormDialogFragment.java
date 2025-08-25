@@ -38,6 +38,7 @@ import java.util.List;
 
 import th.in.ffc.BuildConfig;
 import th.in.ffc.R;
+import th.in.ffc.app.form.screening.CounselingSignFragment;
 import th.in.ffc.app.form.screening.FagerstromNicotineFragment;
 import th.in.ffc.app.form.screening.MainQuestionsFragment;
 import th.in.ffc.app.form.screening.OnDataPass;
@@ -457,6 +458,20 @@ public class FormDialogFragment extends DialogFragment {
                 if (!fagerstromFragment.isFormComplete()) {
                     isFormValid = false;
                     errorMessage = fagerstromFragment.getDetailedValidationMessage();
+                }
+            }
+            else if (contentFragment instanceof CounselingSignFragment) {
+                CounselingSignFragment counselingFragment = (CounselingSignFragment) contentFragment;
+                if (!counselingFragment.isFormComplete()) {
+                    isFormValid = false;
+                    errorMessage = counselingFragment.getDetailedValidationMessage();
+                } else {
+                    // บันทึกข้อมูลการให้คำปรึกษา
+                    boolean saveSuccess = counselingFragment.saveData();
+                    if (!saveSuccess) {
+                        isFormValid = false;
+                        errorMessage = "เกิดข้อผิดพลาดในการบันทึกข้อมูลการให้คำปรึกษา กรุณาลองใหม่อีกครั้ง";
+                    }
                 }
             }
 
@@ -1546,7 +1561,19 @@ public class FormDialogFragment extends DialogFragment {
                     }
                 }
             }
-        } else {
+        } else if( formTitle.equals("ให้คำปรึกษาและแนะนำ")){
+            if (contentFragment instanceof CounselingSignFragment) {
+                CounselingSignFragment counselingSignFragment = (CounselingSignFragment) contentFragment;
+                boolean isComplete = counselingSignFragment.isFormComplete();
+                activity.updateFormStatus(formTitle, isComplete);
+
+                // แสดงสถานะการกรอกข้อมูล
+                counselingSignFragment.showCompletionStatus();
+                // แสดงคำแนะนำ
+
+            }
+        }
+        else {
             // อัปเดตสถานะสำหรับ Fragment อื่นๆ
             activity.updateFormStatus(formTitle, true);
         }
