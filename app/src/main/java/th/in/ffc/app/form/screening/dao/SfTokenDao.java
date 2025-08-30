@@ -106,6 +106,16 @@ public class SfTokenDao {
                 selection,
                 selectionArgs);
     }
+    public int deleteAllTokens() {
+        ContentResolver resolver = mContext.getContentResolver();
+
+        // ลบข้อมูลทั้งหมด โดยไม่มี selection และ selectionArgs
+        return resolver.delete(
+                ScreeningFormProvider.SfToken.CONTENT_URI,
+                null,  // selection = null หมายถึงลบทั้งหมด
+                null   // selectionArgs = null
+        );
+    }
 
     private SfToken getTokenFromCursor(Cursor cursor) {
         SfToken token = new SfToken();
@@ -119,6 +129,7 @@ public class SfTokenDao {
     public void insertDefaultTokenIfEmpty() {
         ContentResolver resolver = mContext.getContentResolver();
         Uri uri = getTokenDaoUriAppend("list");
+
 
         // Check if table is empty
         Cursor cursor = resolver.query(uri, new String[]{ScreeningFormProvider.SfToken.ID}, null, null, null);

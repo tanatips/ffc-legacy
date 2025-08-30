@@ -55,9 +55,7 @@ public class NHSOClaimData implements BaseColumns {
                     ERROR_MESSAGE + " TEXT, " +
                     CREATED_DATE + " DATETIME NOT NULL, " +
                     UPDATED_DATE + " DATETIME, " +
-                    SEND_DATE + " DATETIME, " +
-                    // เพิ่ม constraint - 1 visitno มี 1 claim data
-                    "CONSTRAINT unique_visitno UNIQUE(" + VISITNO + ")" +
+                    SEND_DATE + " DATETIME" +
                     ");";
 
     // คำสั่ง SQL สำหรับสร้าง Index

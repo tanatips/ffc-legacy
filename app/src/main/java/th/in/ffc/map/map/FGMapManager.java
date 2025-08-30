@@ -113,80 +113,132 @@ public class FGMapManager implements OnClickListener {
         reloadMap();
     }
     public void reloadMap(){
-        group_check = new boolean[MARKER_TYPE.size];
-        Arrays.fill(group_check, true);
+        try {
+            group_check = new boolean[MARKER_TYPE.size];
+            Arrays.fill(group_check, true);
 
-        FGActivity fgActivity = this.fgSystemManager.getFGActivity();
-        MapFragment mf = (MapFragment) fgActivity.getSupportFragmentManager().findFragmentById(R.id.map_fragment_id);
-        this.mapView = (MapView) mf.getView().findViewById(R.id.mapview);
-        this.gesture = new ItemGestureListener(fgSystemManager);
-        // Download Google API
-        requirePermission();
-        InputStream target = null;
+            FGActivity fgActivity = this.fgSystemManager.getFGActivity();
 
-        File previous = this.fgSystemManager.getFGActivity().getFileStreamPath("map-loaded");
-        String filename_current = downloadFile();
-
-        if (filename_current != null) {
-            File current = this.fgSystemManager.getFGActivity().getFileStreamPath(filename_current);
-            previous.delete();
-            current.renameTo(previous);
-
-            Log.d("TAG!", "Download file is completed");
-            try {
-                target = new FileInputStream(previous);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            // ตรวจสอบว่า Activity และ SupportFragmentManager ไม่เป็น null
+            if (fgActivity == null || fgActivity.isFinishing() || fgActivity.isDestroyed()) {
+                Log.e("TAG!", "FGActivity is null or finishing/destroyed");
+                return;
             }
-        } else if (previous.exists()) {
 
-            Log.d("TAG!", "Download file is NOT completed, use the previous one");
-            try {
-                target = new FileInputStream(previous);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            if (fgActivity.getSupportFragmentManager() == null) {
+                Log.e("TAG!", "FragmentManager is null");
+                return;
             }
-        } else {
 
-            Log.d("TAG!", "No previous file, cannot download, fall back! fall back!");
-            try {
-                target = this.fgSystemManager.getFGActivity().getAssets().open("maps-fallback");
-            } catch (IOException e) {
-                e.printStackTrace();
+            MapFragment mf = (MapFragment) fgActivity.getSupportFragmentManager().findFragmentById(R.id.map_fragment_id);
+
+            // ตรวจสอบว่า MapFragment และ View ไม่เป็น null
+            if (mf == null) {
+                Log.e("TAG!", "MapFragment is null - will retry");
+                // ลองใหม่หลังจาก delay
+                retryReloadMap(500);
+                return;
             }
+
+            View fragmentView = mf.getView();
+            if (fragmentView == null) {
+                Log.e("TAG!", "MapFragment view is null - will retry");
+                // ลองใหม่หลังจาก delay
+                retryReloadMap(500);
+                return;
+            }
+
+            this.mapView = (MapView) fragmentView.findViewById(R.id.mapview);
+            if (this.mapView == null) {
+                Log.e("TAG!", "MapView is null");
+                return;
+            }
+
+            this.gesture = new ItemGestureListener(fgSystemManager);
+
+            // ดำเนินการต่อเฉพาะเมื่อ mapView พร้อมแล้ว
+            requirePermission();
+
+            // ตรวจสอบก่อนดาวน์โหลดไฟล์
+            InputStream target = null;
+            try {
+                File previous = this.fgSystemManager.getFGActivity().getFileStreamPath("map-loaded");
+                String filename_current = downloadFile();
+
+                if (filename_current != null) {
+                    File current = this.fgSystemManager.getFGActivity().getFileStreamPath(filename_current);
+                    if (previous.exists()) {
+                        previous.delete();
+                    }
+                    current.renameTo(previous);
+
+                    Log.d("TAG!", "Download file is completed");
+                    target = new FileInputStream(previous);
+                } else if (previous.exists()) {
+                    Log.d("TAG!", "Download file is NOT completed, use the previous one");
+                    target = new FileInputStream(previous);
+                } else {
+                    Log.d("TAG!", "No previous file, cannot download, fall back! fall back!");
+                    target = this.fgSystemManager.getFGActivity().getAssets().open("maps-fallback");
+                }
+            } catch (Exception e) {
+                Log.e("TAG!", "Error loading map files", e);
+                try {
+                    target = this.fgSystemManager.getFGActivity().getAssets().open("maps-fallback");
+                } catch (IOException ioException) {
+                    Log.e("TAG!", "Error loading fallback map", ioException);
+                    return;
+                }
+            }
+
+            this.tokenize(target);
+
+            markers = new ItemizedIconOverlay<Spot>(new ArrayList<Spot>(), this.gesture, this.mapView.getContext());
+            this.emptyOverlay = new FGOverlay(fgSystemManager);
+            this.mapController = this.mapView.getController();
+
+            // ตรวจสอบก่อนรันใน UI Thread
+            if (fgActivity != null && !fgActivity.isFinishing() && !fgActivity.isDestroyed()) {
+                fgActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            setMapStyle(FinalValue.INT_SATELLITE);
+                        } catch (Exception e) {
+                            Log.e("TAG!", "Error setting map style", e);
+                        }
+                    }
+                });
+            }
+
+            this.mapView.setUseDataConnection(true);
+            this.initialButtonZoomControl();
+            this.initializeCurrentLocation();
+            checkGPS();
+
+        } catch (Exception e) {
+            Log.e("TAG!", "Error in reloadMap", e);
         }
-
-        this.tokenize(target);
-
-        // ----
-
-//        markers = new ItemizedIconOverlay<Spot>(new ArrayList<Spot>(), this.gesture, new ResourceProxyImpl(fgActivity.getApplicationContext()));
-        markers = new ItemizedIconOverlay<Spot>(new ArrayList<Spot>(), this.gesture, this.mapView.getContext());
-
-        this.emptyOverlay = new FGOverlay(fgSystemManager);
-
-
-        this.mapController = this.mapView.getController();
-//        Context ctx = this.getMapView().getContext();
-//        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        fgActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setMapStyle(FinalValue.INT_SATELLITE);
-            }
-        });
-
-
-        this.mapView.setUseDataConnection(true);
-
-        this.initialButtonZoomControl();
-
-        this.initializeCurrentLocation();
-
-        //this.initialImageButtonMenu();
-
-        checkGPS();
     }
+
+    // เมธอดใหม่สำหรับลองใหม่
+    private void retryReloadMap(int delayMs) {
+        FGActivity fgActivity = this.fgSystemManager.getFGActivity();
+        if (fgActivity != null && !fgActivity.isFinishing() && !fgActivity.isDestroyed()) {
+            fgActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            reloadMap(); // เรียกตัวเองใหม่
+                        }
+                    }, delayMs);
+                }
+            });
+        }
+    }
+
     public void checkGPS() {
 
         LocationManager lm = fgSystemManager.getFGGPSManager().getLocationManager();
@@ -462,7 +514,7 @@ public class FGMapManager implements OnClickListener {
 
         FGActivity fgActivity = this.fgSystemManager.getFGActivity();
         MapFragment mf = (MapFragment) fgActivity.getSupportFragmentManager().findFragmentById(R.id.map_fragment_id);
-
+        if(mf==null || mf.getView()==null) return;
         ImageButton imageButtonZoomout = (ImageButton) mf.getView().findViewById(R.id.imagebutton_zoomout);
         imageButtonZoomout.setOnClickListener(this);
 

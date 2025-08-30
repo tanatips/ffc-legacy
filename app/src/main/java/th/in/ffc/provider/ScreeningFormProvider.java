@@ -608,7 +608,9 @@ public class ScreeningFormProvider extends ContentProvider {
             case SF_CARDIOVASCULAR_RISK_INFO_ID:
                 rowsDeleted = db.delete(SfCardiovascularRiskInfo.TABLENAME, selection, selectionArgs);
                 break;
-
+            case SF_TOKEN:
+                rowsDeleted = db.delete(SfToken.TABLENAME, selection, selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }

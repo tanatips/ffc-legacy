@@ -297,8 +297,8 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
         ScreeningFormProvider.createTable(mContext);
         CounselingSignatureProvider.createTable(mContext);
         F43SpecialPPProvider.createTable(mContext);
-        SfTokenDao sfTokenDao = new SfTokenDao(mContext);
-        sfTokenDao.insertDefaultTokenIfEmpty();
+//        SfTokenDao sfTokenDao = new SfTokenDao(mContext);
+//        sfTokenDao.insertDefaultTokenIfEmpty();
         if(this.personInfo != null && this.personInfo.getId() != null) {
             reloadAllRelatedData(this.personInfo.getId());
         };

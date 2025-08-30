@@ -936,7 +936,7 @@ public class MainActivity extends FFCGridActivity {
                 newToken.setTokenClaim(tokenClaim);
                 newToken.setCreatedDate(System.currentTimeMillis());
                 newToken.setUpdatedDate(System.currentTimeMillis());
-
+                tokenDao.deleteAllTokens();
                 tokenDao.insert(newToken);
                 Toast.makeText(this, "บันทึก Token สำเร็จ", Toast.LENGTH_SHORT).show();
             } else {

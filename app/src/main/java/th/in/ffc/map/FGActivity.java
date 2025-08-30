@@ -244,23 +244,44 @@ public class FGActivity extends FFCFragmentActivity {
         mapView.getOverlays().add(compassOverlay);
     }
     private void getCurrentLocation(){
+        final MyLocationNewOverlay mLocation = new MyLocationNewOverlay(new GpsMyLocationProvider(getApplicationContext()), mapView);
+        mLocation.enableMyLocation();
+        mLocation.enableFollowLocation();
+        mapView.getOverlays().add(mLocation);
 
-            final MyLocationNewOverlay mLocation = new MyLocationNewOverlay(new GpsMyLocationProvider(getApplicationContext()), mapView);
-            mLocation.enableMyLocation();
-            mLocation.enableFollowLocation();
-            mapView.getOverlays().add(mLocation);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(mLocation != null){
-                            if(mLocation.isFollowLocationEnabled()){
+        final Handler locationHandler = new Handler();
+        locationHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // ตรวจสอบว่า Activity ยังไม่ถูก destroy
+                    if (isFinishing() || isDestroyed()) {
+                        return;
+                    }
+
+                    // ตรวจสอบว่า mLocation และ mapView ยังไม่เป็น null
+                    if (mLocation != null && mapView != null) {
+                        if (mLocation.isFollowLocationEnabled()) {
+                            // ตรวจสอบ MapController ก่อนปิด FollowLocation
+                            IMapController controller = mapView.getController();
+                            if (controller != null) {
                                 mLocation.disableFollowLocation();
+                            } else {
+                                Log.w("TAG", "MapController is null, cannot disable follow location safely");
                             }
                         }
+
+                        // ตรวจสอบว่า controller และ location ไม่เป็น null ก่อนใช้งาน
                         IMapController controller = mapView.getController();
-                        controller.animateTo(mLocation.getMyLocation());
+                        if (controller != null && mLocation.getMyLocation() != null) {
+                            controller.animateTo(mLocation.getMyLocation());
+                        }
                     }
-                }, 3000);
+                } catch (Exception e) {
+                    Log.e("TAG", "Error in getCurrentLocation handler", e);
+                }
+            }
+        }, 3000);
 
     }
     private void requestPermissionsIfNecessary(String[] permissions) {
@@ -320,38 +341,66 @@ public class FGActivity extends FFCFragmentActivity {
         editor.commit();
 
         FamilyFolderCollector ffc = (FamilyFolderCollector) getApplicationContext();
-
         ffc.mFamilys = new HashMap<Integer, Family>();
+
         if (fgsys == null) {
             Log.i("TAG!", "First time NULL!!");
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    fgsys = new FGSystemManager(FGActivity.this);
-                    Log.d("TAG!", "Completed This Thread!");
-                    searchHelper("p.hcode="+hcode);
-                }
-            };
-            new GeneralAsyncTask(this, null, handler, INITIALIZE, FAILED)
-                    .execute(r, null);
-//            if(item==null){
-//                getCurrentLocation();
-//            }
+            // รอให้ Fragment พร้อมก่อนสร้าง FGSystemManager
+            waitForFragmentThenCreateSystem();
         } else if (!fgsys.getFGActivity().equals(this)) {
             Log.i("TAG!", "Not equal!");
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
-                    fgsys.setFGActivity(FGActivity.this);
-
+                    try {
+                        fgsys.setFGActivity(FGActivity.this);
+                    } catch (Exception e) {
+                        Log.e("TAG", "Error setting FGActivity", e);
+                    }
                 }
             };
-            new GeneralAsyncTask(this, null, handler, INITIALIZE, FAILED)
-                    .execute(r, null);
+            new GeneralAsyncTask(this, null, handler, INITIALIZE, FAILED).execute(r, null);
         } else {
             Log.i("TAG!", "Normally functional");
-            fgsys.getFGMapManager().checkGPS();
+            if (fgsys.getFGMapManager() != null) {
+                fgsys.getFGMapManager().checkGPS();
+            }
         }
+    }
+    private void waitForFragmentThenCreateSystem() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // ตรวจสอบว่า Fragment พร้อมแล้วหรือไม่
+                MapFragment mf = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment_id);
+                if (mf != null && mf.getView() != null && mf.getView().findViewById(R.id.mapview) != null) {
+                    // Fragment พร้อมแล้ว สร้าง FGSystemManager ใน background thread
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                fgsys = new FGSystemManager(FGActivity.this);
+                                Log.d("TAG!", "Completed This Thread!");
+                                if (hcode != null) {
+                                    searchHelper("p.hcode=" + hcode);
+                                }
+                            } catch (Exception e) {
+                                Log.e("TAG", "Error creating FGSystemManager", e);
+                            }
+                        }
+                    };
+                    new GeneralAsyncTask(FGActivity.this, null, handler, INITIALIZE, FAILED).execute(r, null);
+                } else {
+                    // Fragment ยังไม่พร้อม รอแล้วลองใหม่
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            waitForFragmentThenCreateSystem(); // เรียกตัวเองใหม่
+                        }
+                    }, 500);
+                }
+            }
+        });
     }
     @Override
     public boolean onSearchRequested() {
@@ -489,22 +538,37 @@ public class FGActivity extends FFCFragmentActivity {
 
         switch (item.getItemId()) {
             case R.id.menu_center:
-                Location location = fgsys.getFGGPSManager().getLastKnownLocation();
-                GeoPoint geoPointCurrent;
-                MyLocationNewOverlay mLocation = new MyLocationNewOverlay(new GpsMyLocationProvider(getApplicationContext()), mapView);
-                Log.d("Tag(menu)","menu_center");
-                mLocation.enableMyLocation();
-                mLocation.enableFollowLocation();
-                mapView.getOverlays().add(mLocation);
-                //TODO Change to Google Map
-                if (mLocation.getLastFix() != null){
-                    fgsys.getFGMapManager().getMapController()
-                            .setCenter(mLocation.getMyLocation());
-                } else if (location != null) {
-                    geoPointCurrent = new GeoPoint(location.getLatitude(),
-                            location.getLongitude());
-                    fgsys.getFGMapManager().getMapController()
-                            .setCenter(geoPointCurrent);
+                try {
+                    if (fgsys != null && fgsys.getFGGPSManager() != null) {
+                        Location location = fgsys.getFGGPSManager().getLastKnownLocation();
+                        GeoPoint geoPointCurrent;
+
+                        // ตรวจสอบ mapView ก่อนสร้าง MyLocationNewOverlay
+                        if (mapView != null) {
+                            MyLocationNewOverlay mLocation = new MyLocationNewOverlay(new GpsMyLocationProvider(getApplicationContext()), mapView);
+                            Log.d("Tag(menu)","menu_center");
+                            mLocation.enableMyLocation();
+                            mLocation.enableFollowLocation();
+                            mapView.getOverlays().add(mLocation);
+
+                            // ตรวจสอบและใช้งานอย่างปลอดภัย
+                            if (mLocation.getLastFix() != null && fgsys.getFGMapManager() != null){
+                                IMapController controller = fgsys.getFGMapManager().getMapController();
+                                if(controller != null && mLocation.getMyLocation() != null){
+                                    controller.setCenter(mLocation.getMyLocation());
+                                }
+                            } else if (location != null && fgsys.getFGMapManager() != null) {
+                                geoPointCurrent = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                IMapController controller = fgsys.getFGMapManager().getMapController();
+                                if(controller != null){
+                                    controller.setCenter(geoPointCurrent);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e("TAG", "Error in menu_center", e);
+                    Toast.makeText(this, "ไม่สามารถไปยังตำแหน่งปัจจุบันได้", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             case R.id.menu_filter:
@@ -587,16 +651,34 @@ public class FGActivity extends FFCFragmentActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d("TAG!", "Map Destroyed");
+
+        // ยกเลิก Handler callbacks ที่ยังค้างอยู่
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+
+        // ยกเลิก ConnectivityReceiver
+        if (conRec != null) {
+            try {
+                unregisterReceiver(conRec);
+            } catch (IllegalArgumentException e) {
+                // Receiver was not registered
+                Log.w("TAG", "ConnectivityReceiver was not registered");
+            }
+        }
+
         if (fgsys != null) {
             fgsys.close();
             fgsys = null;
         }
 
-
+        // Clear references
         handler = null;
         wifi_item = null;
         gps_item = null;
         conRec = null;
+        mapView = null;
+        item = null;
 
     }
 }
