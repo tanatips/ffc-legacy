@@ -141,7 +141,7 @@ public class DialogSearchHouseMarker extends Dialog implements View.OnClickListe
 
                         if (str.length() == 13 && isNumeric(str)) {
                             searchHelper("p.idcard = '" + str + "'");
-                        } else if (Character.isLetter(str.charAt(0))) {
+                        } else if (!str.isEmpty() && Character.isLetter(str.charAt(0))) {
                             searchHelper("(p.fname || ' ' || p.lname) like '%" + str + "%'");
                         } else {
                             showResult(normalSearch(str));

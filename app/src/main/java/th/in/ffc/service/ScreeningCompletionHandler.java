@@ -399,6 +399,7 @@ public class ScreeningCompletionHandler {
         if (drugsInfos == null || drugsInfos.isEmpty()) return false;
 
         try {
+            // ตรวจสอบ Q1 ให้ครบทั้ง 10 คำถาม (a-j)
             Map<String, String> q1Answers = new HashMap<>();
             for (DrugsInfo drug : drugsInfos) {
                 if ("Q1".equals(drug.getQuestion())) {
@@ -409,10 +410,12 @@ public class ScreeningCompletionHandler {
             String[] expectedSubQuestions = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
             for (String subQ : expectedSubQuestions) {
                 if (!q1Answers.containsKey(subQ) || q1Answers.get(subQ) == null || q1Answers.get(subQ).isEmpty()) {
+                    Log.d("DRUGS_CHECK", "Missing Q1 subquestion: " + subQ);
                     return false;
                 }
             }
 
+            // ตรวจสอบว่ามีการใช้สารเสพติดหรือไม่
             boolean allQ1Zero = true;
             List<String> substancesUsed = new ArrayList<>();
 
@@ -424,59 +427,187 @@ public class ScreeningCompletionHandler {
                 }
             }
 
-            if (allQ1Zero) return true;
+            // ถ้าไม่เคยใช้สารเสพติดเลย = ครบถ้วน
+            if (allQ1Zero) {
+                Log.d("DRUGS_CHECK", "All Q1 answers are 0 - Complete (no substance use)");
+                return true;
+            }
 
-            String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q6", "Q7"};
+            Log.d("DRUGS_CHECK", "Substances used: " + substancesUsed.toString());
+
+            // ตรวจสอบ Q2 สำหรับสารที่เคยใช้
+            Map<String, String> q2Answers = new HashMap<>();
+            for (DrugsInfo drug : drugsInfos) {
+                if ("Q2".equals(drug.getQuestion())) {
+                    q2Answers.put(drug.getSubquestion(), drug.getAnswer());
+                }
+            }
+
+            // ตรวจสอบว่า Q2 ตอบครบสำหรับทุกสารที่เคยใช้
             for (String substance : substancesUsed) {
-                for (String question : followUpQuestions) {
-                    boolean found = false;
-                    String foundAnswer = null;
-
-                    for (DrugsInfo drug : drugsInfos) {
-                        if (question.equals(drug.getQuestion()) && substance.equals(drug.getSubquestion())) {
-                            foundAnswer = drug.getAnswer();
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
-                        return false;
-                    }
+                if (!q2Answers.containsKey(substance) ||
+                        q2Answers.get(substance) == null ||
+                        q2Answers.get(substance).isEmpty()) {
+                    Log.d("DRUGS_CHECK", "Missing Q2 answer for substance: " + substance);
+                    return false;
                 }
             }
 
-            if (!substancesUsed.isEmpty()) {
-                List<String> substancesNeedingQ5 = new ArrayList<>();
-                for (String substance : substancesUsed) {
-                    if (!"a".equals(substance)) {
-                        substancesNeedingQ5.add(substance);
-                    }
-                }
-
-                for (String substance : substancesNeedingQ5) {
-                    boolean foundQ5 = false;
-                    String q5Answer = null;
-
-                    for (DrugsInfo drug : drugsInfos) {
-                        if ("Q5".equals(drug.getQuestion()) && substance.equals(drug.getSubquestion())) {
-                            q5Answer = drug.getAnswer();
-                            foundQ5 = true;
-                            break;
-                        }
-                    }
-
-                    if (!foundQ5 || q5Answer == null || q5Answer.isEmpty()) {
-                        return false;
-                    }
+            // ตรวจสอบว่า Q2 ตอบ "ไม่เคย" (0) ทั้งหมดหรือไม่
+            boolean allQ2Zero = true;
+            for (String substance : substancesUsed) {
+                String q2Answer = q2Answers.get(substance);
+                if (!"0".equals(q2Answer)) {
+                    allQ2Zero = false;
+                    break;
                 }
             }
 
-            return true;
+            Log.d("DRUGS_CHECK", "All Q2 answers are 0 (Never): " + allQ2Zero);
+
+            if (allQ2Zero) {
+                // Q2 ตอบ "ไม่เคย" ทั้งหมด - ข้าม Q3,Q4,Q5 แต่ต้องตรวจสอบ Q6,Q7,Q8
+                Log.d("DRUGS_CHECK", "All Q2 Never - checking Q6,Q7,Q8 only");
+                return checkQ6Q7Q8Complete(drugsInfos, substancesUsed);
+            } else {
+                // Q2 มีบางตัวที่ไม่ใช่ "ไม่เคย" - ต้องตรวจสอบ Q2-Q7 ครบ
+                Log.d("DRUGS_CHECK", "Some Q2 not Never - checking Q2-Q7");
+                return checkFullAssessmentComplete(drugsInfos, substancesUsed);
+            }
+
         } catch (Exception e) {
+            Log.e("DRUGS_CHECK", "Error checking drugs completion: " + e.getMessage());
             return false;
         }
     }
+    private boolean checkQ6Q7Q8Complete(List<DrugsInfo> drugsInfos, List<String> substancesUsed) {
+        // ตรวจสอบ Q6, Q7 สำหรับทุกสารที่เคยใช้ใน Q1
+        String[] questions678 = {"Q6", "Q7"};
+
+        for (String substance : substancesUsed) {
+            for (String question : questions678) {
+                boolean found = false;
+                String foundAnswer = null;
+
+                for (DrugsInfo drug : drugsInfos) {
+                    if (question.equals(drug.getQuestion()) && substance.equals(drug.getSubquestion())) {
+                        foundAnswer = drug.getAnswer();
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
+                    Log.d("DRUGS_CHECK", "Missing " + question + " answer for substance: " + substance);
+                    return false;
+                }
+
+                Log.d("DRUGS_CHECK", "Found " + question + substance + " = " + foundAnswer);
+            }
+        }
+
+        // ตรวจสอบ Q8 (injection) - ไม่มี subquestion
+        boolean foundQ8 = false;
+        String q8Answer = null;
+
+        for (DrugsInfo drug : drugsInfos) {
+            if ("Q8".equals(drug.getQuestion())) {
+                q8Answer = drug.getAnswer();
+                foundQ8 = true;
+                break;
+            }
+        }
+
+        if (!foundQ8 || q8Answer == null || q8Answer.isEmpty()) {
+            Log.d("DRUGS_CHECK", "Missing Q8 (injection) answer");
+            return false;
+        }
+
+        Log.d("DRUGS_CHECK", "Found Q8 (injection) = " + q8Answer);
+        Log.d("DRUGS_CHECK", "Q6,Q7,Q8 assessment complete");
+        return true;
+    }
+    /**
+     * ตรวจสอบแบบสมบูรณ์ Q2-Q7 เมื่อ Q2 มีการใช้สารบางอย่าง
+     */
+    private boolean checkFullAssessmentComplete(List<DrugsInfo> drugsInfos, List<String> substancesUsed) {
+        // ตรวจสอบ Q2-Q4, Q6-Q7 สำหรับทุกสารที่เคยใช้
+        String[] followUpQuestions = {"Q2", "Q3", "Q4", "Q6", "Q7"};
+
+        for (String substance : substancesUsed) {
+            for (String question : followUpQuestions) {
+                boolean found = false;
+                String foundAnswer = null;
+
+                for (DrugsInfo drug : drugsInfos) {
+                    if (question.equals(drug.getQuestion()) && substance.equals(drug.getSubquestion())) {
+                        foundAnswer = drug.getAnswer();
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found || foundAnswer == null || foundAnswer.isEmpty()) {
+                    Log.d("DRUGS_CHECK", "Missing " + question + " answer for substance: " + substance);
+                    return false;
+                }
+
+                Log.d("DRUGS_CHECK", "Found " + question + substance + " = " + foundAnswer);
+            }
+        }
+
+        // ตรวจสอบ Q5 สำหรับสารที่ไม่ใช่ "a" (ยาสูบ)
+        if (!substancesUsed.isEmpty()) {
+            List<String> substancesNeedingQ5 = new ArrayList<>();
+            for (String substance : substancesUsed) {
+                if (!"a".equals(substance)) {
+                    substancesNeedingQ5.add(substance);
+                }
+            }
+
+            for (String substance : substancesNeedingQ5) {
+                boolean foundQ5 = false;
+                String q5Answer = null;
+
+                for (DrugsInfo drug : drugsInfos) {
+                    if ("Q5".equals(drug.getQuestion()) && substance.equals(drug.getSubquestion())) {
+                        q5Answer = drug.getAnswer();
+                        foundQ5 = true;
+                        break;
+                    }
+                }
+
+                if (!foundQ5 || q5Answer == null || q5Answer.isEmpty()) {
+                    Log.d("DRUGS_CHECK", "Missing Q5 answer for substance: " + substance);
+                    return false;
+                }
+
+                Log.d("DRUGS_CHECK", "Found Q5" + substance + " = " + q5Answer);
+            }
+        }
+
+        // ตรวจสอบ Q8 (injection)
+        boolean foundQ8 = false;
+        String q8Answer = null;
+
+        for (DrugsInfo drug : drugsInfos) {
+            if ("Q8".equals(drug.getQuestion())) {
+                q8Answer = drug.getAnswer();
+                foundQ8 = true;
+                break;
+            }
+        }
+
+        if (!foundQ8 || q8Answer == null || q8Answer.isEmpty()) {
+            Log.d("DRUGS_CHECK", "Missing Q8 (injection) answer");
+            return false;
+        }
+
+        Log.d("DRUGS_CHECK", "Found Q8 (injection) = " + q8Answer);
+        Log.d("DRUGS_CHECK", "Full ASSIST assessment complete");
+        return true;
+    }
+
     private SubstanceUseStatus getSubstanceUseStatus(List<DrugsInfo> drugInfos) {
         SubstanceUseStatus status = new SubstanceUseStatus();
 

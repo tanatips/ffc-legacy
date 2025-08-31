@@ -522,7 +522,7 @@ public class MainQuestionsFragment extends Fragment {
         if (questionsStateViewModel != null) {
             questionsStateViewModel.getQuestionTwoAnswers().observe(getViewLifecycleOwner(), answers -> {
                 if (answers != null) {
-//                    checkAndToggleQuestions345Visibility();
+                    checkAndToggleQuestions345Visibility();
                 }
             });
         }
@@ -645,6 +645,7 @@ public class MainQuestionsFragment extends Fragment {
         Map<String, AnswerFrequencyData> answers = questionsStateViewModel.getQuestionTwoAnswers().getValue();
 
         if (answers == null || answers.isEmpty()) {
+            Log.d(TAG, "Q2 answers is null or empty - returning false");
             return false;
         }
 
@@ -654,15 +655,18 @@ public class MainQuestionsFragment extends Fragment {
 
             // ถ้ายังไม่มีการเลือก (frequency = -1) ให้ return false
             if (data == null || data.getFrequency() == -1) {
+                Log.d(TAG, "Q2 substance " + entry.getKey() + " not answered yet - returning false");
                 return false;
             }
 
             // ถ้ามีการเลือกที่ไม่ใช่ "ไม่เคย" (frequency != 0) ให้ return false
             if (data.getFrequency() != 0) {
+                Log.d(TAG, "Q2 substance " + entry.getKey() + " frequency: " + data.getFrequency() + " (not Never) - returning false");
                 return false;
             }
         }
 
+        Log.d(TAG, "All Q2 answers are 'Never' (frequency = 0) - returning true");
         return true; // ทุกรายการเลือก "ไม่เคย" (frequency = 0)
     }
 
@@ -1556,6 +1560,15 @@ public class MainQuestionsFragment extends Fragment {
                 true,
                 questionOneFragment.validateAllQuestionsAnswered()
         );
+    }
+    public void onQuestionTwoDataChanged() {
+        Log.d(TAG, "Question 2 data changed - checking questions 3,4,5 visibility");
+
+        // ตรวจสอบและซ่อน/แสดงคำถาม 3,4,5 ทันที
+        checkAndToggleQuestions345Visibility();
+
+        // เรียก method อื่นๆ ที่เกี่ยวข้อง
+        onDataChanged();
     }
 
     /**

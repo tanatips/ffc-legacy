@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -126,7 +127,11 @@ public class FGDatabaseManager {
                     Spot house = new Spot(pcucode, type, stringVillCode, intHCode, doubleXgis, doubleYgis, addition);
                     this.available.put(type + "_" + house.getID(), house);
                 } else {
+                    if(stringXgis == null) stringXgis = "";
+                    if(stringYgis == null) stringYgis = "";
                     if(!stringXgis.isEmpty() && !stringYgis.isEmpty()) {
+                        stringXgis = this.cleanCoordinateString(stringXgis);
+                        stringYgis = this.cleanCoordinateString(stringYgis);
                         doubleXgis = Double.parseDouble(stringXgis);
                         doubleYgis = Double.parseDouble(stringYgis);
 
@@ -426,6 +431,8 @@ public class FGDatabaseManager {
                     this.available.put(type + "_" + hospital.getID(), hospital);
                 } else {
                     if(!stringXgis.isEmpty() && !stringYgis.isEmpty()) {
+                        stringXgis = cleanCoordinateString(stringXgis);
+                        stringYgis = cleanCoordinateString(stringYgis);
                         doubleXgis = Double.parseDouble(stringXgis);
                         doubleYgis = Double.parseDouble(stringYgis);
 
@@ -584,7 +591,13 @@ public class FGDatabaseManager {
             });
         }
     }
-
+    private String cleanCoordinateString(String coordinate) {
+        if (TextUtils.isEmpty(coordinate)) {
+            return "";
+        }
+        // เก็บเฉพาะตัวเลข จุดทศนิยม และเครื่องหมายลบ
+        return coordinate.replaceAll("[^0-9.-]", "");
+    }
     private boolean isPointExist(String stringXgis, String stringYgis) {
         if ((stringXgis == null || stringXgis.equals("") || stringXgis.equals(" ") || stringXgis.equals("  ") || stringXgis.equals("0") || stringXgis.equals("0.0")) && (stringYgis == null || stringYgis.equals("") || stringYgis.equals(" ") || stringYgis.equals("  ") || stringYgis.equals("0") || stringYgis.equals("0.0"))) {
             return false;

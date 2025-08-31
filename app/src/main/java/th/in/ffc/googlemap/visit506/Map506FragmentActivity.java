@@ -316,6 +316,8 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
 //                        String slng = c.getString(c.getColumnIndex("xgis"));
                         String hno = c.getString(c.getColumnIndex("hno"));
                         if (!TextUtils.isEmpty(slat) && !TextUtils.isEmpty(slng)) {
+                            slat = cleanCoordinateString(slat);
+                            slng = cleanCoordinateString(slng);
                             Double lat = Double.parseDouble(slat);
                             Double lng = Double.parseDouble(slng);
                             tagHCODE.put(hcode, hcode);
@@ -348,6 +350,13 @@ public class Map506FragmentActivity extends FFCFragmentActivity implements Loade
             myMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 13.0f));
         }
     };
+    private String cleanCoordinateString(String coordinate) {
+        if (TextUtils.isEmpty(coordinate)) {
+            return "";
+        }
+        // เก็บเฉพาะตัวเลข จุดทศนิยม และเครื่องหมายลบ
+        return coordinate.replaceAll("[^0-9.-]", "");
+    }
 
     @Override public void onLoaderReset(Loader<Cursor> arg0) {
     }
