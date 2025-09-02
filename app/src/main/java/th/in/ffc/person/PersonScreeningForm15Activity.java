@@ -1107,7 +1107,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                 return Color.parseColor("#FFF3E0"); // ส้มอ่อน
 
             // สีแดง - เสี่ยงสูงมาก/รุนแรง
-            case "1B135": // เครียดมาก
+//            case "1B134": // เครียดมาก
             case "1B137": // 2Q ผิดปกติ
             case "1B141": // ซึมเศร้ารุนแรง
             case "1B145": // Suicide เสี่ยงสูง
@@ -1154,9 +1154,9 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
             case "1B133":
                 return "เครียดเล็กน้อย";
             case "1B134":
-                return "เครียดปานกลาง";
-            case "1B135":
-                return "เครียดมาก";
+                return "เครียด ปานกลาง หรือ มาก";
+//            case "1B134":
+//                return "เครียดมาก";
 
             // 2Q Depression codes
             case "1B136":
@@ -1262,7 +1262,7 @@ public class PersonScreeningForm15Activity extends AppCompatActivity implements 
                     resultCode = "1B134";
                 } else if (score >= 10 && score <= 15) {
                     level = "เครียดมาก";
-                    resultCode = "1B135";
+                    resultCode = "1B134";
                 }
 
                 StringBuilder summary = new StringBuilder();

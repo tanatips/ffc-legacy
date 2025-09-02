@@ -115,7 +115,7 @@ public class StressDepressionInfo {
             setResultCode("1B134");
             setResultDescription("เครียดมาก");
         }else if(getSum()>=10 && getSum()<=15){
-            setResultCode("1B135");
+            setResultCode("1B134");
             setResultDescription("เครียดมากที่สุด");
         }
         resultCode = result;

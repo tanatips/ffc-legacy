@@ -113,7 +113,7 @@ public class StressDepressionFragment extends Fragment {
         addTableRow(tableLayout, "0 - 4", "เครียดน้อย","1B132",0);
         addTableRow(tableLayout, "5 - 7", "เครียดปานกลาง","1B133",1);
         addTableRow(tableLayout, "8 - 9", "เครียดมาก","1B134",2);
-        addTableRow(tableLayout, "10 - 15", "เครียดมากที่สุด","1B135",3);
+        addTableRow(tableLayout, "10 - 15", "เครียดมากที่สุด","1B134",3);
 
         white = ContextCompat.getColor(requireContext(), R.color.white);
         light_gray = ContextCompat.getColor(requireContext(), R.color.light_gray);
@@ -726,7 +726,7 @@ public class StressDepressionFragment extends Fragment {
                 "🟠 8-9 คะแนน: เครียดมาก (1B134)\n" +
                 "🔶 ควรปรึกษาผู้เชี่ยวชาญ\n\n" +
 
-                "🔴 10-15 คะแนน: เครียดมากที่สุด (1B135)\n" +
+                "🔴 10-15 คะแนน: เครียดมากที่สุด (1B134)\n" +
                 "🔶 ควรพบแพทย์โดยเร็วที่สุด\n\n";
 
         builder.setTitle("📈 เกณฑ์การประเมิน")
@@ -830,7 +830,7 @@ public class StressDepressionFragment extends Fragment {
             data.resultCode = "1B134";
             data.resultDescription = "เครียดมาก";
         } else if (score >= 10 && score <= 15) {
-            data.resultCode = "1B135";
+            data.resultCode = "1B134";
             data.resultDescription = "เครียดมากที่สุด";
         } else {
             data.resultCode = "1B132"; // default
@@ -1279,7 +1279,7 @@ public class StressDepressionFragment extends Fragment {
         if (score >= 0 && score <= 4) return "1B132";
         if (score >= 5 && score <= 7) return "1B133";
         if (score >= 8 && score <= 9) return "1B134";
-        if (score >= 10 && score <= 15) return "1B135";
+        if (score >= 10 && score <= 15) return "1B134";
         return "";
     }
 

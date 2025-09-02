@@ -912,7 +912,7 @@ public class SmookingFragment extends Fragment {
 
             } else if ("3".equals(smokerGroup)) {
                 // สูบบุหรี่
-                data.resultCode = "1B50";
+                data.resultCode = "1B51";
                 data.resultDescription = "สูบบุหรี่";
                 data.totalScore = 1;
                 data.riskLevel = ScreeningResultCode.RISK_HIGH;

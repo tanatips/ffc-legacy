@@ -989,7 +989,7 @@
     <string name="cigarette_form">คัดกรองความเสี่ยงจากการสูบบุหรี่</string>
     <string name="cigarette_1b52">ไม่สูบ ไม่เคยสูบบุหรี่ 1B52</string>
     <string name="cigarette_1b51">ไม่สูบ เคยสูบบุหรี่แต่เลิกแล้ว 1B51</string>
-    <string name="cigarette_1b50">สูบ 1B50 (กรณีตอบสูบให้ทำแบบประเมิน Fagerstrom Test และ ASSIST)</string>
+    <string name="cigarette_1b50">สูบ 1B51 (กรณีตอบสูบให้ทำแบบประเมิน Fagerstrom Test และ ASSIST)</string>
     <string name="smoke_once_in_a_while">สูบนานๆ ครั้ง</string>
     <string name="smoke_occasionally">สูบเป็นครั้งคราว</string>
     <string name="smoke_regularly">สูบเป็นประจำ</string>

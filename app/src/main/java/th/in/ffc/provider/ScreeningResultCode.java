@@ -504,7 +504,7 @@ public class ScreeningResultCode implements BaseColumns {
                 resultDescription = "เครียดมาก";
                 riskLevel = RISK_MODERATE;
             } else {
-                resultCode = "1B135";
+                resultCode = "1B134";
                 resultDescription = "เครียดมากที่สุด";
                 riskLevel = RISK_HIGH;
             }

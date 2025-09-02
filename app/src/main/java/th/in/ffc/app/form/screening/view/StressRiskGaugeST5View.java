@@ -231,7 +231,7 @@ public class StressRiskGaugeST5View extends View {
         } else if (currentScore >= 8 && currentScore <= 9) {
             return new StressLevel(8, 9, "เครียดมาก", COLOR_MODERATE, "😟", "1B134");
         } else if (currentScore >= 10 && currentScore <= 15) {
-            return new StressLevel(10, 15, "เครียดมากที่สุด", COLOR_SEVERE, "😰", "1B135");
+            return new StressLevel(10, 15, "เครียดมากที่สุด", COLOR_SEVERE, "😰", "1B134");
         } else {
             return new StressLevel(0, 0, "ยังไม่ได้ประเมิน", "#9E9E9E", "🤔", "");
         }
@@ -274,7 +274,7 @@ public class StressRiskGaugeST5View extends View {
         } else if (score >= 8 && score <= 9) {
             return new StressLevel(8, 9, "เครียดมาก", COLOR_MODERATE, "😟", "1B134");
         } else if (score >= 10 && score <= 15) {
-            return new StressLevel(10, 15, "เครียดมากที่สุด", COLOR_SEVERE, "😰", "1B135");
+            return new StressLevel(10, 15, "เครียดมากที่สุด", COLOR_SEVERE, "😰", "1B134");
         } else {
             return new StressLevel(0, 0, "ยังไม่ได้ประเมิน", "#9E9E9E", "🤔", "");
         }
