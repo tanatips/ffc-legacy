@@ -518,8 +518,12 @@ public class ClaimSubmissionService {
             double costFpg = 0;
             double costCholesterol = 0;
             if (age >= 35 && age <= 59) {
-                costFpg = AgeCalculator.calculateServiceCost(age, fpg, 0);
-                costCholesterol = AgeCalculator.calculateServiceCost(age, 0, cholesterol);
+                if(fpg > 0) {
+                    costFpg = AgeCalculator.calculateServiceCost(age, fpg, 0);
+                }
+                if(cholesterol > 0) {
+                    costCholesterol = AgeCalculator.calculateServiceCost(age, 0, cholesterol);
+                }
             } else if (age >= 60) {
                 costFpg = AgeCalculator.calculateServiceCost(age, fpg, 0);
                 costCholesterol = AgeCalculator.calculateServiceCost(age, 0, cholesterol);
