@@ -2045,6 +2045,9 @@ public class PersonProvider extends ContentProvider {
         public static final String FLAG_SERVICE = "flagservice";
         public static final String SERVICE_TYPE = "servicetype";
 
+        public static final String CLAIM_CODE_NHSO = "claimcode_nhso";
+        public static final String DATETIME_CLAIM = "datetime_claim";
+
         protected static final HashMap<String, String> PROJECTION_MAP;
 
         static {
@@ -2112,6 +2115,8 @@ public class PersonProvider extends ContentProvider {
             PROJECTION_MAP.put(Visit.SERVICE_TYPE, Visit.SERVICE_TYPE);
 
             PROJECTION_MAP.put(Visit.UPDATE, Visit.UPDATE);
+            PROJECTION_MAP.put(Visit.CLAIM_CODE_NHSO, Visit.CLAIM_CODE_NHSO);
+            PROJECTION_MAP.put(Visit.DATETIME_CLAIM, Visit.DATETIME_CLAIM);
         }
     }
 

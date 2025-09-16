@@ -97,6 +97,7 @@ import th.in.ffc.security.CryptographerService;
 import th.in.ffc.security.PdpaActivity;
 import th.in.ffc.service.EncryptDbService;
 import th.in.ffc.util.AssetReader;
+import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.DateTime;
 import th.in.ffc.util.GenerateSeq;
 import th.in.ffc.util.TokenValidator;
@@ -934,15 +935,15 @@ public class MainActivity extends FFCGridActivity {
                 SfToken newToken = new SfToken();
                 newToken.setTokenAuth(tokenAuth);
                 newToken.setTokenClaim(tokenClaim);
-                newToken.setCreatedDate(System.currentTimeMillis());
-                newToken.setUpdatedDate(System.currentTimeMillis());
+                newToken.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+                newToken.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
                 tokenDao.deleteAllTokens();
                 tokenDao.insert(newToken);
                 Toast.makeText(this, "บันทึก Token สำเร็จ", Toast.LENGTH_SHORT).show();
             } else {
                 // พบ token นี้แล้ว ให้อัพเดท token_claim
                 existingToken.setTokenClaim(tokenClaim);
-                existingToken.setUpdatedDate(System.currentTimeMillis());
+                existingToken.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
 
                 tokenDao.update(existingToken);
                 Toast.makeText(this, "อัพเดท Token สำเร็จ", Toast.LENGTH_SHORT).show();
@@ -963,7 +964,7 @@ public class MainActivity extends FFCGridActivity {
                 Collections.sort(tokens, new Comparator<SfToken>() {
                     @Override
                     public int compare(SfToken t1, SfToken t2) {
-                        return Long.compare(t2.getCreatedDate(), t1.getCreatedDate());
+                        return t2.getCreatedDate().compareTo(t1.getCreatedDate());
                     }
                 });
 

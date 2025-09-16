@@ -1397,20 +1397,34 @@ public class SmookingFragment extends Fragment {
                                     case "3":
                                         rdoSmokerAssist3.setChecked(true);
 
-                                        String smokerRegularly = this.smokerInfo.getSmokerRegularly();
-                                        if (smokerRegularly != null && !smokerRegularly.isEmpty()) {
-                                            switch (smokerRegularly) {
-                                                case "1":
-                                                    rdoSmokerRegularly1.setChecked(true);
-                                                    break;
-                                                case "2":
-                                                    rdoSmokerRegularly2.setChecked(true);
-                                                    break;
-                                                case "3":
-                                                    rdoSmokerRegularly3.setChecked(true);
-                                                    break;
-                                            }
-                                        }
+//                                        String smokerRegularly = this.smokerInfo.getSmokerRegularly();
+//                                        if (smokerRegularly != null && !smokerRegularly.isEmpty()) {
+//                                            switch (smokerRegularly) {
+//                                                case "1":
+//                                                    rdoSmokerRegularly1.setChecked(true);
+//                                                    break;
+//                                                case "2":
+//                                                    rdoSmokerRegularly2.setChecked(true);
+//                                                    break;
+//                                                case "3":
+//                                                    rdoSmokerRegularly3.setChecked(true);
+//                                                    break;
+//                                            }
+//                                        }
+                                        break;
+                                }
+                            }
+                            String smokerRegularly = this.smokerInfo.getSmokerRegularly();
+                            if (smokerRegularly != null && !smokerRegularly.isEmpty()) {
+                                switch (smokerRegularly) {
+                                    case "1":
+                                        rdoSmokerRegularly1.setChecked(true);
+                                        break;
+                                    case "2":
+                                        rdoSmokerRegularly2.setChecked(true);
+                                        break;
+                                    case "3":
+                                        rdoSmokerRegularly3.setChecked(true);
                                         break;
                                 }
                             }

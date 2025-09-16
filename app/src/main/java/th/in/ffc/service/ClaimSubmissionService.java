@@ -44,11 +44,13 @@ import th.in.ffc.app.form.screening.model.PersonInfo;
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.app.form.screening.model.VisitDiagInfo;
 import th.in.ffc.dao.NHSOClaimDataDao;
+import th.in.ffc.dao.VisitDao;
 import th.in.ffc.dao.VisitDiagDao;
 import th.in.ffc.provider.NHSOCHA;
 import th.in.ffc.security.LoginActivity;
 import th.in.ffc.session.UserSessionManager;
 import th.in.ffc.util.AgeCalculator;
+import th.in.ffc.util.DateConverter;
 import th.in.ffc.util.InvoiceNumberGenerator;
 import th.in.ffc.util.Log;
 
@@ -571,6 +573,13 @@ public class ClaimSubmissionService {
                 @Override
                 public void onSuccess(String response) {
                     handleAPISuccess(response, personInfo, claimDataDao, userSessionManager);
+
+                    VisitDao visitDao = new VisitDao(context.getContentResolver());
+                    UserSessionManager  userSessionManager = new UserSessionManager(context);
+                    visitDao.updateDatetimeClaim(personInfo.getVisitNo(),
+                            userSessionManager.getPcuCode().toString(),
+                            DateConverter.getCurrentWesternDateTime()
+                    );
                 }
 
                 @Override

@@ -2,6 +2,7 @@ package th.in.ffc.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -11,6 +12,7 @@ import th.in.ffc.app.form.screening.dao.PersonDao;
 
 public class ProfileImage {
     public static void saveImageToStorage(Context context, Bitmap bitmap, String citizenId) {
+        String PICTURE_PERSON_PATH = "/sdcard/Android/data/th.in.ffc/files/pictures/person/";
         String filename = "";
         String tempFilename="";
         try {
@@ -24,7 +26,7 @@ public class ProfileImage {
             String name = person.getPcucodeperson()+person.getPid();
             filename = name+".jpg";
             tempFilename = "tmp_"+name+"_720p.jpg";
-            String directoryPath = "/sdcard/Android/data/th.in.ffc/pictures/person/";
+            String directoryPath =  PICTURE_PERSON_PATH;
             File directory = new File(directoryPath);
 
             // สร้าง directory หากยังไม่มี

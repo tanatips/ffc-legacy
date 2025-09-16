@@ -4,14 +4,14 @@ public class SfToken {
     private int id;
     private String tokenAuth;
     private String tokenClaim;
-    private long createdDate;
-    private long updatedDate;
+    private String createdDate;
+    private String updatedDate;
 
     // Constructor
     public SfToken() {
     }
 
-    public SfToken(int id, String tokenAuth, String tokenClaim, long createdDate, long updatedDate) {
+    public SfToken(int id, String tokenAuth, String tokenClaim, String createdDate, String updatedDate) {
         this.id = id;
         this.tokenAuth = tokenAuth;
         this.tokenClaim = tokenClaim;
@@ -44,19 +44,19 @@ public class SfToken {
         this.tokenClaim = tokenClaim;
     }
 
-    public long getCreatedDate() {
+    public String getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(long createdDate) {
+    public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
     }
 
-    public long getUpdatedDate() {
+    public String getUpdatedDate() {
         return updatedDate;
     }
 
-    public void setUpdatedDate(long updatedDate) {
+    public void setUpdatedDate(String updatedDate) {
         this.updatedDate = updatedDate;
     }
 }

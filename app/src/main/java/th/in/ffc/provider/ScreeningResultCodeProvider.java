@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import th.in.ffc.util.DateConverter;
-
+import android.database.sqlite.SQLiteReadOnlyDatabaseException;
 /**
  * ContentProvider สำหรับจัดการข้อมูลผลการคัดกรองและ Result Code
  * ใช้สำหรับเก็บและดึงข้อมูลผลการประเมินจากแบบคัดกรองต่างๆ
@@ -43,6 +43,8 @@ public class ScreeningResultCodeProvider extends ContentProvider {
 
     private DbOpenHelper mOpenHelper;
     private static UriMatcher mUriMatcher;
+    private boolean mDatabaseNeedsReconnect = false;
+    private static final int MAX_RETRY_COUNT = 2;
 
     static {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -83,91 +85,122 @@ public class ScreeningResultCodeProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-        SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-        String groupby = null;
-        String having = null;
+        ensureDatabaseConnection();
 
-        // กำหนด sortOrder เริ่มต้น
-        if (sortOrder == null || sortOrder.isEmpty()) {
-            sortOrder = ScreeningResultCode.VISITNO + " DESC, " +
-                    ScreeningResultCode.SCREENING_DATE + " DESC, " +
-                    ScreeningResultCode.CREATETIME + " DESC";
+        int retryCount = 0;
+        while (retryCount < MAX_RETRY_COUNT) {
+            try {
+
+
+                SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+                SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+                String groupby = null;
+                String having = null;
+
+                // กำหนด sortOrder เริ่มต้น
+                if (sortOrder == null || sortOrder.isEmpty()) {
+                    sortOrder = ScreeningResultCode.VISITNO + " DESC, " +
+                            ScreeningResultCode.SCREENING_DATE + " DESC, " +
+                            ScreeningResultCode.CREATETIME + " DESC";
+                }
+
+                switch (mUriMatcher.match(uri)) {
+                    case SCREENING_RESULT_ITEMS:
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+                        break;
+
+                    case SCREENING_RESULT_ITEM_ID:
+                        selection = ScreeningResultCode.ID + "=?";
+                        selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+                        break;
+
+                    case SCREENING_RESULT_BY_PERSON:
+                        String personId = uri.getPathSegments().get(2);
+                        selection = ScreeningResultCode.PERSON_ID + "=? ";
+                        selectionArgs = new String[]{personId};
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+                        break;
+
+                    case SCREENING_RESULT_BY_TYPE:
+                        String screeningType = uri.getPathSegments().get(2);
+                        selection = ScreeningResultCode.SCREENING_TYPE + "=? AND " +
+                                ScreeningResultCode.STATUS + "=?";
+                        selectionArgs = new String[]{screeningType, ScreeningResultCode.STATUS_ACTIVE};
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+                        break;
+
+                    case SCREENING_RESULT_LATEST:
+                        String personIdLatest = uri.getPathSegments().get(2);
+                        selection = ScreeningResultCode.PERSON_ID + "=? AND " +
+                                ScreeningResultCode.STATUS + "=?";
+                        selectionArgs = new String[]{personIdLatest, ScreeningResultCode.STATUS_ACTIVE};
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+
+                        // แก้ไข sortOrder เพื่อให้ได้ข้อมูลล่าสุดของแต่ละประเภท
+                        sortOrder = ScreeningResultCode.SCREENING_TYPE + ", " +
+                                ScreeningResultCode.VISITNO + " DESC, " +
+                                ScreeningResultCode.SCREENING_DATE + " DESC, " +
+                                ScreeningResultCode.CREATETIME + " DESC";
+                        break;
+
+                    case SCREENING_RESULT_BY_VISIT:
+                        String visitno = uri.getPathSegments().get(2);
+                        selection = ScreeningResultCode.VISITNO + "=? AND " +
+                                ScreeningResultCode.STATUS + "=?";
+                        selectionArgs = new String[]{visitno, ScreeningResultCode.STATUS_ACTIVE};
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+                        break;
+
+                    case SCREENING_RESULT_BY_PERSON_VISIT:
+                        String personIdVisit = uri.getPathSegments().get(2);
+                        String visitnoPersonVisit = uri.getPathSegments().get(4);
+                        selection = ScreeningResultCode.PERSON_ID + "=? AND " +
+                                ScreeningResultCode.VISITNO + "=? AND " +
+                                ScreeningResultCode.STATUS + "=?";
+                        selectionArgs = new String[]{personIdVisit, visitnoPersonVisit, ScreeningResultCode.STATUS_ACTIVE};
+                        builder.setTables(ScreeningResultCode.TABLENAME);
+                        builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
+                        break;
+
+                    default:
+                        throw new IllegalArgumentException("Unknown URI: " + uri);
+                }
+
+                Cursor c = builder.query(db, projection, selection, selectionArgs,
+                        groupby, having, sortOrder);
+                c.setNotificationUri(getContext().getContentResolver(), uri);
+                return c;
+            } catch (SQLiteReadOnlyDatabaseException e) {
+                Log.w(TAG, "Database read-only error in query (attempt " + (retryCount + 1) + ")", e);
+
+                mDatabaseNeedsReconnect = true;
+                reconnectDatabase();
+
+                retryCount++;
+                if (retryCount >= MAX_RETRY_COUNT) {
+                    Log.e(TAG, "Query failed after " + MAX_RETRY_COUNT + " retries", e);
+                    throw new SQLException("Database read-only error after retries", e);
+                }
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Unexpected error in query", e);
+                throw e;
+            }
         }
-
-        switch (mUriMatcher.match(uri)) {
-            case SCREENING_RESULT_ITEMS:
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-                break;
-
-            case SCREENING_RESULT_ITEM_ID:
-                selection = ScreeningResultCode.ID + "=?";
-                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-                break;
-
-            case SCREENING_RESULT_BY_PERSON:
-                String personId = uri.getPathSegments().get(2);
-                selection = ScreeningResultCode.PERSON_ID + "=? ";
-                selectionArgs = new String[]{personId};
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-                break;
-
-            case SCREENING_RESULT_BY_TYPE:
-                String screeningType = uri.getPathSegments().get(2);
-                selection = ScreeningResultCode.SCREENING_TYPE + "=? AND " +
-                        ScreeningResultCode.STATUS + "=?";
-                selectionArgs = new String[]{screeningType, ScreeningResultCode.STATUS_ACTIVE};
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-                break;
-
-            case SCREENING_RESULT_LATEST:
-                String personIdLatest = uri.getPathSegments().get(2);
-                selection = ScreeningResultCode.PERSON_ID + "=? AND " +
-                        ScreeningResultCode.STATUS + "=?";
-                selectionArgs = new String[]{personIdLatest, ScreeningResultCode.STATUS_ACTIVE};
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-
-                // แก้ไข sortOrder เพื่อให้ได้ข้อมูลล่าสุดของแต่ละประเภท
-                sortOrder = ScreeningResultCode.SCREENING_TYPE + ", " +
-                        ScreeningResultCode.VISITNO + " DESC, " +
-                        ScreeningResultCode.SCREENING_DATE + " DESC, " +
-                        ScreeningResultCode.CREATETIME + " DESC";
-                break;
-
-            case SCREENING_RESULT_BY_VISIT:
-                String visitno = uri.getPathSegments().get(2);
-                selection = ScreeningResultCode.VISITNO + "=? AND " +
-                        ScreeningResultCode.STATUS + "=?";
-                selectionArgs = new String[]{visitno, ScreeningResultCode.STATUS_ACTIVE};
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-                break;
-
-            case SCREENING_RESULT_BY_PERSON_VISIT:
-                String personIdVisit = uri.getPathSegments().get(2);
-                String visitnoPersonVisit = uri.getPathSegments().get(4);
-                selection = ScreeningResultCode.PERSON_ID + "=? AND " +
-                        ScreeningResultCode.VISITNO + "=? AND " +
-                        ScreeningResultCode.STATUS + "=?";
-                selectionArgs = new String[]{personIdVisit, visitnoPersonVisit, ScreeningResultCode.STATUS_ACTIVE};
-                builder.setTables(ScreeningResultCode.TABLENAME);
-                builder.setProjectionMap(ScreeningResultCode.PROJECTION_MAP);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown URI: " + uri);
-        }
-
-        Cursor c = builder.query(db, projection, selection, selectionArgs,
-                groupby, having, sortOrder);
-        c.setNotificationUri(getContext().getContentResolver(), uri);
-        return c;
+        return null;
     }
 
     @Nullable
@@ -188,76 +221,285 @@ public class ScreeningResultCodeProvider extends ContentProvider {
         }
     }
 
+//    @Nullable
+//    @Override
+//    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+//        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+//        long id = 0;
+//        Uri uriReturn = null;
+//
+//        switch (mUriMatcher.match(uri)) {
+//            case SCREENING_RESULT:  // เพิ่ม case นี้กลับมา (แบบ SfNicotineInfoDao ใช้)
+//            case SCREENING_RESULT_ITEMS:  // รักษา case เดิมไว้เพื่อความปลอดภัย
+//                // อัพเดท updatetime ก่อนการ insert
+//                if (values.getAsString(ScreeningResultCode.CREATETIME) == null) {
+//                    values.put(ScreeningResultCode.CREATETIME, DateConverter.getCurrentWesternDateTime());
+//                }
+//                values.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
+//
+//                // ตรวจสอบว่ามีข้อมูลเดิมหรือไม่ (same person, visitno, type, date)
+//                String personId = values.getAsString(ScreeningResultCode.PERSON_ID);
+//                String visitno = values.getAsString(ScreeningResultCode.VISITNO);
+//                String screeningType = values.getAsString(ScreeningResultCode.SCREENING_TYPE);
+//                String screeningDate = values.getAsString(ScreeningResultCode.SCREENING_DATE);
+//
+//                if (screeningDate == null) {
+//                    screeningDate = getCurrentDate();
+//                    values.put(ScreeningResultCode.SCREENING_DATE, screeningDate);
+//                }
+//
+//                // อัพเดทข้อมูลเดิมให้เป็น INACTIVE (ถ้ามี)
+//                ContentValues updateValues = new ContentValues();
+//                updateValues.put(ScreeningResultCode.STATUS, ScreeningResultCode.STATUS_INACTIVE);
+//                updateValues.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
+//
+//                String whereClause = ScreeningResultCode.PERSON_ID + "=? AND " +
+//                        ScreeningResultCode.VISITNO + "=? AND " +
+//                        ScreeningResultCode.SCREENING_TYPE + "=? AND " +
+//                        ScreeningResultCode.SCREENING_DATE + "=? AND " +
+//                        ScreeningResultCode.STATUS + "=?";
+//                String[] whereArgs = {personId, visitno, screeningType, screeningDate, ScreeningResultCode.STATUS_ACTIVE};
+//
+//                db.update(ScreeningResultCode.TABLENAME, updateValues, whereClause, whereArgs);
+//
+//                // Insert ข้อมูลใหม่
+//                //id = db.insertOrThrow(ScreeningResultCode.TABLENAME, null, values);
+//                id = insertWithErrorHandling(db, ScreeningResultCode.TABLENAME, values, uri);
+//                uriReturn = ContentUris.withAppendedId(ScreeningResultCode.CONTENT_URI, id);
+//                break;
+//
+//            default:
+//                throw new IllegalArgumentException("Unknown URI: " + uri);
+//        }
+//
+//        if (id > 0) {
+//            getContext().getContentResolver().notifyChange(uri, null);
+//            // แจ้งเตือน URI อื่นๆ ที่เกี่ยวข้อง
+//            getContext().getContentResolver().notifyChange(ScreeningResultCode.CONTENT_LIST_URI, null);
+//        }
+//
+//        return uriReturn;
+//    }
+//
+
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        // ตรวจสอบ connection ก่อน
+        ensureDatabaseConnection();
+
+        SQLiteDatabase db = null;
         long id = 0;
         Uri uriReturn = null;
+        int retryCount = 0;
 
-        switch (mUriMatcher.match(uri)) {
-            case SCREENING_RESULT:  // เพิ่ม case นี้กลับมา (แบบ SfNicotineInfoDao ใช้)
-            case SCREENING_RESULT_ITEMS:  // รักษา case เดิมไว้เพื่อความปลอดภัย
-                // อัพเดท updatetime ก่อนการ insert
-                if (values.getAsString(ScreeningResultCode.CREATETIME) == null) {
-                    values.put(ScreeningResultCode.CREATETIME, DateConverter.getCurrentWesternDateTime());
+        while (retryCount < MAX_RETRY_COUNT) {
+            try {
+                db = mOpenHelper.getWritableDatabase();
+
+                switch (mUriMatcher.match(uri)) {
+                    case SCREENING_RESULT:
+                    case SCREENING_RESULT_ITEMS:
+                        // อัพเดท updatetime ก่อนการ insert
+                        if (values.getAsString(ScreeningResultCode.CREATETIME) == null) {
+                            values.put(ScreeningResultCode.CREATETIME, DateConverter.getCurrentWesternDateTime());
+                        }
+                        values.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
+
+                        // ตรวจสอบว่ามีข้อมูลเดิมหรือไม่
+                        String personId = values.getAsString(ScreeningResultCode.PERSON_ID);
+                        String visitno = values.getAsString(ScreeningResultCode.VISITNO);
+                        String screeningType = values.getAsString(ScreeningResultCode.SCREENING_TYPE);
+                        String screeningDate = values.getAsString(ScreeningResultCode.SCREENING_DATE);
+
+                        if (screeningDate == null) {
+                            screeningDate = getCurrentDate();
+                            values.put(ScreeningResultCode.SCREENING_DATE, screeningDate);
+                        }
+
+                        // อัพเดทข้อมูลเดิมให้เป็น INACTIVE (ถ้ามี)
+                        ContentValues updateValues = new ContentValues();
+                        updateValues.put(ScreeningResultCode.STATUS, ScreeningResultCode.STATUS_INACTIVE);
+                        updateValues.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
+
+                        String whereClause = ScreeningResultCode.PERSON_ID + "=? AND " +
+                                ScreeningResultCode.VISITNO + "=? AND " +
+                                ScreeningResultCode.SCREENING_TYPE + "=? AND " +
+                                ScreeningResultCode.SCREENING_DATE + "=? AND " +
+                                ScreeningResultCode.STATUS + "=?";
+                        String[] whereArgs = {personId, visitno, screeningType, screeningDate, ScreeningResultCode.STATUS_ACTIVE};
+
+                        db.update(ScreeningResultCode.TABLENAME, updateValues, whereClause, whereArgs);
+
+                        // Insert ข้อมูลใหม่
+                        id = insertWithErrorHandling(db, ScreeningResultCode.TABLENAME, values, uri);
+                        uriReturn = ContentUris.withAppendedId(ScreeningResultCode.CONTENT_URI, id);
+                        break;
+
+                    default:
+                        throw new IllegalArgumentException("Unknown URI: " + uri);
                 }
-                values.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
 
-                // ตรวจสอบว่ามีข้อมูลเดิมหรือไม่ (same person, visitno, type, date)
-                String personId = values.getAsString(ScreeningResultCode.PERSON_ID);
-                String visitno = values.getAsString(ScreeningResultCode.VISITNO);
-                String screeningType = values.getAsString(ScreeningResultCode.SCREENING_TYPE);
-                String screeningDate = values.getAsString(ScreeningResultCode.SCREENING_DATE);
-
-                if (screeningDate == null) {
-                    screeningDate = getCurrentDate();
-                    values.put(ScreeningResultCode.SCREENING_DATE, screeningDate);
-                }
-
-                // อัพเดทข้อมูลเดิมให้เป็น INACTIVE (ถ้ามี)
-                ContentValues updateValues = new ContentValues();
-                updateValues.put(ScreeningResultCode.STATUS, ScreeningResultCode.STATUS_INACTIVE);
-                updateValues.put(ScreeningResultCode.UPDATETIME, DateConverter.getCurrentWesternDateTime());
-
-                String whereClause = ScreeningResultCode.PERSON_ID + "=? AND " +
-                        ScreeningResultCode.VISITNO + "=? AND " +
-                        ScreeningResultCode.SCREENING_TYPE + "=? AND " +
-                        ScreeningResultCode.SCREENING_DATE + "=? AND " +
-                        ScreeningResultCode.STATUS + "=?";
-                String[] whereArgs = {personId, visitno, screeningType, screeningDate, ScreeningResultCode.STATUS_ACTIVE};
-
-                db.update(ScreeningResultCode.TABLENAME, updateValues, whereClause, whereArgs);
-
-                // Insert ข้อมูลใหม่
-                //id = db.insertOrThrow(ScreeningResultCode.TABLENAME, null, values);
-                id = insertWithErrorHandling(db, ScreeningResultCode.TABLENAME, values, uri);
-                uriReturn = ContentUris.withAppendedId(ScreeningResultCode.CONTENT_URI, id);
+                // สำเร็จแล้ว ออกจาก loop
                 break;
 
-            default:
-                throw new IllegalArgumentException("Unknown URI: " + uri);
+            } catch (SQLiteReadOnlyDatabaseException e) {
+                Log.w(TAG, "Database read-only error in insert (attempt " + (retryCount + 1) + ")", e);
+
+                mDatabaseNeedsReconnect = true;
+                reconnectDatabase();
+
+                retryCount++;
+                if (retryCount >= MAX_RETRY_COUNT) {
+                    Log.e(TAG, "Insert failed after " + MAX_RETRY_COUNT + " retries", e);
+                    throw new SQLException("Database read-only error after retries", e);
+                }
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Unexpected error in insert", e);
+                throw e;
+            }
         }
 
         if (id > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
-            // แจ้งเตือน URI อื่นๆ ที่เกี่ยวข้อง
             getContext().getContentResolver().notifyChange(ScreeningResultCode.CONTENT_LIST_URI, null);
         }
 
         return uriReturn;
     }
-    private long insertWithErrorHandling(SQLiteDatabase db, String tableName, ContentValues values, Uri uri) {
+
+    //    private long insertWithErrorHandling(SQLiteDatabase db, String tableName, ContentValues values, Uri uri) {
+//        try {
+//            long id = db.insertOrThrow(tableName, null, values);
+//            android.util.Log.d("ScreeningFormProvider", "Successfully inserted ID: " + id + " into " + tableName);
+//            return id;
+//        } catch (SQLException e) {
+//            String errorMsg = "Database error inserting into " + tableName + ": " + e.getMessage() +
+//                    "\nURI: " + uri +
+//                    "\nValues: " + (values != null ? values.toString() : "null");
+//            android.util.Log.e("ScreeningFormProvider", errorMsg, e);
+//            throw new SQLException(errorMsg, e);
+//        }
+//    }
+private long insertWithErrorHandling(SQLiteDatabase db, String tableName, ContentValues values, Uri uri) {
+    int retryCount = 0;
+
+    while (retryCount < MAX_RETRY_COUNT) {
         try {
             long id = db.insertOrThrow(tableName, null, values);
-            android.util.Log.d("ScreeningFormProvider", "Successfully inserted ID: " + id + " into " + tableName);
+            Log.d(TAG, "Successfully inserted ID: " + id + " into " + tableName);
             return id;
+
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            Log.w(TAG, "Database is read-only (attempt " + (retryCount + 1) + "), trying to reconnect", e);
+
+            // ทำเครื่องหมายว่าต้อง reconnect
+            mDatabaseNeedsReconnect = true;
+
+            // พยายาม reconnect
+            reconnectDatabase();
+
+            // ได้ database connection ใหม่
+            if (!mDatabaseNeedsReconnect) {
+                try {
+                    db = mOpenHelper.getWritableDatabase();
+                    retryCount++;
+                    continue; // ลองอีกครั้ง
+                } catch (Exception reconnectException) {
+                    Log.e(TAG, "Failed to get new database connection", reconnectException);
+                }
+            }
+
+            retryCount++;
+            if (retryCount >= MAX_RETRY_COUNT) {
+                String errorMsg = "Database error inserting into " + tableName +
+                        " after " + MAX_RETRY_COUNT + " retries: " + e.getMessage() +
+                        "\nURI: " + uri +
+                        "\nValues: " + (values != null ? values.toString() : "null");
+                Log.e(TAG, errorMsg, e);
+                throw new SQLException(errorMsg, e);
+            }
+
+            // รอสักครู่ก่อนลองใหม่
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+
         } catch (SQLException e) {
             String errorMsg = "Database error inserting into " + tableName + ": " + e.getMessage() +
                     "\nURI: " + uri +
                     "\nValues: " + (values != null ? values.toString() : "null");
-            android.util.Log.e("ScreeningFormProvider", errorMsg, e);
+            Log.e(TAG, errorMsg, e);
             throw new SQLException(errorMsg, e);
+        }
+    }
+
+    throw new SQLException("Failed to insert after " + MAX_RETRY_COUNT + " retries");
+}
+
+
+    private boolean isDatabaseHealthy() {
+        try {
+            if (mOpenHelper == null) {
+                return false;
+            }
+
+            SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+            if (db == null || !db.isOpen()) {
+                return false;
+            }
+
+            // ทดสอบด้วย query ง่ายๆ
+            Cursor cursor = db.rawQuery("SELECT 1", null);
+            if (cursor != null) {
+                cursor.close();
+                return true;
+            }
+            return false;
+
+        } catch (Exception e) {
+            Log.w(TAG, "Database health check failed", e);
+            return false;
+        }
+    }
+    private void reconnectDatabase() {
+        try {
+            Log.i(TAG, "Attempting to reconnect database...");
+
+            if (mOpenHelper != null) {
+                mOpenHelper.close();
+            }
+
+            // สร้าง helper ใหม่
+            mOpenHelper = new DbOpenHelper(getContext());
+
+            // ทดสอบการเชื่อมต่อ
+            SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+            if (db != null && db.isOpen()) {
+                Log.i(TAG, "Database reconnected successfully");
+                mDatabaseNeedsReconnect = false;
+            } else {
+                Log.e(TAG, "Failed to reconnect database");
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error reconnecting database", e);
+            mDatabaseNeedsReconnect = true;
+        }
+    }
+    private void ensureDatabaseConnection() {
+        if (mDatabaseNeedsReconnect || !isDatabaseHealthy()) {
+            Log.i(TAG, "Database unhealthy, reconnecting...");
+            reconnectDatabase();
         }
     }
     @Override
@@ -564,6 +806,7 @@ public class ScreeningResultCodeProvider extends ContentProvider {
 
             return hasAbnormal;
         }
+
     }
 
     /**
@@ -618,5 +861,7 @@ public class ScreeningResultCodeProvider extends ContentProvider {
                     ", status='" + status + '\'' +
                     '}';
         }
+
     }
+
 }

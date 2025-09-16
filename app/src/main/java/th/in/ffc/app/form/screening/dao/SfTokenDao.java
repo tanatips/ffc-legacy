@@ -11,6 +11,7 @@ import java.util.List;
 
 import th.in.ffc.app.form.screening.model.SfToken;
 import th.in.ffc.provider.ScreeningFormProvider;
+import th.in.ffc.util.DateConverter;
 
 public class SfTokenDao {
     private Context mContext;
@@ -122,8 +123,8 @@ public class SfTokenDao {
         token.setId((int) cursor.getLong(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.ID)));
         token.setTokenAuth(cursor.getString(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.TOKEN_AUTH)));
         token.setTokenClaim(cursor.getString(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.TOKEN_CLAIM)));
-        token.setCreatedDate(cursor.getLong(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.CREATED_DATE)));
-        token.setUpdatedDate(cursor.getLong(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.UPDATED_DATE)));
+        token.setCreatedDate(cursor.getString(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.CREATED_DATE)));
+        token.setUpdatedDate(cursor.getString(cursor.getColumnIndexOrThrow(ScreeningFormProvider.SfToken.UPDATED_DATE)));
         return token;
     }
     public void insertDefaultTokenIfEmpty() {
@@ -145,8 +146,8 @@ public class SfTokenDao {
             SfToken defaultToken = new SfToken();
             defaultToken.setTokenAuth("34913796-e515-4b33-9656-6a2eb64ef569");
             defaultToken.setTokenClaim("0b749fef-b348-4072-94f6-2a62cce6f7ac");
-            defaultToken.setCreatedDate(System.currentTimeMillis());
-            defaultToken.setUpdatedDate(System.currentTimeMillis());
+            defaultToken.setCreatedDate(DateConverter.getCurrentWesternDateTime());
+            defaultToken.setUpdatedDate(DateConverter.getCurrentWesternDateTime());
 
             insert(defaultToken);
         }

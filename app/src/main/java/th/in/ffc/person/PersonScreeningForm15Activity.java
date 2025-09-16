@@ -3938,7 +3938,8 @@ private String getCardiovascularRiskSummary(Integer personId) {
                         person.getRightCode(),
                         person.getRightNo(),
                         visitData.symptomsco,                               // symptomsco
-                        visitData.vitalcheck
+                        visitData.vitalcheck,
+                        personInfo.getAuthen_code()
                 );
                 if (visitId > 0) {
                     this.personInfo.setVisitNo(String.valueOf(visitId));
@@ -3964,7 +3965,8 @@ private String getCardiovascularRiskSummary(Integer personId) {
                         person.getRightNo(),
                         userSessionManager.getUsername(),
                         visitData.symptomsco,                               // symptomsco
-                        visitData.vitalcheck
+                        visitData.vitalcheck,
+                        this.personInfo.getAuthen_code()
                 );
 
             }

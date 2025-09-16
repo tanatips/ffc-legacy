@@ -200,7 +200,8 @@ public class VisitDao {
                                            String rightCode,
                                            String rightNo,
                                            String symptomsco,
-                                           String vitalcheck
+                                           String vitalcheck,
+                                           String claimcode_nhso
                                            ) {
 
         // สร้าง Visit ใหม่
@@ -249,7 +250,7 @@ public class VisitDao {
             vitalValues.put(Visit.HEALTHSUGGEST1, healthsuggest1);
             vitalValues.put(Visit.RIGHT_CODE, rightCode);
             vitalValues.put(Visit.RIGHT_NO, rightNo);
-
+            vitalValues.put(Visit.CLAIM_CODE_NHSO, claimcode_nhso);
 
             // คำนวณค่า BMI ถ้ามีข้อมูลน้ำหนักและส่วนสูง
             if (weight > 0 && height > 0) {
@@ -304,7 +305,8 @@ public class VisitDao {
                            String rightNo,
                            String username,
                            String symptomsco,
-                           String vitalcheck
+                           String vitalcheck,
+                           String claimcode_nhso
 
     ) {
 
@@ -326,6 +328,7 @@ public class VisitDao {
         values.put(Visit.RIGHT_CODE, rightCode);
         values.put(Visit.RIGHT_NO, rightNo);
         values.put(Visit.USERNAME,username);
+        values.put(Visit.CLAIM_CODE_NHSO, claimcode_nhso);
 
         // อัพเดทค่า BMI ถ้ามีข้อมูลน้ำหนักและส่วนสูง
         if (weight > 0 && height > 0) {
@@ -634,6 +637,93 @@ public class VisitDao {
         }
         return "0"; // ไม่สามารถคำนวณได้
     }
+    /**
+     * อัพเดทข้อมูลการเคลมสิทธิ์ NHSO
+     *
+     * @param visitNo รหัสการเยี่ยม
+     * @param pcucode รหัส PCU
+     * @param claimCodeNhso รหัสการเคลม NHSO
+     * @param datetimeClaim วันเวลาที่เคลม
+     * @return จำนวนแถวที่อัพเดท
+     */
+    public int updateClaimNhsoInfo(long visitNo, String pcucode, String claimCodeNhso, String datetimeClaim) {
+        ContentValues values = new ContentValues();
 
+        // ข้อมูลการเคลม NHSO
+        if (claimCodeNhso != null && !claimCodeNhso.isEmpty()) {
+            values.put(Visit.CLAIM_CODE_NHSO, claimCodeNhso);
+        }
+        if (datetimeClaim != null && !datetimeClaim.isEmpty()) {
+            values.put(Visit.DATETIME_CLAIM, datetimeClaim);
+        }
+
+        // อัพเดทเวลาที่มีการแก้ไข
+        values.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
+
+        // เงื่อนไขในการอัพเดท: ใช้ visitno และ pcucode เป็น key
+        String selection = Visit.NO + "=? AND " + Visit.PCUCODE + "=?";
+        String[] selectionArgs = {String.valueOf(visitNo), pcucode};
+
+        return mResolver.update(Visit.CONTENT_URI, values, selection, selectionArgs);
+    }
+
+    /**
+     * อัพเดทรหัสการเคลม NHSO เท่านั้น
+     *
+     * @param visitNo รหัสการเยี่ยม
+     * @param pcucode รหัส PCU
+     * @param claimCodeNhso รหัสการเคลม NHSO
+     * @return จำนวนแถวที่อัพเดท
+     */
+    public int updateClaimCodeNhso(long visitNo, String pcucode, String claimCodeNhso) {
+        ContentValues values = new ContentValues();
+        values.put(Visit.CLAIM_CODE_NHSO, claimCodeNhso);
+        values.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
+
+        String selection = Visit.NO + "=? AND " + Visit.PCUCODE + "=?";
+        String[] selectionArgs = {String.valueOf(visitNo), pcucode};
+
+        return mResolver.update(Visit.CONTENT_URI, values, selection, selectionArgs);
+    }
+
+    /**
+     * อัพเดทวันเวลาการเคลมเท่านั้น
+     *
+     * @param visitNo รหัสการเยี่ยม
+     * @param pcucode รหัส PCU
+     * @param datetimeClaim วันเวลาที่เคลม
+     * @return จำนวนแถวที่อัพเดท
+     */
+    public int updateDatetimeClaim(String visitNo, String pcucode, String datetimeClaim) {
+        ContentValues values = new ContentValues();
+        values.put(Visit.DATETIME_CLAIM, datetimeClaim);
+        values.put(Visit.UPDATE, DateConverter.getCurrentWesternDateTime());
+
+        String selection = Visit.NO + "=? AND " + Visit.PCUCODE + "=?";
+        String[] selectionArgs = {String.valueOf(visitNo), pcucode};
+
+        return mResolver.update(Visit.CONTENT_URI, values, selection, selectionArgs);
+    }
+
+    /**
+     * ดึงข้อมูลการเคลม NHSO ตาม visitno และ pcucode
+     *
+     * @param visitNo รหัสการเยี่ยม
+     * @param pcucode รหัส PCU
+     * @return Cursor ที่มีข้อมูลการเคลม หรือ null ถ้าไม่พบข้อมูล
+     */
+    public Cursor getClaimNhsoInfo(long visitNo, String pcucode) {
+        String selection = Visit.NO + "=? AND " + Visit.PCUCODE + "=?";
+        String[] selectionArgs = {String.valueOf(visitNo), pcucode};
+        String[] projection = {
+                Visit.NO,
+                Visit.PCUCODE,
+                Visit.CLAIM_CODE_NHSO,
+                Visit.DATETIME_CLAIM,
+                Visit.UPDATE
+        };
+
+        return mResolver.query(Visit.CONTENT_URI, projection, selection, selectionArgs, null);
+    }
 
 }
