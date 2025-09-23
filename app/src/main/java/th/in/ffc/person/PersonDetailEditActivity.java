@@ -45,6 +45,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -211,6 +212,7 @@ public class PersonDetailEditActivity extends PersonActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     byte[] byteArray = data.getByteArrayExtra("image");
                     String strIdcard = data.getStringExtra("result");
+                    String gender = data.getStringExtra("gender");
                     Bitmap bitmap = null;;
 //                    if (byteArray != null) {
 //                        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
@@ -230,10 +232,19 @@ public class PersonDetailEditActivity extends PersonActivity {
                         f.fname.setText(idcardInfo[2].toString());
                         f.lname.setText(idcardInfo[4].toString());
 //                        f.hno.setText(idcardInfo[9].toString());
-                        if(idcardInfo[1].toString().equals("นาย") || idcardInfo[1].toString().equals("Mr.")) {
-                            f.sex.findViewById(R.id.male).setActivated(true);
-                        } else {
-                            f.sex.findViewById(R.id.female).setActivated(true);
+//                        if(idcardInfo[1].toString().equals("นาย") || idcardInfo[1].toString().equals("Mr.")) {
+//                            f.sex.findViewById(R.id.male).setActivated(true);
+//                        } else {
+//                            f.sex.findViewById(R.id.female).setActivated(true);
+//                        }
+                        RadioButton male =  f.sex.findViewById(R.id.male);
+                        RadioButton female =  f.sex.findViewById(R.id.female);
+                        if(gender.equals("1")){
+                           male.setChecked(true);
+                           female.setChecked(false);
+                        } else if(gender.equals("2")){
+                            male.setChecked(false);
+                            female.setChecked(true);
                         }
                         String[] prenameArray = getResources().getStringArray(R.array.prename);
                         String defaultValue = idcardInfo[1];
