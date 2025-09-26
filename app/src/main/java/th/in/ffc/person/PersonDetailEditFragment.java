@@ -43,6 +43,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -295,6 +296,7 @@ public class PersonDetailEditFragment extends PersonFragment implements
                     mCitizenID = s.toString();
                     getActivity().getSupportLoaderManager().restartLoader(2,
                             null, PersonDetailEditFragment.this);
+                    loadPersonImage();
                 } else {
                     isUseableId = false;
                 }
@@ -542,6 +544,25 @@ public class PersonDetailEditFragment extends PersonFragment implements
                     "subdistcode=? AND distcode='" + c.getString(4)
                             + "' AND provcode='" + c.getShort(5) + "'");
             postcode.setText(c.getString(6));
+        }
+    }
+    private void loadPersonImage() {
+        String citizenIdText = citizenId.getText().toString();
+        if (!TextUtils.isEmpty(citizenIdText)) {
+            try {
+                // โหลดรูปภาพจาก ProfileImage utility
+                Bitmap bitmap = ProfileImage.loadImageFromStorage(getContext(), citizenIdText);
+                if (bitmap != null) {
+                    imgPerson.setImageBitmap(bitmap);
+                } else {
+                    // ตั้งรูปภาพ default หากไม่มีรูปภาพ
+//                    imgPerson.setImageResource(R.drawable.ic_person_placeholder); // แทนที่ด้วย drawable ของคุณ
+                }
+            } catch (Exception e) {
+                // กรณีเกิด error ในการโหลดรูปภาพ
+                Log.w("PersonDetailEdit", "Error loading person image: " + e.getMessage());
+//                imgPerson.setImageResource(R.drawable.ic_person_placeholder); // แทนที่ด้วย drawable ของคุณ
+            }
         }
     }
 }

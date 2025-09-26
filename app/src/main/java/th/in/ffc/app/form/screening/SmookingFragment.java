@@ -1957,4 +1957,69 @@ public class SmookingFragment extends Fragment {
 
         return "😐"; // default
     }
+    /**
+     * ตรวจสอบว่าข้อมูลที่กรอกสอดคล้องกับคะแนนหรือไม่
+     */
+    public boolean isDataConsistentWithScore() {
+        if (tvSmokingScore == null || tvSmokingScore.getText().toString().equals("-")) {
+            return true; // ถ้ายังไม่มีคะแนน ถือว่าสอดคล้อง
+        }
+
+        try {
+            int score = Integer.parseInt(tvSmokingScore.getText().toString());
+
+            // ตรวจสอบความสอดคล้อง
+            if (score >= 0 && score <= 3) {
+                // คะแนน 0-3: ควรเป็นไม่สูบหรือเคยสูบแต่ไม่ใช่ในช่วง 3 เดือนที่ผ่านมา
+                if (!"1".equals(smokerInfo.getSmokerGroup()) && !"2".equals(smokerInfo.getSmokerGroup())) {
+                    Log.w(TAG, "คะแนน " + score + " แต่ไม่ได้เลือก 'ไม่สูบ' หรือ 'เคยสูบแต่เลิกแล้ว'");
+                    return false;
+                }
+            } else if (score >= 4 && score <= 26) {
+                // คะแนน 4-26: ควรเป็นสูบบุหรี่เป็นประจำ แต่ไม่ใช่ความเสี่ยงสูงสุด
+                if (!"3".equals(smokerInfo.getSmokerGroup())) {
+                    Log.w(TAG, "คะแนน " + score + " แต่ไม่ได้เลือก 'สูบบุหรี่เป็นประจำ'");
+                    return false;
+                }
+
+                // ตรวจสอบว่าไม่ควรเป็นความเสี่ยงสูงสุด
+                if ("3".equals(smokerInfo.getSmokerAssist()) && "3".equals(smokerInfo.getSmokerRegularly())) {
+                    Log.w(TAG, "คะแนน " + score + " แต่เลือกตัวเลือกที่มีความเสี่ยงสูงสุด");
+                    return false;
+                }
+            } else if (score >= 27) {
+                // คะแนน 27+: ควรเป็นสูบบุหรี่เป็นประจำ + ความเสี่ยงสูง
+                if (!"3".equals(smokerInfo.getSmokerGroup()) ||
+                        !"3".equals(smokerInfo.getSmokerAssist())) {
+                    Log.w(TAG, "คะแนน " + score + " แต่ไม่ได้เลือกตัวเลือกที่มีความเสี่ยงสูง");
+                    return false;
+                }
+            }
+
+            // ตรวจสอบความสอดคล้องแบบกลับกัน (จากการเลือกไปหาคะแนน)
+            if ("1".equals(smokerInfo.getSmokerGroup()) && score > 3) {
+                Log.w(TAG, "เลือก 'ไม่สูบ' แต่มีคะแนน " + score);
+                return false;
+            }
+
+            if ("2".equals(smokerInfo.getSmokerGroup()) && score > 3) {
+                Log.w(TAG, "เลือก 'เคยสูบแต่เลิกแล้ว' แต่มีคะแนน " + score);
+                return false;
+            }
+
+            if ("3".equals(smokerInfo.getSmokerGroup()) &&
+                    "3".equals(smokerInfo.getSmokerAssist()) &&
+                    "3".equals(smokerInfo.getSmokerRegularly()) &&
+                    score < 27) {
+                Log.w(TAG, "เลือกตัวเลือกความเสี่ยงสูงสุด แต่คะแนนต่ำกว่า 27: " + score);
+                return false;
+            }
+
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "ไม่สามารถตรวจสอบความสอดคล้องได้: " + e.getMessage());
+            return true; // ถ้าไม่สามารถแปลงคะแนนได้ ให้ถือว่าสอดคล้อง
+        }
+
+        return true; // ข้อมูลสอดคล้องกัน
+    }
 }

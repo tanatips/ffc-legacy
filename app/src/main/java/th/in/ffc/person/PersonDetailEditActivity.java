@@ -33,6 +33,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -45,6 +48,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
@@ -146,6 +150,14 @@ public class PersonDetailEditActivity extends PersonActivity {
                     int update = et.commit(Person.CONTENT_URI, selection, selectionArgs);
                     Log.d(TAG, "update=" + update);
                 }
+
+                Bitmap bitmap = imageViewToBitmap(f.imgPerson);
+                if (bitmap != null) {
+                    ProfileImage.saveImageToStorage(getApplicationContext(), bitmap, f.citizenId.getText().toString());
+                } else {
+                    Log.w(TAG, "No image to save");
+                }
+
                 this.finish();
             } else {
 
@@ -153,7 +165,39 @@ public class PersonDetailEditActivity extends PersonActivity {
 
         }
     }
+    public Bitmap imageViewToBitmap(ImageView imageView) {
+        // ตรวจสอบว่า imageView และ drawable ไม่เป็น null
+        if (imageView == null) {
+            Log.w(TAG, "ImageView is null");
+            return null;
+        }
 
+        Drawable drawable = imageView.getDrawable();
+        if (drawable == null) {
+            Log.w(TAG, "Drawable is null, ImageView has no image");
+            return null;
+        }
+
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        } else {
+            // ตรวจสอบขนาดของ drawable
+            int width = drawable.getIntrinsicWidth();
+            int height = drawable.getIntrinsicHeight();
+
+            if (width <= 0 || height <= 0) {
+                Log.w(TAG, "Invalid drawable dimensions: " + width + "x" + height);
+                return null;
+            }
+
+            // สร้าง bitmap จาก drawable
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        }
+    }
     public interface Saveable {
         /**
          * @param et

@@ -446,11 +446,16 @@ public class FormDialogFragment extends DialogFragment {
                         errorMessage = "กรุณากรอกข้อมูลการสูบบุหรี่ให้ครบถ้วน";
                     }
                 } else {
-                    // เมื่อข้อมูลครบถ้วน ให้บันทึกลง ScreeningResultCode
-                    boolean saveSuccess = saveSmokingToDatabase(smokingFragment, activity);
-                    if (!saveSuccess) {
+                    if (!smokingFragment.isDataConsistentWithScore()) {
                         isFormValid = false;
-                        errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมินการสูบบุหรี่ กรุณาลองใหม่อีกครั้ง";
+                        errorMessage = "ข้อมูลที่เลือกไม่สอดคล้องกับคะแนนประเมิน\nกรุณาตรวจสอบและแก้ไขให้ถูกต้อง";
+                    } else {
+                        // เมื่อข้อมูลครบถ้วนและถูกต้อง ให้บันทึกลง ScreeningResultCode
+                        boolean saveSuccess = saveSmokingToDatabase(smokingFragment, activity);
+                        if (!saveSuccess) {
+                            isFormValid = false;
+                            errorMessage = "เกิดข้อผิดพลาดในการบันทึกผลการประเมินการสูบบุหรี่ กรุณาลองใหม่อีกครั้ง";
+                        }
                     }
                 }
             } else if (contentFragment instanceof FagerstromNicotineFragment) {
