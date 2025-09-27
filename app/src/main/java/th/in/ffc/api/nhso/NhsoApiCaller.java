@@ -213,10 +213,10 @@ public class NhsoApiCaller {
             }
 
             // ถ้าไม่พบ token ให้ใช้ค่า default
-            return "34913796-e515-4b33-9656-6a2eb64ef569";
+            return  null;
         } catch (Exception e) {
             Log.e(TAG, "Error getting token", e);
-            return "34913796-e515-4b33-9656-6a2eb64ef569";
+            return null;
         }
     }
 
